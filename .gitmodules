@@ -1,0 +1,9 @@
+[submodule "libraries/SDL"]
+	path = libraries/SDL
+	url = https://github.com/SDL-mirror/SDL.git
+[submodule "https://github.com/zachrammell/EASTL.git"]
+	path = https://github.com/zachrammell/EASTL.git
+	url = libraries/EASTL
+[submodule "libraries/EASTL"]
+	path = libraries/EASTL
+	url = https://github.com/zachrammell/EASTL.git
