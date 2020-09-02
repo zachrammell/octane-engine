@@ -33,6 +33,12 @@ target_include_directories(
 
 target_link_libraries(
   ${PROJECT_OCTANE}
+# system libraries
+  user32
+  d3d11
+  dxgi
+  d3dcompiler
+# external libraries
   SDL2-static
   EASTL
 )

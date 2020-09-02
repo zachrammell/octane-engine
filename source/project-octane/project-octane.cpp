@@ -1,5 +1,9 @@
 ﻿#include "project-octane/project-octane.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <d3d11.h>
+
 #include <iostream>
 
 #define SDL_MAIN_HANDLED
@@ -20,8 +24,9 @@ void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, cons
 
 int main(int argc, char* argv[])
 {
-	// must be the first thing, for SDL2 initialization
+	// must be the first thing in main, for SDL2 initialization
 	SDL_SetMainReady();
+	SDL_Init(SDL_INIT_EVERYTHING);
 
 	std::cout << "[== Project Octane ==]\n";
 
@@ -39,5 +44,7 @@ int main(int argc, char* argv[])
 	}
 	std::cout << "\n";
 
+
+	SDL_Quit();
 	return 0;
 }
