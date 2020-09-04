@@ -23,7 +23,7 @@ file(GLOB_RECURSE OCTANE_SOURCE CONFIGURE_DEPENDS
 )
 
 # Add source to this project's executable.
-add_executable(${PROJECT_OCTANE} ${OCTANE_SOURCE})
+add_executable(${PROJECT_OCTANE} ${OCTANE_SOURCE} "source/project-octane/math.h" "source/project-octane/rigidbody.h" "source/project-octane/rigidbody.cpp" "source/project-octane/mass_data.h")
 
 target_include_directories(
   ${PROJECT_OCTANE}
