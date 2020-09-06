@@ -3,9 +3,16 @@
 #
 cmake_minimum_required(VERSION 3.12)
 
-set(PROJECT_OCTANE "project-octane")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(${PROJECT_OCTANE})
+set(OCTANE_LIB "octane-lib")
+set(OCTANE_GAME "octane-game")
+set(OCTANE_TEST "octane-test")
+
+project(${OCTANE_LIB})
+project(${OCTANE_GAME})
+project(${OCTANE_TEST})
 
 # Handle building libraries
 set(BUILD_STATIC_LIBS ON)
@@ -17,22 +24,19 @@ add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 
 
-file(GLOB_RECURSE OCTANE_SOURCE CONFIGURE_DEPENDS
-  "source/project-octane/**.cpp"
-  "source/project-octane/**.h"
+file(GLOB_RECURSE OCTANE_LIB_SOURCE CONFIGURE_DEPENDS
+  "source/OctaneEngine/**.cpp"
+  "source/OctaneEngine/**.h"
 )
 
-# Add source to this project's executable.
-add_executable(${PROJECT_OCTANE} ${OCTANE_SOURCE} "source/project-octane/math.h" "source/project-octane/rigidbody.h" "source/project-octane/rigidbody.cpp" "source/project-octane/mass_data.h")
+# Add source to the library
+add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
 
-target_include_directories(
-  ${PROJECT_OCTANE}
-  PRIVATE "source"
-  PUBLIC ${SDL2_INCLUDE_DIR}
+target_include_directories(${OCTANE_LIB} PRIVATE
+  "source"
 )
 
-target_link_libraries(
-  ${PROJECT_OCTANE}
+target_link_libraries(${OCTANE_LIB} PRIVATE
 # system libraries
   user32
   d3d11
@@ -43,7 +47,40 @@ target_link_libraries(
   EASTL
 )
 
-target_compile_options(
-  ${PROJECT_OCTANE}
-  PRIVATE "/Gr-"
+target_compile_options(${OCTANE_LIB} PRIVATE 
+  "/Gr-"
+)
+
+
+file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
+  "source/OctaneGame/**.cpp"
+  "source/OctaneGame/**.h"
+)
+
+add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE})
+
+target_include_directories(${OCTANE_GAME} PRIVATE
+  "source"
+)
+
+target_link_libraries(${OCTANE_GAME} PRIVATE
+  ${OCTANE_LIB}
+  SDL2-static
+  EASTL
+)
+
+file(GLOB_RECURSE OCTANE_TEST_SOURCE CONFIGURE_DEPENDS
+  "source/OctaneTest/**.cpp"
+  "source/OctaneTest/**.h"
+)
+
+add_executable(${OCTANE_TEST} ${OCTANE_TEST_SOURCE})
+
+target_include_directories(${OCTANE_TEST} PRIVATE
+  "source"
+  "libraries/catch2/include"
+)
+
+target_link_libraries(${OCTANE_TEST} PRIVATE
+  ${OCTANE_LIB}
 )
