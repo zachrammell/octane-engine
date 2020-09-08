@@ -4,3 +4,5 @@ out/*
 
 # keep the target launch properties
 !.vs/launch.vs.json
+
+Folder.DotSettings.user
