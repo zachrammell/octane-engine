@@ -36,10 +36,10 @@ int main(int argc, char* argv[]) noexcept
   }
   else
   {
-    int window_width  = 640;
-    int window_height = 480;
+    int window_width  = 1280;
+    int window_height = 720;
     //Create window
-    window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("[== Project Octane ==]", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_width, window_height, SDL_WINDOW_SHOWN);
     if (window == nullptr)
     {
       std::cout << "Window could not be created! SDL_Error:" << SDL_GetError() << "\n";
@@ -48,12 +48,27 @@ int main(int argc, char* argv[]) noexcept
     {
       //Get window surface
       surface = SDL_GetWindowSurface(window);
-      //Fill the surface white
-      SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
-      //Update the surface
-      SDL_UpdateWindowSurface(window);
-      //Wait 2 seconds
-      SDL_Delay(2000);
+      //Main loop flag
+      bool quit = false;
+      //Event handler
+      SDL_Event e;
+      //While application is running
+      while (!quit)
+      {
+        //Handle events on queue
+        while (SDL_PollEvent(&e) != 0)
+        {
+          //User requests quit
+          if (e.type == SDL_QUIT)
+          {
+            quit = true;
+          }
+        }
+        //Fill the surface white
+        SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+        //Update the surface
+        SDL_UpdateWindowSurface(window);
+      }
     }
   }
   std::cout << "[== Project Octane ==]\n";
