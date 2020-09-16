@@ -7,3 +7,6 @@
 [submodule "libraries/EASTL"]
 	path = libraries/EASTL
 	url = https://github.com/zachrammell/EASTL.git
+[submodule "libraries/imgui"]
+	path = libraries/imgui
+	url = https://github.com/ocornut/imgui.git
