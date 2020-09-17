@@ -6,3 +6,5 @@ out/*
 !.vs/launch.vs.json
 
 Folder.DotSettings.user
+
+imgui.ini

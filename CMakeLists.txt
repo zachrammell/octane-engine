@@ -14,6 +14,10 @@ project(${OCTANE_LIB})
 project(${OCTANE_GAME})
 project(${OCTANE_TEST})
 
+# Put everything in the same folder so that we don't need to copy DLLs around
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Handle building libraries
 set(BUILD_STATIC_LIBS ON)
 
@@ -27,19 +31,19 @@ target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 set(IMGUI_DIR "libraries/imgui")
 set(IMGUI_INCLUDE_DIR ${IMGUI_DIR} "${IMGUI_DIR}/examples")
 file(GLOB IMGUI_SRC "${IMGUI_DIR}/*.cpp")
-# Append IMGUI SRC with dx11 and win32
+# Append IMGUI SRC with dx11 and SDL
 set(IMGUI_SRC
   ${IMGUI_SRC}
   ${IMGUI_DIR}/examples/imgui_impl_dx11.cpp
-  ${IMGUI_DIR}/examples/imgui_impl_win32.cpp)
+  ${IMGUI_DIR}/examples/imgui_impl_sdl.cpp)
 add_library(IMGUI ${IMGUI_SRC})
-target_include_directories(IMGUI INTERFACE ${IMGUI_INCLUDE_DIR})
+target_include_directories(IMGUI PUBLIC ${IMGUI_INCLUDE_DIR})
 target_link_libraries(IMGUI
   PRIVATE
-  user32
   d3d11
   dxgi
   d3dcompiler
+  SDL2
 )
 
 file(GLOB_RECURSE OCTANE_LIB_SOURCE CONFIGURE_DEPENDS
@@ -61,7 +65,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   dxgi
   d3dcompiler
 # external libraries
-  SDL2-static
+  SDL2
   EASTL
   IMGUI
 )
@@ -84,8 +88,9 @@ target_include_directories(${OCTANE_GAME} PRIVATE
 
 target_link_libraries(${OCTANE_GAME} PRIVATE
   ${OCTANE_LIB}
-  SDL2-static
+  SDL2
   EASTL
+  IMGUI
 )
 
 file(GLOB_RECURSE OCTANE_TEST_SOURCE CONFIGURE_DEPENDS

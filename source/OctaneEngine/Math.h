@@ -31,4 +31,16 @@ inline DirectX::XMFLOAT3X3 OuterProduct(const DirectX::XMFLOAT3& lhs, const Dire
                             );
 }
 
+template<typename... T>
+auto sum(T... args)
+{
+  return (args + ...);
+}
+
+template<typename... T>
+auto avg(T... args)
+{
+  return sum(args...) / sizeof...(args);
+}
+
 }
