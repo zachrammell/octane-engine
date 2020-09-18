@@ -10,9 +10,7 @@ set(OCTANE_LIB "octane-lib")
 set(OCTANE_GAME "octane-game")
 set(OCTANE_TEST "octane-test")
 
-project(${OCTANE_LIB})
-project(${OCTANE_GAME})
-project(${OCTANE_TEST})
+project("Octane")
 
 # Put everything in the same folder so that we don't need to copy DLLs around
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -8,3 +8,5 @@ out/*
 Folder.DotSettings.user
 
 imgui.ini
+
+CMakeSettings.json
