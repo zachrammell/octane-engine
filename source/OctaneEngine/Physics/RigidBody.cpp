@@ -78,4 +78,14 @@ void RigidBody::UpdateOrientation()
   inverse_orientation_ = DirectX::XMQuaternionNormalize(inverse_orientation_);
 }
 
+void RigidBody::SetLinearConstraints(const DirectX::XMFLOAT3& linear_constraints)
+{
+  linear_constraints_ = XMLoadFloat3(&linear_constraints);
+}
+
+void RigidBody::SetAngularConstraints(const DirectX::XMFLOAT3& angular_constraints)
+{
+  angular_constraints_ = XMLoadFloat3(&angular_constraints);
+}
+
 } // namespace Octane
