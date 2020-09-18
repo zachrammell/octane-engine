@@ -31,6 +31,17 @@ inline DirectX::XMFLOAT3X3 OuterProduct(const DirectX::XMFLOAT3& lhs, const Dire
                             );
 }
 
+inline DirectX::XMVECTOR Rotate(const DirectX::XMVECTOR& orientation, const DirectX::XMVECTOR& vector3)
+{
+  DirectX::XMVECTOR inverse = DirectX::XMQuaternionInverse(orientation);
+  return DirectX::XMVectorSetW(DirectX::XMQuaternionMultiply(inverse, DirectX::XMQuaternionMultiply(vector3, orientation)), 0.0f);
+}
+
+inline DirectX::XMVECTOR Rotate(const DirectX::XMVECTOR& inverse_orientation, const DirectX::XMVECTOR& orientation, const DirectX::XMVECTOR& vector3)
+{
+  return DirectX::XMVectorSetW(DirectX::XMQuaternionMultiply(inverse_orientation, DirectX::XMQuaternionMultiply(vector3, orientation)), 0.0f);
+}
+
 template<typename... T>
 auto sum(T... args)
 {

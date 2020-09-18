@@ -11,11 +11,11 @@ struct MassData
   float inverse_mass = 1.0f;
 
   //center of mass
-  DirectX::XMFLOAT3 local_centroid;
+  DirectX::XMVECTOR local_centroid; //vector3
 
   //inertia
-  DirectX::XMFLOAT3X3 local_inertia;
-  DirectX::XMFLOAT3X3 local_inverse_inertia;
+  DirectX::XMMATRIX local_inertia; //matrix3x3
+  DirectX::XMMATRIX local_inverse_inertia; //matrix3x3
 };
 
 }

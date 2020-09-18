@@ -14,25 +14,38 @@ public:
 
   void Integrate(float dt);
 
+  void ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOAT3& at);
+  void ApplyForceCentroid(const DirectX::XMFLOAT3& force);
+  void ApplyTorque(const DirectX::XMFLOAT3& torque);
+
+
+  void UpdateCentroid();
+  void UpdatePosition();
+  void UpdateInertia();
+  void UpdateOrientation();
+
 private:
   //linear data - positional
-  DirectX::XMFLOAT3 position_;
-  DirectX::XMFLOAT3 linear_velocity_;
-  DirectX::XMFLOAT3 force_accumulator_;
-  DirectX::XMFLOAT3 linear_constraints_;
+  DirectX::XMVECTOR position_;           //vector3
+  DirectX::XMVECTOR linear_velocity_;    //vector3
+  DirectX::XMVECTOR force_accumulator_;  //vector3
+  DirectX::XMVECTOR linear_constraints_; //vector3
 
   //angular data - rotational
-  DirectX::XMFLOAT4 orientation_;
-  DirectX::XMFLOAT4 inverse_orientation_;
-  DirectX::XMFLOAT3 angular_velocity_;
-  DirectX::XMFLOAT3 torque_accumulator_;
-  DirectX::XMFLOAT3 angular_constraints_;
+  DirectX::XMVECTOR orientation_;         //quaternion
+  DirectX::XMVECTOR inverse_orientation_; //quaternion
+  DirectX::XMVECTOR angular_velocity_;    //vector3
+  DirectX::XMVECTOR torque_accumulator_;  //vector3
+  DirectX::XMVECTOR angular_constraints_; //vector3
 
   //mass data
   MassData            mass_data_;
-  DirectX::XMFLOAT3   global_centroid_;
-  DirectX::XMFLOAT3X3 global_inertia_;
-  DirectX::XMFLOAT3X3 global_inverse_inertia_;
+  DirectX::XMVECTOR   global_centroid_;      //vector3
+  DirectX::XMMATRIX global_inertia_;         //matrix3x3
+  DirectX::XMMATRIX global_inverse_inertia_; //matrix3x3
+
+  //tool
+  const DirectX::XMFLOAT3 zero_vector_;
 };
 
 }
