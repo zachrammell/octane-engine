@@ -2,6 +2,13 @@
 .vs/*
 out/*
 
+# same for clion files
+.idea
+
+# cmake build artifacts
+
+cmake-build*
+
 # keep the target launch properties
 !.vs/launch.vs.json
 
