@@ -7,6 +7,8 @@
 #include <SDL.h>
 #include <SDL_syswm.h>
 
+#include <filesystem>
+
 namespace Octane
 {
 
@@ -190,6 +192,11 @@ void RenderDX11::ResizeFramebuffer(SDL_Window* window)
 
 Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
 {
+  if (!std::filesystem::exists(shader_path))
+  {
+    assert(!"Shader file does not exist");
+  }
+
   HRESULT hr;
   ID3DBlob* error_buffer = nullptr;
 
