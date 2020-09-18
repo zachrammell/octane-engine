@@ -29,12 +29,12 @@ public:
   void Present();
   void ResizeFramebuffer(SDL_Window* window);
 
-  [[nodiscard]]
-  Shader CreateShader(LPCWSTR shader_path, int input_layout);
+  [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);
 
   ID3D11Device* GetD3D11Device() const;
   ID3D11DeviceContext* GetD3D11Context() const;
+
 private:
   winrt::com_ptr<IDXGISwapChain> swap_chain_;
   winrt::com_ptr<ID3D11Device> device_;
@@ -50,4 +50,4 @@ private:
   void ClearBuffers();
 };
 
-}
+} // namespace Octane

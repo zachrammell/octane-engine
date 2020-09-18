@@ -10,7 +10,7 @@ struct Mesh
   struct Vertex
   {
     DirectX::XMFLOAT3 position = {};
-    DirectX::XMFLOAT3 normal = {};
+    DirectX::XMFLOAT3 normal   = {};
   };
   using Index = uint32_t;
 
@@ -28,4 +28,4 @@ public:
   Mesh ParseOBJ(wchar_t const* filepath);
 };
 
-}
+} // namespace Octane

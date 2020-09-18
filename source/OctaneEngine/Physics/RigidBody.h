@@ -1,7 +1,7 @@
 #pragma once
 
-#include <OctaneEngine/Physics/MassData.h>
 #include <DirectXMath.h>
+#include <OctaneEngine/Physics/MassData.h>
 
 namespace Octane
 {
@@ -17,7 +17,6 @@ public:
   void ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOAT3& at);
   void ApplyForceCentroid(const DirectX::XMFLOAT3& force);
   void ApplyTorque(const DirectX::XMFLOAT3& torque);
-
 
   void UpdateCentroid();
   void UpdatePosition();
@@ -39,8 +38,8 @@ private:
   DirectX::XMVECTOR angular_constraints_; //vector3
 
   //mass data
-  MassData            mass_data_;
-  DirectX::XMVECTOR   global_centroid_;      //vector3
+  MassData mass_data_;
+  DirectX::XMVECTOR global_centroid_;        //vector3
   DirectX::XMMATRIX global_inertia_;         //matrix3x3
   DirectX::XMMATRIX global_inverse_inertia_; //matrix3x3
 
@@ -48,4 +47,4 @@ private:
   const DirectX::XMFLOAT3 zero_vector_;
 };
 
-}
+} // namespace Octane

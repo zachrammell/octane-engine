@@ -3,22 +3,22 @@
 #include <d3d11.h>
 
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
 #include <crtdbg.h>
+#include <stdlib.h>
 
 #include <iostream>
 
 #define SDL_MAIN_HANDLED
+#include <EASTL/vector.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <EASTL/vector.h>
 
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_sdl.h>
 
-#include <OctaneEngine/Graphics/RenderDX11.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
+#include <OctaneEngine/Graphics/RenderDX11.h>
 #include <OctaneEngine/Style.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
@@ -28,15 +28,23 @@ void* operator new[](size_t size, const char* name, int flags, unsigned debugFla
   return new uint8_t[size];
 }
 
-void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags, const char* file, int line)
+void* operator new[](
+  size_t size,
+  size_t alignment,
+  size_t alignmentOffset,
+  const char* pName,
+  int flags,
+  unsigned debugFlags,
+  const char* file,
+  int line)
 {
   return new uint8_t[size];
 }
 
 namespace
 {
-int window_width = 1280;
-int window_height = 720;
+int window_width   = 1280;
+int window_height  = 720;
 SDL_Window* window = nullptr;
 
 winrt::com_ptr<ID3D11Buffer> model_vertex_buffer;
@@ -51,10 +59,10 @@ struct ScaleRotation
 
 constexpr int MAX_OBJECTS = 512;
 DirectX::XMFLOAT3 object_positions[MAX_OBJECTS] {};
-ScaleRotation     object_scale_rotations[MAX_OBJECTS] {};
-Octane::Color     object_colors[MAX_OBJECTS] {};
-int               object_active[MAX_OBJECTS] {};
-}
+ScaleRotation object_scale_rotations[MAX_OBJECTS] {};
+Octane::Color object_colors[MAX_OBJECTS] {};
+int object_active[MAX_OBJECTS] {};
+} // namespace
 
 int main(int argc, char* argv[]) noexcept
 {
@@ -71,7 +79,13 @@ int main(int argc, char* argv[]) noexcept
   }
 
   //Create window
-  window = SDL_CreateWindow("Project Octane", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow(
+    "Project Octane",
+    SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED,
+    window_width,
+    window_height,
+    SDL_WINDOW_SHOWN);
   if (window == nullptr)
   {
     std::clog << "Window could not be created! SDL_Error:" << SDL_GetError() << "\n";
@@ -80,8 +94,9 @@ int main(int argc, char* argv[]) noexcept
   }
 
   std::clog << "Initializing DX11\n";
-  Octane::RenderDX11 render{ window };
-  Octane::Shader phong = render.CreateShader(L"assets/shaders/phong.hlsl", 
+  Octane::RenderDX11 render {window};
+  Octane::Shader phong = render.CreateShader(
+    L"assets/shaders/phong.hlsl",
     Octane::Shader::InputLayout_POS | Octane::Shader::InputLayout_NOR);
   render.SetClearColor(Octane::Colors::cerulean);
 
@@ -92,33 +107,34 @@ int main(int argc, char* argv[]) noexcept
   UINT vertex_offset = 0;
 
   {
-    D3D11_BUFFER_DESC vertex_buffer_descriptor
-    {
+    D3D11_BUFFER_DESC vertex_buffer_descriptor {
       sizeof(Octane::Mesh::Vertex) * m.vertex_count,
       D3D11_USAGE_DEFAULT,
       D3D11_BIND_VERTEX_BUFFER,
-      0, 0, 0
-    };
-    D3D11_SUBRESOURCE_DATA subresource_data{ m.vertex_buffer, 0, 0 };
+      0,
+      0,
+      0};
+    D3D11_SUBRESOURCE_DATA subresource_data {m.vertex_buffer, 0, 0};
 
-    HRESULT hr = render.GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, model_vertex_buffer.put());
+    HRESULT hr
+      = render.GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, model_vertex_buffer.put());
     assert(SUCCEEDED(hr));
   }
 
   {
-    D3D11_BUFFER_DESC index_buffer_descriptor
-    {
+    D3D11_BUFFER_DESC index_buffer_descriptor {
       sizeof(Octane::Mesh::Index) * m.index_count,
       D3D11_USAGE_DEFAULT,
       D3D11_BIND_INDEX_BUFFER,
-      0, 0, 0
-    };
-    D3D11_SUBRESOURCE_DATA subresource_data{ m.index_buffer, 0, 0 };
+      0,
+      0,
+      0};
+    D3D11_SUBRESOURCE_DATA subresource_data {m.index_buffer, 0, 0};
 
-    HRESULT hr = render.GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, model_index_buffer.put());
+    HRESULT hr
+      = render.GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, model_index_buffer.put());
     assert(SUCCEEDED(hr));
   }
-
 
   struct cb_per_object
   {
@@ -129,13 +145,8 @@ int main(int argc, char* argv[]) noexcept
   } cb_per_obj;
 
   {
-    D3D11_BUFFER_DESC cb_buffer_descriptor
-    {
-      sizeof(cb_per_object),
-      D3D11_USAGE_DEFAULT,
-      D3D11_BIND_CONSTANT_BUFFER,
-      0, 0, 0
-    };
+    D3D11_BUFFER_DESC
+      cb_buffer_descriptor {sizeof(cb_per_object), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
     HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[0].put());
     assert(SUCCEEDED(hr));
   }
@@ -150,13 +161,8 @@ int main(int argc, char* argv[]) noexcept
   } cb_per_fr;
 
   {
-    D3D11_BUFFER_DESC cb_buffer_descriptor
-    {
-      sizeof(cb_per_frame),
-      D3D11_USAGE_DEFAULT,
-      D3D11_BIND_CONSTANT_BUFFER,
-      0, 0, 0
-    };
+    D3D11_BUFFER_DESC
+      cb_buffer_descriptor {sizeof(cb_per_frame), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
     HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[1].put());
     if (FAILED(hr))
     {
@@ -167,39 +173,33 @@ int main(int argc, char* argv[]) noexcept
   render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   render.GetD3D11Context()->IASetInputLayout(phong.GetInputLayout());
   ID3D11Buffer* p_model_vertex_buffer = model_vertex_buffer.get();
-  render.GetD3D11Context()->IASetVertexBuffers(
-    0,
-    1,
-    &p_model_vertex_buffer,
-    &vertex_stride,
-    &vertex_offset
-  );
+  render.GetD3D11Context()->IASetVertexBuffers(0, 1, &p_model_vertex_buffer, &vertex_stride, &vertex_offset);
   render.GetD3D11Context()->IASetIndexBuffer(model_index_buffer.get(), DXGI_FORMAT_R32_UINT, 0);
 
   DirectX::XMMATRIX cam_view_matrix;
   DirectX::XMMATRIX cam_projection_matrix;
 
-  DirectX::XMFLOAT3 cam_position = { 5.0f, 1.0f, 5.0f };
-  DirectX::XMFLOAT3 cam_target = { 0.0f, 0.0f, 0.0f };
-  DirectX::XMVECTOR cam_up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  DirectX::XMFLOAT3 cam_position = {5.0f, 1.0f, 5.0f};
+  DirectX::XMFLOAT3 cam_target   = {0.0f, 0.0f, 0.0f};
+  DirectX::XMVECTOR cam_up       = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-  DirectX::XMFLOAT3 light_position = { 100.0f, 100.0f, 50.0f };
+  DirectX::XMFLOAT3 light_position = {100.0f, 100.0f, 50.0f};
 
   for (int i = 0; i < 100; ++i)
   {
-    object_active[i] = true;
-    object_colors[i] = Octane::Colors::peach;
-    object_positions[i].x = 0.25f * (i - 50);
-    object_positions[i].y = 0.01f * (i - 50) * (i - 50);
-    object_positions[i].z = 0.33f * (i - 50);
+    object_active[i]                = true;
+    object_colors[i]                = Octane::Colors::peach;
+    object_positions[i].x           = 0.25f * (i - 50);
+    object_positions[i].y           = 0.01f * (i - 50) * (i - 50);
+    object_positions[i].z           = 0.33f * (i - 50);
     object_scale_rotations[i].scale = 0.25f;
   }
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
 
   io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) noexcept
   ImGuiStyle& style = ImGui::GetStyle();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
-    style.WindowRounding = 0.0f;
+    style.WindowRounding              = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
   }
 
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) noexcept
   ImGui_ImplDX11_Init(render.GetD3D11Device(), render.GetD3D11Context());
 
   bool scene_settings_open = false;
-  bool demo_window_open = false;
+  bool demo_window_open    = false;
 
   UINT64 current_time = SDL_GetPerformanceCounter();
   //While application is running
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]) noexcept
     float dt;
     {
       UINT64 previous_time = current_time;
-      current_time = SDL_GetPerformanceCounter();
+      current_time         = SDL_GetPerformanceCounter();
       dt = static_cast<float>(current_time - previous_time) / static_cast<float>(SDL_GetPerformanceFrequency());
       if (dt > .25f)
       {
@@ -235,18 +235,18 @@ int main(int argc, char* argv[]) noexcept
     }
 
     {
-    //Event handler
-    SDL_Event e;
-    //Handle events on queue
-    while (SDL_PollEvent(&e) != 0)
-    {
-      ImGui_ImplSDL2_ProcessEvent(&e);
-      //User requests quit
-      if (e.type == SDL_QUIT)
+      //Event handler
+      SDL_Event e;
+      //Handle events on queue
+      while (SDL_PollEvent(&e) != 0)
       {
-        quit = true;
+        ImGui_ImplSDL2_ProcessEvent(&e);
+        //User requests quit
+        if (e.type == SDL_QUIT)
+        {
+          quit = true;
+        }
       }
-    }
     }
 
     // Start the Dear ImGui frame
@@ -309,16 +309,23 @@ int main(int argc, char* argv[]) noexcept
       ImGui::ShowDemoWindow(&demo_window_open);
     }
 
-    cam_view_matrix = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
-    cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XMConvertToRadians(20.0f), (float)window_width / (float)window_height, 0.05f, 1000.0f);
+    cam_view_matrix
+      = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
+    cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
+      DirectX::XMConvertToRadians(20.0f),
+      (float)window_width / (float)window_height,
+      0.05f,
+      1000.0f);
 
-    DirectX::XMStoreFloat4x4(&(cb_per_fr.ViewProjection), DirectX::XMMatrixTranspose(cam_view_matrix* cam_projection_matrix));
+    DirectX::XMStoreFloat4x4(
+      &(cb_per_fr.ViewProjection),
+      DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix));
     cb_per_fr.CameraPosition = cam_position;
-    cb_per_fr.LightPosition = light_position;
+    cb_per_fr.LightPosition  = light_position;
 
     render.GetD3D11Context()->UpdateSubresource(constant_buffers[1].get(), 0, nullptr, &cb_per_fr, 0, 0);
     {
-      ID3D11Buffer* p_constant_buffers[1] = { constant_buffers[1].get() };
+      ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[1].get()};
       render.GetD3D11Context()->VSSetConstantBuffers(1, 1, p_constant_buffers);
       render.GetD3D11Context()->PSSetConstantBuffers(1, 1, p_constant_buffers);
     }
@@ -331,9 +338,10 @@ int main(int argc, char* argv[]) noexcept
       if (object_active[i])
       {
         DirectX::XMMATRIX world_matrix = DirectX::XMMatrixIdentity();
-        auto scale = object_scale_rotations[i].scale;
+        auto scale                     = object_scale_rotations[i].scale;
         world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-        world_matrix *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
+        world_matrix
+          *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
         auto pos = object_positions[i];
         world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
@@ -342,7 +350,7 @@ int main(int argc, char* argv[]) noexcept
         cb_per_obj.Color = object_colors[i];
 
         render.GetD3D11Context()->UpdateSubresource(constant_buffers[0].get(), 0, nullptr, &cb_per_obj, 0, 0);
-        ID3D11Buffer* p_constant_buffers[1] = { constant_buffers[0].get() };
+        ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[0].get()};
         render.GetD3D11Context()->VSSetConstantBuffers(0, 1, p_constant_buffers);
         render.GetD3D11Context()->PSSetConstantBuffers(0, 1, p_constant_buffers);
         render.GetD3D11Context()->DrawIndexed(m.index_count, 0, 0);

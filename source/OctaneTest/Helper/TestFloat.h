@@ -1,9 +1,9 @@
 #pragma once
 
-#include <limits>
 #include <algorithm> /* min, max */
 #include <array>
-#include <utility>   /* forward */
+#include <limits>
+#include <utility> /* forward */
 
 #include <OctaneTest/Helper/TypeWithSize.h>
 
@@ -14,14 +14,13 @@ namespace OctaneTest
 template<typename T>
 constexpr T absolute_value(T const& v)
 {
-  return v >= T{} ? v : -v;
+  return v >= T {} ? v : -v;
 }
 
 template<typename FloatType>
 class IEEE_754
 {
 public:
-
   // Constants
 
   // An unsigned integer of the same size as the floating point number.
@@ -55,54 +54,33 @@ public:
   // Constructor
 
   // Construct from a raw floating point value.
-  constexpr IEEE_754(FloatType const& f) : data_({ f }) {}
+  constexpr IEEE_754(FloatType const& f) : data_({f}) {}
 
-  constexpr IEEE_754(FloatType const&& f) : data_({ f }) {}
+  constexpr IEEE_754(FloatType const&& f) : data_({f}) {}
 
   // Construct from another IEEE-754 representation class.
-  constexpr IEEE_754(IEEE_754 const&& rhs) : data_({ rhs.float_data() }) {}
+  constexpr IEEE_754(IEEE_754 const&& rhs) : data_({rhs.float_data()}) {}
 
   // Conversion operator to a raw floating point value, to enable using test floats in expressions.
-  explicit operator FloatType const& () const
-  {
-    return data_[0].float_;
-  }
+  explicit operator FloatType const &() const { return data_[0].float_; }
 
   // Conversion operator to a raw floating point value, to enable using test floats in expressions.
-  explicit operator FloatType& ()
-  {
-    return data_[0].float_;
-  }
+  explicit operator FloatType&() { return data_[0].float_; }
 
   // Non-static methods
 
   // Returns the exponent bits of this float.
-  constexpr BitData exponent_bits() const
-  {
-    return exponentBitMask & data_[0].bit_;
-  }
+  constexpr BitData exponent_bits() const { return exponentBitMask & data_[0].bit_; }
 
   // Returns the fraction bits of this float.
-  constexpr BitData significand_bits() const
-  {
-    return significandBitMask & data_[0].bit_;
-  }
+  constexpr BitData significand_bits() const { return significandBitMask & data_[0].bit_; }
 
   // Returns the sign bit of this float.
-  constexpr BitData sign_bit() const
-  {
-    return signBitMask & data_[0].bit_;
-  }
+  constexpr BitData sign_bit() const { return signBitMask & data_[0].bit_; }
 
-  constexpr FloatType float_data() const
-  {
-    return data_[0].float_;
-  }
+  constexpr FloatType float_data() const { return data_[0].float_; }
 
-  constexpr BitData bit_data() const
-  {
-    return data_[0].bit_;
-  }
+  constexpr BitData bit_data() const { return data_[0].bit_; }
 
   // Returns whether a float represents NaN.
   constexpr bool is_nan() const
@@ -116,10 +94,7 @@ public:
     return absolute_value(lhs - rhs) <= maxDiff;
   }
 
-  constexpr bool ulp_close(BitData const& lhs, BitData const& rhs) const
-  {
-    return lhs - rhs <= maxUlpsDiff;
-  }
+  constexpr bool ulp_close(BitData const& lhs, BitData const& rhs) const { return lhs - rhs <= maxUlpsDiff; }
 
   // Tests whether two floats are equal or close enough to be considered equal.
   constexpr bool almost_equal(IEEE_754<FloatType> const&& rhs) const
@@ -154,16 +129,12 @@ public:
     return almost_equal(std::forward<decltype(rhs)>(rhs));
   }
 
-  constexpr bool operator==(FloatType const&& rhs) const
-  {
-    return almost_equal(IEEE_754<FloatType>(rhs));
-  }
+  constexpr bool operator==(FloatType const&& rhs) const { return almost_equal(IEEE_754<FloatType>(rhs)); }
 
   template<typename FloatType>
   friend constexpr bool operator==(FloatType const&& lhs, IEEE_754<FloatType> const&& rhs);
 
 private:
-
   union Data
   {
     constexpr Data(FloatType f) : float_(f) {}
@@ -172,10 +143,9 @@ private:
   };
 
   const std::array<const Data, 1> data_;
-
 };
 
-using t_float = IEEE_754<float>;
+using t_float  = IEEE_754<float>;
 using t_double = IEEE_754<double>;
 
 template<typename FloatType>
@@ -184,4 +154,4 @@ constexpr bool operator==(FloatType const&& lhs, IEEE_754<FloatType> const&& rhs
   return rhs == lhs;
 }
 
-}
+} // namespace OctaneTest

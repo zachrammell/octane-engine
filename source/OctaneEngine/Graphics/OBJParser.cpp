@@ -1,9 +1,9 @@
 #include <OctaneEngine/Graphics/OBJParser.h>
 
 #include <algorithm>
-#include <cstdio>
 #include <cctype>
 #include <cinttypes>
+#include <cstdio>
 
 #include <OctaneEngine/Math.h>
 
@@ -22,8 +22,8 @@ void ReadUntil(FILE* fp, char const c)
 size_t WhitespaceCountUntil(FILE* fp, char const c)
 {
   size_t whitespace_count = 0;
-  bool is_new_whitespace = true;
-  int read = fgetc(fp);
+  bool is_new_whitespace  = true;
+  int read                = fgetc(fp);
   while (read != c && read != EOF)
   {
     int const is_whitespace = isspace(read);
@@ -47,8 +47,8 @@ size_t WhitespaceCountUntil(FILE* fp, char const c)
 // "i0/i1/i2"
 Octane::Mesh::Index ParseIndex(FILE* fp)
 {
-  Octane::Mesh::Index idx[3] = { 0 };
-  int current_parsing = 0;
+  Octane::Mesh::Index idx[3] = {0};
+  int current_parsing        = 0;
 
   while (true)
   {
@@ -80,7 +80,7 @@ Octane::Mesh::Index ParseIndex(FILE* fp)
   return idx[0] - 1;
 }
 
-}
+} // namespace
 
 namespace Octane
 {
@@ -93,7 +93,7 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
     _wperror(L"fopen() failed");
     assert(!"Failed to open file.");
   }
-  Mesh mesh{};
+  Mesh mesh {};
 
   // Initial parsing pass to count number of vertices and indices
   {
@@ -105,7 +105,8 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
       case '#':
       {
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       case 'v':
       {
         if (!isalpha(fgetc(fp))) // don't increase vertex count for vt or vn
@@ -113,20 +114,24 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
           ++(mesh.vertex_count);
         }
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       case 'f':
       {
         mesh.index_count += WhitespaceCountUntil(fp, '\n');
-      } break;
+      }
+      break;
       case EOF:
       {
         initial_parsing = false;
-      } break;
-      case'\n': break;
+      }
+      break;
+      case '\n': break;
       default:
       {
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       }
     }
   }
@@ -137,16 +142,16 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
 
   // Allocate buffers for the mesh's vertices and indices
   mesh.vertex_buffer = new Mesh::Vertex[mesh.vertex_count];
-  mesh.index_buffer = new Mesh::Index[mesh.index_count];
+  mesh.index_buffer  = new Mesh::Index[mesh.index_count];
 
-  DirectX::XMFLOAT3 mn{ FLT_MAX, FLT_MAX , FLT_MAX };
-  DirectX::XMFLOAT3 mx{ -FLT_MAX , -FLT_MAX , -FLT_MAX };
+  DirectX::XMFLOAT3 mn {FLT_MAX, FLT_MAX, FLT_MAX};
+  DirectX::XMFLOAT3 mx {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
   // Parse data and fill buffers
   {
     size_t vertices_processed = 0;
-    size_t indices_processed = 0;
-    bool parsing = true;
+    size_t indices_processed  = 0;
+    bool parsing              = true;
     while (parsing)
     {
       switch (fgetc(fp))
@@ -154,7 +159,8 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
       case '#':
       {
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       case 'v':
       {
         if (!isalpha(fgetc(fp))) // don't parse vt or vn as vertices
@@ -173,7 +179,8 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
           ++vertices_processed;
         }
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       case 'f':
       {
         // discard space
@@ -181,7 +188,7 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
         Mesh::Index indices[3];
         for (int i = 0; i < 3; ++i)
         {
-          indices[i] = ParseIndex(fp);
+          indices[i]                               = ParseIndex(fp);
           mesh.index_buffer[indices_processed + i] = indices[i];
         }
 
@@ -202,35 +209,35 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
 
         indices_processed += 3;
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       case EOF:
       {
         parsing = false;
-      } break;
-      case'\n': break;
+      }
+      break;
+      case '\n': break;
       default:
       {
         ReadUntil(fp, '\n');
-      } break;
+      }
+      break;
       }
     }
-
   }
 
   float scale = 1.0f / std::max(mx.x - mn.y, std::max(mx.y - mn.y, mx.z - mn.z));
-  DirectX::XMMATRIX normalizing_matrix = DirectX::XMMatrixTranslation(-avg(mn.x, mx.x), -avg(mn.y, mx.y), -avg(mn.z, mx.z));
+  DirectX::XMMATRIX normalizing_matrix
+    = DirectX::XMMatrixTranslation(-avg(mn.x, mx.x), -avg(mn.y, mx.y), -avg(mn.z, mx.z));
   normalizing_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
   for (size_t i = 0; i < mesh.vertex_count; ++i)
   {
-    DirectX::XMStoreFloat3(&(mesh.vertex_buffer[i].position),
-      DirectX::XMVector3Transform(
-        DirectX::XMLoadFloat3(&(mesh.vertex_buffer[i].position)),
-        normalizing_matrix
-      )
-    );
+    DirectX::XMStoreFloat3(
+      &(mesh.vertex_buffer[i].position),
+      DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&(mesh.vertex_buffer[i].position)), normalizing_matrix));
   }
 
   return mesh;
 }
 
-}
+} // namespace Octane

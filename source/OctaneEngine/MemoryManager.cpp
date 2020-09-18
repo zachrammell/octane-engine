@@ -1,5 +1,5 @@
 ﻿/******************************************************************************/
-  /*!
+/*!
   \par        Project Octane
   \file       MemoryManager.h
   \author     Brayan Lopez
@@ -8,7 +8,7 @@
 
   Copyright � 2020 DigiPen, All rights reserved.
   */
-  /******************************************************************************/
+/******************************************************************************/
 #include <OctaneEngine/MemoryManager.h>
 
 #include <Windows.h>
@@ -22,106 +22,105 @@
 namespace Octane
 {
 
-  //generic add to front of linked list
-  template <typename T>
-  T* PushFront(T* item, T** list);
+//generic add to front of linked list
+template<typename T>
+T* PushFront(T* item, T** list);
 
-  //generic pop front of linked list
-  template <typename T>
-  T* PopFront(T** list);
+//generic pop front of linked list
+template<typename T>
+T* PopFront(T** list);
 
-  //pushes to after prev
-  template<typename T>
-  T* PushAfter(T* item, T** prev);
+//pushes to after prev
+template<typename T>
+T* PushAfter(T* item, T** prev);
 
+// kilobytes operator to make dealing with page sizes easier
+constexpr size_t operator"" k(size_t n)
+{
+  return n * 1024;
+}
 
-  // kilobytes operator to make dealing with page sizes easier
-  constexpr size_t operator""k(size_t n)
+// gigabytes operator to make dealing with page sizes easier
+constexpr std::size_t operator"" G(std::size_t n)
+{
+  return n * 1024 * 1024 * 1024;
+}
+
+//pushes to front, returns new front
+template<typename T>
+T* PushFront(T* item, T** list)
+{
+  if (item) //if item exists
   {
-    return n * 1024;
+    item->next = *list;
+    *list      = item;
   }
 
-  // gigabytes operator to make dealing with page sizes easier
-  constexpr std::size_t operator""G(std::size_t n)
-  {
-    return n * 1024 * 1024 * 1024;
-  }
+  return *list;
+}
 
-  //pushes to front, returns new front
-  template<typename T>
-  T* PushFront(T* item, T** list)
+//pushes to after prev
+//returns item
+template<typename T>
+T* PushAfter(T* item, T** prev)
+{
+  if (*prev) //if prev exists
   {
-    if (item) //if item exists
+    (*prev)->next = item;
+  }
+  return item;
+}
+
+//pops the front and returns it
+template<typename T>
+T* PopFront(T** list)
+{
+  Block* block = *list;
+  if (block)
+  {
+    *list = block->next;
+  }
+  return block;
+}
+
+//pops an item and returns the item
+//else, returns nullptr
+template<typename T>
+T* Pop(T* item, T** list)
+{
+  T* prev = nullptr;
+  T* temp = *list;
+  while (temp)
+  {
+    if (temp == item) //if we find it
     {
-      item->next = *list;
-      *list = item;
-    }
-
-    return *list;
-  }
-
-  //pushes to after prev
-  //returns item
-  template<typename T>
-  T* PushAfter(T* item, T** prev)
-  {
-    if (*prev) //if prev exists
-    {
-      (*prev)->next = item;
-    }
-    return item;
-  }
-
-  //pops the front and returns it
-  template<typename T>
-  T* PopFront(T** list)
-  {
-    Block* block = *list;
-    if (block)
-    {
-      *list = block->next;
-    }
-    return block;
-  }
-
-  //pops an item and returns the item
-  //else, returns nullptr
-  template <typename T>
-  T* Pop(T* item, T** list)
-  {
-    T* prev = nullptr;
-    T* temp = *list;
-    while (temp)
-    {
-      if (temp == item) //if we find it
+      if (prev) //connect prev with next
       {
-        if (prev) //connect prev with next
-        {
-          prev->next = temp->next;
-        }
-        else
-        {
-          *list = item->next;
-        }
-        return item;
+        prev->next = temp->next;
       }
-      temp = temp->next; //traverse
+      else
+      {
+        *list = item->next;
+      }
+      return item;
     }
-    return nullptr; //should never happen
+    temp = temp->next; //traverse
   }
+  return nullptr; //should never happen
+}
 
 MemoryManager::MemoryManager()
 {
   for (size_t currBlocksize = bigBlock; currBlocksize >= smallBlock; currBlocksize /= 2)
   {
     //make new page and add it to page linked list
-    PushFront(NewPool(nullptr, nullptr, currBlocksize),&pools);
+    PushFront(NewPool(nullptr, nullptr, currBlocksize), &pools);
   }
 }
 
 MemoryManager::~MemoryManager()
 {
-  for(Pool* pool = pools; pool != nullptr;)
+  for (Pool* pool = pools; pool != nullptr;)
   {
     Pool* next = pool->next;
     //free the allocated pools
@@ -176,7 +175,7 @@ void* MemoryManager::New(size_t size)
     return PopFront(&pool->freeList);
   }
 #ifdef _DEBUG
-  std::cout << "Octane::MemoryManager::New failed to allocate " << size << " bytes"<<std::endl;
+  std::cout << "Octane::MemoryManager::New failed to allocate " << size << " bytes" << std::endl;
 #endif
   return nullptr;
 }
@@ -187,17 +186,17 @@ void MemoryManager::Delete(void* address)
   {
     //first and last bytes of pool
     const byte* beginning = RCAST(pool, byte*);
-    const byte* end = beginning + pool->pages * 4k;
+    const byte* end       = beginning + pool->pages * 4k;
     //check if address lies within this range
     if (address < end && address > beginning)
     {
-      PushFront(RCAST(address,Block*), &pool->freeList);
+      PushFront(RCAST(address, Block*), &pool->freeList);
       return;
     }
   }
 #ifdef _DEBUG
-  if(address)
-    throw;//delete didnt find what it was looking for
+  if (address)
+    throw; //delete didnt find what it was looking for
 #endif
 }
 
@@ -215,7 +214,7 @@ void MemoryManager::InitPage(Pool* pool)
   //byte* lastAlloc = allocStart;
   while (allocStart + pool->blockSize <= pool->endAlloc)
   {
-    //make a new block 
+    //make a new block
     Block* block = RCAST(allocStart, Block*);
     //add block to free list
     PushFront(block, &pool->freeList);
@@ -224,11 +223,11 @@ void MemoryManager::InitPage(Pool* pool)
   }
 
   //update reserved and committed pages
-  const unsigned pagesAffected = (pool->endAlloc-pool->nextAlloc) / 4k;
+  const unsigned pagesAffected = (pool->endAlloc - pool->nextAlloc) / 4k;
   pool->commPages += pagesAffected;
   pool->resPages -= pagesAffected;
   pool->nextAlloc = allocStart;
-  pool->endAlloc = allocStart + pool->allocAmt;
+  pool->endAlloc  = allocStart + pool->allocAmt;
 }
 
 void MemoryManager::NewPage(Pool* pool)
@@ -258,28 +257,23 @@ Pool* MemoryManager::NewPool(Pool* original, Pool* prev, unsigned blockSize)
   const unsigned allocAmount = max(4k, blockSize);
 
   //allocate pool of blocks
-  Pool* pool = RCAST(
-    VirtualAlloc(nullptr,
-                  totalPageSize,
-                 MEM_RESERVE, PAGE_NOACCESS),
-                     Pool*);
+  Pool* pool = RCAST(VirtualAlloc(nullptr, totalPageSize, MEM_RESERVE, PAGE_NOACCESS), Pool*);
 
   if (pool)
   {
     const unsigned firstAlloc = allocAmount + 4k;
     //commit first page to be able to make page header
     //and make first blocks
-    VirtualAlloc(pool, firstAlloc,
-      MEM_COMMIT, PAGE_READWRITE);
-  
+    VirtualAlloc(pool, firstAlloc, MEM_COMMIT, PAGE_READWRITE);
+
     //res pages and comm pages are inited in InitPage()
-    pool->blockSize = blockSize;
-    pool->resPages = pages;
+    pool->blockSize  = blockSize;
+    pool->resPages   = pages;
     pool->alignBytes = alignNeeded;
-    pool->pages = pages;
-    pool->nextAlloc = RCAST(pool, byte*);
-    pool->allocAmt = allocAmount;
-    pool->endAlloc = pool->nextAlloc + firstAlloc;
+    pool->pages      = pages;
+    pool->nextAlloc  = RCAST(pool, byte*);
+    pool->allocAmt   = allocAmount;
+    pool->endAlloc   = pool->nextAlloc + firstAlloc;
     //put this pool with free list
     //before pool this is a copy of
     //in pools list
@@ -295,4 +289,4 @@ Pool* MemoryManager::NewPool(Pool* original, Pool* prev, unsigned blockSize)
   return pool;
 }
 
-}//namespace Octane
+} //namespace Octane
