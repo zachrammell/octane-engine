@@ -69,7 +69,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
 )
 
 target_compile_options(${OCTANE_LIB} PRIVATE 
-  "/Gr-"
+  "/GR-"
 )
 
 
