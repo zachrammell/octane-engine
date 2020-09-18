@@ -35,15 +35,15 @@ template<typename T>
 T* PushAfter(T* item, T** prev);
 
 // kilobytes operator to make dealing with page sizes easier
-constexpr size_t operator"" k(size_t n)
+constexpr size_t operator"" _k(unsigned long long n)
 {
-  return n * 1024;
+  return static_cast<size_t>(n * 1024);
 }
 
 // gigabytes operator to make dealing with page sizes easier
-constexpr std::size_t operator"" G(std::size_t n)
+constexpr size_t operator"" _G(unsigned long long n)
 {
-  return n * 1024 * 1024 * 1024;
+  return static_cast<size_t>(n * 1024 * 1024 * 1024);
 }
 
 //pushes to front, returns new front
@@ -186,7 +186,7 @@ void MemoryManager::Delete(void* address)
   {
     //first and last bytes of pool
     const byte* beginning = RCAST(pool, byte*);
-    const byte* end       = beginning + pool->pages * 4k;
+    const byte* end       = beginning + pool->pages * 4_k;
     //check if address lies within this range
     if (address < end && address > beginning)
     {
@@ -223,7 +223,7 @@ void MemoryManager::InitPage(Pool* pool)
   }
 
   //update reserved and committed pages
-  const unsigned pagesAffected = (pool->endAlloc - pool->nextAlloc) / 4k;
+  const unsigned pagesAffected = (pool->endAlloc - pool->nextAlloc) / 4_k;
   pool->commPages += pagesAffected;
   pool->resPages -= pagesAffected;
   pool->nextAlloc = allocStart;
@@ -250,18 +250,18 @@ Pool* MemoryManager::NewPool(Pool* original, Pool* prev, unsigned blockSize)
   //total amount of space that will be used up
   size_t totalSize = blockSize * poolBlockAmt + sizeof(Pool) + alignNeeded;
   //amount of pages this pool will get
-  size_t pages = totalSize / 4k + !!(totalSize % 4k);
+  size_t pages = totalSize / 4_k + !!(totalSize % 4_k);
   //total amount of space allocated
-  size_t totalPageSize = 4k * pages;
+  size_t totalPageSize = 4_k * pages;
   //amount of space to allocate when there are no free blocks
-  const unsigned allocAmount = max(4k, blockSize);
+  const unsigned allocAmount = max(4_k, blockSize);
 
   //allocate pool of blocks
   Pool* pool = RCAST(VirtualAlloc(nullptr, totalPageSize, MEM_RESERVE, PAGE_NOACCESS), Pool*);
 
   if (pool)
   {
-    const unsigned firstAlloc = allocAmount + 4k;
+    const unsigned firstAlloc = allocAmount + 4_k;
     //commit first page to be able to make page header
     //and make first blocks
     VirtualAlloc(pool, firstAlloc, MEM_COMMIT, PAGE_READWRITE);
