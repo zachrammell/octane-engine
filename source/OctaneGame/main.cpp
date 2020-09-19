@@ -20,6 +20,9 @@
 #include <OctaneEngine/Graphics/OBJParser.h>
 #include <OctaneEngine/Graphics/RenderDX11.h>
 #include <OctaneEngine/Style.h>
+#include <OctaneEngine/Engine.h>
+
+#include <OctaneEngine/FramerateController.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -68,6 +71,9 @@ int main(int argc, char* argv[]) noexcept
 {
   // must be the first thing in main, for SDL2 initialization
   SDL_SetMainReady();
+
+  Octane::Engine engine;
+  engine.AddSystem(new Octane::FramerateController {});
 
   std::clog << "[== Project Octane ==]\n";
   std::clog << "Initializing SDL\n";
@@ -218,21 +224,14 @@ int main(int argc, char* argv[]) noexcept
   bool scene_settings_open = false;
   bool demo_window_open    = false;
 
-  UINT64 current_time = SDL_GetPerformanceCounter();
   //While application is running
   bool quit = false;
   while (!quit)
   {
-    float dt;
-    {
-      UINT64 previous_time = current_time;
-      current_time         = SDL_GetPerformanceCounter();
-      dt = static_cast<float>(current_time - previous_time) / static_cast<float>(SDL_GetPerformanceFrequency());
-      if (dt > .25f)
-      {
-        dt = (1.0f / 60.0f);
-      }
-    }
+    engine.Update();
+
+    // This is extremely ugly
+    float dt = dynamic_cast<Octane::FramerateController*>(engine.GetSystem(Octane::SystemOrder::FramerateController))->GetDeltaTime();
 
     {
       //Event handler
