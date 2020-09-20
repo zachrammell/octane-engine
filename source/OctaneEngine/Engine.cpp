@@ -9,7 +9,9 @@ Engine::Engine()
     // 
     scene_changing_ {true},
     // 
-    scene_restarting_ {false}
+    scene_restarting_ {false},
+    //
+    should_quit_{false}
 {
 }
 
@@ -67,6 +69,26 @@ void Engine::Update()
       system->Update();
     }
   }
+}
+
+void Engine::Quit()
+{
+  should_quit_ = true;
+}
+
+void Engine::ChangeScene()
+{
+  scene_changing_ = true;
+}
+
+void Engine::RestartScene()
+{
+  scene_restarting_ = true;
+}
+
+bool Engine::ShouldQuit() const
+{
+  return should_quit_;
 }
 
 ISystem* Engine::GetSystem(SystemOrder sys)

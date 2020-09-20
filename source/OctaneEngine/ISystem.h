@@ -9,6 +9,7 @@ class ISystem
 {
 public:
   ISystem() = default;
+  explicit ISystem(class Engine*) {};
   virtual ~ISystem() = default;
 
   virtual void Load()       = 0;

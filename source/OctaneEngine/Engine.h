@@ -16,14 +16,18 @@ public:
   void AddSystem(ISystem* sys);
   void Update();
 
+  void Quit();
+
   void ChangeScene();
-  void ReloadScene();
+  void RestartScene();
+
+  bool ShouldQuit() const;
 
   ISystem* GetSystem(SystemOrder sys);
 
 private:
   std::array<ISystem*, to_integral(SystemOrder::COUNT)> systems_;
-  int scene_changing_, scene_restarting_;
+  int scene_changing_, scene_restarting_, should_quit_;
 };
 
 } // namespace Octane

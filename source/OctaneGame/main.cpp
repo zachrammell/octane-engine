@@ -23,6 +23,7 @@
 #include <OctaneEngine/Engine.h>
 
 #include <OctaneEngine/FramerateController.h>
+#include <OctaneEngine/InputHandler.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -74,6 +75,7 @@ int main(int argc, char* argv[]) noexcept
 
   Octane::Engine engine;
   engine.AddSystem(new Octane::FramerateController {});
+  engine.AddSystem(new Octane::InputHandler {&engine});
 
   std::clog << "[== Project Octane ==]\n";
   std::clog << "Initializing SDL\n";
@@ -224,29 +226,12 @@ int main(int argc, char* argv[]) noexcept
   bool scene_settings_open = false;
   bool demo_window_open    = false;
 
-  //While application is running
-  bool quit = false;
-  while (!quit)
+  while (!engine.ShouldQuit())
   {
     engine.Update();
 
     // This is extremely ugly
     float dt = dynamic_cast<Octane::FramerateController*>(engine.GetSystem(Octane::SystemOrder::FramerateController))->GetDeltaTime();
-
-    {
-      //Event handler
-      SDL_Event e;
-      //Handle events on queue
-      while (SDL_PollEvent(&e) != 0)
-      {
-        ImGui_ImplSDL2_ProcessEvent(&e);
-        //User requests quit
-        if (e.type == SDL_QUIT)
-        {
-          quit = true;
-        }
-      }
-    }
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
