@@ -20,7 +20,7 @@ public:
   void LevelEnd() override {};
   void Unload() override {};
 
-  SystemOrder GetOrder() override;
+  static SystemOrder GetOrder();
 
   // FramerateController API
 public:

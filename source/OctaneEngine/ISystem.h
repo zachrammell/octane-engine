@@ -18,7 +18,8 @@ public:
   virtual void LevelEnd()   = 0;
   virtual void Unload()     = 0;
 
-  virtual SystemOrder GetOrder() = 0;
+  // Intentionally unimplemented in the interface. Still necessary.
+  static SystemOrder GetOrder();
 };
 
 } // namespace Octane

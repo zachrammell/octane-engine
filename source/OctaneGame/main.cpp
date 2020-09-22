@@ -230,8 +230,9 @@ int main(int argc, char* argv[]) noexcept
   {
     engine.Update();
 
-    // This is extremely ugly
-    float dt = dynamic_cast<Octane::FramerateController*>(engine.GetSystem(Octane::SystemOrder::FramerateController))->GetDeltaTime();
+    // This is extremely clean
+    auto* frc = engine.GetSystem<Octane::FramerateController>();
+    float dt = frc->GetDeltaTime();
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();

@@ -15,11 +15,6 @@ Engine::Engine()
 {
 }
 
-void Engine::AddSystem(ISystem* sys)
-{
-  systems_[to_integral(sys->GetOrder())] = sys;
-}
-
 void Engine::Update()
 {
   if (scene_changing_ || scene_restarting_)
