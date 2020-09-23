@@ -9,7 +9,7 @@ namespace Octane
 class RigidBody
 {
 public:
-  RigidBody()  = default;
+  RigidBody() = default;
   ~RigidBody() = default;
 
   void Integrate(float dt);
