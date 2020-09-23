@@ -6,9 +6,18 @@ Capsule::Capsule() : radius_() {}
 
 Capsule::~Capsule() {}
 
-DirectX::XMVECTOR Capsule::Support(const DirectX::XMVECTOR& direction) {}
+DirectX::XMVECTOR Capsule::Support(const DirectX::XMVECTOR& direction)
+{
+  return direction;
+}
 
-DirectX::XMVECTOR Capsule::GetNormal(const DirectX::XMVECTOR& local_point) {}
+DirectX::XMVECTOR Capsule::GetNormal(const DirectX::XMVECTOR& local_point)
+{
+  return local_point;
+}
 
-float Capsule::GetVolume() {}
+float Capsule::GetVolume()
+{
+  return 0.0f;
+}
 } // namespace Octane
