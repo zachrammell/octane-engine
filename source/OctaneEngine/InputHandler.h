@@ -2,6 +2,9 @@
 
 #include <OctaneEngine/ISystem.h>
 
+#include <EASTL/unique_ptr.h>
+#include <SDL.h>
+
 namespace Octane
 {
 
@@ -20,8 +23,20 @@ public:
 
   static SystemOrder GetOrder();
 
-private:
-  class Engine* engine_;
+  enum KeyState
+  {
+    IDLE,
+    PRESSED,
+    HELD,
+    RELEASED,
+  };
+
+  bool KeyPressed(SDL_KeyCode key);
+  bool KeyHeld(SDL_KeyCode key);
+  bool KeyReleased(SDL_KeyCode key);
+
+    private : class Engine* engine_;
+  eastl::unique_ptr<KeyState[]> keys_, prev_keys_;
 };
 
-}
+} // namespace Octane

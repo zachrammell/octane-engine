@@ -19,7 +19,7 @@ public:
   virtual void Unload()     = 0;
 
   // Intentionally unimplemented in the interface. Still necessary.
-  static SystemOrder GetOrder();
+  static SystemOrder GetOrder() = delete;
 };
 
 } // namespace Octane

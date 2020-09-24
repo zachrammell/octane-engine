@@ -17,10 +17,10 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_sdl.h>
 
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
 #include <OctaneEngine/Graphics/RenderDX11.h>
 #include <OctaneEngine/Style.h>
-#include <OctaneEngine/Engine.h>
 
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
@@ -47,8 +47,8 @@ void* operator new[](
 
 namespace
 {
-int window_width   = 1280;
-int window_height  = 720;
+int window_width = 1280;
+int window_height = 720;
 SDL_Window* window = nullptr;
 
 winrt::com_ptr<ID3D11Buffer> model_vertex_buffer;
@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) noexcept
 
   {
     D3D11_BUFFER_DESC
-      cb_buffer_descriptor {sizeof(cb_per_object), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
+    cb_buffer_descriptor {sizeof(cb_per_object), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
     HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[0].put());
     assert(SUCCEEDED(hr));
   }
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) noexcept
 
   {
     D3D11_BUFFER_DESC
-      cb_buffer_descriptor {sizeof(cb_per_frame), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
+    cb_buffer_descriptor {sizeof(cb_per_frame), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
     HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[1].put());
     if (FAILED(hr))
     {
@@ -188,18 +188,18 @@ int main(int argc, char* argv[]) noexcept
   DirectX::XMMATRIX cam_projection_matrix;
 
   DirectX::XMFLOAT3 cam_position = {5.0f, 1.0f, 5.0f};
-  DirectX::XMFLOAT3 cam_target   = {0.0f, 0.0f, 0.0f};
-  DirectX::XMVECTOR cam_up       = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  DirectX::XMFLOAT3 cam_target = {0.0f, 0.0f, 0.0f};
+  DirectX::XMVECTOR cam_up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
   DirectX::XMFLOAT3 light_position = {100.0f, 100.0f, 50.0f};
 
   for (int i = 0; i < 100; ++i)
   {
-    object_active[i]                = true;
-    object_colors[i]                = Octane::Colors::peach;
-    object_positions[i].x           = 0.25f * (i - 50);
-    object_positions[i].y           = 0.01f * (i - 50) * (i - 50);
-    object_positions[i].z           = 0.33f * (i - 50);
+    object_active[i] = true;
+    object_colors[i] = Octane::Colors::peach;
+    object_positions[i].x = 0.25f * (i - 50);
+    object_positions[i].y = 0.01f * (i - 50) * (i - 50);
+    object_positions[i].z = 0.33f * (i - 50);
     object_scale_rotations[i].scale = 0.25f;
   }
 
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) noexcept
   ImGuiStyle& style = ImGui::GetStyle();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
-    style.WindowRounding              = 0.0f;
+    style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
   }
 
@@ -224,7 +224,7 @@ int main(int argc, char* argv[]) noexcept
   ImGui_ImplDX11_Init(render.GetD3D11Device(), render.GetD3D11Context());
 
   bool scene_settings_open = false;
-  bool demo_window_open    = false;
+  bool demo_window_open = false;
 
   while (!engine.ShouldQuit())
   {
@@ -233,6 +233,8 @@ int main(int argc, char* argv[]) noexcept
     // This is extremely clean
     auto* frc = engine.GetSystem<Octane::FramerateController>();
     float dt = frc->GetDeltaTime();
+
+    auto* input = engine.GetSystem<Octane::InputHandler>();
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
@@ -294,7 +296,18 @@ int main(int argc, char* argv[]) noexcept
       ImGui::ShowDemoWindow(&demo_window_open);
     }
 
-    cam_view_matrix
+    DirectX::XMFLOAT3 cam_velocity;
+    cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
+    cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
+    cam_velocity.z = (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+
+    DirectX::XMStoreFloat3(&cam_velocity, DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&cam_velocity)), 0.5f));
+
+    cam_position.x += cam_velocity.x;
+    cam_position.y += cam_velocity.y;
+    cam_position.z += cam_velocity.z;
+      
+      cam_view_matrix
       = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
     cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
       DirectX::XMConvertToRadians(20.0f),
@@ -306,7 +319,7 @@ int main(int argc, char* argv[]) noexcept
       &(cb_per_fr.ViewProjection),
       DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix));
     cb_per_fr.CameraPosition = cam_position;
-    cb_per_fr.LightPosition  = light_position;
+    cb_per_fr.LightPosition = light_position;
 
     render.GetD3D11Context()->UpdateSubresource(constant_buffers[1].get(), 0, nullptr, &cb_per_fr, 0, 0);
     {
@@ -323,7 +336,7 @@ int main(int argc, char* argv[]) noexcept
       if (object_active[i])
       {
         DirectX::XMMATRIX world_matrix = DirectX::XMMatrixIdentity();
-        auto scale                     = object_scale_rotations[i].scale;
+        auto scale = object_scale_rotations[i].scale;
         world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
         world_matrix
           *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
