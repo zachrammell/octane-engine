@@ -9,9 +9,10 @@
   Copyright � 2020 DigiPen, All rights reserved.
   */
 /******************************************************************************/
-#include "CameraSys.h"
-#include "OctaneEngine/Engine.h"
-#include "RenderDX11.h"
+#include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Graphics/RenderDX11.h>
+#include <OctaneEngine/Engine.h>
+#include <OctaneEngine/SystemOrder.h>
 
 namespace Octane
 {

@@ -11,7 +11,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "OctaneEngine/ISystem.h"
+#include <OctaneEngine/ISystem.h>
 #include <DirectXMath.h>
 
 namespace Octane
