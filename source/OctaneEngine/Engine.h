@@ -1,7 +1,7 @@
 #pragma once
 
-#include <array>
-#include <type_traits>
+#include <EASTL/array.h>
+#include <EASTL/type_traits.h>
 
 #include <OctaneEngine/Helper.h>
 #include <OctaneEngine/ISystem.h>
@@ -30,19 +30,19 @@ public:
   template<class System>
   System* GetSystem()
   {
-    static_assert(std::is_base_of_v<ISystem, System>);
-    return dynamic_cast<System*>(systems_[to_integral(System::GetOrder())]);
+    static_assert(eastl::is_base_of_v<ISystem, System>);
+    return static_cast<System*>(systems_[to_integral(System::GetOrder())]);
   }
 
 private:
-  std::array<ISystem*, to_integral(SystemOrder::COUNT)> systems_;
+  eastl::array<ISystem*, to_integral(SystemOrder::COUNT)> systems_;
   int scene_changing_, scene_restarting_, should_quit_;
 };
 
 template<class System>
 void Engine::AddSystem(System* sys)
 {
-  static_assert(std::is_base_of_v<ISystem, System>);
+  static_assert(eastl::is_base_of_v<ISystem, System>);
   systems_[to_integral(System::GetOrder())] = sys;
 }
 
