@@ -45,6 +45,7 @@ void* operator new[](
   const char* file,
   int line)
 {
+  // pass-through to standard memory manager for now, will later be a custom one
   return new uint8_t[size];
 }
 
