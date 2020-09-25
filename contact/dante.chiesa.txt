@@ -1,0 +1,6 @@
+Name: Dante Chiesa
+Roles: Engine, graphics, physics programmer
+Program: GAM300
+Degree: RTIS
+Trello email: d.chiesa@digipen.edu
+Digi Email: d.chiesa@digipen.edu
