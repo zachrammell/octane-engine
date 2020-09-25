@@ -34,7 +34,7 @@ set(IMGUI_SRC
   ${IMGUI_SRC}
   ${IMGUI_DIR}/examples/imgui_impl_dx11.cpp
   ${IMGUI_DIR}/examples/imgui_impl_sdl.cpp)
-add_library(IMGUI ${IMGUI_SRC})
+add_library(IMGUI ${IMGUI_SRC} )
 target_include_directories(IMGUI PUBLIC ${IMGUI_INCLUDE_DIR})
 target_link_libraries(IMGUI
   PRIVATE
@@ -50,7 +50,7 @@ file(GLOB_RECURSE OCTANE_LIB_SOURCE CONFIGURE_DEPENDS
 )
 
 # Add source to the library
-add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
+add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE} )
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
@@ -78,7 +78,7 @@ file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
   "source/OctaneGame/**.h"
 )
 
-add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE})
+add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE} )
 
 target_include_directories(${OCTANE_GAME} PRIVATE
   "source"
@@ -96,7 +96,7 @@ file(GLOB_RECURSE OCTANE_TEST_SOURCE CONFIGURE_DEPENDS
   "source/OctaneTest/**.h"
 )
 
-add_executable(${OCTANE_TEST} ${OCTANE_TEST_SOURCE})
+add_executable(${OCTANE_TEST} ${OCTANE_TEST_SOURCE} )
 
 target_include_directories(${OCTANE_TEST} PRIVATE
   "source"
