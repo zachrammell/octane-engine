@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) noexcept
   SDL_SetMainReady();
 
   Octane::Engine engine;
-  engine.AddSystem(new Octane::FramerateController {});
+  engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
 
   std::clog << "[== Project Octane ==]\n";

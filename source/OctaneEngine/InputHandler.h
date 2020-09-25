@@ -35,7 +35,7 @@ public:
   bool KeyHeld(SDL_KeyCode key);
   bool KeyReleased(SDL_KeyCode key);
 
-    private : class Engine* engine_;
+private:
   eastl::unique_ptr<KeyState[]> keys_, prev_keys_;
 };
 

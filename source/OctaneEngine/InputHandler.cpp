@@ -10,7 +10,7 @@ namespace Octane
 {
 
 InputHandler::InputHandler(Engine* engine)
-  : engine_ {engine},
+  : ISystem(engine),
     keys_ {new KeyState[SDL_NUM_SCANCODES] {IDLE}},
     prev_keys_ {new KeyState[SDL_NUM_SCANCODES] {IDLE}}
 {
@@ -41,7 +41,7 @@ void InputHandler::Update()
     //User requests quit
     case SDL_QUIT:
     {
-      engine_->Quit();
+      engine_.Quit();
     }
     break;
     case SDL_KEYDOWN:

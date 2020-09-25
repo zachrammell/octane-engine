@@ -20,7 +20,7 @@ namespace Octane
 namespace dx = DirectX;
 
 CameraSys::CameraSys(Engine* engine)
-: model(),view(),/*proj(),*/
+: ISystem(engine), model(),view(),/*proj(),*/
 right(1.f, 0.f, 0.f, 0.f), up(0.f, 1.f, 0.f, 0.f),
 forward(0.f, 0.f, 1.f,0.f), pos(0.f,0.f,0.f, 1.f),
 isDirty(true)

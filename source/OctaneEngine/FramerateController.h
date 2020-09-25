@@ -11,7 +11,7 @@ class FramerateController : public ISystem
 {
   // ISystem implementation
 public:
-  FramerateController()  = default;
+  FramerateController(Engine* Engine);
   ~FramerateController() = default;
 
   void Load() override {};

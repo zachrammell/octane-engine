@@ -6,6 +6,7 @@
 
 namespace Octane
 {
+FramerateController::FramerateController(Engine* Engine) : ISystem(Engine) {}
 
 void FramerateController::LevelStart()
 {
