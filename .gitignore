@@ -7,7 +7,10 @@ out/*
 
 # cmake build artifacts
 
+build/*
 cmake-build*
+CMakeCache.txt
+CMakeFiles/*
 
 # keep the target launch properties
 !.vs/launch.vs.json
