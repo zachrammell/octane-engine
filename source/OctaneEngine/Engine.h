@@ -3,9 +3,9 @@
 #include <EASTL/array.h>
 #include <EASTL/type_traits.h>
 
-#include "Helper.h"
-#include "ISystem.h"
-#include "SystemOrder.h"
+#include <OctaneEngine/Helper.h>
+#include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/SystemOrder.h>
 
 namespace Octane
 {
