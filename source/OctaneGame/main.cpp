@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) noexcept
     if (main_menu)
     {
       ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
-      ImGui::SetWindowPos("menu",ImVec2(800.0f, 500.0f));
+      ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
       if (ImGui::Button("play"))
       {
         main_menu = false;
@@ -257,11 +257,15 @@ int main(int argc, char* argv[]) noexcept
     }
     else
     {
-
       if (ImGui::BeginMainMenuBar())
       {
         if (ImGui::BeginMenu("File"))
         {
+          if (ImGui::MenuItem("Quit"))
+          {
+            engine.Quit();
+          }
+
           ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit"))
@@ -288,11 +292,6 @@ int main(int argc, char* argv[]) noexcept
             ImGui::MenuItem("ImGui Demo", 0, &demo_window_open);
             ImGui::EndMenu();
           }
-          ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Quit"))
-        {
-          break;
           ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
