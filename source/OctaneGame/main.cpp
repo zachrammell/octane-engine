@@ -226,6 +226,7 @@ int main(int argc, char* argv[]) noexcept
   bool scene_settings_open = false;
   bool demo_window_open = false;
   bool main_menu = true;
+  bool esc_menu = false;
 
   while (!engine.ShouldQuit())
   {
@@ -245,18 +246,41 @@ int main(int argc, char* argv[]) noexcept
     {
       ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
       ImGui::SetWindowPos("menu",ImVec2(800.0f, 500.0f));
-      if (ImGui::Button("play"))
+      if (esc_menu == false)
       {
-        main_menu = false;
+        if (ImGui::Button("play"))
+        {
+          main_menu = false;
+        }
+      }
+      else
+      {
+        if (ImGui::Button("resume"))
+        {
+          main_menu = false;
+          esc_menu = false;
+        }
       }
       if (ImGui::Button("quit"))
       {
         break;
       }
+      //If press the esc, shut down the program
+      if (input->KeyReleased(SDLK_ESCAPE))
+      {
+        break;
+      }
+
       ImGui::End();
     }
     else
     {
+        //If press the esc, make menu come out
+      if (input->KeyReleased(SDLK_ESCAPE))
+      {
+        main_menu = true;
+        esc_menu = true;
+      }
 
       if (ImGui::BeginMainMenuBar())
       {
