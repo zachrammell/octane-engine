@@ -225,6 +225,7 @@ int main(int argc, char* argv[]) noexcept
 
   bool scene_settings_open = false;
   bool demo_window_open = false;
+  bool main_menu = true;
 
   while (!engine.ShouldQuit())
   {
@@ -240,125 +241,144 @@ int main(int argc, char* argv[]) noexcept
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplSDL2_NewFrame(window);
     ImGui::NewFrame();
-
-    if (ImGui::BeginMainMenuBar())
+    if (main_menu)
     {
-      if (ImGui::BeginMenu("File"))
+      ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
+      //ImGui::SetWindowPos("menu",ImVec2(300.0f, 300.0f));
+      if (ImGui::Button("play"))
       {
-        ImGui::EndMenu();
+        main_menu = false;
       }
-      if (ImGui::BeginMenu("Edit"))
+      if (ImGui::Button("quit"))
       {
-        if (ImGui::BeginMenu("Theme"))
-        {
-          if (ImGui::MenuItem("Visual Studio"))
-          {
-            Octane::Style::ImguiVisualStudio();
-          }
-          if (ImGui::MenuItem("ImGui Dark"))
-          {
-            ImGui::StyleColorsDark();
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-      }
-      if (ImGui::BeginMenu("View"))
-      {
-        if (ImGui::BeginMenu("Windows"))
-        {
-          ImGui::MenuItem("Scene Settings", 0, &scene_settings_open);
-          ImGui::MenuItem("ImGui Demo", 0, &demo_window_open);
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-      }
-      if (ImGui::BeginMenu("Quit"))
-      {
-        ImGui::EndMenu();
-      }
-      ImGui::EndMainMenuBar();
-    }
-
-    if (scene_settings_open)
-    {
-      ImGui::Begin("Scene Settings", &scene_settings_open, ImGuiWindowFlags_AlwaysAutoResize);
-      if (ImGui::CollapsingHeader("Light Properties"))
-      {
-        ImGui::DragFloat3("Light Position", (&light_position.x), 0.01f);
-      }
-      if (ImGui::CollapsingHeader("Camera Properties"))
-      {
-        ImGui::DragFloat3("Camera Position", (&cam_position.x), 0.01f);
-        ImGui::DragFloat3("Camera Target", (&cam_target.x), 0.01f);
+        break;
       }
       ImGui::End();
     }
-
-    if (demo_window_open)
+    else
     {
-      ImGui::ShowDemoWindow(&demo_window_open);
-    }
 
-    DirectX::XMFLOAT3 cam_velocity;
-    cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
-    cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
-    cam_velocity.z = (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
-
-    DirectX::XMStoreFloat3(&cam_velocity, DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&cam_velocity)), 0.5f));
-
-    cam_position.x += cam_velocity.x;
-    cam_position.y += cam_velocity.y;
-    cam_position.z += cam_velocity.z;
-      
-      cam_view_matrix
-      = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
-    cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
-      DirectX::XMConvertToRadians(20.0f),
-      (float)window_width / (float)window_height,
-      0.05f,
-      1000.0f);
-
-    DirectX::XMStoreFloat4x4(
-      &(cb_per_fr.ViewProjection),
-      DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix));
-    cb_per_fr.CameraPosition = cam_position;
-    cb_per_fr.LightPosition = light_position;
-
-    render.GetD3D11Context()->UpdateSubresource(constant_buffers[1].get(), 0, nullptr, &cb_per_fr, 0, 0);
-    {
-      ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[1].get()};
-      render.GetD3D11Context()->VSSetConstantBuffers(1, 1, p_constant_buffers);
-      render.GetD3D11Context()->PSSetConstantBuffers(1, 1, p_constant_buffers);
-    }
-
-    render.UseShader(phong);
-    render.DrawScene();
-
-    for (int i = 0; i < MAX_OBJECTS; ++i)
-    {
-      if (object_active[i])
+      if (ImGui::BeginMainMenuBar())
       {
-        DirectX::XMMATRIX world_matrix = DirectX::XMMatrixIdentity();
-        auto scale = object_scale_rotations[i].scale;
-        world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-        world_matrix
-          *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
-        auto pos = object_positions[i];
-        world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+        if (ImGui::BeginMenu("File"))
+        {
+          ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+          if (ImGui::BeginMenu("Theme"))
+          {
+            if (ImGui::MenuItem("Visual Studio"))
+            {
+              Octane::Style::ImguiVisualStudio();
+            }
+            if (ImGui::MenuItem("ImGui Dark"))
+            {
+              ImGui::StyleColorsDark();
+            }
+            ImGui::EndMenu();
+          }
+          ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View"))
+        {
+          if (ImGui::BeginMenu("Windows"))
+          {
+            ImGui::MenuItem("Scene Settings", 0, &scene_settings_open);
+            ImGui::MenuItem("ImGui Demo", 0, &demo_window_open);
+            ImGui::EndMenu();
+          }
+          ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Quit"))
+        {
+          break;
+          ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+      }
 
-        DirectX::XMStoreFloat4x4(&(cb_per_obj.World), DirectX::XMMatrixTranspose(world_matrix));
-        DirectX::XMStoreFloat4x4(&(cb_per_obj.NormalWorld), DirectX::XMMatrixInverse(nullptr, world_matrix));
-        cb_per_obj.Color = object_colors[i];
+      if (scene_settings_open)
+      {
+        ImGui::Begin("Scene Settings", &scene_settings_open, ImGuiWindowFlags_AlwaysAutoResize);
+        if (ImGui::CollapsingHeader("Light Properties"))
+        {
+          ImGui::DragFloat3("Light Position", (&light_position.x), 0.01f);
+        }
+        if (ImGui::CollapsingHeader("Camera Properties"))
+        {
+          ImGui::DragFloat3("Camera Position", (&cam_position.x), 0.01f);
+          ImGui::DragFloat3("Camera Target", (&cam_target.x), 0.01f);
+        }
+        ImGui::End();
+      }
 
-        render.GetD3D11Context()->UpdateSubresource(constant_buffers[0].get(), 0, nullptr, &cb_per_obj, 0, 0);
-        ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[0].get()};
-        render.GetD3D11Context()->VSSetConstantBuffers(0, 1, p_constant_buffers);
-        render.GetD3D11Context()->PSSetConstantBuffers(0, 1, p_constant_buffers);
-        render.GetD3D11Context()->DrawIndexed(m.index_count, 0, 0);
+      if (demo_window_open)
+      {
+        ImGui::ShowDemoWindow(&demo_window_open);
+      }
+
+      DirectX::XMFLOAT3 cam_velocity;
+      cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
+      cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
+      cam_velocity.z = (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+
+      DirectX::XMStoreFloat3(
+        &cam_velocity,
+        DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&cam_velocity)), 0.5f));
+
+      cam_position.x += cam_velocity.x;
+      cam_position.y += cam_velocity.y;
+      cam_position.z += cam_velocity.z;
+
+      cam_view_matrix
+        = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
+      cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
+        DirectX::XMConvertToRadians(20.0f),
+        (float)window_width / (float)window_height,
+        0.05f,
+        1000.0f);
+
+      DirectX::XMStoreFloat4x4(
+        &(cb_per_fr.ViewProjection),
+        DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix));
+      cb_per_fr.CameraPosition = cam_position;
+      cb_per_fr.LightPosition = light_position;
+
+      render.GetD3D11Context()->UpdateSubresource(constant_buffers[1].get(), 0, nullptr, &cb_per_fr, 0, 0);
+      {
+        ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[1].get()};
+        render.GetD3D11Context()->VSSetConstantBuffers(1, 1, p_constant_buffers);
+        render.GetD3D11Context()->PSSetConstantBuffers(1, 1, p_constant_buffers);
+      }
+
+      render.UseShader(phong);
+      render.DrawScene();
+
+      for (int i = 0; i < MAX_OBJECTS; ++i)
+      {
+        if (object_active[i])
+        {
+          DirectX::XMMATRIX world_matrix = DirectX::XMMatrixIdentity();
+          auto scale = object_scale_rotations[i].scale;
+          world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
+          world_matrix
+            *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
+          auto pos = object_positions[i];
+          world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+          DirectX::XMStoreFloat4x4(&(cb_per_obj.World), DirectX::XMMatrixTranspose(world_matrix));
+          DirectX::XMStoreFloat4x4(&(cb_per_obj.NormalWorld), DirectX::XMMatrixInverse(nullptr, world_matrix));
+          cb_per_obj.Color = object_colors[i];
+
+          render.GetD3D11Context()->UpdateSubresource(constant_buffers[0].get(), 0, nullptr, &cb_per_obj, 0, 0);
+          ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[0].get()};
+          render.GetD3D11Context()->VSSetConstantBuffers(0, 1, p_constant_buffers);
+          render.GetD3D11Context()->PSSetConstantBuffers(0, 1, p_constant_buffers);
+          render.GetD3D11Context()->DrawIndexed(m.index_count, 0, 0);
+        }
       }
     }
-
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     ImGui::UpdatePlatformWindows();
