@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) noexcept
     if (main_menu)
     {
       ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
-      //ImGui::SetWindowPos("menu",ImVec2(300.0f, 300.0f));
+      ImGui::SetWindowPos("menu",ImVec2(800.0f, 500.0f));
       if (ImGui::Button("play"))
       {
         main_menu = false;
