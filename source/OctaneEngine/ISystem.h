@@ -1,5 +1,7 @@
 #pragma once
 
+#include <EASTL/type_traits.h>
+
 namespace Octane
 {
 
@@ -11,7 +13,7 @@ enum class SystemOrder : unsigned int;
 class ISystem
 {
 public:
-  explicit ISystem(class Engine* parent_engine) : engine_(*parent_engine) {};
+  explicit ISystem(class Engine* parent_engine) : engine_ {*parent_engine} {};
 
   virtual ~ISystem() = default;
 
@@ -28,10 +30,18 @@ public:
   template<class System>
   System* Get()
   {
+    static_assert(eastl::is_base_of_v<ISystem, System>);
     return engine_.GetSystem<System>();
   }
 
-protected:
+  // specialization on Engine to allow accessing it with the same syntax
+  template <>
+  Engine* Get()
+  {
+    return &engine_;
+  }
+
+private:
   Engine& engine_;
 };
 

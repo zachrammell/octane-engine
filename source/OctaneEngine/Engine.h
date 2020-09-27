@@ -14,6 +14,8 @@ class Engine
 {
 public:
   Engine();
+  ~Engine();
+
   template<class System>
   void AddSystem(System* sys);
   void Update();

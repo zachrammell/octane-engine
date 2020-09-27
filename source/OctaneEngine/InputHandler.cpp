@@ -41,7 +41,7 @@ void InputHandler::Update()
     //User requests quit
     case SDL_QUIT:
     {
-      engine_.Quit();
+      Get<Engine>()->Quit();
     }
     break;
     case SDL_KEYDOWN:

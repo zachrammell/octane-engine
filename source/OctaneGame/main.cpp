@@ -24,6 +24,7 @@
 
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/WindowManager.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -47,10 +48,6 @@ void* operator new[](
 
 namespace
 {
-int window_width = 1280;
-int window_height = 720;
-SDL_Window* window = nullptr;
-
 winrt::com_ptr<ID3D11Buffer> model_vertex_buffer;
 winrt::com_ptr<ID3D11Buffer> model_index_buffer;
 winrt::com_ptr<ID3D11Buffer> constant_buffers[2];
@@ -73,36 +70,14 @@ int main(int argc, char* argv[]) noexcept
   // must be the first thing in main, for SDL2 initialization
   SDL_SetMainReady();
 
+  std::clog << "[== Project Octane ==]\n";
   Octane::Engine engine;
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
-
-  std::clog << "[== Project Octane ==]\n";
-  std::clog << "Initializing SDL\n";
-  if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
-  {
-    std::clog << "SDL could not initialize! SDL_Error:" << SDL_GetError() << "\n";
-    __debugbreak();
-    return EXIT_FAILURE;
-  }
-
-  //Create window
-  window = SDL_CreateWindow(
-    "Project Octane",
-    SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED,
-    window_width,
-    window_height,
-    SDL_WINDOW_SHOWN);
-  if (window == nullptr)
-  {
-    std::clog << "Window could not be created! SDL_Error:" << SDL_GetError() << "\n";
-    __debugbreak();
-    return EXIT_FAILURE;
-  }
+  engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
 
   std::clog << "Initializing DX11\n";
-  Octane::RenderDX11 render {window};
+  Octane::RenderDX11 render {engine.GetSystem<Octane::WindowManager>()->GetHandle()};
   Octane::Shader phong = render.CreateShader(
     L"assets/shaders/phong.hlsl",
     Octane::Shader::InputLayout_POS | Octane::Shader::InputLayout_NOR);
@@ -220,7 +195,7 @@ int main(int argc, char* argv[]) noexcept
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
   }
 
-  ImGui_ImplSDL2_InitForD3D(window);
+  ImGui_ImplSDL2_InitForD3D(engine.GetSystem<Octane::WindowManager>()->GetHandle());
   ImGui_ImplDX11_Init(render.GetD3D11Device(), render.GetD3D11Context());
 
   bool scene_settings_open = false;
@@ -240,11 +215,14 @@ int main(int argc, char* argv[]) noexcept
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
-    ImGui_ImplSDL2_NewFrame(window);
+    ImGui_ImplSDL2_NewFrame(engine.GetSystem<Octane::WindowManager>()->GetHandle());
     ImGui::NewFrame();
     if (main_menu)
     {
-      ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
+      ImGui::Begin(
+        "menu",
+        NULL,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
       ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
       if (esc_menu == false)
       {
@@ -252,12 +230,19 @@ int main(int argc, char* argv[]) noexcept
         {
           main_menu = false;
         }
+        render.SetClearColor(Octane::Colors::black);
+        render.DrawScene();
       }
       else
       {
         if (ImGui::Button("resume"))
         {
           main_menu = false;
+          esc_menu = false;
+        }
+        if (ImGui::Button("main menu"))
+        {
+          main_menu = true;
           esc_menu = false;
         }
       }
@@ -359,7 +344,7 @@ int main(int argc, char* argv[]) noexcept
         = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
       cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
         DirectX::XMConvertToRadians(20.0f),
-        (float)window_width / (float)window_height,
+        engine.GetSystem<Octane::WindowManager>()->GetAspectRatio(),
         0.05f,
         1000.0f);
 
@@ -377,6 +362,7 @@ int main(int argc, char* argv[]) noexcept
       }
 
       render.UseShader(phong);
+      render.SetClearColor(Octane::Colors::cerulean);
       render.DrawScene();
 
       for (int i = 0; i < MAX_OBJECTS; ++i)
@@ -411,8 +397,6 @@ int main(int argc, char* argv[]) noexcept
     render.Present();
   }
 
-  SDL_DestroyWindow(window);
-  SDL_Quit();
   _CrtDumpMemoryLeaks();
   return 0;
 }

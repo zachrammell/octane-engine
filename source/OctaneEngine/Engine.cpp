@@ -1,5 +1,10 @@
 #include <OctaneEngine/Engine.h>
 
+#include <iostream>
+#include <cassert>
+
+#include <SDL.h>
+
 namespace Octane
 {
 
@@ -13,6 +18,16 @@ Engine::Engine()
     //
     should_quit_{false}
 {
+  if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+  {
+    std::clog << "SDL could not initialize! SDL_Error:" << SDL_GetError() << "\n";
+    assert(!"Could not initialize SDL.");
+  }
+}
+
+Engine::~Engine()
+{
+  SDL_Quit();
 }
 
 void Engine::Update()
