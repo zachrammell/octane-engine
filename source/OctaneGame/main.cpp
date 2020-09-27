@@ -273,6 +273,10 @@ int main(int argc, char* argv[]) noexcept
         }
         ImGui::EndMenu();
       }
+      if (ImGui::BeginMenu("Quit"))
+      {
+        ImGui::EndMenu();
+      }
       ImGui::EndMainMenuBar();
     }
 
