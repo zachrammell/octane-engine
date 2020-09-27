@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) noexcept
     {
       ImGui::Begin("menu", NULL, ImGuiWindowFlags_NoDecoration);
       ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
-      if (ImGui::Button("play"))
+      if (esc_menu == false)
       {
         if (ImGui::Button("play"))
         {
@@ -275,6 +275,13 @@ int main(int argc, char* argv[]) noexcept
     }
     else
     {
+      //If press the esc, make menu come out
+      if (input->KeyReleased(SDLK_ESCAPE))
+      {
+        main_menu = true;
+        esc_menu = true;
+      }
+
       if (ImGui::BeginMainMenuBar())
       {
         if (ImGui::BeginMenu("File"))
