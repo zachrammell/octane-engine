@@ -13,6 +13,7 @@ public:
   virtual DirectX::XMVECTOR Support(const DirectX::XMVECTOR& direction) = 0;
   virtual DirectX::XMVECTOR GetNormal(const DirectX::XMVECTOR& local_point) = 0;
   virtual float GetVolume() = 0;
+  virtual void CalculateMassData(float density) = 0;
   float GetDensity() const;
   void SetMass(float density);
   //void CastRay(CastResult& result, float max_distance = -1.0f);

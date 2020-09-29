@@ -13,7 +13,7 @@ Box::~Box()
 
 DirectX::XMVECTOR Box::Support(const DirectX::XMVECTOR& direction)
 {
-  float p = -FLT_MAX;
+  float p = Math::REAL_NEGATIVE_MAX;
   DirectX::XMVECTOR result;
   for (size_t i = 0; i < 8; ++i)
   {
@@ -64,5 +64,29 @@ float Box::GetVolume()
   float h = DirectX::XMVectorSubtract(vertices_[0], vertices_[2]).m128_f32[1];
   float d = DirectX::XMVectorSubtract(vertices_[0], vertices_[1]).m128_f32[2];
   return w * h * d;
+}
+
+void Box::CalculateMassData(float density)
+{
+  float w = DirectX::XMVectorSubtract(vertices_[0], vertices_[4]).m128_f32[0];
+  float h = DirectX::XMVectorSubtract(vertices_[0], vertices_[2]).m128_f32[1];
+  float d = DirectX::XMVectorSubtract(vertices_[0], vertices_[1]).m128_f32[2];
+
+  //calculate mass of density
+  mass_ = density * w * h * d;
+
+  //calculate local inertia tensor
+  DirectX::XMFLOAT3X3 inertia;
+  inertia._11 = mass_ / 12.0f * (h * h + d * d);
+  inertia._22 = mass_ / 12.0f * (w * w + d * d);
+  inertia._33 = mass_ / 12.0f * (w * w + h * h);
+  local_inertia_ = DirectX::XMLoadFloat3x3(&inertia);
+
+  //calculate center of mass
+  local_centroid_ = DirectX::XMVectorSet(
+                                         0.5f * w + DirectX::XMVectorGetX(vertices_[7])
+                                       , 0.5f * h + DirectX::XMVectorGetY(vertices_[7])
+                                       , 0.5f * d + DirectX::XMVectorGetZ(vertices_[7])
+                                       , 0.0f);
 }
 }

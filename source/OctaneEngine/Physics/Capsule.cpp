@@ -35,6 +35,39 @@ DirectX::XMVECTOR Capsule::GetNormal(const DirectX::XMVECTOR& local_point)
 
 float Capsule::GetVolume()
 {
-  return 0.0f;
+  return Math::PI * DirectX::XMVectorGetX(radius_) * DirectX::XMVectorGetZ(radius_)
+         * (DirectX::XMVectorGetY(radius_) * 4.0f / 3.0f + height_);
+}
+
+void Capsule::CalculateMassData(float density)
+{
+  //calculate mass of density
+  mass_ = density * GetVolume();
+
+  //a, b is x-z plane's param
+  float a = DirectX::XMVectorGetX(radius_);
+  float b = DirectX::XMVectorGetZ(radius_);
+
+  //c, h is y axis param
+  float c = DirectX::XMVectorGetY(radius_); // height of radius
+  float h = height_;
+
+  //calculate local inertia tensor
+  float multi_a = 2.0f * c * mass_ / (4.0f * c + 3.0f * h);
+  float multi_b = 3.0f * h * mass_ / (4.0f * c + 3.0f * h);
+  float it_xx
+    = multi_a * (0.4f * (b * b + c * c) + 0.75f * h * c + 0.5f * h * h) + multi_b * (0.25f * b * b + h * h / 12.0f);
+  float it_zz
+    = multi_a * (0.4f * (a * a + c * c) + 0.75f * h * c + 0.5f * h * h) + multi_b * (0.25f * a * a + h * h / 12.0f);
+  float it_yy = multi_a * 0.4f * (a * a + b * b) + multi_b * 0.25f * (a * a + b * b);
+
+  DirectX::XMFLOAT3X3 inertia;
+  inertia._11 = it_xx;
+  inertia._22 = it_yy;
+  inertia._33 = it_zz;
+  local_inertia_ = DirectX::XMLoadFloat3x3(&inertia);
+
+  //calculate center of mass
+  local_centroid_ = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 }
 } // namespace Octane

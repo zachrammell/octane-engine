@@ -12,6 +12,7 @@ public:
   DirectX::XMVECTOR Support(const DirectX::XMVECTOR& direction) override;
   DirectX::XMVECTOR GetNormal(const DirectX::XMVECTOR& local_point) override;
   float GetVolume() override;
+  void CalculateMassData(float density) override;
 
 private:
   DirectX::XMVECTOR radius_; //vector3

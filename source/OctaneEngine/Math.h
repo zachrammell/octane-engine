@@ -1,9 +1,49 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <limits>
 
 namespace Octane
 {
+namespace Math
+{
+const float PI = 3.14159265358979323846264f;
+const float HALF_PI = PI * 0.5f;
+const float QUARTER_PI = PI * 0.25f;
+const float TWO_PI = PI * 2.f;
+const float PI_OVER_2 = HALF_PI;
+const float PI_OVER_3 = PI / 3;
+const float PI_OVER_4 = QUARTER_PI;
+const float PI_OVER_6 = PI / 6;
+const float RADIAN = PI / 180.0f;
+
+const float EPSILON = 0.00001f;
+const float EPSILON_SQUARED = EPSILON * EPSILON;
+const float EPSILON_BIAS = 1.00001f;
+
+const float REAL_MAX = 3.402823466e+38F;
+const float REAL_MIN = 1.175494351e-38F;
+
+const float REAL_POSITIVE_MAX = REAL_MAX;  //go to +max
+const float REAL_POSITIVE_MIN = REAL_MIN;  //near to 0
+const float REAL_NEGATIVE_MAX = -REAL_MAX; //go to -max
+const float REAL_NEGATIVE_MIN = -REAL_MIN; //near to 0
+
+const float ROOT_TWO = 1.41421356237309504880168f;
+const float ROOT_THREE = 1.73205080756887729352744f;
+const float ROOT_FIVE = 2.23606797749978969640917f;
+const float ROOT_TEN = 3.16227766016837933199889f;
+const float CUBE_ROOT_TWO = 1.25992104989487316476721f;
+const float CUBE_ROOT_THREE = 1.25992104989487316476721f;
+const float FORTH_ROOT_TWO = 1.18920711500272106671749f;
+
+const float LN_TWO = 0.69314718055994530941723f;
+const float LN_THREE = 1.09861228866810969139524f;
+const float LN_TEN = 2.30258509299404568401799f;
+
+const float F_NAN = std::numeric_limits<float>::quiet_NaN();
+const float F_INF = std::numeric_limits<float>::infinity();
+} // namespace Math
 
 inline DirectX::XMFLOAT3 HadamardProduct(const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs)
 {
@@ -68,5 +108,4 @@ auto avg(T... args)
 {
   return sum(args...) / sizeof...(args);
 }
-
 } // namespace Octane
