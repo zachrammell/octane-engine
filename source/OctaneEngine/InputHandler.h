@@ -8,11 +8,11 @@
 namespace Octane
 {
 
-class InputHandler : public ISystem
+class InputHandler final : public ISystem
 {
   // ISystem implementation
 public:
-  InputHandler(class Engine* engine);
+  explicit InputHandler(class Engine* engine);
   ~InputHandler() = default;
 
   void Load() override {};

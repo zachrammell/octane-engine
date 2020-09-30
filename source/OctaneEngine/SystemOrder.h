@@ -9,6 +9,7 @@ enum class SystemOrder : unsigned int
   InputHandler,
   CameraSys,
   WindowManager,
+  World,
   // must be last, do not add anything after it.
   COUNT
 };

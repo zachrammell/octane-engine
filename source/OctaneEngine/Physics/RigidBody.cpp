@@ -1,13 +1,14 @@
 #include <OctaneEngine/Math.h>
 #include <OctaneEngine/Physics/RigidBody.h>
+#include <iostream>
 
 namespace Octane
 {
-
 void RigidBody::Integrate(float dt)
 {
   //integrate velocity
   //calculate linear
+
   linear_velocity_
     = DirectX::XMVectorAdd(linear_velocity_, DirectX::XMVectorScale(force_accumulator_, mass_data_.inverse_mass * dt));
   //calculate angular
@@ -22,12 +23,21 @@ void RigidBody::Integrate(float dt)
   DirectX::XMVECTOR delta_linear_velocity
     = HadamardProduct(DirectX::XMVectorScale(linear_velocity_, dt), linear_constraints_);
   global_centroid_ = DirectX::XMVectorAdd(global_centroid_, delta_linear_velocity);
+
+
+
   //calculate angular
   DirectX::XMVECTOR delta_angular_velocity
     = HadamardProduct(DirectX::XMVectorScale(angular_velocity_, dt), angular_constraints_);
   DirectX::XMVECTOR axis = DirectX::XMVector3Normalize(delta_angular_velocity);
   float radian = DirectX::XMVector3Length(delta_angular_velocity).m128_f32[0] * dt;
-  orientation_ = DirectX::XMQuaternionMultiply(orientation_, DirectX::XMQuaternionRotationAxis(axis, radian));
+
+  if (DirectX::XMVector3Length(axis).m128_f32[0] > 0.0f)
+  {
+    DirectX::XMVECTOR delta_orientation = DirectX::XMQuaternionRotationAxis(axis, radian);
+    orientation_ = DirectX::XMQuaternionMultiply(orientation_, delta_orientation);
+  }
+
 }
 
 void RigidBody::ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOAT3& at)
@@ -42,7 +52,7 @@ void RigidBody::ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOA
 void RigidBody::ApplyForceCentroid(const DirectX::XMFLOAT3& force)
 {
   force_accumulator_ = DirectX::XMVectorAdd(force_accumulator_, XMLoadFloat3(&force));
-}
+ }
 
 void RigidBody::ApplyTorque(const DirectX::XMFLOAT3& torque)
 {
@@ -88,4 +98,27 @@ void RigidBody::SetAngularConstraints(const DirectX::XMFLOAT3& angular_constrain
   angular_constraints_ = XMLoadFloat3(&angular_constraints);
 }
 
+void RigidBody::SyncFromPosition(const DirectX::XMFLOAT3& position)
+{
+  position_ = XMLoadFloat3(&position);
+  UpdateCentroid();
+}
+
+void RigidBody::SyncFromOrientation(const DirectX::XMFLOAT4& orientation)
+{
+  orientation_ = XMLoadFloat4(&orientation);
+  UpdateOrientation();
+  UpdateCentroid();
+  UpdateInertia();
+}
+
+void RigidBody::SyncToPosition(DirectX::XMFLOAT3& position) const
+{
+  XMStoreFloat3(&position, position_);
+}
+
+void RigidBody::SyncToOrientation(DirectX::XMFLOAT4& orientation) const
+{
+  XMStoreFloat4(&orientation, orientation_);
+}
 } // namespace Octane

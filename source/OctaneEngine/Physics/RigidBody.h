@@ -26,6 +26,11 @@ public:
   void SetLinearConstraints(const DirectX::XMFLOAT3& linear_constraints);
   void SetAngularConstraints(const DirectX::XMFLOAT3& angular_constraints);
 
+  void SyncFromPosition(const DirectX::XMFLOAT3& position);
+  void SyncFromOrientation(const DirectX::XMFLOAT4& orientation);
+  void SyncToPosition(DirectX::XMFLOAT3& position) const;
+  void SyncToOrientation(DirectX::XMFLOAT4& orientation) const;
+
 private:
   //linear data - positional
   DirectX::XMVECTOR position_;           //vector3 - for transform

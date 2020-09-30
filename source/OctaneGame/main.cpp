@@ -24,6 +24,7 @@
 
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/WindowManager.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
+  engine.AddSystem(new Octane::World {&engine});
 
   std::clog << "Initializing DX11\n";
   Octane::RenderDX11 render {engine.GetSystem<Octane::WindowManager>()->GetHandle()};
@@ -177,6 +179,17 @@ int main(int argc, char* argv[]) noexcept
     object_positions[i].z = 0.33f * (i - 50);
     object_scale_rotations[i].scale = 0.25f;
   }
+
+  auto world = engine.GetSystem<Octane::World>();
+
+  object_active[100] = true;
+  object_colors[100] = Octane::Colors::red;
+  object_scale_rotations[100].scale = 0.25f;
+
+  auto body = world->AddRigidBody();
+  DirectX::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
+  body->SetLinearConstraints(constraints);
+  body->SetAngularConstraints(constraints);
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -331,6 +344,16 @@ int main(int argc, char* argv[]) noexcept
       cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
       cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
       cam_velocity.z = (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+
+      //temp physics code
+
+      DirectX::XMFLOAT3 sample_force;
+      sample_force.x = 1.0f * (input->KeyHeld(SDLK_d) - input->KeyHeld(SDLK_a));
+      sample_force.y = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
+      sample_force.z = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
+
+      body->ApplyForceCentroid(sample_force);
+      body->SyncToPosition(object_positions[100]);
 
       DirectX::XMStoreFloat3(
         &cam_velocity,
