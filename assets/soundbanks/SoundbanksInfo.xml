@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="12" SoundbankVersion="135">
+	<RootPaths>
+		<ProjectRoot>D:\DigiPen\F20\MUS370L\SkeletonProject\</ProjectRoot>
+		<SourceFilesRoot>D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\</SourceFilesRoot>
+		<SoundBanksRoot>D:\DigiPen\GAMRepos\custom-engine\custom-engine\assets\soundbanks\</SoundBanksRoot>
+		<ExternalSourcesInputFile></ExternalSourcesInputFile>
+		<ExternalSourcesOutputRoot>D:\DigiPen\F20\MUS370L\SkeletonProject\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
+	</RootPaths>
+	<DialogueEvents/>
+	<StreamedFiles/>
+	<MediaFilesNotInAnyBank/>
+	<SoundBanks>
+		<SoundBank Id="1355168291" Language="SFX">
+			<ObjectPath>Init</ObjectPath>
+			<ShortName>Init</ShortName>
+			<Path>Init.bnk</Path>
+		</SoundBank>
+		<SoundBank Id="3161908922" Language="SFX">
+			<ObjectPath>\SoundBanks\Default Work Unit\Main</ObjectPath>
+			<ShortName>Main</ShortName>
+			<Path>Main.bnk</Path>
+			<IncludedEvents>
+				<Event Id="3092211194" Name="Explosion_Laser" ObjectPath="\Events\Default Work Unit\Explosion_Laser">
+					<IncludedMemoryFiles>
+						<File Id="172320610" Language="SFX">
+							<ShortName>ThunderClap.wav</ShortName>
+							<Path>SFX\ThunderClap_10C4C929.wem</Path>
+						</File>
+						<File Id="256810444" Language="SFX">
+							<ShortName>Laser1.wav</ShortName>
+							<Path>SFX\Laser1_10C4C929.wem</Path>
+						</File>
+						<File Id="658847440" Language="SFX">
+							<ShortName>Explosion1.wav</ShortName>
+							<Path>SFX\Explosion1_10C4C929.wem</Path>
+						</File>
+						<File Id="905657606" Language="SFX">
+							<ShortName>Laser3.wav</ShortName>
+							<Path>SFX\Laser3_10C4C929.wem</Path>
+						</File>
+						<File Id="991570323" Language="SFX">
+							<ShortName>Laser2.wav</ShortName>
+							<Path>SFX\Laser2_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+			</IncludedEvents>
+		</SoundBank>
+	</SoundBanks>
+</SoundBanksInfo>
