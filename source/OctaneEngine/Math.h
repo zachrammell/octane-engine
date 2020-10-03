@@ -97,6 +97,30 @@ inline DirectX::XMVECTOR Rotate(
     0.0f);
 }
 
+inline DirectX::XMVECTOR
+  QuaternionFromTo(const DirectX::XMVECTOR& unit_vec3_from, const DirectX::XMVECTOR& unit_vec3_to)
+{
+  DirectX::XMVECTOR axis = DirectX::XMVector3Cross(unit_vec3_from, unit_vec3_to);
+  DirectX::XMVECTOR quaternion = DirectX::XMVectorSet(
+    axis.m128_f32[0],
+    axis.m128_f32[1],
+    axis.m128_f32[2],
+    DirectX::XMVector3Dot(unit_vec3_from, unit_vec3_to).m128_f32[0]);
+  quaternion = DirectX::XMQuaternionNormalize(quaternion);
+  quaternion.m128_f32[3] += 1.0f;
+  float from_x = unit_vec3_from.m128_f32[0];
+  float from_y = unit_vec3_from.m128_f32[1];
+  float from_z = unit_vec3_from.m128_f32[2];
+  if (quaternion.m128_f32[3] <= Math::EPSILON)
+  {
+    if (from_z * from_z > from_x * from_x)
+      quaternion = DirectX::XMVectorSet(0.0f, 0.0f, from_z, -from_y);
+    else
+      quaternion = DirectX::XMVectorSet(0.0f, from_y, -from_x, 0.0f);
+  }
+  return DirectX::XMQuaternionNormalize(quaternion);
+}
+
 template<typename... T>
 auto sum(T... args)
 {
