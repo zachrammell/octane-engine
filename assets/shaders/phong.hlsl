@@ -1,11 +1,11 @@
-cbuffer cb_per_object
+cbuffer cb_per_object : register(b0)
 {
   float4x4 World;
   float4x4 WorldNormal;
   float4   ObjectColor;
 };
 
-cbuffer cb_per_frame
+cbuffer cb_per_frame : register(b1)
 {
   float4x4 ViewProjection;
   float4   CameraPosition;
