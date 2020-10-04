@@ -106,15 +106,45 @@ RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}
     D3D11_FILL_SOLID,
     D3D11_CULL_BACK,
     true,
-
   };
 
   hr = device_->CreateRasterizerState(&rasterizer_descriptor, rasterizer_state_.put());
   assert(SUCCEEDED(hr));
   device_context_->RSSetState(rasterizer_state_.get());
 
-  // set up the default viewport to match the window
   {
+    D3D11_BUFFER_DESC
+    cb_buffer_descriptor {
+      sizeof(ShaderConstantBuffers::PerObjectConstants::RawData),
+      D3D11_USAGE_DEFAULT,
+      D3D11_BIND_CONSTANT_BUFFER,
+      0,
+      0,
+      0};
+    HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[0].put());
+    assert(SUCCEEDED(hr));
+  }
+
+  {
+    D3D11_BUFFER_DESC
+    cb_buffer_descriptor {
+      sizeof(ShaderConstantBuffers::PerFrameConstants::RawData),
+      D3D11_USAGE_DEFAULT,
+      D3D11_BIND_CONSTANT_BUFFER,
+      0,
+      0,
+      0};
+    HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
+    assert(SUCCEEDED(hr));
+  }
+
+    // set up the default viewport to match the window
+  {
+    SDL_SysWMinfo system_info;
+    SDL_VERSION(&system_info.version);
+    SDL_GetWindowWMInfo(window, &system_info);
+    HWND window_handle = system_info.info.win.window;
+
     RECT window_rect;
     GetClientRect(window_handle, &window_rect);
     D3D11_VIEWPORT viewport {
@@ -135,7 +165,7 @@ RenderDX11::~RenderDX11()
   device_context_->Release();
 }
 
-void RenderDX11::DrawScene()
+void RenderDX11::ClearScreen()
 {
   {
     auto* p_render_target_view = render_target_view_.get();
@@ -157,7 +187,10 @@ void RenderDX11::Present()
 void RenderDX11::ResizeFramebuffer(SDL_Window* window)
 {
   device_context_->OMSetRenderTargets(0, 0, 0);
-  render_target_view_->Release();
+  if (render_target_view_)
+  {
+    render_target_view_->Release();
+  }
 
   HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
   assert(SUCCEEDED(hr));

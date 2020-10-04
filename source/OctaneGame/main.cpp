@@ -49,8 +49,6 @@ void* operator new[](
 
 namespace
 {
-winrt::com_ptr<ID3D11Buffer> constant_buffers[2];
-
 struct ScaleRotation
 {
   float scale;
@@ -84,42 +82,8 @@ int main(int argc, char* argv[]) noexcept
   render.SetClearColor(Octane::Colors::cerulean);
 
   Octane::OBJParser obj_parser;
-  Octane::Mesh m = obj_parser.ParseOBJ(L"assets/models/cube_rounded.obj");
+  Octane::Mesh m = obj_parser.ParseOBJ(L"assets/models/sphere.obj");
   Octane::MeshDX11 m_dx11 = render.CreateMesh(m);
-
-  struct cb_per_object
-  {
-    DirectX::XMFLOAT4X4 World;
-    DirectX::XMFLOAT4X4 NormalWorld;
-    DirectX::XMFLOAT3 Color;
-    FLOAT padding0_;
-  } cb_per_obj;
-
-  {
-    D3D11_BUFFER_DESC
-    cb_buffer_descriptor {sizeof(cb_per_object), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
-    HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[0].put());
-    assert(SUCCEEDED(hr));
-  }
-
-  struct cb_per_frame
-  {
-    DirectX::XMFLOAT4X4 ViewProjection;
-    DirectX::XMFLOAT3 CameraPosition;
-    FLOAT padding0_;
-    DirectX::XMFLOAT3 LightPosition;
-    FLOAT padding1_;
-  } cb_per_fr;
-
-  {
-    D3D11_BUFFER_DESC
-    cb_buffer_descriptor {sizeof(cb_per_frame), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0, 0, 0};
-    HRESULT hr = render.GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers[1].put());
-    if (FAILED(hr))
-    {
-      std::cout << std::system_category().message(hr);
-    }
-  }
 
   render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   render.UseMesh(m_dx11);
@@ -207,7 +171,7 @@ int main(int argc, char* argv[]) noexcept
           main_menu = false;
         }
         render.SetClearColor(Octane::Colors::black);
-        render.DrawScene();
+        render.ClearScreen();
       }
       else
       {
@@ -334,43 +298,36 @@ int main(int argc, char* argv[]) noexcept
         0.05f,
         1000.0f);
 
-      DirectX::XMStoreFloat4x4(
-        &(cb_per_fr.ViewProjection),
-        DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix));
-      cb_per_fr.CameraPosition = cam_position;
-      cb_per_fr.LightPosition = light_position;
+      render.ShaderConstants()
+        .PerFrame()
+        .SetViewProjection(DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix))
+        .SetCameraPosition(cam_position)
+        .SetLightPosition(light_position);
 
-      render.GetD3D11Context()->UpdateSubresource(constant_buffers[1].get(), 0, nullptr, &cb_per_fr, 0, 0);
-      {
-        ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[1].get()};
-        render.GetD3D11Context()->VSSetConstantBuffers(1, 1, p_constant_buffers);
-        render.GetD3D11Context()->PSSetConstantBuffers(1, 1, p_constant_buffers);
-      }
+      render.Upload(render.ShaderConstants().PerFrame());
 
       render.UseShader(phong);
       render.SetClearColor(Octane::Colors::cerulean);
-      render.DrawScene();
+      render.ClearScreen();
 
       for (int i = 0; i < MAX_OBJECTS; ++i)
       {
         if (object_active[i])
         {
-          DirectX::XMMATRIX world_matrix = DirectX::XMMatrixIdentity();
+          DirectX::XMMATRIX object_world_matrix = DirectX::XMMatrixIdentity();
           auto scale = object_scale_rotations[i].scale;
-          world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-          world_matrix
+          object_world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
+          object_world_matrix
             *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
           auto pos = object_positions[i];
-          world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+          object_world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
-          DirectX::XMStoreFloat4x4(&(cb_per_obj.World), DirectX::XMMatrixTranspose(world_matrix));
-          DirectX::XMStoreFloat4x4(&(cb_per_obj.NormalWorld), DirectX::XMMatrixInverse(nullptr, world_matrix));
-          cb_per_obj.Color = object_colors[i];
-
-          render.GetD3D11Context()->UpdateSubresource(constant_buffers[0].get(), 0, nullptr, &cb_per_obj, 0, 0);
-          ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[0].get()};
-          render.GetD3D11Context()->VSSetConstantBuffers(0, 1, p_constant_buffers);
-          render.GetD3D11Context()->PSSetConstantBuffers(0, 1, p_constant_buffers);
+          render.ShaderConstants()
+            .PerObject()
+            .SetWorldMatrix(DirectX::XMMatrixTranspose(object_world_matrix))
+            .SetWorldNormalMatrix(DirectX::XMMatrixInverse(nullptr, object_world_matrix))
+            .SetColor(object_colors[i]);
+          render.Upload(render.ShaderConstants().PerObject());
           render.DrawMesh();
         }
       }
