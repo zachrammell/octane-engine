@@ -22,8 +22,8 @@ void ReadUntil(FILE* fp, char const c)
 size_t WhitespaceCountUntil(FILE* fp, char const c)
 {
   size_t whitespace_count = 0;
-  bool is_new_whitespace  = true;
-  int read                = fgetc(fp);
+  bool is_new_whitespace = true;
+  int read = fgetc(fp);
   while (read != c && read != EOF)
   {
     int const is_whitespace = isspace(read);
@@ -48,7 +48,7 @@ size_t WhitespaceCountUntil(FILE* fp, char const c)
 Octane::Mesh::Index ParseIndex(FILE* fp)
 {
   Octane::Mesh::Index idx[3] = {0};
-  int current_parsing        = 0;
+  int current_parsing = 0;
 
   while (true)
   {
@@ -87,6 +87,7 @@ namespace Octane
 
 Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
 {
+  using namespace DirectX;
   FILE* fp;
   if (_wfopen_s(&fp, filepath, L"rt") != 0)
   {
@@ -94,6 +95,8 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
     assert(!"Failed to open file.");
   }
   Mesh mesh {};
+  size_t vertex_count = 0;
+  size_t index_count = 0;
 
   // Initial parsing pass to count number of vertices and indices
   {
@@ -111,14 +114,14 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
       {
         if (!isalpha(fgetc(fp))) // don't increase vertex count for vt or vn
         {
-          ++(mesh.vertex_count);
+          ++vertex_count;
         }
         ReadUntil(fp, '\n');
       }
       break;
       case 'f':
       {
-        mesh.index_count += WhitespaceCountUntil(fp, '\n');
+        index_count += WhitespaceCountUntil(fp, '\n');
       }
       break;
       case EOF:
@@ -141,17 +144,17 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
   fseek(fp, 0, SEEK_SET);
 
   // Allocate buffers for the mesh's vertices and indices
-  mesh.vertex_buffer = new Mesh::Vertex[mesh.vertex_count];
-  mesh.index_buffer  = new Mesh::Index[mesh.index_count];
+  mesh.vertex_buffer.resize(vertex_count);
+  mesh.index_buffer.resize(index_count);
 
-  DirectX::XMFLOAT3 mn {FLT_MAX, FLT_MAX, FLT_MAX};
-  DirectX::XMFLOAT3 mx {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+  XMFLOAT3 mn {FLT_MAX, FLT_MAX, FLT_MAX};
+  XMFLOAT3 mx {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
   // Parse data and fill buffers
   {
     size_t vertices_processed = 0;
-    size_t indices_processed  = 0;
-    bool parsing              = true;
+    size_t indices_processed = 0;
+    bool parsing = true;
     while (parsing)
     {
       switch (fgetc(fp))
@@ -165,7 +168,7 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
       {
         if (!isalpha(fgetc(fp))) // don't parse vt or vn as vertices
         {
-          DirectX::XMFLOAT3* position = &(mesh.vertex_buffer[vertices_processed].position);
+          XMFLOAT3* position = &(mesh.vertex_buffer[vertices_processed].position);
           fscanf_s(fp, "%f %f %f", &(position->x), &(position->y), &(position->z));
 
           mn.x = std::min(mn.x, position->x);
@@ -188,21 +191,25 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
         Mesh::Index indices[3];
         for (int i = 0; i < 3; ++i)
         {
-          indices[i]                               = ParseIndex(fp);
+          indices[i] = ParseIndex(fp);
           mesh.index_buffer[indices_processed + i] = indices[i];
         }
 
         {
-          using namespace DirectX;
           XMVECTOR positions[3];
           for (int i = 0; i < 3; ++i)
           {
             positions[i] = XMLoadFloat3(&(mesh.vertex_buffer[indices[i]].position));
           }
           XMVECTOR const face_normal = XMVector3Cross(positions[0] - positions[1], positions[2] - positions[1]);
+          XMVECTOR angles[3];
+          angles[0] = XMVector3AngleBetweenVectors(positions[1] - positions[0], positions[2] - positions[0]);
+          angles[1] = XMVector3AngleBetweenVectors(positions[2] - positions[1], positions[0] - positions[1]);
+          angles[2] = XMVector3AngleBetweenVectors(positions[0] - positions[2], positions[1] - positions[2]);
           for (int i = 0; i < 3; ++i)
           {
-            XMVECTOR const added_normal = XMLoadFloat3(&(mesh.vertex_buffer[indices[i]].normal)) + face_normal;
+            XMVECTOR const weighted_normal = face_normal * angles[i];
+            XMVECTOR const added_normal = XMLoadFloat3(&(mesh.vertex_buffer[indices[i]].normal)) + weighted_normal;
             XMStoreFloat3(&(mesh.vertex_buffer[indices[i]].normal), added_normal);
           }
         }
@@ -226,15 +233,13 @@ Mesh OBJParser::ParseOBJ(wchar_t const* filepath)
     }
   }
 
-  float scale = 1.0f / std::max(mx.x - mn.y, std::max(mx.y - mn.y, mx.z - mn.z));
-  DirectX::XMMATRIX normalizing_matrix
-    = DirectX::XMMatrixTranslation(-avg(mn.x, mx.x), -avg(mn.y, mx.y), -avg(mn.z, mx.z));
-  normalizing_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-  for (size_t i = 0; i < mesh.vertex_count; ++i)
+  float const scale = 1.0f / std::max(mx.x - mn.y, std::max(mx.y - mn.y, mx.z - mn.z));
+  XMMATRIX normalizing_matrix = XMMatrixTranslation(-avg(mn.x, mx.x), -avg(mn.y, mx.y), -avg(mn.z, mx.z));
+  normalizing_matrix *= XMMatrixScaling(scale, scale, scale);
+  for (Mesh::Vertex& vertex : mesh.vertex_buffer)
   {
-    DirectX::XMStoreFloat3(
-      &(mesh.vertex_buffer[i].position),
-      DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&(mesh.vertex_buffer[i].position)), normalizing_matrix));
+    XMStoreFloat3(&(vertex.position), XMVector3Transform(XMLoadFloat3(&(vertex.position)), normalizing_matrix));
+    XMStoreFloat3(&(vertex.normal), XMVector3Normalize(XMLoadFloat3(&(vertex.normal))));
   }
 
   return mesh;

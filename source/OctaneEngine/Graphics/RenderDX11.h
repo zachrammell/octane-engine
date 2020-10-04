@@ -11,12 +11,15 @@
 
 #include <SDL.h>
 
+#include <OctaneEngine/Graphics/Mesh.h>
 #include <OctaneEngine/Graphics/Colors.h>
 #include <OctaneEngine/Graphics/Shader.h>
 
 namespace Octane
 {
-
+/*!
+ * \brief The interface to DirectX 11, and manager of DX11 GPU resources.
+ */
 class RenderDX11
 {
 public:
@@ -32,6 +35,10 @@ public:
   [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);
 
+  [[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh);
+  void UseMesh(MeshDX11 const& mesh);
+  void DrawMesh();
+
   ID3D11Device* GetD3D11Device() const;
   ID3D11DeviceContext* GetD3D11Context() const;
 
@@ -46,6 +53,7 @@ private:
   winrt::com_ptr<ID3D11RasterizerState> rasterizer_state_;
 
   Color clear_color_;
+  MeshDX11 const* current_mesh_;
 
   void ClearBuffers();
 };

@@ -347,8 +347,69 @@ Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
 
 void RenderDX11::UseShader(Shader& shader)
 {
-  device_context_->VSSetShader(shader.vertex_shader_.get(), nullptr, 0);
-  device_context_->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
+  GetD3D11Context()->IASetInputLayout(shader.GetInputLayout());
+  GetD3D11Context()->VSSetShader(shader.vertex_shader_.get(), nullptr, 0);
+  GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
+}
+
+MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
+{
+  MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
+  HRESULT hr;
+
+  {
+    D3D11_BUFFER_DESC vertex_buffer_descriptor {
+      sizeof(Mesh::Vertex) * mesh.vertex_buffer.size(),
+      D3D11_USAGE_DEFAULT,
+      D3D11_BIND_VERTEX_BUFFER,
+      0,
+      0,
+      0};
+    D3D11_SUBRESOURCE_DATA subresource_data {mesh.vertex_buffer.data(), 0, 0};
+
+    hr = GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, mesh_dx11.vertex_buffer_.put());
+    assert(SUCCEEDED(hr));
+  }
+
+  {
+    D3D11_BUFFER_DESC index_buffer_descriptor {
+      sizeof(Mesh::Index) * mesh.index_buffer.size(),
+      D3D11_USAGE_DEFAULT,
+      D3D11_BIND_INDEX_BUFFER,
+      0,
+      0,
+      0};
+    D3D11_SUBRESOURCE_DATA subresource_data {mesh.index_buffer.data(), 0, 0};
+
+    hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, mesh_dx11.index_buffer_.put());
+    assert(SUCCEEDED(hr));
+  }
+
+  return mesh_dx11;
+}
+
+void RenderDX11::UseMesh(MeshDX11 const& mesh)
+{
+  UINT const vertex_stride = mesh.vertex_size_;
+  UINT const vertex_offset = 0;
+
+  ID3D11Buffer* buffer = mesh.vertex_buffer_.get();
+  GetD3D11Context()->IASetVertexBuffers(0, 1, &buffer, &vertex_stride, &vertex_offset);
+  GetD3D11Context()->IASetIndexBuffer(mesh.index_buffer_.get(), DXGI_FORMAT_R32_UINT, 0);
+
+  current_mesh_ = &mesh;
+}
+
+void RenderDX11::DrawMesh()
+{
+  if (current_mesh_->index_count_)
+  {
+    GetD3D11Context()->DrawIndexed(current_mesh_->index_count_, 0, 0);
+  }
+  else // Not an indexed mesh
+  {
+    GetD3D11Context()->Draw(current_mesh_->vertex_count_, 0);
+  }
 }
 
 ID3D11Device* RenderDX11::GetD3D11Device() const

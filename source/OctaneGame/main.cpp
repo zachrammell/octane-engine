@@ -49,8 +49,6 @@ void* operator new[](
 
 namespace
 {
-winrt::com_ptr<ID3D11Buffer> model_vertex_buffer;
-winrt::com_ptr<ID3D11Buffer> model_index_buffer;
 winrt::com_ptr<ID3D11Buffer> constant_buffers[2];
 
 struct ScaleRotation
@@ -87,39 +85,7 @@ int main(int argc, char* argv[]) noexcept
 
   Octane::OBJParser obj_parser;
   Octane::Mesh m = obj_parser.ParseOBJ(L"assets/models/cube_rounded.obj");
-
-  UINT vertex_stride = sizeof(Octane::Mesh::Vertex);
-  UINT vertex_offset = 0;
-
-  {
-    D3D11_BUFFER_DESC vertex_buffer_descriptor {
-      sizeof(Octane::Mesh::Vertex) * m.vertex_count,
-      D3D11_USAGE_DEFAULT,
-      D3D11_BIND_VERTEX_BUFFER,
-      0,
-      0,
-      0};
-    D3D11_SUBRESOURCE_DATA subresource_data {m.vertex_buffer, 0, 0};
-
-    HRESULT hr
-      = render.GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, model_vertex_buffer.put());
-    assert(SUCCEEDED(hr));
-  }
-
-  {
-    D3D11_BUFFER_DESC index_buffer_descriptor {
-      sizeof(Octane::Mesh::Index) * m.index_count,
-      D3D11_USAGE_DEFAULT,
-      D3D11_BIND_INDEX_BUFFER,
-      0,
-      0,
-      0};
-    D3D11_SUBRESOURCE_DATA subresource_data {m.index_buffer, 0, 0};
-
-    HRESULT hr
-      = render.GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, model_index_buffer.put());
-    assert(SUCCEEDED(hr));
-  }
+  Octane::MeshDX11 m_dx11 = render.CreateMesh(m);
 
   struct cb_per_object
   {
@@ -156,10 +122,7 @@ int main(int argc, char* argv[]) noexcept
   }
 
   render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  render.GetD3D11Context()->IASetInputLayout(phong.GetInputLayout());
-  ID3D11Buffer* p_model_vertex_buffer = model_vertex_buffer.get();
-  render.GetD3D11Context()->IASetVertexBuffers(0, 1, &p_model_vertex_buffer, &vertex_stride, &vertex_offset);
-  render.GetD3D11Context()->IASetIndexBuffer(model_index_buffer.get(), DXGI_FORMAT_R32_UINT, 0);
+  render.UseMesh(m_dx11);
 
   DirectX::XMMATRIX cam_view_matrix;
   DirectX::XMMATRIX cam_projection_matrix;
@@ -408,7 +371,7 @@ int main(int argc, char* argv[]) noexcept
           ID3D11Buffer* p_constant_buffers[1] = {constant_buffers[0].get()};
           render.GetD3D11Context()->VSSetConstantBuffers(0, 1, p_constant_buffers);
           render.GetD3D11Context()->PSSetConstantBuffers(0, 1, p_constant_buffers);
-          render.GetD3D11Context()->DrawIndexed(m.index_count, 0, 0);
+          render.DrawMesh();
         }
       }
     }
