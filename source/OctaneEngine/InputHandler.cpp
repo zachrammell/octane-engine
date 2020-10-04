@@ -36,6 +36,7 @@ void InputHandler::Update()
   while (SDL_PollEvent(&e) != 0)
   {
     ImGui_ImplSDL2_ProcessEvent(&e);
+    
     switch (e.type)
     {
     //User requests quit
@@ -46,7 +47,7 @@ void InputHandler::Update()
     break;
     case SDL_KEYDOWN:
     {
-      if (e.key.repeat)
+      if (e.key.repeat || ImGui::GetIO().WantCaptureKeyboard)
       {
         break;
       }
@@ -59,7 +60,7 @@ void InputHandler::Update()
     break;
     case SDL_KEYUP:
     {
-      if (e.key.repeat)
+      if (e.key.repeat || ImGui::GetIO().WantCaptureKeyboard)
       {
         break;
       }
