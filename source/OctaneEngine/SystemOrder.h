@@ -10,6 +10,7 @@ enum class SystemOrder : unsigned int
   CameraSys,
   WindowManager,
   World,
+  Scene,
   // must be last, do not add anything after it.
   COUNT
 };
