@@ -136,17 +136,25 @@ void Audio::Audio_Shutdown()
 
 void Audio::Set_Bank_Path(const char * path)
 {
-  g_lowLevelIO.SetBasePath(AKTEXT(path));
+  int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+  wchar_t* wstr = new wchar_t[wchars_num];
+  MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
+  g_lowLevelIO.SetBasePath(wstr);
+  delete[] wstr;
 }
 
 void Audio::Set_Language(const char* language)
 {
-  AK::StreamMgr::SetCurrentLanguage(AKTEXT(language));
+  int wchars_num = MultiByteToWideChar(CP_UTF8, 0, language, -1, NULL, 0);
+  wchar_t* wstr = new wchar_t[wchars_num];
+  MultiByteToWideChar(CP_UTF8, 0, language, -1, wstr, wchars_num);
+  AK::StreamMgr::SetCurrentLanguage(wstr);
+  delete[] wstr;
 }
 
-const char* Audio::Get_Language()
+const wchar_t* Audio::Get_Language()
 {
-  return AK::StreamMgr::GetCurrentLanguage()
+  return AK::StreamMgr::GetCurrentLanguage();
 }
 
 AkBankID Audio::Load_Bank(const char* name)

@@ -45,7 +45,7 @@ private:
   static void Set_Language(const char *); // PASS IN "English(US)"
 
   // Getters
-  static const char* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
+  static const wchar_t* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
 
   // Banks
   static AkBankID Load_Bank(const char * name);
