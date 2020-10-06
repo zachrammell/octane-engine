@@ -82,11 +82,13 @@ int main(int argc, char* argv[]) noexcept
   render.SetClearColor(Octane::Colors::cerulean);
 
   Octane::OBJParser obj_parser;
-  Octane::Mesh m = obj_parser.ParseOBJ(L"assets/models/sphere.obj");
-  Octane::MeshDX11 m_dx11 = render.CreateMesh(m);
+  Octane::Mesh sphere_mesh = obj_parser.ParseOBJ(L"assets/models/sphere.obj");
+  Octane::MeshDX11 sphere_mesh_dx11 = render.CreateMesh(sphere_mesh);
+  Octane::Mesh cube_mesh = obj_parser.ParseOBJ(L"assets/models/cube_rounded.obj");
+  Octane::MeshDX11 cube_mesh_dx11 = render.CreateMesh(cube_mesh);
 
   render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  render.UseMesh(m_dx11);
+  render.UseMesh(sphere_mesh_dx11);
 
   DirectX::XMMATRIX cam_view_matrix;
   DirectX::XMMATRIX cam_projection_matrix;
@@ -321,7 +323,14 @@ int main(int argc, char* argv[]) noexcept
             *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
           auto pos = object_positions[i];
           object_world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-
+          if (i % 2 == 0)
+          {
+            render.UseMesh(cube_mesh_dx11);
+          }
+          else
+          {
+            render.UseMesh(sphere_mesh_dx11);
+          }
           render.ShaderConstants()
             .PerObject()
             .SetWorldMatrix(DirectX::XMMatrixTranspose(object_world_matrix))
