@@ -13,6 +13,7 @@
 
 // Includes
 #include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/IScene.h>
 
 namespace Octane
 {
@@ -23,16 +24,16 @@ public:
   explicit SceneSys(Engine* engine);
   ~SceneSys() = default;
 
-  void Load() override {};
+  void Load() override;
   void LevelStart() override;
   void Update() override;
   void LevelEnd() override;
-  void Unload() override {};
+  void Unload() override;
 
   static SystemOrder GetOrder();
 
 
 private:
-
+  IScene* current_scene_ = nullptr;
 };
 }

@@ -24,9 +24,9 @@ namespace Octane
 		  //destructor
 		  virtual ~IScene() = default;
 
+		  virtual void Load() = 0;
 		  virtual void Start() = 0;
 		  virtual void End() = 0;
-		  virtual void Load() = 0;
 		  virtual void Unload() = 0;
 
 		  virtual void Update(float dt) = 0;
