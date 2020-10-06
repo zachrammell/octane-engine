@@ -30,13 +30,31 @@
 
 namespace Octane
 {
+
+
 static class Audio
 {
 public:
   static bool Audio_Init();
   static void Audio_Update();
   static void Audio_Shutdown();
+  
 private:
+  // Setters
+  static void Set_Bank_Path(const char*);
+  static void Set_Language(const char *); // PASS IN "English(US)"
 
+  // Getters
+  static const char* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
+
+  // Banks
+  static AkBankID Load_Bank(const char * name);
+
+  // Handle tabbing out
+  // True = Partial on; Partial means to keep processing sound events
+  // False = Completely suspend all sound
+  static void Suspend(bool partial);
+  static void Unsuspend();
+  static void Restart_Render(); // This is called shortly after Unsuspend
 };
 }

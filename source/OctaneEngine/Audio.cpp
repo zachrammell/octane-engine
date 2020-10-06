@@ -25,7 +25,6 @@ bool Audio::Audio_Init()
   AkMemSettings memSettings;
   AK::MemoryMgr::GetDefaultSettings(memSettings);
   if (AK::MemoryMgr::Init(&memSettings) != AK_Success)
-
   {
     assert(!"Could not create the memory manager.");
     return false;
@@ -133,6 +132,45 @@ void Audio::Audio_Shutdown()
 
   // Terminate the Memory Manager
   AK::MemoryMgr::Term();
+}
+
+void Audio::Set_Bank_Path(const char * path)
+{
+  g_lowLevelIO.SetBasePath(AKTEXT(path));
+}
+
+void Audio::Set_Language(const char* language)
+{
+  AK::StreamMgr::SetCurrentLanguage(AKTEXT(language));
+}
+
+const char* Audio::Get_Language()
+{
+  return AK::StreamMgr::GetCurrentLanguage()
+}
+
+AkBankID Audio::Load_Bank(const char* name)
+{
+  AkBankID bankID; // Supposedly this is not used, but we will put this here in case
+  AKRESULT eResult = AK::SoundEngine::LoadBank(name, bankID);
+  assert(eResult == AK_Success);
+
+  return bankID;
+}
+
+void Audio::Suspend(bool partial)
+{
+  AK::SoundEngine::Suspend(partial);
+}
+
+void Audio::Unsuspend()
+{
+  AK::SoundEngine::WakeupFromSuspend();
+}
+
+void Audio::Restart_Render()
+{
+  AK::SoundEngine::RenderAudio();
 }
 
 
