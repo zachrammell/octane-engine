@@ -14,12 +14,14 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/FramerateController.h>
+#include <OctaneEngine/Scenes/TestScene.h>
 
 namespace Octane
 {
 SceneSys::SceneSys(Engine* engine) : ISystem(engine) 
 {
     //initialize the starting scene
+  current_scene_ = new TestScene(this);
 };
 
 void SceneSys::Load() 
@@ -42,7 +44,7 @@ void SceneSys::Update()
 {
   if (current_scene_ != nullptr)
   {
-    float dt = Get<FramerateController>()->GetDeltaTime();
+    float dt = 1.0f / 60.0f; ///Get<FramerateController>()->GetDeltaTime();
     current_scene_->Update(dt);
   }
 }

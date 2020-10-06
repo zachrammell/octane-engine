@@ -15,11 +15,13 @@
 
 namespace Octane
 {
+class SceneSys;
+
 	class IScene
 	{
         public:
 			//constructor
-          IScene() {};
+          explicit IScene(class SceneSys* parent) : parent_manager_ {*parent} {};
 
 		  //destructor
 		  virtual ~IScene() = default;
@@ -30,5 +32,15 @@ namespace Octane
 		  virtual void Unload() = 0;
 
 		  virtual void Update(float dt) = 0;
+
+		   // simple convenience function to access engine getsystem function
+           //template<class System>
+          // System* Get()
+          // {
+          //   return parent_manager_.Get<System>();
+         //  }
+
+		private:
+          SceneSys& parent_manager_;
 	};
 }

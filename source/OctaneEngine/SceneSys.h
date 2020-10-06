@@ -14,9 +14,9 @@
 // Includes
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/IScene.h>
-
 namespace Octane
 {
+
 class SceneSys final : public ISystem
 {
   // ISystem implementation
@@ -32,6 +32,8 @@ public:
 
   static SystemOrder GetOrder();
 
+  //scene manager
+  void SetNextScene() {};
 
 private:
   IScene* current_scene_ = nullptr;
