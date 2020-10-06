@@ -26,6 +26,8 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/SceneSys.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
@@ -45,6 +47,7 @@ void* operator new[](
   const char* file,
   int line)
 {
+  // pass-through to standard memory manager for now, will later be a custom one
   return new uint8_t[size];
 }
 
@@ -74,6 +77,8 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
   engine.AddSystem(new Octane::World {&engine});
+  engine.AddSystem(new Octane::EntitySys {&engine});
+  engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
 
   std::clog << "Initializing DX11\n";

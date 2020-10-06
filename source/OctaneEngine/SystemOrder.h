@@ -11,6 +11,8 @@ enum class SystemOrder : unsigned int
   WindowManager,
   World,
   Scene,
+  Entity,
+  Component,
   // must be last, do not add anything after it.
   COUNT
 };
