@@ -27,7 +27,7 @@ void SphericalCamera::LookAt(
   i_hat_ = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(up_vector, k_hat_));
   j_hat_ = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(k_hat_, i_hat_));
 
-  orientation_ = QuaternionFromTo(DirectX::XMVectorSetX(DirectX::XMVECTOR(), 1.0f), i_hat_);
+  orientation_ = Math::QuaternionFromTo(DirectX::XMVectorSetX(DirectX::XMVECTOR(), 1.0f), i_hat_);
 }
 
 void SphericalCamera::LookAt(
@@ -43,7 +43,7 @@ void SphericalCamera::LookAt(
   i_hat_ = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(up, k_hat_));
   j_hat_ = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(k_hat_, i_hat_));
 
-  orientation_ = QuaternionFromTo(DirectX::XMVectorSetX(DirectX::XMVECTOR(), 1.0f), i_hat_);
+  orientation_ = Math::QuaternionFromTo(DirectX::XMVectorSetX(DirectX::XMVECTOR(), 1.0f), i_hat_);
 }
 
 void SphericalCamera::AddPosition(float scale, int basis)

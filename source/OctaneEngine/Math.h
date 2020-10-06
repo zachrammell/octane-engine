@@ -43,7 +43,53 @@ const float LN_TEN = 2.30258509299404568401799f;
 
 const float F_NAN = std::numeric_limits<float>::quiet_NaN();
 const float F_INF = std::numeric_limits<float>::infinity();
-} // namespace Math
+
+inline bool IsEqual(float a, float b)
+{
+  return (fabsf(a - b) < Math::EPSILON);
+}
+
+inline bool IsNotEqual(float a, float b)
+{
+  return !(fabsf(a - b) < Math::EPSILON);
+}
+
+inline bool IsZero(float a)
+{
+  return (fabsf(a) < Math::EPSILON);
+}
+
+inline bool IsValid(float a)
+{
+  return (!isnan(a)) && isfinite(a);
+}
+
+inline bool IsEqual(const DirectX::XMVECTOR& a, const DirectX::XMVECTOR& b)
+{
+  return (
+    IsEqual(a.m128_f32[0], b.m128_f32[0]) && IsEqual(a.m128_f32[1], b.m128_f32[1])
+    && IsEqual(a.m128_f32[2], b.m128_f32[2]) && IsEqual(a.m128_f32[3], b.m128_f32[3]));
+}
+
+inline bool IsEqualVector3(const DirectX::XMVECTOR& a, const DirectX::XMVECTOR& b)
+{
+  return (
+    IsEqual(a.m128_f32[0], b.m128_f32[0]) && IsEqual(a.m128_f32[1], b.m128_f32[1])
+    && IsEqual(a.m128_f32[2], b.m128_f32[2]));
+}
+
+inline bool IsNotEqual(const DirectX::XMVECTOR& a, const DirectX::XMVECTOR& b)
+{
+  return (
+    IsNotEqual(a.m128_f32[0], b.m128_f32[0]) && IsNotEqual(a.m128_f32[1], b.m128_f32[1])
+    && IsNotEqual(a.m128_f32[2], b.m128_f32[2]) && IsNotEqual(a.m128_f32[3], b.m128_f32[3]));
+}
+
+inline bool IsValid(const DirectX::XMVECTOR& a)
+{
+  return (IsValid(a.m128_f32[0]) && IsValid(a.m128_f32[1]) && IsValid(a.m128_f32[2]) && IsValid(a.m128_f32[3]));
+}
+
 
 inline DirectX::XMFLOAT3 HadamardProduct(const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs)
 {
@@ -77,6 +123,21 @@ inline DirectX::XMFLOAT3X3 OuterProduct(const DirectX::XMFLOAT3& lhs, const Dire
     lhs.z * rhs.x,
     lhs.z * rhs.y,
     lhs.z * rhs.z);
+}
+
+inline float DotProductVector3(const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs)
+{
+  return DirectX::XMVector3Dot(lhs, rhs).m128_f32[0];
+}
+
+inline float DotProductVector4(const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs)
+{
+  return DirectX::XMVector4Dot(lhs, rhs).m128_f32[0];
+}
+
+inline DirectX::XMVECTOR CrossProductTwice(const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs)
+{
+  return DirectX::XMVector3Cross(DirectX::XMVector3Cross(lhs, rhs), lhs);
 }
 
 inline DirectX::XMVECTOR Rotate(const DirectX::XMVECTOR& orientation, const DirectX::XMVECTOR& vector3)
@@ -120,6 +181,9 @@ inline DirectX::XMVECTOR
   }
   return DirectX::XMQuaternionNormalize(quaternion);
 }
+
+
+} // namespace Math
 
 template<typename... T>
 auto sum(T... args)

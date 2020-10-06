@@ -10,19 +10,40 @@ void World::LevelStart() {}
 
 void World::Update()
 {
-  float dt = 1.0 / 60.0f; //Get<FramerateController>()->GetDeltaTime();
+  float dt = 1.0 / 60.0f;
   //Three stage of physics pipeline
 
   //[Broad Phase]
   //broad_phase->Update(dt);
   //broad_phase->ComputePairs(pairs);
 
+  potential_pairs_.clear();
+  auto primitive_end = primitives_.end();
+  for (auto it = primitives_.begin(); it != primitive_end; ++it)
+  {
+    auto jt_begin = it;
+    for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
+    {
+
+      Primitive* collider_a = (*it);
+      Primitive* collider_b = (*jt);
+
+      potential_pairs_.emplace_back(collider_a, collider_b);
+    }
+  }
+
   //[Narrow Phase]
   //narrow_phase->GenerateContact(pairs, manifold_table);
+
+  for (auto& pair : potential_pairs_)
   {
-    //Do GJK intersection test
-    //Do EPA contact generation
-    //Send Collision Event or Save Collision State
+    Simplex simplex;
+    if (narrow_phase_.GJKCollisionDetection(pair.a, pair.b, simplex))
+    {
+      //collision!
+      //Do EPA contact generation
+      //Send Collision Event or Save Collision State
+    }
   }
 
   //[Resolution Phase]
@@ -63,4 +84,6 @@ RigidBody* World::AddRigidBody()
   //initialize general rigid body here when it need.
   return &rigid_bodies_.back();
 }
+
+Primitive* World::AddPrimitive(RigidBody* owner, ePrimitiveType type) {}
 } // namespace Octane

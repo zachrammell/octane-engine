@@ -9,10 +9,10 @@ Ellipsoid::~Ellipsoid() {}
 DirectX::XMVECTOR Ellipsoid::Support(const DirectX::XMVECTOR& direction)
 {
   DirectX::XMVECTOR radius = radius_;
-  DirectX::XMVECTOR result = HadamardProduct(radius, radius);
-  result = HadamardProduct(result, direction);
+  DirectX::XMVECTOR result = Math::HadamardProduct(radius, radius);
+  result = Math::HadamardProduct(result, direction);
   result
-    = DirectX::XMVectorScale(result, 1.0f / DirectX::XMVector3Length(HadamardProduct(radius, direction)).m128_f32[0]);
+    = DirectX::XMVectorScale(result, 1.0f / DirectX::XMVector3Length(Math::HadamardProduct(radius, direction)).m128_f32[0]);
   return result;
 }
 

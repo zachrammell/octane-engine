@@ -1,10 +1,22 @@
 #include <OctaneEngine/Math.h>
 #include <OctaneEngine/Physics/RigidBody.h>
-#include <iostream>
 
 namespace Octane
 {
-void RigidBody::Integrate(float dt)
+  RigidBody::RigidBody()
+    : position_(),
+      linear_velocity_(),
+      force_accumulator_(),
+      angular_velocity_(),
+      torque_accumulator_(),
+      mass_data_(),
+      global_centroid_()
+  {
+    inverse_orientation_ = DirectX::XMQuaternionInverse(orientation_);
+    inverse_orientation_ = DirectX::XMQuaternionNormalize(inverse_orientation_);
+  }
+
+  void RigidBody::Integrate(float dt)
 {
   //integrate velocity
   //calculate linear
@@ -21,14 +33,12 @@ void RigidBody::Integrate(float dt)
   //integrate transformation
   //calculate linear
   DirectX::XMVECTOR delta_linear_velocity
-    = HadamardProduct(DirectX::XMVectorScale(linear_velocity_, dt), linear_constraints_);
+    = Math::HadamardProduct(DirectX::XMVectorScale(linear_velocity_, dt), linear_constraints_);
   global_centroid_ = DirectX::XMVectorAdd(global_centroid_, delta_linear_velocity);
-
-
 
   //calculate angular
   DirectX::XMVECTOR delta_angular_velocity
-    = HadamardProduct(DirectX::XMVectorScale(angular_velocity_, dt), angular_constraints_);
+    = Math::HadamardProduct(DirectX::XMVectorScale(angular_velocity_, dt), angular_constraints_);
   DirectX::XMVECTOR axis = DirectX::XMVector3Normalize(delta_angular_velocity);
   float radian = DirectX::XMVector3Length(delta_angular_velocity).m128_f32[0] * dt;
 
@@ -37,7 +47,6 @@ void RigidBody::Integrate(float dt)
     DirectX::XMVECTOR delta_orientation = DirectX::XMQuaternionRotationAxis(axis, radian);
     orientation_ = DirectX::XMQuaternionMultiply(orientation_, delta_orientation);
   }
-
 }
 
 void RigidBody::ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOAT3& at)
@@ -52,7 +61,7 @@ void RigidBody::ApplyForce(const DirectX::XMFLOAT3& force, const DirectX::XMFLOA
 void RigidBody::ApplyForceCentroid(const DirectX::XMFLOAT3& force)
 {
   force_accumulator_ = DirectX::XMVectorAdd(force_accumulator_, XMLoadFloat3(&force));
- }
+}
 
 void RigidBody::ApplyTorque(const DirectX::XMFLOAT3& torque)
 {
@@ -62,13 +71,13 @@ void RigidBody::ApplyTorque(const DirectX::XMFLOAT3& torque)
 void RigidBody::UpdateCentroid()
 {
   global_centroid_
-    = DirectX::XMVectorAdd(Rotate(inverse_orientation_, orientation_, mass_data_.local_centroid), position_);
+    = DirectX::XMVectorAdd(Math::Rotate(inverse_orientation_, orientation_, mass_data_.local_centroid), position_);
 }
 
 void RigidBody::UpdatePosition()
 {
   position_ = DirectX::XMVectorAdd(
-    Rotate(inverse_orientation_, orientation_, DirectX::XMVectorNegate(mass_data_.local_centroid)),
+                                   Math::Rotate(inverse_orientation_, orientation_, DirectX::XMVectorNegate(mass_data_.local_centroid)),
     global_centroid_);
 }
 
@@ -120,5 +129,25 @@ void RigidBody::SyncToPosition(DirectX::XMFLOAT3& position) const
 void RigidBody::SyncToOrientation(DirectX::XMFLOAT4& orientation) const
 {
   XMStoreFloat4(&orientation, orientation_);
+}
+
+DirectX::XMVECTOR RigidBody::LocalToWorldPoint(const DirectX::XMVECTOR& local_point) const
+{
+  return DirectX::XMVectorAdd(Math::Rotate(orientation_, local_point), position_);
+}
+
+DirectX::XMVECTOR RigidBody::WorldToLocalPoint(const DirectX::XMVECTOR& world_point) const
+{
+  return Math::Rotate(inverse_orientation_, DirectX::XMVectorSubtract(world_point, position_));
+}
+
+DirectX::XMVECTOR RigidBody::LocalToWorldVector(const DirectX::XMVECTOR& local_vector) const
+{
+  return Math::Rotate(orientation_, local_vector);
+}
+
+DirectX::XMVECTOR RigidBody::WorldToLocalVector(const DirectX::XMVECTOR& world_vector) const
+{
+  return Math::Rotate(inverse_orientation_, world_vector);
 }
 } // namespace Octane

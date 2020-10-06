@@ -14,8 +14,8 @@ struct MassData
   DirectX::XMVECTOR local_centroid; //vector3
 
   //inertia
-  DirectX::XMMATRIX local_inertia;         //matrix3x3
-  DirectX::XMMATRIX local_inverse_inertia; //matrix3x3
+  DirectX::XMMATRIX local_inertia = DirectX::XMMatrixIdentity();         //matrix3x3
+  DirectX::XMMATRIX local_inverse_inertia = DirectX::XMMatrixIdentity(); //matrix3x3
 };
 
 } // namespace Octane

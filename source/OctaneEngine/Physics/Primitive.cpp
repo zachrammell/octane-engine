@@ -15,4 +15,9 @@ void Primitive::SetMass(float density)
 {
   density_ = density;
 }
+
+RigidBody* Primitive::GetRigidBody() const
+{
+  return rigid_body_;
+}
 } // namespace Octane

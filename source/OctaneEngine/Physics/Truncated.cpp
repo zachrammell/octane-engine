@@ -13,9 +13,9 @@ DirectX::XMVECTOR Truncated::Support(const DirectX::XMVECTOR& direction)
   DirectX::XMVECTOR ellipse_dir = DirectX::XMVector3Normalize(DirectX::XMVectorSetY(direction, 0.0f));
   DirectX::XMVECTOR ellipse_radius
     = DirectX::XMVectorSet(DirectX::XMVectorGetX(radius_), 0.0f, DirectX::XMVectorGetY(radius_), 0.0f);
-  DirectX::XMVECTOR ellipse_vector = HadamardProduct(ellipse_radius, ellipse_radius);
-  ellipse_vector = HadamardProduct(ellipse_vector, ellipse_dir);
-  float denominator = DirectX::XMVector3Length(HadamardProduct(ellipse_radius, ellipse_dir)).m128_f32[0];
+  DirectX::XMVECTOR ellipse_vector = Math::HadamardProduct(ellipse_radius, ellipse_radius);
+  ellipse_vector = Math::HadamardProduct(ellipse_vector, ellipse_dir);
+  float denominator = DirectX::XMVector3Length(Math::HadamardProduct(ellipse_radius, ellipse_dir)).m128_f32[0];
   ellipse_vector = denominator == 0.0f ? DirectX::XMVectorScale(ellipse_vector, 0.0f)
                                        : DirectX::XMVectorScale(ellipse_vector, 1.0f / denominator);
 

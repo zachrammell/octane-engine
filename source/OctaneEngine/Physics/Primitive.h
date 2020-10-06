@@ -3,6 +3,15 @@
 
 namespace Octane
 {
+class RigidBody;
+
+enum class ePrimitiveType
+{
+  Box,
+  Capsule,
+  Ellipsoid,
+  Truncated
+};
 
 class Primitive
 {
@@ -20,11 +29,14 @@ public:
   //void IntersectRay(IntersectionResult& result, float max_distance = -1.0f);
   //virtual bool TestRay(const Ray& local_ray, float& minimum_t, float& maximum_t) const = 0;
 
+  RigidBody* GetRigidBody() const;
+
 protected:
   float density_ = 1.0f;
   float mass_ = 1.0f;
   DirectX::XMVECTOR local_centroid_; //vector3
   DirectX::XMMATRIX local_inertia_;  //matrix3x3
+  RigidBody* rigid_body_ = nullptr;
 };
 
 } // namespace Octane

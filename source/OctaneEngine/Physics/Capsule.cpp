@@ -10,9 +10,9 @@ DirectX::XMVECTOR Capsule::Support(const DirectX::XMVECTOR& direction)
 {
   DirectX::XMVECTOR axis_vector = DirectX::XMVectorSet(0.0f, height_ * 0.5f, 0.0f, 0.0f);
   DirectX::XMVECTOR radius = radius_;
-  DirectX::XMVECTOR result = HadamardProduct(radius, radius);
-  result = HadamardProduct(result, direction);
-  float denominator = DirectX::XMVector3Length(HadamardProduct(radius, direction)).m128_f32[0];
+  DirectX::XMVECTOR result = Math::HadamardProduct(radius, radius);
+  result = Math::HadamardProduct(result, direction);
+  float denominator = DirectX::XMVector3Length(Math::HadamardProduct(radius, direction)).m128_f32[0];
   result
     = denominator == 0.0f ? DirectX::XMVectorScale(result, 0.0f) : DirectX::XMVectorScale(result, 1.0f / denominator);
   float top = DirectX::XMVector3Dot(direction, axis_vector).m128_f32[0];
