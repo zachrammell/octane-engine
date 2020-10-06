@@ -146,7 +146,7 @@ void Audio::Set_Language(const char* language)
 
 const char* Audio::Get_Language()
 {
-  return AK::StreamMgr::GetCurrentLanguage()
+  return AK::StreamMgr::GetCurrentLanguage();
 }
 
 AkBankID Audio::Load_Bank(const char* name)
