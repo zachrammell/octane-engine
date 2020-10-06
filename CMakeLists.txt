@@ -44,6 +44,20 @@ target_link_libraries(IMGUI
   SDL2
 )
 
+# Wwise
+set(WWISE_DIR "libraries/Wwise")
+set(WWISE_INCLUDE_DIR "${WWISE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Common")
+file(GLOB WWISE_BINARIES "${WWISE_DIR}/Debug/lib/*.lib")
+file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/*.cpp")
+if (WIN32)
+  file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp")
+  set(WWISE_INCLUDE_DIR "${WWISE_INCLUDE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Win32")
+endif()
+add_library(WWISE ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
+target_compile_definitions(WWISE PRIVATE UNICODE)
+set_target_properties(WWISE PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(WWISE PUBLIC ${WWISE_INCLUDE_DIR})
+
 file(GLOB_RECURSE OCTANE_LIB_SOURCE CONFIGURE_DEPENDS
   "source/OctaneEngine/**.cpp"
   "source/OctaneEngine/**.h"
@@ -66,6 +80,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   SDL2
   EASTL
   IMGUI
+  WWISE
 )
 
 target_compile_options(${OCTANE_LIB} PRIVATE 

@@ -11,8 +11,8 @@
 /******************************************************************************/
 
 // Main include
-#include "Audio.h"
-#include <assert.h>
+#include <OctaneEngine/Audio.h>
+#include <cassert>
 
 // Wwise's default implementation
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
