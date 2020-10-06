@@ -85,5 +85,8 @@ RigidBody* World::AddRigidBody()
   return &rigid_bodies_.back();
 }
 
-Primitive* World::AddPrimitive(RigidBody* owner, ePrimitiveType type) {}
+Primitive* World::AddPrimitive(RigidBody* owner, ePrimitiveType type)
+{
+  return nullptr;
+}
 } // namespace Octane
