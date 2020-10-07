@@ -9,6 +9,7 @@ enum class SystemOrder : unsigned int
   InputHandler,
   CameraSys,
   WindowManager,
+  Serializer,
   World,
   Scene,
   Entity,
