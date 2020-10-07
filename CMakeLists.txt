@@ -83,17 +83,34 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   WWISE
 )
 
-target_compile_options(${OCTANE_LIB} PRIVATE 
-  "/GR-"
-)
-
-
 file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
   "source/OctaneGame/**.cpp"
   "source/OctaneGame/**.h"
 )
 
 add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE} )
+
+#remove /W3 and /GR flags since we're using /GR- and /W4
+string(REPLACE "/W3 /GR " "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+
+target_compile_options(${OCTANE_LIB} PRIVATE
+#no exceptions
+  "/GR-"
+#max warning level
+  "/W4"
+#warnings as errors
+  #"/WX"
+)
+
+target_compile_options(${OCTANE_GAME} PRIVATE
+#no exceptions
+  "/GR-"
+#max warning level
+  "/W4"
+#warnings as errors
+  #"/WX"
+)
 
 target_include_directories(${OCTANE_GAME} PRIVATE
   "source"
