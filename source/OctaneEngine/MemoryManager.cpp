@@ -12,7 +12,7 @@
 #include <OctaneEngine/MemoryManager.h>
 
 #include <Windows.h>
-
+#include <cmath>
 #ifdef _DEBUG
   #include <iostream>
 #endif
