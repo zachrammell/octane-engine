@@ -14,6 +14,8 @@ class EntitySys : public ISystem {
 public:
   explicit EntitySys(class Engine* parent_engine);
 
+  typedef GameEntity* Iterator;
+
   void Load() override;
   void LevelStart() override;
   void Update() override;
@@ -24,8 +26,15 @@ public:
 
   // creates a new entity with 0 components
   EntityID MakeEntity();
+
+  // access an entity
+  GameEntity& GetEntity(EntityID which);
+
   // frees an entity to be re-used later
   void FreeEntity(EntityID which);
+
+  Iterator EntitiesBegin();
+  Iterator EntitiesEnd();
 
 private:
   static const SystemOrder ORDER = SystemOrder::Entity;

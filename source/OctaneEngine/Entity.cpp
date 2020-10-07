@@ -3,9 +3,9 @@
 namespace Octane
 {
 
-ComponentHandle GameEntity::GetComponentHandle(ComponentKind which)
+ComponentHandle& GameEntity::GetComponentHandle(ComponentKind which)
 {
   return components[static_cast<int>(which)];
 }
 
-}
+} // namespace Octane

@@ -11,7 +11,7 @@ struct GameEntity
   bool active;
   ComponentHandle components[static_cast<int>(ComponentKind::COUNT)];
 
-  ComponentHandle GetComponentHandle(ComponentKind which);
+  ComponentHandle& GetComponentHandle(ComponentKind which);
 };
 
 }

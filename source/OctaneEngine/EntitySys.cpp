@@ -48,4 +48,17 @@ void EntitySys::Update() {}
 void EntitySys::LevelEnd() {}
 void EntitySys::Unload() {}
 
+GameEntity& EntitySys::GetEntity(EntityID which)
+{
+  return entities_[which];
+}
+EntitySys::Iterator EntitySys::EntitiesBegin()
+{
+  return entities_.begin();
+}
+EntitySys::Iterator EntitySys::EntitiesEnd()
+{
+  return entities_.end();
+}
+
 }
