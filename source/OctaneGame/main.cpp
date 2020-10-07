@@ -26,10 +26,10 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/WindowManager.h>
-#include <OctaneEngine/Physics/Box.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -51,21 +51,6 @@ void* operator new[](
   // pass-through to standard memory manager for now, will later be a custom one
   return new uint8_t[size];
 }
-
-namespace
-{
-struct ScaleRotation
-{
-  float scale;
-  float rotation;
-};
-
-constexpr int MAX_OBJECTS = 512;
-DirectX::XMFLOAT3 object_positions[MAX_OBJECTS] {};
-ScaleRotation object_scale_rotations[MAX_OBJECTS] {};
-Octane::Color object_colors[MAX_OBJECTS] {};
-int object_active[MAX_OBJECTS] {};
-} // namespace
 
 int main(int argc, char* argv[]) noexcept
 {
@@ -107,25 +92,71 @@ int main(int argc, char* argv[]) noexcept
 
   DirectX::XMFLOAT3 light_position = {100.0f, 100.0f, 50.0f};
 
+  auto* entsys = engine.GetSystem<Octane::EntitySys>();
+  auto* compsys = engine.GetSystem<Octane::ComponentSys>();
   for (int i = 0; i < 100; ++i)
   {
-    object_active[i] = true;
-    object_colors[i] = Octane::Colors::peach;
-    object_positions[i].x = 0.25f * (i - 50);
-    object_positions[i].y = 0.01f * (i - 50) * (i - 50);
-    object_positions[i].z = 0.33f * (i - 50);
-    object_scale_rotations[i].scale = 0.25f;
+    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+    Octane::EntityID ent_id = entsys->MakeEntity();
+    Octane::GameEntity& ent = entsys->GetEntity((ent_id));
+
+    Octane::ComponentHandle trans_id = compsys->MakeTransform();
+    ent.components[to_integral(Octane::ComponentKind::Transform)] = trans_id;
+    Octane::TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.25f * (i - 50);
+    trans.pos.y = 0.01f * (i - 50) * (i - 50);
+    trans.pos.z = 0.33f * (i - 50);
+    trans.scale = 0.25f;
+    trans.rotation = 0.0f;
+
+    Octane::ComponentHandle render_id = compsys->MakeRender();
+    ent.components[to_integral(Octane::ComponentKind::Render)] = render_id;
+    Octane::RenderComponent& render = compsys->GetRender(render_id);
+    render.color = Octane::Colors::peach;
+    render.mesh_type = (i % 2) ? Octane::MeshType::Sphere : Octane::MeshType::Cube;
+  }
+
+  Octane::EntityID obj100_id = engine.GetSystem<Octane::EntitySys>()->MakeEntity();
+
+  {
+    Octane::GameEntity& obj100_entity = engine.GetSystem<Octane::EntitySys>()->GetEntity((obj100_id));
+    Octane::ComponentHandle trans_id = compsys->MakeTransform();
+    obj100_entity.components[to_integral(Octane::ComponentKind::Transform)] = trans_id;
+    Octane::TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
+    trans.pos.z = 0.0f;
+    trans.scale = 0.25f;
+    trans.rotation = 0.0f;
+
+    Octane::ComponentHandle render_comp_id = compsys->MakeRender();
+    obj100_entity.components[to_integral(Octane::ComponentKind::Render)] = render_comp_id;
+    Octane::RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Octane::Colors::red;
+    render_comp.mesh_type = Octane::MeshType::Sphere;
+  }
+
+  Octane::EntityID obj101_id = engine.GetSystem<Octane::EntitySys>()->MakeEntity();
+
+  {
+    Octane::GameEntity& obj101_entity = engine.GetSystem<Octane::EntitySys>()->GetEntity((obj101_id));
+    Octane::ComponentHandle trans_id = compsys->MakeTransform();
+    obj101_entity.components[to_integral(Octane::ComponentKind::Transform)] = trans_id;
+    Octane::TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
+    trans.pos.z = 0.0f;
+    trans.scale = 0.25f;
+    trans.rotation = 0.0f;
+
+    Octane::ComponentHandle render_comp_id = compsys->MakeRender();
+    obj101_entity.components[to_integral(Octane::ComponentKind::Render)] = render_comp_id;
+    Octane::RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Octane::Colors::blue;
+    render_comp.mesh_type = Octane::MeshType::Sphere;
   }
 
   auto world = engine.GetSystem<Octane::World>();
-
-  object_active[100] = true;
-  object_colors[100] = Octane::Colors::red;
-  object_scale_rotations[100].scale = 0.25f;
-
-  object_active[101] = true;
-  object_colors[101] = Octane::Colors::blue;
-  object_scale_rotations[101].scale = 0.25f;
 
   auto body_100 = world->AddRigidBody();
   DirectX::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
@@ -305,10 +336,22 @@ int main(int argc, char* argv[]) noexcept
       sample_force2.y = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
       sample_force2.z = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
 
+      auto& obj100_pos
+        = engine.GetSystem<Octane::ComponentSys>()
+            ->GetTransform(engine.GetSystem<Octane::EntitySys>()->GetEntity(obj100_id).GetComponentHandle(
+              Octane::ComponentKind::Transform))
+            .pos;
+
+      auto& obj101_pos
+        = engine.GetSystem<Octane::ComponentSys>()
+          ->GetTransform(engine.GetSystem<Octane::EntitySys>()->GetEntity(obj101_id).GetComponentHandle(
+            Octane::ComponentKind::Transform))
+          .pos;
+
       body_100->ApplyForceCentroid(sample_force);
-      body_100->SyncToPosition(object_positions[100]);
+      body_100->SyncToPosition(obj100_pos);
       body_101->ApplyForceCentroid(sample_force2);
-      body_101->SyncToPosition(object_positions[101]);
+      body_101->SyncToPosition(obj101_pos);
 
       DirectX::XMStoreFloat3(
         &cam_velocity,
@@ -338,30 +381,36 @@ int main(int argc, char* argv[]) noexcept
       render.SetClearColor(Octane::Colors::cerulean);
       render.ClearScreen();
 
-      for (int i = 0; i < MAX_OBJECTS; ++i)
+      auto* componentsys = engine.GetSystem<Octane::ComponentSys>();
+
+      for (auto iter = engine.GetSystem<Octane::EntitySys>()->EntitiesBegin();
+           iter != engine.GetSystem<Octane::EntitySys>()->EntitiesEnd();
+           ++iter)
       {
-        if (object_active[i])
+        if (iter->active)
         {
+          auto& transform = componentsys->GetTransform(iter->GetComponentHandle(Octane::ComponentKind::Transform));
+          auto& render_comp = componentsys->GetRender(iter->GetComponentHandle(Octane::ComponentKind::Render));
+
           DirectX::XMMATRIX object_world_matrix = DirectX::XMMatrixIdentity();
-          auto scale = object_scale_rotations[i].scale;
+          auto scale = transform.scale;
           object_world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-          object_world_matrix
-            *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(object_scale_rotations[i].rotation));
-          auto pos = object_positions[i];
+          object_world_matrix *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(transform.rotation));
+          auto pos = transform.pos;
           object_world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-          if (i % 2 == 0)
+
+          switch (render_comp.mesh_type)
           {
-            render.UseMesh(cube_mesh_dx11);
+          case Octane::MeshType::Cube: render.UseMesh(cube_mesh_dx11); break;
+          case Octane::MeshType::Sphere:
+          default: render.UseMesh(sphere_mesh_dx11); break;
           }
-          else
-          {
-            render.UseMesh(sphere_mesh_dx11);
-          }
+
           render.ShaderConstants()
             .PerObject()
             .SetWorldMatrix(DirectX::XMMatrixTranspose(object_world_matrix))
             .SetWorldNormalMatrix(DirectX::XMMatrixInverse(nullptr, object_world_matrix))
-            .SetColor(object_colors[i]);
+            .SetColor(render_comp.color);
           render.Upload(render.ShaderConstants().PerObject());
           render.DrawMesh();
         }
