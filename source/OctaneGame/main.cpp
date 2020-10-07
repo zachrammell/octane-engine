@@ -252,6 +252,16 @@ int main(int argc, char* argv[]) noexcept
     }
     else
     {
+
+      ImGui::Begin(
+      "Sample Window",
+      NULL,
+      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+
+      ImGui::Text("WASD for Object Movement\nArrow Keys for camera movement");
+
+      ImGui::End();
+
       //If press the esc, make menu come out
       if (input->KeyReleased(SDLK_ESCAPE))
       {
