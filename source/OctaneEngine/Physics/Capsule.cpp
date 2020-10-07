@@ -2,7 +2,7 @@
 
 namespace Octane
 {
-Capsule::Capsule() : radius_() {}
+Capsule::Capsule()  {}
 
 Capsule::~Capsule() {}
 

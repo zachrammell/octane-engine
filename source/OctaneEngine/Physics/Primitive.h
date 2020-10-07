@@ -30,6 +30,8 @@ public:
   //virtual bool TestRay(const Ray& local_ray, float& minimum_t, float& maximum_t) const = 0;
 
   RigidBody* GetRigidBody() const;
+protected:
+  friend class World;
 
 protected:
   float density_ = 1.0f;

@@ -22,13 +22,13 @@
 #include <OctaneEngine/Graphics/RenderDX11.h>
 #include <OctaneEngine/Style.h>
 
+#include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/World.h>
-#include <OctaneEngine/WindowManager.h>
-#include <OctaneEngine/ComponentSys.h>
-#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/SceneSys.h>
+#include <OctaneEngine/WindowManager.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -122,10 +122,20 @@ int main(int argc, char* argv[]) noexcept
   object_colors[100] = Octane::Colors::red;
   object_scale_rotations[100].scale = 0.25f;
 
-  auto body = world->AddRigidBody();
+  object_active[101] = true;
+  object_colors[101] = Octane::Colors::blue;
+  object_scale_rotations[101].scale = 0.25f;
+
+  auto body_100 = world->AddRigidBody();
   DirectX::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
-  body->SetLinearConstraints(constraints);
-  body->SetAngularConstraints(constraints);
+  body_100->SetLinearConstraints(constraints);
+  body_100->SetAngularConstraints(constraints);
+  auto prim_100 = world->AddPrimitive(body_100, Octane::ePrimitiveType::Ellipsoid);
+
+  auto body_101 = world->AddRigidBody();
+  body_101->SetLinearConstraints(constraints);
+  body_101->SetAngularConstraints(constraints);
+  auto prim_101 = world->AddPrimitive(body_101, Octane::ePrimitiveType::Truncated);
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -288,8 +298,15 @@ int main(int argc, char* argv[]) noexcept
       sample_force.y = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
       sample_force.z = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
 
-      body->ApplyForceCentroid(sample_force);
-      body->SyncToPosition(object_positions[100]);
+      DirectX::XMFLOAT3 sample_force2;
+      sample_force2.x = 1.0f * (input->KeyHeld(SDLK_f) - input->KeyHeld(SDLK_h));
+      sample_force2.y = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
+      sample_force2.z = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
+
+      body_100->ApplyForceCentroid(sample_force);
+      body_100->SyncToPosition(object_positions[100]);
+      body_101->ApplyForceCentroid(sample_force2);
+      body_101->SyncToPosition(object_positions[101]);
 
       DirectX::XMStoreFloat3(
         &cam_velocity,
@@ -355,6 +372,10 @@ int main(int argc, char* argv[]) noexcept
 
     render.Present();
   }
+  delete body_100;
+  delete body_101;
+  delete prim_100;
+  delete prim_101;
 
   _CrtDumpMemoryLeaks();
   return 0;

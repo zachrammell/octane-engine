@@ -31,7 +31,7 @@ public:
   Primitive* AddPrimitive(RigidBody* owner, ePrimitiveType type);
 
 private:
-  eastl::vector<RigidBody> rigid_bodies_;
+  eastl::vector<RigidBody*> rigid_bodies_;
   eastl::vector<Primitive*> primitives_;
   eastl::vector<PrimitivePair> potential_pairs_;
 

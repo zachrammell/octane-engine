@@ -2,7 +2,7 @@
 
 namespace Octane
 {
-Truncated::Truncated() : radius_() {}
+Truncated::Truncated()  {}
 
 Truncated::~Truncated() {}
 

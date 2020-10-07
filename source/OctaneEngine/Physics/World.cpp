@@ -1,6 +1,11 @@
 #include <OctaneEngine/FramerateController.h>
+#include <OctaneEngine/Physics/Box.h>
+#include <OctaneEngine/Physics/Capsule.h>
+#include <OctaneEngine/Physics/Ellipsoid.h>
+#include <OctaneEngine/Physics/Truncated.h>
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <iostream>
 
 namespace Octane
 {
@@ -24,7 +29,6 @@ void World::Update()
     auto jt_begin = it;
     for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
     {
-
       Primitive* collider_a = (*it);
       Primitive* collider_b = (*jt);
 
@@ -40,9 +44,13 @@ void World::Update()
     Simplex simplex;
     if (narrow_phase_.GJKCollisionDetection(pair.a, pair.b, simplex))
     {
-      //collision!
+      std::cout << "Collision!! \n";
       //Do EPA contact generation
       //Send Collision Event or Save Collision State
+    }
+    else
+    {
+      std::cout << "None!! \n";
     }
   }
 
@@ -54,10 +62,10 @@ void World::Update()
     //Integrate
     for (auto& body : rigid_bodies_)
     {
-      body.Integrate(dt);
-      body.UpdateOrientation();
-      body.UpdateInertia();
-      body.UpdatePosition();
+      body->Integrate(dt);
+      body->UpdateOrientation();
+      body->UpdateInertia();
+      body->UpdatePosition();
     }
     //Solve Position Constraints
   }
@@ -65,7 +73,9 @@ void World::Update()
 
 void World::LevelEnd()
 {
+  //TODO clear world!
   //rigid_bodies_.clear();
+  //
 }
 
 SystemOrder World::GetOrder()
@@ -75,18 +85,36 @@ SystemOrder World::GetOrder()
 
 RigidBody* World::GetRigidBody(size_t index)
 {
-  return &rigid_bodies_[index];
+  return rigid_bodies_[index];
 }
 
 RigidBody* World::AddRigidBody()
 {
-  rigid_bodies_.push_back(RigidBody());
+  RigidBody* body = new RigidBody();
+
+  rigid_bodies_.push_back(body);
   //initialize general rigid body here when it need.
-  return &rigid_bodies_.back();
+  return body;
 }
 
 Primitive* World::AddPrimitive(RigidBody* owner, ePrimitiveType type)
 {
-  return nullptr;
+  Primitive* primitive = nullptr;
+
+  switch (type)
+  {
+  case ePrimitiveType::Box: primitive = new Box(); break;
+  case ePrimitiveType::Capsule: primitive = new Capsule(); break;
+  case ePrimitiveType::Ellipsoid: primitive = new Ellipsoid(); break;
+  case ePrimitiveType::Truncated: primitive = new Truncated(); break;
+  }
+
+  if (primitive != nullptr)
+  {
+    primitive->rigid_body_ = owner;
+    primitives_.push_back(primitive);
+  }
+
+  return primitive;
 }
 } // namespace Octane

@@ -16,7 +16,7 @@ public:
   void CalculateMassData(float density) override;
 
 private:
-  DirectX::XMVECTOR radius_; //vector2
+  DirectX::XMVECTOR radius_ = DirectX::XMVectorSet(0.3f, 0.5f, 0.0f, 0.0f); //vector2
   float height_ = 1.0f;
   float ratio_ = 0.5f; //0.0 is cone, 1.0f is cylinder, also it must be positive
 };

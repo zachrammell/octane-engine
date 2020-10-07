@@ -15,6 +15,7 @@ public:
   void CalculateMassData(float density) override;
 
 private:
-  DirectX::XMVECTOR radius_;
+  DirectX::XMVECTOR radius_ = DirectX::XMVectorSet(0.3f, 0.5f, 0.4f, 0.0f);
+  ;
 };
 } // namespace Octane

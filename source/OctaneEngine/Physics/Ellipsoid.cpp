@@ -2,7 +2,7 @@
 
 namespace Octane
 {
-Ellipsoid::Ellipsoid() : radius_() {}
+Ellipsoid::Ellipsoid() {}
 
 Ellipsoid::~Ellipsoid() {}
 
