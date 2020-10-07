@@ -29,6 +29,7 @@
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/Physics/Box.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -130,12 +131,13 @@ int main(int argc, char* argv[]) noexcept
   DirectX::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
   body_100->SetLinearConstraints(constraints);
   body_100->SetAngularConstraints(constraints);
-  auto prim_100 = world->AddPrimitive(body_100, Octane::ePrimitiveType::Ellipsoid);
+  auto prim_100 = world->AddPrimitive(body_100, Octane::ePrimitiveType::Box);
+  static_cast<Octane::Box*>(prim_100)->SetBox(0.25f, 0.25f, 0.25f);
 
   auto body_101 = world->AddRigidBody();
   body_101->SetLinearConstraints(constraints);
   body_101->SetAngularConstraints(constraints);
-  auto prim_101 = world->AddPrimitive(body_101, Octane::ePrimitiveType::Truncated);
+  auto prim_101 = world->AddPrimitive(body_101, Octane::ePrimitiveType::Ellipsoid);
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();

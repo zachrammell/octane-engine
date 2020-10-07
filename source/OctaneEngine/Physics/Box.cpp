@@ -2,14 +2,9 @@
 
 namespace Octane
 {
-Box::Box()
-  : vertices_{}
-{
-}
+Box::Box() : vertices_ {} {}
 
-Box::~Box()
-{
-}
+Box::~Box() {}
 
 DirectX::XMVECTOR Box::Support(const DirectX::XMVECTOR& direction)
 {
@@ -84,9 +79,24 @@ void Box::CalculateMassData(float density)
 
   //calculate center of mass
   local_centroid_ = DirectX::XMVectorSet(
-                                         0.5f * w + DirectX::XMVectorGetX(vertices_[7])
-                                       , 0.5f * h + DirectX::XMVectorGetY(vertices_[7])
-                                       , 0.5f * d + DirectX::XMVectorGetZ(vertices_[7])
-                                       , 0.0f);
+    0.5f * w + DirectX::XMVectorGetX(vertices_[7]),
+    0.5f * h + DirectX::XMVectorGetY(vertices_[7]),
+    0.5f * d + DirectX::XMVectorGetZ(vertices_[7]),
+    0.0f);
 }
+
+void Box::SetBox(float width, float height, float depth)
+{
+  float w = 0.5f * width;
+  float h = 0.5f * height;
+  float d = 0.5f * depth;
+  vertices_[0] = DirectX::XMVectorSet(+w, +h, +d, 0.0f);
+  vertices_[1] = DirectX::XMVectorSet(+w, +h, -d, 0.0f);
+  vertices_[2] = DirectX::XMVectorSet(+w, -h, +d, 0.0f);
+  vertices_[3] = DirectX::XMVectorSet(+w, -h, -d, 0.0f);
+  vertices_[4] = DirectX::XMVectorSet(-w, +h, +d, 0.0f);
+  vertices_[5] = DirectX::XMVectorSet(-w, +h, -d, 0.0f);
+  vertices_[6] = DirectX::XMVectorSet(-w, -h, +d, 0.0f);
+  vertices_[7] = DirectX::XMVectorSet(-w, -h, -d, 0.0f);
 }
+} // namespace Octane
