@@ -30,7 +30,7 @@
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/WindowManager.h>
-#include <OctaneEngine/SerializerSys.h>
+#include <OctaneEngine/Serializer.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -67,14 +67,17 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::EntitySys {&engine});
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
-  engine.AddSystem(new Octane::SerializerSys {&engine});
 
-  /////////////////////////////SERIALIZER DEMO CODE///////////////////////////
-  Octane::SerializerSys* ss = static_cast < Octane::SerializerSys *>( engine.GetSystem(Octane::SystemOrder::Serializer));
-  ss->SetOutputFile(L"NBTSerializerDummy.nbt");
-  eastl::string objText {"Herro Warudo"};
-  ss->Serialize(objText, "Name");
-  ss->FinishSerializing();
+  /////////////////////////////SERIALIZER DEMO CODE//////////////////////////////////
+#if 0
+  Octane::Serializer s;
+  s.SetOutputFile(L"NBTSerializerDummy.nbt");
+  //eastl::string objText {"Hello World"};
+  //s.Serialize(objText, "Name");
+  int a = 1000;
+  s.Serialize(a, "name");
+  s.FinishSerializing();
+  #endif
   /////////////////////////////END OF SERIALIZER DEMO CODE///////////////////////////
 
   std::clog << "Initializing DX11\n";
