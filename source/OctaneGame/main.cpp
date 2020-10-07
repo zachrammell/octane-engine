@@ -252,13 +252,12 @@ int main(int argc, char* argv[]) noexcept
     }
     else
     {
-
       ImGui::Begin(
       "Sample Window",
       NULL,
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
-      ImGui::Text("WASD for Object Movement\nArrow Keys for camera movement");
+      ImGui::Text("QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys for camera movement");
 
       ImGui::End();
 
