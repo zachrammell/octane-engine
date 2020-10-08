@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include <iostream>
+#include <filesystem>
 
 #define SDL_MAIN_HANDLED
 #include <EASTL/vector.h>
@@ -26,11 +27,12 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/World.h>
 #include <OctaneEngine/SceneSys.h>
-#include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Serializer.h>
+#include <OctaneEngine/WindowManager.h>
 
 // EASTL expects user-defined new[] operators that it will use for memory allocation.
 // TODO: make these return already-allocated memory from our own memory allocator.
@@ -53,10 +55,18 @@ void* operator new[](
   return new uint8_t[size];
 }
 
+namespace fs = std::filesystem;
+
 int main(int argc, char* argv[]) noexcept
 {
   // must be the first thing in main, for SDL2 initialization
   SDL_SetMainReady();
+
+  // create sandbox folder for test files
+  if (!fs::exists("sandbox"))
+  {
+    fs::create_directory("sandbox");
+  }
 
   std::clog << "[== Project Octane ==]\n";
   Octane::Engine engine;
@@ -68,17 +78,18 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
 
-  /////////////////////////////SERIALIZER DEMO CODE//////////////////////////////////
-#if 0
-  Octane::Serializer s;
-  s.SetOutputFile(L"NBTSerializerDummy.nbt");
-  //eastl::string objText {"Hello World"};
-  //s.Serialize(objText, "Name");
-  int a = 1000;
-  s.Serialize(a, "name");
-  s.FinishSerializing();
-  #endif
-  /////////////////////////////END OF SERIALIZER DEMO CODE///////////////////////////
+  {
+    Octane::NBTWriter nbt_writer("sandbox/test_list.nbt");
+    nbt_writer.WriteInt("hi", 300);
+    if (nbt_writer.BeginList("vehicles"))
+    {
+      nbt_writer.WriteString("", "car");
+      nbt_writer.WriteString("", "truck");
+      nbt_writer.WriteString("", "subaru wrx");
+      nbt_writer.WriteString("", "bike");
+      nbt_writer.EndList();
+    }
+  }
 
   std::clog << "Initializing DX11\n";
   Octane::RenderDX11 render {engine.GetSystem<Octane::WindowManager>()->GetHandle()};
@@ -124,9 +135,9 @@ int main(int argc, char* argv[]) noexcept
 
     Octane::ComponentHandle render_id = compsys->MakeRender();
     ent.components[to_integral(Octane::ComponentKind::Render)] = render_id;
-    Octane::RenderComponent& render = compsys->GetRender(render_id);
-    render.color = Octane::Colors::peach;
-    render.mesh_type = (i % 2) ? Octane::MeshType::Sphere : Octane::MeshType::Cube;
+    Octane::RenderComponent& render_component = compsys->GetRender(render_id);
+    render_component.color = Octane::Colors::db32[i % 32];
+    render_component.mesh_type = (i % 2) ? Octane::MeshType::Sphere : Octane::MeshType::Cube;
   }
 
   Octane::EntityID obj100_id = engine.GetSystem<Octane::EntitySys>()->MakeEntity();
@@ -235,7 +246,7 @@ int main(int argc, char* argv[]) noexcept
         {
           main_menu = false;
         }
-        render.SetClearColor(Octane::Colors::black);
+        render.SetClearColor(Octane::Colors::db32[1]);
         render.ClearScreen();
       }
       else
@@ -266,11 +277,12 @@ int main(int argc, char* argv[]) noexcept
     else
     {
       ImGui::Begin(
-      "Sample Window",
-      NULL,
-      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+        "Sample Window",
+        NULL,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
-      ImGui::Text("QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys for camera movement");
+      ImGui::Text(
+        "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys and Space/Shift for camera movement");
 
       ImGui::End();
 
@@ -366,9 +378,9 @@ int main(int argc, char* argv[]) noexcept
 
       auto& obj101_pos
         = engine.GetSystem<Octane::ComponentSys>()
-          ->GetTransform(engine.GetSystem<Octane::EntitySys>()->GetEntity(obj101_id).GetComponentHandle(
-            Octane::ComponentKind::Transform))
-          .pos;
+            ->GetTransform(engine.GetSystem<Octane::EntitySys>()->GetEntity(obj101_id).GetComponentHandle(
+              Octane::ComponentKind::Transform))
+            .pos;
 
       body_100->ApplyForceCentroid(sample_force);
       body_100->SyncToPosition(obj100_pos);
@@ -400,12 +412,12 @@ int main(int argc, char* argv[]) noexcept
       render.Upload(render.ShaderConstants().PerFrame());
 
       render.UseShader(phong);
-      render.SetClearColor(Octane::Colors::cerulean);
+      render.SetClearColor(Octane::Colors::db32[25]);
       render.ClearScreen();
 
       auto* componentsys = engine.GetSystem<Octane::ComponentSys>();
 
-      for (auto iter = engine.GetSystem<Octane::EntitySys>()->EntitiesBegin();
+      for (auto* iter = engine.GetSystem<Octane::EntitySys>()->EntitiesBegin();
            iter != engine.GetSystem<Octane::EntitySys>()->EntitiesEnd();
            ++iter)
       {
