@@ -9,7 +9,7 @@ Box::~Box() {}
 DirectX::XMVECTOR Box::Support(const DirectX::XMVECTOR& direction)
 {
   float p = Math::REAL_NEGATIVE_MAX;
-  DirectX::XMVECTOR result;
+  DirectX::XMVECTOR result {};
   for (size_t i = 0; i < 8; ++i)
   {
     float projection = DirectX::XMVector3Dot(vertices_[i], direction).m128_f32[0];
@@ -24,7 +24,7 @@ DirectX::XMVECTOR Box::Support(const DirectX::XMVECTOR& direction)
 
 DirectX::XMVECTOR Box::GetNormal(const DirectX::XMVECTOR& local_point)
 {
-  DirectX::XMVECTOR normal;
+  DirectX::XMVECTOR normal {};
   //float w = DirectX::XMVectorSubtract(vertices_[0], vertices_[4]).m128_f32[0];
   //float h = DirectX::XMVectorSubtract(vertices_[0], vertices_[2]).m128_f32[1];
   //float d = DirectX::XMVectorSubtract(vertices_[0], vertices_[1]).m128_f32[2];

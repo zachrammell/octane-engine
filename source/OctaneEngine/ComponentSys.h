@@ -3,6 +3,7 @@
 #include "ISystem.h"
 #include "SystemOrder.h"
 #include <EASTL/vector.h>
+#include <EASTL/numeric_limits.h>
 
 #include "RenderComponent.h"
 #include "TransformComponent.h"
@@ -17,8 +18,8 @@ enum class ComponentKind
   COUNT,
 };
 
-typedef int ComponentHandle;
-const ComponentHandle INVALID_COMPONENT = -1;
+typedef uint32_t ComponentHandle;
+const ComponentHandle INVALID_COMPONENT = eastl::numeric_limits<ComponentHandle>::max();
 
 class ComponentSys : public ISystem
 {

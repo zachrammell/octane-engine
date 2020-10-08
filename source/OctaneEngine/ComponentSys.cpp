@@ -9,7 +9,7 @@ void ComponentSys::Update() {}
 void ComponentSys::LevelEnd() {}
 void ComponentSys::Unload() {}
 
-Octane::SystemOrder Octane::ComponentSys::GetOrder()
+SystemOrder ComponentSys::GetOrder()
 {
   return ORDER;
 }
@@ -30,12 +30,12 @@ TransformComponent& ComponentSys::GetTransform(ComponentHandle id)
 ComponentHandle ComponentSys::MakeRender()
 {
   render_comps_.push_back_uninitialized();
-  return render_comps_.size() - 1;
+  return static_cast<ComponentHandle>(render_comps_.size() - 1);
 }
 
 ComponentHandle ComponentSys::MakeTransform()
 {
   transform_comps_.push_back_uninitialized();
-  return transform_comps_.size() - 1;
+  return static_cast<ComponentHandle>(transform_comps_.size() - 1);
 }
 } // namespace Octane

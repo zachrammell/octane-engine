@@ -5,7 +5,7 @@
 namespace Octane
 {
 
-enum MeshType
+enum class MeshType
 {
   Cube,
   Sphere,

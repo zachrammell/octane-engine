@@ -1,16 +1,18 @@
 #pragma once
 
-#include "ISystem.h"
-#include "Entity.h"
-#include "SystemOrder.h"
+#include <OctaneEngine/Entity.h>
+#include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/SystemOrder.h>
 #include <EASTL/vector.h>
 
-namespace Octane {
+namespace Octane
+{
 
-typedef int EntityID;
-static const EntityID INVALID_ENTITY = -1;
+using EntityID = uint32_t;
+static const EntityID INVALID_ENTITY = eastl::numeric_limits<EntityID>::max();
 
-class EntitySys : public ISystem {
+class EntitySys : public ISystem
+{
 public:
   explicit EntitySys(class Engine* parent_engine);
 
@@ -44,4 +46,4 @@ private:
   size_t entity_count_ = 0;
 };
 
-}
+} // namespace Octane

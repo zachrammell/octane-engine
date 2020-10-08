@@ -33,7 +33,7 @@ EntityID EntitySys::MakeEntity()
   entities_.push_back(ent);
   const size_t ent_index = entities_.size() - 1; // index of the newly-added entity
   ++entity_count_;
-  return ent_index;
+  return static_cast<EntityID>(ent_index);
 }
 void EntitySys::FreeEntity(EntityID which) {
   if (!entities_[which].active) {

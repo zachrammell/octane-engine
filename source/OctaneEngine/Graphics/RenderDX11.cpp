@@ -121,7 +121,7 @@ RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}
       0,
       0,
       0};
-    HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[0].put());
+    hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[0].put());
     assert(SUCCEEDED(hr));
   }
 
@@ -134,28 +134,21 @@ RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}
       0,
       0,
       0};
-    HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
+    hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
     assert(SUCCEEDED(hr));
   }
 
-    // set up the default viewport to match the window
-  {
-    SDL_SysWMinfo system_info;
-    SDL_VERSION(&system_info.version);
-    SDL_GetWindowWMInfo(window, &system_info);
-    HWND window_handle = system_info.info.win.window;
-
-    RECT window_rect;
-    GetClientRect(window_handle, &window_rect);
-    D3D11_VIEWPORT viewport {
-      0.0f,
-      0.0f,
-      (FLOAT)(window_rect.right - window_rect.left),
-      (FLOAT)(window_rect.bottom - window_rect.top),
-      0.0f,
-      1.0f};
-    device_context_->RSSetViewports(1, &viewport);
-  }
+  // set up the default viewport to match the window
+  RECT window_rect;
+  GetClientRect(window_handle, &window_rect);
+  D3D11_VIEWPORT viewport {
+    0.0f,
+    0.0f,
+    (FLOAT)(window_rect.right - window_rect.left),
+    (FLOAT)(window_rect.bottom - window_rect.top),
+    0.0f,
+    1.0f};
+  device_context_->RSSetViewports(1, &viewport);
 }
 
 RenderDX11::~RenderDX11()
@@ -392,7 +385,7 @@ MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
 
   {
     D3D11_BUFFER_DESC vertex_buffer_descriptor {
-      sizeof(Mesh::Vertex) * mesh.vertex_buffer.size(),
+      static_cast<UINT>(sizeof(Mesh::Vertex) * mesh.vertex_buffer.size()),
       D3D11_USAGE_DEFAULT,
       D3D11_BIND_VERTEX_BUFFER,
       0,
@@ -406,7 +399,7 @@ MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
 
   {
     D3D11_BUFFER_DESC index_buffer_descriptor {
-      sizeof(Mesh::Index) * mesh.index_buffer.size(),
+      static_cast<UINT>(sizeof(Mesh::Index) * mesh.index_buffer.size()),
       D3D11_USAGE_DEFAULT,
       D3D11_BIND_INDEX_BUFFER,
       0,
@@ -423,7 +416,7 @@ MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
 
 void RenderDX11::UseMesh(MeshDX11 const& mesh)
 {
-  UINT const vertex_stride = mesh.vertex_size_;
+  UINT const vertex_stride = static_cast<UINT>(mesh.vertex_size_);
   UINT const vertex_offset = 0;
 
   ID3D11Buffer* buffer = mesh.vertex_buffer_.get();
@@ -437,11 +430,11 @@ void RenderDX11::DrawMesh()
 {
   if (current_mesh_->index_count_)
   {
-    GetD3D11Context()->DrawIndexed(current_mesh_->index_count_, 0, 0);
+    GetD3D11Context()->DrawIndexed(static_cast<UINT>(current_mesh_->index_count_), 0, 0);
   }
   else // Not an indexed mesh
   {
-    GetD3D11Context()->Draw(current_mesh_->vertex_count_, 0);
+    GetD3D11Context()->Draw(static_cast<UINT>(current_mesh_->vertex_count_), 0);
   }
 }
 
