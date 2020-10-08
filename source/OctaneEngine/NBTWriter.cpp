@@ -40,9 +40,17 @@ NBTWriter::NBTWriter(string_view filepath) : outfile_ {nullptr}
   int const w_filepath_length = MultiByteToWideChar(CP_UTF8, 0, filepath.data(), -1, NULL, 0);
   wchar_t* w_filepath = static_cast<wchar_t*>(_malloca(sizeof(wchar_t) * w_filepath_length));
   MultiByteToWideChar(CP_UTF8, 0, filepath.data(), -1, w_filepath, w_filepath_length);
+#ifdef _DEBUG
+file_open:
+#endif
   if ((err = _wfopen_s(&outfile_, w_filepath, L"wb")))
   {
+#ifdef _DEBUG
+    // the file is open, close it and continue debugging.
     __debugbreak();
+    goto file_open;
+#endif
+    // TODO: actual error handling
   }
   _freea(w_filepath);
   BeginRoot();
@@ -55,6 +63,7 @@ NBTWriter::~NBTWriter()
   {
     assert(!"[ERROR] NBTWriter: Mismatched Compound Begin/End - A Compound Tag was not closed.");
   }
+  fclose(outfile_);
 }
 
 bool NBTWriter::BeginCompound(string_view name)
