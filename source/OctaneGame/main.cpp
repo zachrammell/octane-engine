@@ -81,13 +81,43 @@ int main(int argc, char* argv[]) noexcept
   {
     Octane::NBTWriter nbt_writer("sandbox/test_list.nbt");
     nbt_writer.WriteInt("hi", 300);
-    if (nbt_writer.BeginList("vehicles"))
+    if (nbt_writer.BeginCompound("stuff"))
     {
-      nbt_writer.WriteString("", "car");
-      nbt_writer.WriteString("", "truck");
-      nbt_writer.WriteString("", "subaru wrx");
-      nbt_writer.WriteString("", "bike");
-      nbt_writer.EndList();
+      if (nbt_writer.BeginList("players"))
+      {
+        if (nbt_writer.BeginCompound(""))
+        {
+          nbt_writer.WriteByte("lives", 3);
+          nbt_writer.WriteFloat("health", 56.7f);
+          if (nbt_writer.BeginList("inventory"))
+          {
+            if (nbt_writer.BeginCompound(""))
+            {
+              nbt_writer.WriteInt("id", 276);
+              nbt_writer.WriteByte("count", 1);
+              nbt_writer.EndCompound();
+            }
+            if (nbt_writer.BeginCompound(""))
+            {
+              nbt_writer.WriteInt("id", 46);
+              nbt_writer.WriteByte("count", 64);
+              nbt_writer.EndCompound();
+            }
+            nbt_writer.EndList(); // inventory
+          }
+          nbt_writer.EndCompound();
+        }
+        nbt_writer.EndList(); // players
+      }
+      if (nbt_writer.BeginList("vehicles"))
+      {
+        nbt_writer.WriteString("", "car");
+        nbt_writer.WriteString("", "truck");
+        nbt_writer.WriteString("", "subaru wrx");
+        nbt_writer.WriteString("", "bike");
+        nbt_writer.EndList(); // vehicles
+      }
+      nbt_writer.EndCompound(); // stuff
     }
   }
 

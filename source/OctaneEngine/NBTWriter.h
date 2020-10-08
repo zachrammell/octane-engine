@@ -40,9 +40,19 @@ private:
     Byte_Array = 7,
     String = 8,
     List = 9,
-    Compound = 10
+    Compound = 10,
+    INVALID = 0xCC
   };
   void WriteTag(TAG t);
+  /* The following functions are for raw writing without considering names, types, or nesting */
+
+  void WriteStr(string_view name);
+  void WriteStrLen(uint16_t len);
+  void WriteArrayLen(uint32_t len);
+
+  void BeginRoot();
+
+  void HandleNesting(string_view name, TAG t);
 
   FILE* outfile_;
 
