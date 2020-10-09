@@ -11,15 +11,15 @@
 /******************************************************************************/
 #pragma once
 // Includes
-#include <AK/SoundEngine/Common/AkSoundEngine.h>  // Core Engine
+#include <AK/SoundEngine/Common/AkSoundEngine.h>                           // Core Engine
 #include <AK/IBytes.h>
-#include <AK/SoundEngine/Common/AkMemoryMgr.h>     // Memory Manager interface
-#include <AK/SoundEngine/Common/AkModule.h>        // Default memory manager
-#include <AK/SoundEngine/Common/IAkStreamMgr.h>    // Streaming Manager
-#include <AK/Tools/Common/AkPlatformFuncs.h>       // Thread defines
-#include <AkFilePackageLowLevelIOBlocking.h>       // Sample low-level I/O implementation
-#include <AK/MusicEngine/Common/AkMusicEngine.h>   // Music Engine
-#include <AK/SpatialAudio/Common/AkSpatialAudio.h> // Spatial Audio
+#include <AK/SoundEngine/Common/AkMemoryMgr.h>                             // Memory Manager interface
+#include <AK/SoundEngine/Common/AkModule.h>                                // Default memory manager
+#include <AK/SoundEngine/Common/IAkStreamMgr.h>                            // Streaming Manager
+#include <AK/Tools/Common/AkPlatformFuncs.h>                               // Thread defines
+#include <SampleSoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>       // Sample low-level I/O implementation
+#include <AK/MusicEngine/Common/AkMusicEngine.h>                           // Music Engine
+#include <AK/SpatialAudio/Common/AkSpatialAudio.h>                         // Spatial Audio
 
 // Defines
 #define AK_OPTIMIZED
@@ -41,11 +41,11 @@ public:
   
 private:
   // Setters
-  static void Set_Bank_Path(const char*);
-  static void Set_Language(const char *); // PASS IN "English(US)"
+  static void Set_Bank_Path(const AkOSChar*);
+  static void Set_Language(const AkOSChar*); // PASS IN "English(US)"
 
   // Getters
-  static const wchar_t* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
+  static const AkOSChar* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
 
   // Banks
   static AkBankID Load_Bank(const char * name);

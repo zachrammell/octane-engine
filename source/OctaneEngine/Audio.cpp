@@ -6,13 +6,17 @@
   \date       2020/10/03
   \brief      Audio implementation
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
 // Main include
 #include <OctaneEngine/Audio.h>
 #include <cassert>
+
+// defines
+#define AKTEXT
+
 
 // Wwise's default implementation
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
@@ -134,7 +138,7 @@ void Audio::Audio_Shutdown()
   AK::MemoryMgr::Term();
 }
 
-void Audio::Set_Bank_Path(const char * path)
+void Audio::Set_Bank_Path(const AkOSChar * path)
 {
   int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
   wchar_t* wstr = new wchar_t[wchars_num];
@@ -143,7 +147,7 @@ void Audio::Set_Bank_Path(const char * path)
   delete[] wstr;
 }
 
-void Audio::Set_Language(const char* language)
+void Audio::Set_Language(const AkOSChar* language)
 {
   int wchars_num = MultiByteToWideChar(CP_UTF8, 0, language, -1, NULL, 0);
   wchar_t* wstr = new wchar_t[wchars_num];
@@ -152,7 +156,7 @@ void Audio::Set_Language(const char* language)
   delete[] wstr;
 }
 
-const wchar_t* Audio::Get_Language()
+const AkOSChar* Audio::Get_Language()
 {
   return AK::StreamMgr::GetCurrentLanguage();
 }
