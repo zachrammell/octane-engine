@@ -29,7 +29,8 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Physics/Box.h>
-#include <OctaneEngine/Physics/World.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Serializer.h>
 #include <OctaneEngine/WindowManager.h>
@@ -73,7 +74,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
-  engine.AddSystem(new Octane::World {&engine});
+  engine.AddSystem(new Octane::PhysicsSys {&engine});
   engine.AddSystem(new Octane::EntitySys {&engine});
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
@@ -210,7 +211,7 @@ int main(int argc, char* argv[]) noexcept
     render_comp.mesh_type = Octane::MeshType::Sphere;
   }
 
-  auto world = engine.GetSystem<Octane::World>();
+  auto world = engine.GetSystem<Octane::PhysicsSys>();
 
   auto body_100 = world->AddRigidBody();
   DirectX::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};

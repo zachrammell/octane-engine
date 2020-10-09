@@ -9,12 +9,12 @@
 
 namespace Octane
 {
-class World final : public ISystem
+class PhysicsSys final : public ISystem
 {
   // ISystem implementation
 public:
-  explicit World(Engine* engine);
-  ~World() = default;
+  explicit PhysicsSys(Engine* engine);
+  ~PhysicsSys() = default;
 
   void Load() override {};
   void LevelStart() override;

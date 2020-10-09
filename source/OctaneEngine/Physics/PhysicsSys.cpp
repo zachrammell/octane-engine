@@ -3,17 +3,19 @@
 #include <OctaneEngine/Physics/Capsule.h>
 #include <OctaneEngine/Physics/Ellipsoid.h>
 #include <OctaneEngine/Physics/Truncated.h>
-#include <OctaneEngine/Physics/World.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/Physics/Simplex.h>
 #include <iostream>
+
 
 namespace Octane
 {
-World::World(Engine* engine) : ISystem(engine) {}
+PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
 
-void World::LevelStart() {}
+void PhysicsSys::LevelStart() {}
 
-void World::Update()
+void PhysicsSys::Update()
 {
   float dt = 1.0 / 60.0f;
   //Three stage of physics pipeline
@@ -71,24 +73,24 @@ void World::Update()
   }
 }
 
-void World::LevelEnd()
+void PhysicsSys::LevelEnd()
 {
   //TODO clear world!
   //rigid_bodies_.clear();
   //
 }
 
-SystemOrder World::GetOrder()
+SystemOrder PhysicsSys::GetOrder()
 {
   return SystemOrder::World;
 }
 
-RigidBody* World::GetRigidBody(size_t index)
+RigidBody* PhysicsSys::GetRigidBody(size_t index)
 {
   return rigid_bodies_[index];
 }
 
-RigidBody* World::AddRigidBody()
+RigidBody* PhysicsSys::AddRigidBody()
 {
   RigidBody* body = new RigidBody();
 
@@ -97,7 +99,7 @@ RigidBody* World::AddRigidBody()
   return body;
 }
 
-Primitive* World::AddPrimitive(RigidBody* owner, ePrimitiveType type)
+Primitive* PhysicsSys::AddPrimitive(RigidBody* owner, ePrimitiveType type)
 {
   Primitive* primitive = nullptr;
 

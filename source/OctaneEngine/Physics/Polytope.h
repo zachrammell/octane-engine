@@ -4,4 +4,12 @@
 
 namespace Octane
 {
+class Polytope
+{
+public:
+  Polytope();
+  ~Polytope();
+
+private:
+};
 } // namespace Octane

@@ -31,7 +31,7 @@ public:
 
   RigidBody* GetRigidBody() const;
 protected:
-  friend class World;
+  friend class PhysicsSys;
 
 protected:
   float density_ = 1.0f;
