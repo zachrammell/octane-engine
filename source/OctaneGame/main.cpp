@@ -35,26 +35,6 @@
 #include <OctaneEngine/Serializer.h>
 #include <OctaneEngine/WindowManager.h>
 
-// EASTL expects user-defined new[] operators that it will use for memory allocation.
-// TODO: make these return already-allocated memory from our own memory allocator.
-void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line)
-{
-  return new uint8_t[size];
-}
-
-void* operator new[](
-  size_t size,
-  size_t alignment,
-  size_t alignmentOffset,
-  const char* pName,
-  int flags,
-  unsigned debugFlags,
-  const char* file,
-  int line)
-{
-  // pass-through to standard memory manager for now, will later be a custom one
-  return new uint8_t[size];
-}
 
 namespace fs = std::filesystem;
 
