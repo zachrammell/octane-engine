@@ -13,6 +13,7 @@
 // Main include
 #include <OctaneEngine/Audio.h>
 #include <cassert>
+#include <iostream>
 
 // defines
 #define AKTEXT
@@ -167,13 +168,57 @@ const AkOSChar* Audio::Get_Language()
   return AK::StreamMgr::GetCurrentLanguage();
 }
 
+// Before anyone asks, cerr is temporary. Can be changed to however we handle errors
 AkBankID Audio::Load_Bank(const char* name)
 {
-  AkBankID bankID; // Supposedly this is not used, but we will put this here in case
-  AKRESULT eResult = AK::SoundEngine::LoadBank(name, bankID);
-  assert(eResult == AK_Success);
+  AkBankID bankID;
+  
+  if (AK::SoundEngine::LoadBank(name, bankID) != AK_Success)
+  {
+    std::cerr << "Bank load '" << name << "' failed!" << std::endl;
+  }
 
   return bankID;
+}
+
+void Audio::Unload_Bank(const char* name)
+{
+  if (AK::SoundEngine::UnloadBank(name, NULL) != AK_Success)
+  {
+    std::cerr << "Bank unload '" << name << "' failed!" << std::endl;
+  }
+}
+
+void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
+{
+  if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) != AK_Success)
+  {
+    std::cerr << "Event posting '" << UniqueID << "' failed!" << std::endl;
+  }
+}
+
+void Audio::Register_Object(AkGameObjectID id, const char* name)
+{
+  if (AK::SoundEngine::RegisterGameObj(id, name) != AK_Success)
+  {
+    std::cerr << "Object registration '" << name << "' failed!" << std::endl;
+  }
+}
+
+void Audio::Unregister_Object(AkGameObjectID id)
+{
+  if (AK::SoundEngine::UnregisterGameObj(id) != AK_Success)
+  {
+    std::cerr << "Unregistering object '" << id << "' failed!" << std::endl;
+  }
+}
+
+void Audio::Unregister_All_Objects()
+{
+  if (AK::SoundEngine::UnregisterAllGameObj() != AK_Success)
+  {
+    std::cerr << "Unregistering all objects failed!" << std::endl;
+  }
 }
 
 void Audio::Suspend(bool partial)

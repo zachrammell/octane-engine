@@ -21,8 +21,9 @@
 #include <AK/MusicEngine/Common/AkMusicEngine.h>                           // Music Engine
 #include <AK/SpatialAudio/Common/AkSpatialAudio.h>                         // Spatial Audio
 
+
 // Defines
-#define AK_OPTIMIZED
+//#define AK_OPTIMIZED
 
 #ifndef AK_OPTIMIZED
 #include <AK/Comm/AkCommunication.h> // Communications, not for release!
@@ -48,13 +49,22 @@ private:
   static const AkOSChar* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
 
   // Banks
-  static AkBankID Load_Bank(const char * name);
+  static AkBankID Load_Bank(const char*);
+  static void Unload_Bank(const char*);
+
+  // Events
+  static void Play_Event(AkUniqueID, AkGameObjectID);
+
+  // Game Objects
+  static void Register_Object(AkGameObjectID, const char*);
+  static void Unregister_Object(AkGameObjectID);
+  static void Unregister_All_Objects();
 
   // Handle tabbing out
   // True = Partial on; Partial means to keep processing sound events
   // False = Completely suspend all sound
   static void Suspend(bool partial);
   static void Unsuspend();
-  static void Restart_Render(); // This is called shortly after Unsuspend
+  static void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
 };
 }
