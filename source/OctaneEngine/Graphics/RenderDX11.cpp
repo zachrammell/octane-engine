@@ -9,14 +9,21 @@
 
 #include <filesystem>
 
+#include <OctaneEngine/Trace.h>
+
 namespace Octane
 {
 
-RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}
+RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}, current_mesh_ {nullptr}
 {
+  Trace::Log(DEBUG) << "Initializing DirectX 11\n";
+
   HRESULT hr;
   int w, h;
   SDL_GetWindowSize(window, &w, &h);
+
+  Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
+
   DXGI_MODE_DESC buffer_description {
     static_cast<UINT>(w),
     static_cast<UINT>(h),
@@ -450,7 +457,7 @@ ID3D11DeviceContext* RenderDX11::GetD3D11Context() const
 
 void RenderDX11::ClearBuffers()
 {
-  DirectX::XMFLOAT4 clear_color {clear_color_.x, clear_color_.y, clear_color_.z, 1.0};
+  DirectX::XMFLOAT4 clear_color {clear_color_.r, clear_color_.g, clear_color_.b, 1.0};
   device_context_->ClearRenderTargetView(render_target_view_.get(), &(clear_color.x));
   device_context_->ClearDepthStencilView(depth_stencil_view_.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }

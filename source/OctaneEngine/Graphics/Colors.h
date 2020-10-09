@@ -4,7 +4,18 @@
 namespace Octane
 {
 
-using Color = DirectX::XMFLOAT3;
+union Color
+{
+  struct
+  {
+    float r, g, b;
+  };
+  DirectX::XMFLOAT3 vec;
+  bool operator!=(Color const& c) const
+  {
+    return !(r == c.r && g == c.g && b == c.b);
+  }
+};
 
 // Makes a normalized color from an RGB triple in the range [0-255]
 Color ColorFromRGB(uint8_t r, uint8_t g, uint8_t b);
@@ -40,6 +51,10 @@ Color const db32[32] =
 
 Color const peach    = ColorFromRGB(255, 163, 112);
 Color const cerulean = ColorFromRGB(60, 166, 165);
+
+// non-colors
+
+Color const invalid = {-1, -1, -1};
 
 } // namespace Colors
 

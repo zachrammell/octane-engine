@@ -60,7 +60,7 @@ public:
       }
       PerObjectConstants& SetColor(Color color)
       {
-        raw_data_.Color = color;
+        raw_data_.Color = color.vec;
         return *this;
       }
       struct RawData

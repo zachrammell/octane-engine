@@ -11,7 +11,8 @@ Color ColorFromRGB(uint8_t r, uint8_t g, uint8_t b)
 
 Color ColorFromRGB(Color color_rgb)
 {
-  return ColorFromRGB(color_rgb.x, color_rgb.y, color_rgb.z);
+  // simply scale interval from [0-255] to [0-1]
+  return Color {color_rgb.r / 255.0f, color_rgb.g / 255.0f, color_rgb.b / 255.0f};
 }
 
 Color ColorFromHex(uint32_t rgb)
