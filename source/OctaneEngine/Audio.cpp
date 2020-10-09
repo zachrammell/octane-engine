@@ -140,20 +140,26 @@ void Audio::Audio_Shutdown()
 
 void Audio::Set_Bank_Path(const AkOSChar * path)
 {
-  int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-  wchar_t* wstr = new wchar_t[wchars_num];
-  MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
-  g_lowLevelIO.SetBasePath(wstr);
-  delete[] wstr;
+  // Why is this needed?
+  //int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+  //wchar_t* wstr = new wchar_t[wchars_num];
+  // MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
+  
+  //delete[] wstr;
+
+  g_lowLevelIO.SetBasePath(path);
 }
 
 void Audio::Set_Language(const AkOSChar* language)
 {
-  int wchars_num = MultiByteToWideChar(CP_UTF8, 0, language, -1, NULL, 0);
-  wchar_t* wstr = new wchar_t[wchars_num];
-  MultiByteToWideChar(CP_UTF8, 0, language, -1, wstr, wchars_num);
-  AK::StreamMgr::SetCurrentLanguage(wstr);
-  delete[] wstr;
+  // This too
+  //int wchars_num = MultiByteToWideChar(CP_UTF8, 0, language, -1, NULL, 0);
+  //wchar_t* wstr = new wchar_t[wchars_num];
+  //MultiByteToWideChar(CP_UTF8, 0, language, -1, wstr, wchars_num);
+  
+  //delete[] wstr;
+
+  AK::StreamMgr::SetCurrentLanguage(language);
 }
 
 const AkOSChar* Audio::Get_Language()
