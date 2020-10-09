@@ -1,6 +1,6 @@
 #include <OctaneEngine/Physics/NarrowPhase.h>
-#include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/Physics/PrimitivePair.h>
+#include <OctaneEngine/Physics/RigidBody.h>
 
 namespace Octane
 {
@@ -37,5 +37,65 @@ bool NarrowPhase::GJKCollisionDetection(Primitive* a, Primitive* b, Simplex& sim
     }
   }
   return false;
+}
+
+bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& polytope, ContactPoint& result)
+{
+  PolytopeFace closest_face = polytope.PickClosestFace();
+  PolytopeFace prev_face = closest_face;
+  for (size_t i = 0; i < m_epa_exit_iteration; ++i)
+  {
+    if (polytope.faces.empty())
+    {
+      result.is_valid = false;
+      return false;
+    }
+    closest_face = polytope.PickClosestFace();
+    SupportPoint support_point = GenerateCSOSupport(a, b, closest_face.normal);
+    if (support_point.IsValid() == false)
+    {
+      closest_face = prev_face;
+      break;
+    }
+    float distance = Math::DotProductVector3(support_point.global, closest_face.normal);
+    if (distance - closest_face.distance < Math::EPSILON)
+    {
+      break;
+    }
+    polytope.Push(support_point);
+    polytope.Expand(support_point);
+    prev_face = closest_face;
+  }
+  float u, v, w;
+  closest_face
+    .BarycentricCoordinates(DirectX::XMVectorScale(closest_face.normal, closest_face.distance), u, v, w, &polytope);
+  if (Math::IsValid(u) == false || Math::IsValid(v) == false || Math::IsValid(w) == false)
+  {
+    result.is_valid = false;
+    return false;
+  }
+  if (fabsf(u) > 1.0f || fabsf(v) > 1.0f || fabsf(w) > 1.0f)
+  {
+    result.is_valid = false;
+    return false;
+  }
+  result.collider_a = a;
+  result.collider_b = b;
+  result.local_position_a = DirectX::XMVectorAdd(
+    DirectX::XMVectorAdd(
+      DirectX::XMVectorScale(polytope.vertices[closest_face.a].local_a, u),
+      DirectX::XMVectorScale(polytope.vertices[closest_face.b].local_a, v)),
+    DirectX::XMVectorScale(polytope.vertices[closest_face.c].local_a, w));
+  result.local_position_b = DirectX::XMVectorAdd(
+    DirectX::XMVectorAdd(
+      DirectX::XMVectorScale(polytope.vertices[closest_face.a].local_b, u),
+      DirectX::XMVectorScale(polytope.vertices[closest_face.b].local_b, v)),
+    DirectX::XMVectorScale(polytope.vertices[closest_face.c].local_b, w));
+  result.global_position_a = a->GetRigidBody()->LocalToWorldPoint(result.local_position_a);
+  result.global_position_b = b->GetRigidBody()->LocalToWorldPoint(result.local_position_b);
+  result.is_valid = true;
+  result.normal = DirectX::XMVector3Normalize(closest_face.normal);
+  result.depth = closest_face.distance;
+  return true;
 }
 } // namespace Octane
