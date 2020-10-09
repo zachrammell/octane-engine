@@ -14,6 +14,10 @@
 #include <OctaneEngine/Audio.h>
 #include <cassert>
 
+// defines
+#define AKTEXT
+
+
 // Wwise's default implementation
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
@@ -134,17 +138,17 @@ void Audio::Audio_Shutdown()
   AK::MemoryMgr::Term();
 }
 
-void Audio::Set_Bank_Path(const char * path)
+void Audio::Set_Bank_Path(const AkOSChar * path)
 {
   g_lowLevelIO.SetBasePath(AKTEXT(path));
 }
 
-void Audio::Set_Language(const char* language)
+void Audio::Set_Language(const AkOSChar* language)
 {
   AK::StreamMgr::SetCurrentLanguage(AKTEXT(language));
 }
 
-const char* Audio::Get_Language()
+const AkOSChar* Audio::Get_Language()
 {
   return AK::StreamMgr::GetCurrentLanguage();
 }
