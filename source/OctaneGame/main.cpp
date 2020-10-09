@@ -10,6 +10,7 @@
 #include <filesystem>
 
 #define SDL_MAIN_HANDLED
+
 #include <EASTL/vector.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
@@ -34,9 +35,12 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Serializer.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/Trace.h>
+#include <OctaneEngine/FormattedOutput.h>
 
 
 namespace fs = std::filesystem;
+using namespace Octane::FormattedOutput;
 
 int main(int argc, char* argv[]) noexcept
 {
@@ -49,7 +53,12 @@ int main(int argc, char* argv[]) noexcept
     fs::create_directory("sandbox");
   }
 
-  std::clog << "[== Project Octane ==]\n";
+  std::ofstream logfile("sandbox/latest.txt");
+
+  Octane::Trace::AddLog(&logfile);
+  Octane::Trace::AddLogColored(&std::clog);
+  Octane::Trace::Log(Octane::INFO) << "[== " << Set(Red) << "Project Octane" << Set() << " ==]\n";
+
   Octane::Engine engine;
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
@@ -59,6 +68,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
 
+  // NBT writing demo
   {
     Octane::NBTWriter nbt_writer("sandbox/test_list.nbt");
     nbt_writer.WriteInt("hi", 300);
@@ -102,7 +112,6 @@ int main(int argc, char* argv[]) noexcept
     }
   }
 
-  std::clog << "Initializing DX11\n";
   Octane::RenderDX11 render {engine.GetSystem<Octane::WindowManager>()->GetHandle()};
   Octane::Shader phong = render.CreateShader(
     L"assets/shaders/phong.hlsl",

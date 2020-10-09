@@ -1,13 +1,16 @@
+#include <OctaneEngine/Physics/PhysicsSys.h>
+
+#include <iostream>
+
+#include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/Capsule.h>
 #include <OctaneEngine/Physics/Ellipsoid.h>
 #include <OctaneEngine/Physics/Truncated.h>
-#include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Physics/Simplex.h>
-#include <iostream>
 
+#include <OctaneEngine/Trace.h>
 
 namespace Octane
 {
@@ -46,13 +49,13 @@ void PhysicsSys::Update()
     Simplex simplex;
     if (narrow_phase_.GJKCollisionDetection(pair.a, pair.b, simplex))
     {
-      std::cout << "Collision!! \n";
+      Trace::Log(TRACE) << "Collision!! \n";
       //Do EPA contact generation
       //Send Collision Event or Save Collision State
     }
     else
     {
-      std::cout << "None!! \n";
+      Trace::Log(TRACE) << "None!! \n";
     }
   }
 
