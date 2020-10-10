@@ -5,6 +5,8 @@
 #include <EASTL/unique_ptr.h>
 #include <SDL.h>
 
+#include <DirectXMath.h>
+
 namespace Octane
 {
 
@@ -35,8 +37,11 @@ public:
   bool KeyHeld(SDL_KeyCode key);
   bool KeyReleased(SDL_KeyCode key);
 
+  DirectX::XMINT2 GetMouseMovement();
+
 private:
   eastl::unique_ptr<KeyState[]> keys_, prev_keys_;
+  DirectX::XMINT2 mouse_movement_;
 };
 
 } // namespace Octane

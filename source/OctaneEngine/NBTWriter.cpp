@@ -9,6 +9,8 @@
 #include <OctaneEngine/Helper.h>
 #include <cassert>
 
+#include <OctaneEngine/Trace.h>
+
 namespace Octane
 {
 
@@ -43,7 +45,8 @@ NBTWriter::NBTWriter(string_view filepath) : outfile_ {nullptr}
 #ifdef _DEBUG
 file_open:
 #endif
-  if ((err = _wfopen_s(&outfile_, w_filepath, L"wb")))
+  err = _wfopen_s(&outfile_, w_filepath, L"wb");
+  if (err)
   {
 #ifdef _DEBUG
     // the file is open, close it and continue debugging.
@@ -87,7 +90,7 @@ void NBTWriter::EndCompound()
   }
   if (nesting.length == 0)
   {
-    /* [WARNING] NBTWriter: Empty Compound - Compound Tag with no values. */
+    Trace::Log(WARNING, "NBTWriter: Empty Compound - Compound Tag with no values.");
   }
   nesting_info_.pop();
   WriteTag(TAG::End);
@@ -96,7 +99,7 @@ void NBTWriter::EndCompound()
 bool NBTWriter::BeginList(string_view name)
 {
   HandleNesting(name, TAG::List);
-  NestingInfo& nesting = nesting_info_.top();
+//  NestingInfo& nesting = nesting_info_.top();
   if (!name.empty())
   {
     WriteTag(TAG::List);
@@ -121,7 +124,7 @@ void NBTWriter::EndList()
   }
   if (nesting.length == 0)
   {
-    /* [WARNING] NBTWriter: Empty List - List Tag with no values. */
+    Trace::Log(WARNING, "NBTWriter: Empty List - List Tag with no values.");
   }
 
   fpos_t current_file_pos;

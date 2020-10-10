@@ -196,4 +196,12 @@ auto avg(T... args)
 {
   return sum(args...) / sizeof...(args);
 }
+
+template<typename T>
+auto clamp(T x, T min, T max)
+{
+  T const t = x < min ? min : x;
+  return t > max ? max : t;
+}
+
 } // namespace Octane

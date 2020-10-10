@@ -30,6 +30,8 @@ void InputHandler::Update()
     }
   }
 
+  mouse_movement_ = {0, 0};
+
   //Event handler
   SDL_Event e;
   //Handle events on queue
@@ -71,7 +73,11 @@ void InputHandler::Update()
       }
     }
     break;
-
+    case SDL_MOUSEMOTION:
+    {
+      mouse_movement_ = {e.motion.xrel, e.motion.yrel};
+    }
+    break;
     default: break;
     }
   }
@@ -98,6 +104,11 @@ bool InputHandler::KeyReleased(SDL_KeyCode key)
 {
   SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
   return (keys_[scancode] == RELEASED);
+}
+
+DirectX::XMINT2 InputHandler::GetMouseMovement()
+{
+  return mouse_movement_;
 }
 
 } // namespace Octane

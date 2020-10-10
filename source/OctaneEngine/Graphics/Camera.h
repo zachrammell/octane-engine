@@ -44,4 +44,34 @@ private:
 
   float camera_speed_ = 1.0f;
 };
+
+class FPSCamera
+{
+public:
+  explicit FPSCamera(DirectX::XMVECTOR position);
+
+  void MoveRelativeToView(DirectX::XMVECTOR offset);
+  void SetPosition(DirectX::XMVECTOR position);
+
+  void RotatePitchRelative(float angle_offset);
+  void RotateYawRelative(float angle_offset);
+
+  void RotatePitchAbsolute(float angle);
+  void RotateYawAbsolute(float angle);
+
+  DirectX::XMVECTOR GetViewDirection();
+  DirectX::XMMATRIX GetViewMatrix();
+
+  DirectX::XMFLOAT3 GetPosition() const;
+
+private:
+  DirectX::XMFLOAT3 position_;
+  DirectX::XMFLOAT3 forward_, up_, right_;
+  DirectX::XMFLOAT4X4 view_matrix_;
+  float pitch_, yaw_;
+  bool position_changed_, orientation_changed_;
+  bool Dirty() const;
+  void RecalculateVectors();
+};
+
 } // namespace Octane

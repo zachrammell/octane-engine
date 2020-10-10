@@ -6,8 +6,8 @@
 #include <crtdbg.h>
 #include <stdlib.h>
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 #define SDL_MAIN_HANDLED
 
@@ -26,7 +26,9 @@
 
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/EntitySys.h>
+#include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/FramerateController.h>
+#include <OctaneEngine/Graphics/Camera.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Physics/Box.h>
@@ -34,10 +36,8 @@
 #include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Serializer.h>
-#include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Trace.h>
-#include <OctaneEngine/FormattedOutput.h>
-
+#include <OctaneEngine/WindowManager.h>
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
@@ -56,8 +56,8 @@ int main(int argc, char* argv[]) noexcept
   std::ofstream logfile("sandbox/latest.txt");
 
   Octane::Trace::AddLog(&logfile);
-  Octane::Trace::AddLogColored(&std::clog);
-  Octane::Trace::Log(Octane::INFO) << "[== " << Set(Red) << "Project Octane" << Set() << " ==]\n";
+  Octane::Trace::AddLog(&std::clog);
+  Octane::Trace::Log(Octane::INFO) << "[== Project Octane ==]\n";
 
   Octane::Engine engine;
   engine.AddSystem(new Octane::FramerateController {&engine});
@@ -119,20 +119,13 @@ int main(int argc, char* argv[]) noexcept
   render.SetClearColor(Octane::Colors::cerulean);
 
   Octane::OBJParser obj_parser;
-  Octane::Mesh sphere_mesh = obj_parser.ParseOBJ(L"assets/models/sphere.obj");
+  Octane::Mesh sphere_mesh = obj_parser.ParseOBJ(L"assets/models/Bear.obj");
   Octane::MeshDX11 sphere_mesh_dx11 = render.CreateMesh(sphere_mesh);
-  Octane::Mesh cube_mesh = obj_parser.ParseOBJ(L"assets/models/cube_rounded.obj");
+  Octane::Mesh cube_mesh = obj_parser.ParseOBJ(L"assets/models/PaperShuriken.obj");
   Octane::MeshDX11 cube_mesh_dx11 = render.CreateMesh(cube_mesh);
 
   render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   render.UseMesh(sphere_mesh_dx11);
-
-  DirectX::XMMATRIX cam_view_matrix;
-  DirectX::XMMATRIX cam_projection_matrix;
-
-  DirectX::XMFLOAT3 cam_position = {5.0f, 1.0f, 5.0f};
-  DirectX::XMFLOAT3 cam_target = {0.0f, 0.0f, 0.0f};
-  DirectX::XMVECTOR cam_up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
   DirectX::XMFLOAT3 light_position = {100.0f, 100.0f, 50.0f};
 
@@ -213,6 +206,8 @@ int main(int argc, char* argv[]) noexcept
   body_101->SetLinearConstraints(constraints);
   body_101->SetAngularConstraints(constraints);
   auto prim_101 = world->AddPrimitive(body_101, Octane::ePrimitiveType::Ellipsoid);
+
+  Octane::FPSCamera camera {DirectX::XMVectorSet(0.0f, 1.0f, 10.0f, 1.0f)};
 
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -360,11 +355,8 @@ int main(int argc, char* argv[]) noexcept
         {
           ImGui::DragFloat3("Light Position", (&light_position.x), 0.01f);
         }
-        if (ImGui::CollapsingHeader("Camera Properties"))
-        {
-          ImGui::DragFloat3("Camera Position", (&cam_position.x), 0.01f);
-          ImGui::DragFloat3("Camera Target", (&cam_target.x), 0.01f);
-        }
+        auto cam_pos = camera.GetPosition();
+        ImGui::Text("(%f, %f, %f)", cam_pos.x, cam_pos.y, cam_pos.z);
         ImGui::End();
       }
 
@@ -409,15 +401,16 @@ int main(int argc, char* argv[]) noexcept
 
       DirectX::XMStoreFloat3(
         &cam_velocity,
-        DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&cam_velocity)), 0.5f));
+        DirectX::XMVectorScale(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&cam_velocity)), 0.25f));
 
-      cam_position.x += cam_velocity.x;
-      cam_position.y += cam_velocity.y;
-      cam_position.z += cam_velocity.z;
+      DirectX::XMINT2 mouse_vel = input->GetMouseMovement();
+      camera.RotatePitchRelative(-mouse_vel.y * 0.05f);
+      camera.RotateYawRelative(mouse_vel.x * 0.05f);
 
-      cam_view_matrix
-        = DirectX::XMMatrixLookAtRH(DirectX::XMLoadFloat3(&cam_position), DirectX::XMLoadFloat3(&cam_target), cam_up);
-      cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
+      camera.MoveRelativeToView(DirectX::XMLoadFloat3(&cam_velocity));
+
+      DirectX::XMMATRIX cam_view_matrix = camera.GetViewMatrix();
+      DirectX::XMMATRIX cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
         DirectX::XMConvertToRadians(20.0f),
         engine.GetSystem<Octane::WindowManager>()->GetAspectRatio(),
         0.05f,
@@ -426,7 +419,7 @@ int main(int argc, char* argv[]) noexcept
       render.ShaderConstants()
         .PerFrame()
         .SetViewProjection(DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix))
-        .SetCameraPosition(cam_position)
+        .SetCameraPosition(camera.GetPosition())
         .SetLightPosition(light_position);
 
       render.Upload(render.ShaderConstants().PerFrame());
@@ -449,7 +442,8 @@ int main(int argc, char* argv[]) noexcept
           DirectX::XMMATRIX object_world_matrix = DirectX::XMMatrixIdentity();
           auto scale = transform.scale;
           object_world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-          object_world_matrix *= DirectX::XMMatrixRotationAxis(cam_up, DirectX::XMConvertToRadians(transform.rotation));
+          object_world_matrix
+            *= DirectX::XMMatrixRotationAxis({0, 1, 0}, DirectX::XMConvertToRadians(transform.rotation));
           auto pos = transform.pos;
           object_world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 

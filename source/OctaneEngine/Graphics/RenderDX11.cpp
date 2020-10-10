@@ -9,7 +9,10 @@
 
 #include <filesystem>
 
+#include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Trace.h>
+
+using namespace Octane::FormattedOutput;
 
 namespace Octane
 {
@@ -225,10 +228,13 @@ void RenderDX11::ResizeFramebuffer(SDL_Window* window)
 
 Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
 {
-  if (!std::filesystem::exists(shader_path))
-  {
-    assert(!"Shader file does not exist");
-  }
+  Trace::Assert(
+    std::filesystem::exists(shader_path),
+    SERIALIZATION,
+    "shader file %s%ls%s loaded successfully.",
+    Set(Yellow).c_str(),
+    shader_path,
+    Set().c_str());
 
   HRESULT hr;
   ID3DBlob* error_buffer = nullptr;
@@ -241,6 +247,7 @@ Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
   Shader shader;
 
   // Compile vertex shader
+  Trace::Log(DEBUG, "Compiling vertex shader %s%ls%s.\n", Set(Yellow).c_str(), shader_path, Set().c_str());
   hr = D3DCompileFromFile(
     shader_path,
     nullptr,
@@ -267,6 +274,7 @@ Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
   }
 
   // Compile pixel shader
+  Trace::Log(DEBUG, "Compiling pixel shader %s%ls%s.\n", Set(Yellow).c_str(), shader_path, Set().c_str());
   hr = D3DCompileFromFile(
     shader_path,
     nullptr,
