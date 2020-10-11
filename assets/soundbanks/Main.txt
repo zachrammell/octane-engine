@@ -1,10 +1,12 @@
 Event	ID	Name			Wwise Object Path	Notes
+	1324413170	TestMusic			\Default Work Unit\TestMusic	
 	3092211194	Explosion_Laser			\Default Work Unit\Explosion_Laser	
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	172320610	ThunderClap	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\ThunderClap_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\ThunderClap		1545328
 	256810444	Laser1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser1		590224
 	658847440	Explosion1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Explosion1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Booms\Explosion1		648308
+	890613456	synth_track	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\synth_track_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\3DSFX\TestMusic\synth_track		2998864
 	905657606	Laser3	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser3_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser3		531084
 	991570323	Laser2	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser2		383344
 
