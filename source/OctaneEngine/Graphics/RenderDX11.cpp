@@ -48,7 +48,7 @@ RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}, curre
     window_handle,
     true,
     DXGI_SWAP_EFFECT_DISCARD,
-    0};
+    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH};
 
   hr = D3D11CreateDeviceAndSwapChain(
     nullptr,

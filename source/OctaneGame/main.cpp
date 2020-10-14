@@ -297,7 +297,7 @@ int main(int argc, char* argv[]) noexcept
         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
       ImGui::Text(
-        "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys and Space/Shift for camera movement");
+        "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
 
       ImGui::End();
 
