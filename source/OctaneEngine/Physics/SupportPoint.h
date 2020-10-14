@@ -17,8 +17,8 @@ public:
   ~SupportPoint();
 
   SupportPoint& operator=(const SupportPoint& rhs);
-  DirectX::XMVECTOR& operator[](size_t index);
-  DirectX::XMVECTOR operator[](size_t index) const;
+  DirectX::XMVECTOR& operator[](size_t i);
+  DirectX::XMVECTOR operator[](size_t i) const;
   bool operator==(const SupportPoint& rhs);
   bool operator==(const SupportPoint& rhs) const;
   bool IsValid() const;

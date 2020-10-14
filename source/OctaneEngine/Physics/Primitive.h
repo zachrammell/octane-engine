@@ -36,6 +36,8 @@ protected:
 protected:
   float density_ = 1.0f;
   float mass_ = 1.0f;
+  float pad0 = 0.0f;
+  float pad1 = 0.0f;
   DirectX::XMVECTOR local_centroid_; //vector3
   DirectX::XMMATRIX local_inertia_;  //matrix3x3
   RigidBody* rigid_body_ = nullptr;

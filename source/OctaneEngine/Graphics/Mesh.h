@@ -6,7 +6,7 @@
   \date       2020/10/03
   \brief      Classes to contain information for vertex meshes
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ?2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 #pragma once

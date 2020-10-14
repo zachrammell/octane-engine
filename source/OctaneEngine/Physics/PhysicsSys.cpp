@@ -20,7 +20,7 @@ void PhysicsSys::LevelStart() {}
 
 void PhysicsSys::Update()
 {
-  float dt = 1.0 / 60.0f;
+  float dt = 1.0f / 60.0f;
   //Three stage of physics pipeline
 
   //[Broad Phase]

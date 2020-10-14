@@ -37,14 +37,14 @@ SupportPoint& SupportPoint::operator=(const SupportPoint& rhs)
   return *this;
 }
 
-DirectX::XMVECTOR& SupportPoint::operator[](size_t index)
+DirectX::XMVECTOR& SupportPoint::operator[](size_t i)
 {
-  return (&global)[index];
+  return (&global)[i];
 }
 
-DirectX::XMVECTOR SupportPoint::operator[](size_t index) const
+DirectX::XMVECTOR SupportPoint::operator[](size_t i) const
 {
-  return (&global)[index];
+  return (&global)[i];
 }
 
 bool SupportPoint::operator==(const SupportPoint& rhs)

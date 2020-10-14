@@ -14,7 +14,7 @@ namespace Octane
 class NarrowPhase
 {
 public:
-  NarrowPhase() = default;
+  NarrowPhase();
   ~NarrowPhase() = default;
 
   SupportPoint GenerateCSOSupport(Primitive* a, Primitive* b, const DirectX::XMVECTOR& direction);

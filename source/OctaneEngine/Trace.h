@@ -6,7 +6,7 @@
   \date       2020/10/08
   \brief      A 
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ?2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 #pragma once

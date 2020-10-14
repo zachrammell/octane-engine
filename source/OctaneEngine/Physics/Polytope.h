@@ -46,9 +46,11 @@ public:
   void BarycentricCoordinates(const DirectX::XMVECTOR& point, float& u, float& v, float& w, Polytope* polytope) const;
 
 public:
-  size_t a{}, b{}, c{};
-  DirectX::XMVECTOR normal{};
-  float distance{};
+  size_t a = 0, b = 0, c = 0;
+  float distance = 0.0f;
+  float pad = 0.0f;
+  DirectX::XMVECTOR normal = DirectX::XMVECTOR();
+
 };
 
 class Polytope

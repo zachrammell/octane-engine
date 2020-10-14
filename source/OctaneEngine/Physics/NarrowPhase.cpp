@@ -4,6 +4,20 @@
 
 namespace Octane
 {
+NarrowPhase::NarrowPhase()
+{
+  m_basis[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+  m_basis[1] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  m_basis[2] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+  m_search_directions[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+  m_search_directions[1] = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+  m_search_directions[2] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  m_search_directions[3] = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+  m_search_directions[4] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+  m_search_directions[5] = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+}
+
 SupportPoint NarrowPhase::GenerateCSOSupport(Primitive* a, Primitive* b, const DirectX::XMVECTOR& direction)
 {
   RigidBody* body_a = a->GetRigidBody();
