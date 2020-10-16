@@ -39,6 +39,8 @@ public:
 
   //scene manager
   void SetNextScene(SceneE next_scene);
+  SceneE GetCurrentScene() const;
+  void Quit();
 
 private:
   FramerateController& frc_;

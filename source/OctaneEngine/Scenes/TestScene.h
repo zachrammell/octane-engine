@@ -34,5 +34,8 @@ public:
 
 private:
   InputHandler& inhand_;
+
+  bool esc_menu = false;
+  bool demo_window_open = false;
 };
 }

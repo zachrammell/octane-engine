@@ -236,6 +236,9 @@ int main(int argc, char* argv[]) noexcept
 
   while (!engine.ShouldQuit())
   {
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplSDL2_NewFrame(engine.GetSystem<Octane::WindowManager>()->GetHandle());
+    ImGui::NewFrame();
     engine.Update();
 
     // This is extremely clean
@@ -243,127 +246,17 @@ int main(int argc, char* argv[]) noexcept
     float dt = frc->GetDeltaTime();
 
     auto* input = engine.GetSystem<Octane::InputHandler>();
-
+    auto* sceneman = engine.GetSystem<Octane::SceneSys>();
     // Start the Dear ImGui frame
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplSDL2_NewFrame(engine.GetSystem<Octane::WindowManager>()->GetHandle());
-    ImGui::NewFrame();
-    if (main_menu)
+    if (sceneman->GetCurrentScene() == Octane::SceneE::MenuScene)
     {
-      ImGui::Begin(
-        "menu",
-        NULL,
-        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-      ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
-      if (esc_menu == false)
-      {
-        if (ImGui::Button("play"))
-        {
-          main_menu = false;
-        }
-        render.SetClearColor(Octane::Colors::db32[1]);
-        render.ClearScreen();
-      }
-      else
-      {
-        if (ImGui::Button("resume"))
-        {
-          main_menu = false;
-          esc_menu = false;
-        }
-        if (ImGui::Button("main menu"))
-        {
-          main_menu = true;
-          esc_menu = false;
-        }
-      }
-      if (ImGui::Button("quit"))
-      {
-        break;
-      }
-      //If press the esc, shut down the program
-      if (input->KeyReleased(SDLK_ESCAPE))
-      {
-        break;
-      }
-
-      ImGui::End();
+    
+       render.SetClearColor(Octane::Colors::db32[1]);
+       render.ClearScreen();
     }
     else
     {
-      ImGui::Begin(
-        "Sample Window",
-        NULL,
-        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-
-      ImGui::Text(
-        "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
-
-      ImGui::End();
-
-      //If press the esc, make menu come out
-      if (input->KeyReleased(SDLK_ESCAPE))
-      {
-        main_menu = true;
-        esc_menu = true;
-      }
-
-      if (ImGui::BeginMainMenuBar())
-      {
-        if (ImGui::BeginMenu("File"))
-        {
-          if (ImGui::MenuItem("Quit"))
-          {
-            engine.Quit();
-          }
-
-          ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Edit"))
-        {
-          if (ImGui::BeginMenu("Theme"))
-          {
-            if (ImGui::MenuItem("Visual Studio"))
-            {
-              Octane::Style::ImguiVisualStudio();
-            }
-            if (ImGui::MenuItem("ImGui Dark"))
-            {
-              ImGui::StyleColorsDark();
-            }
-            ImGui::EndMenu();
-          }
-          ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("View"))
-        {
-          if (ImGui::BeginMenu("Windows"))
-          {
-            ImGui::MenuItem("Scene Settings", 0, &scene_settings_open);
-            ImGui::MenuItem("ImGui Demo", 0, &demo_window_open);
-            ImGui::EndMenu();
-          }
-          ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-      }
-
-      if (scene_settings_open)
-      {
-        ImGui::Begin("Scene Settings", &scene_settings_open, ImGuiWindowFlags_AlwaysAutoResize);
-        if (ImGui::CollapsingHeader("Light Properties"))
-        {
-          ImGui::DragFloat3("Light Position", (&light_position.x), 0.01f);
-        }
-        auto cam_pos = camera.GetPosition();
-        ImGui::Text("(%f, %f, %f)", cam_pos.x, cam_pos.y, cam_pos.z);
-        ImGui::End();
-      }
-
-      if (demo_window_open)
-      {
-        ImGui::ShowDemoWindow(&demo_window_open);
-      }
+      
 
       DirectX::XMFLOAT3 cam_velocity;
       cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
