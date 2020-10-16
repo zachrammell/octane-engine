@@ -21,6 +21,7 @@ namespace AK
         static const AkUniqueID PLAYER_FOOTSTEP = 2453392179U;
         static const AkUniqueID PLAYER_HURT = 1068092414U;
         static const AkUniqueID PLAYER_JUMP = 1305133589U;
+        static const AkUniqueID STOP_TESTMUSIC = 3991482221U;
         static const AkUniqueID TESTMUSIC = 1324413170U;
     } // namespace EVENTS
 

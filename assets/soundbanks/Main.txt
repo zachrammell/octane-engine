@@ -8,6 +8,7 @@ Event	ID	Name			Wwise Object Path	Notes
 	2971505500	Play_AirplaneLauncher			\Default Work Unit\Play_AirplaneLauncher	
 	3092211194	Explosion_Laser			\Default Work Unit\Explosion_Laser	
 	3159718618	Play_ButtonSelect			\Default Work Unit\Play_ButtonSelect	
+	3991482221	Stop_TestMusic			\Default Work Unit\Stop_TestMusic	
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	121146813	ButtonBack	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\ButtonBack_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\UISFX\ButtonBack		2998864
