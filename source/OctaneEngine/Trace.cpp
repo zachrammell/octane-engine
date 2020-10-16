@@ -15,6 +15,8 @@
 #include <cstdio>
 #include <iostream> // iostream, clog
 
+#include <magic_enum.hpp>
+
 #include <OctaneEngine/FormattedOutput.h>
 
 using namespace Octane::FormattedOutput;
@@ -39,8 +41,6 @@ ColorANSI const severity_colors[] = {
   Red,     // ERROR
   Crimson, // FAILURE
 };
-
-char const* const severity_names[] = {"SERIALIZATION", "TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "FAILURE"};
 
 Severity min_severity = SERIALIZATION;
 
@@ -129,11 +129,11 @@ LogStream& Log(Severity level)
       *(stream_entry.out_stream_) << "[";
       if (stream_entry.is_colored_)
       {
-        *(stream_entry.out_stream_) << Set(severity_colors[level]) << severity_names[level] << Set();
+        *(stream_entry.out_stream_) << Set(severity_colors[level]) << magic_enum::enum_name(level) << Set();
       }
       else
       {
-        *(stream_entry.out_stream_) << severity_names[level];
+        *(stream_entry.out_stream_) << magic_enum::enum_name(level);
       }
       *(stream_entry.out_stream_) << "]: ";
     }

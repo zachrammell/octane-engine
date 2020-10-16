@@ -13,3 +13,6 @@
 [submodule "libraries/assimp"]
 	path = libraries/assimp
 	url = https://github.com/assimp/assimp
+[submodule "libraries/magic_enum"]
+	path = libraries/magic_enum
+	url = https://github.com/Neargye/magic_enum.git

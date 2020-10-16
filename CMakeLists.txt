@@ -69,6 +69,9 @@ set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 add_subdirectory("libraries/assimp")
 
+# magic enum
+add_subdirectory("libraries/magic_enum")
+
 # Add source to the library
 add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE}  "source/OctaneEngine/Scenes/SceneDefs.h")
 
@@ -88,6 +91,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   IMGUI
   WWISE
   assimp
+  magic_enum
 )
 
 file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
