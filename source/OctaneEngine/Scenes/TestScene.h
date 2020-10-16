@@ -30,7 +30,7 @@ public:
   virtual void Unload();
 
   virtual void Update(float dt);
-  virtual std::string GetName() const;
+  virtual SceneE GetEnum() const;
 
 private:
   InputHandler& inhand_;

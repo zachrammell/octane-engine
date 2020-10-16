@@ -93,15 +93,7 @@ void SceneSys::SetNextScene(SceneE next_scene)
 
 SceneE SceneSys::GetCurrentScene() const 
 {
-  for (unsigned int i = 0; i < static_cast<unsigned int>(SceneE::COUNT); ++i)
-  {
-    if (scene_holder_[i] == current_scene_)
-    {
-      return static_cast<SceneE>(i);
-    }
-  }
-
-  return SceneE::COUNT;
+  return current_scene_->GetEnum();
 }
 
 void SceneSys::Quit() 

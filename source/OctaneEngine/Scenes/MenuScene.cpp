@@ -61,9 +61,9 @@ void MenuScene::Unload() {
 
 }
 
-std::string MenuScene::GetName() const
+SceneE MenuScene::GetEnum() const
 {
-  return "MenuScene";
+  return SceneE::MenuScene;
 }
 }
 

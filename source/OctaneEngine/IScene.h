@@ -17,6 +17,7 @@
 namespace Octane
 {
 class SceneSys;
+enum class SceneE : unsigned int;
 
 	class IScene
 	{
@@ -34,13 +35,7 @@ class SceneSys;
 
 		  virtual void Update(float dt) = 0;
 
-		   // simple convenience function to access engine getsystem function
-           //template<class System>
-          // System* Get()
-          // {
-          //   return parent_manager_.Get<System>();
-         //  }
-                  virtual std::string GetName() const { return ""; }
+          virtual SceneE GetEnum() const = 0;
                     
 		protected:
           SceneSys& parent_manager_;

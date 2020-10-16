@@ -145,9 +145,9 @@ void TestScene::Unload()
 
 }
 
-std::string TestScene::GetName() const 
+SceneE TestScene::GetEnum() const  
 {
-  return "TestScene";
+  return SceneE::TestScene;
 }
 }
 
