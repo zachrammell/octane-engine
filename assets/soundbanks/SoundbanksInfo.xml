@@ -45,11 +45,95 @@
 						</File>
 					</IncludedMemoryFiles>
 				</Event>
+				<Event Id="2971505500" Name="Play_AirplaneLauncher" ObjectPath="\Events\Default Work Unit\Play_AirplaneLauncher">
+					<IncludedMemoryFiles>
+						<File Id="678537110" Language="SFX">
+							<ShortName>wind_gust.wav</ShortName>
+							<Path>SFX\wind_gust_10C4C929.wem</Path>
+						</File>
+						<File Id="778792044" Language="SFX">
+							<ShortName>airplane_launcher_fire.wav</ShortName>
+							<Path>SFX\airplane_launcher_fire_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="860775431" Name="Play_ButtonBack" ObjectPath="\Events\Default Work Unit\Play_ButtonBack">
+					<IncludedMemoryFiles>
+						<File Id="121146813" Language="SFX">
+							<ShortName>ButtonBack.wav</ShortName>
+							<Path>SFX\ButtonBack_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="479606568" Name="Play_ButtonHover" ObjectPath="\Events\Default Work Unit\Play_ButtonHover">
+					<IncludedMemoryFiles>
+						<File Id="939112826" Language="SFX">
+							<ShortName>ButtonHover.wav</ShortName>
+							<Path>SFX\ButtonHover_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3159718618" Name="Play_ButtonSelect" ObjectPath="\Events\Default Work Unit\Play_ButtonSelect">
+					<IncludedMemoryFiles>
+						<File Id="482488142" Language="SFX">
+							<ShortName>ButtonSelect.wav</ShortName>
+							<Path>SFX\ButtonSelect_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="2453392179" Name="Player_Footstep" ObjectPath="\Events\Default Work Unit\Player_Footstep">
+					<IncludedMemoryFiles>
+						<File Id="181233759" Language="SFX">
+							<ShortName>Footsteps, Dirt, Walking SND17386 4.wav</ShortName>
+							<Path>SFX\Footsteps, Dirt, Walking SND17386 4_10C4C929.wem</Path>
+						</File>
+						<File Id="293984751" Language="SFX">
+							<ShortName>Footsteps, Dirt, Walking SND17386 5.wav</ShortName>
+							<Path>SFX\Footsteps, Dirt, Walking SND17386 5_10C4C929.wem</Path>
+						</File>
+						<File Id="638271342" Language="SFX">
+							<ShortName>Footsteps, Dirt, Walking SND17386 1.wav</ShortName>
+							<Path>SFX\Footsteps, Dirt, Walking SND17386 1_10C4C929.wem</Path>
+						</File>
+						<File Id="702624185" Language="SFX">
+							<ShortName>Footsteps, Dirt, Walking SND17386 3.wav</ShortName>
+							<Path>SFX\Footsteps, Dirt, Walking SND17386 3_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1068092414" Name="Player_Hurt" ObjectPath="\Events\Default Work Unit\Player_Hurt">
+					<IncludedMemoryFiles>
+						<File Id="288782756" Language="SFX">
+							<ShortName>Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 2.wav</ShortName>
+							<Path>SFX\Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 2_10C4C929.wem</Path>
+						</File>
+						<File Id="304532532" Language="SFX">
+							<ShortName>Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 1.wav</ShortName>
+							<Path>SFX\Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 1_10C4C929.wem</Path>
+						</File>
+						<File Id="1015557116" Language="SFX">
+							<ShortName>Cartoon, Voice, High Pitched, Says Ouch 1 SND15460.wav</ShortName>
+							<Path>SFX\Cartoon, Voice, High Pitched, Says Ouch 1 SND15460_10C4C929.wem</Path>
+						</File>
+						<File Id="1048363072" Language="SFX">
+							<ShortName>Cartoon, Voice, High Pitched, Says Ouch 2 SND15459.wav</ShortName>
+							<Path>SFX\Cartoon, Voice, High Pitched, Says Ouch 2 SND15459_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1305133589" Name="Player_Jump" ObjectPath="\Events\Default Work Unit\Player_Jump">
+					<IncludedMemoryFiles>
+						<File Id="633933615" Language="SFX">
+							<ShortName>Paper, Crumbled And Tossed On Floor, Heavy SND4136 2.wav</ShortName>
+							<Path>SFX\Paper, Crumbled And Tossed On Floor, Heavy SND4136 2_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 				<Event Id="1324413170" Name="TestMusic" ObjectPath="\Events\Default Work Unit\TestMusic">
 					<IncludedMemoryFiles>
 						<File Id="890613456" Language="SFX">
 							<ShortName>synth_track.wav</ShortName>
-							<Path>SFX\synth_track_10C4C929.wem</Path>
+							<Path>SFX\synth_track_D79FB2B7.wem</Path>
 						</File>
 					</IncludedMemoryFiles>
 				</Event>

@@ -18,6 +18,8 @@ Audio Bus	ID	Name			Wwise Object Path	Notes
 	393239870	SFX			\Default Work Unit\Master Audio Bus\SFX	
 	985987111	Motion Factory Bus			\Default Work Unit\Motion Factory Bus	
 	1235749641	Dialog			\Default Work Unit\Master Audio Bus\Dialog	
+	2627589634	HighPrioritySFX			\Default Work Unit\Master Audio Bus\SFX\HighPrioritySFX	
+	3706883542	LowPrioritySFX			\Default Work Unit\Master Audio Bus\SFX\LowPrioritySFX	
 	3803692087	Master Audio Bus			\Default Work Unit\Master Audio Bus	
 	3991942870	Music			\Default Work Unit\Master Audio Bus\Music	
 

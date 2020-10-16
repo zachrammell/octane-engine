@@ -14,6 +14,13 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID EXPLOSION_LASER = 3092211194U;
+        static const AkUniqueID PLAY_AIRPLANELAUNCHER = 2971505500U;
+        static const AkUniqueID PLAY_BUTTONBACK = 860775431U;
+        static const AkUniqueID PLAY_BUTTONHOVER = 479606568U;
+        static const AkUniqueID PLAY_BUTTONSELECT = 3159718618U;
+        static const AkUniqueID PLAYER_FOOTSTEP = 2453392179U;
+        static const AkUniqueID PLAYER_HURT = 1068092414U;
+        static const AkUniqueID PLAYER_JUMP = 1305133589U;
         static const AkUniqueID TESTMUSIC = 1324413170U;
     } // namespace EVENTS
 
@@ -42,6 +49,8 @@ namespace AK
     namespace BUSSES
     {
         static const AkUniqueID DIALOG = 1235749641U;
+        static const AkUniqueID HIGHPRIORITYSFX = 2627589634U;
+        static const AkUniqueID LOWPRIORITYSFX = 3706883542U;
         static const AkUniqueID MASTER_AUDIO_BUS = 3803692087U;
         static const AkUniqueID MOTION_FACTORY_BUS = 985987111U;
         static const AkUniqueID MUSIC = 3991942870U;
