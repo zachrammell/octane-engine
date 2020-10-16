@@ -13,6 +13,8 @@ enum class SystemOrder : unsigned int
   Scene,
   Entity,
   Component,
+
+  RenderSys,
   // must be last, do not add anything after it.
   COUNT
 };

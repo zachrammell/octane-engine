@@ -22,14 +22,14 @@
 
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
-#include <OctaneEngine/Graphics/RenderDX11.h>
+#include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
 #include <OctaneEngine/Style.h>
 
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/FramerateController.h>
-#include <OctaneEngine/Graphics/Camera.h>
+#include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Physics/Box.h>
@@ -38,6 +38,7 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
@@ -63,10 +64,12 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
+  engine.AddSystem(new Octane::CameraSys {&engine});
   engine.AddSystem(new Octane::PhysicsSys {&engine});
   engine.AddSystem(new Octane::EntitySys {&engine});
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
+  engine.AddSystem(new Octane::RenderSys {&engine});
 
   // NBT writing demo
   {
@@ -111,21 +114,6 @@ int main(int argc, char* argv[]) noexcept
       nbt_writer.EndCompound(); // stuff
     }
   }
-
-  Octane::RenderDX11 render {engine.GetSystem<Octane::WindowManager>()->GetHandle()};
-  Octane::Shader phong = render.CreateShader(
-    L"assets/shaders/phong.hlsl",
-    Octane::Shader::InputLayout_POS | Octane::Shader::InputLayout_NOR);
-  render.SetClearColor(Octane::Colors::cerulean);
-
-  Octane::OBJParser obj_parser;
-  Octane::Mesh sphere_mesh = obj_parser.ParseOBJ(L"assets/models/Bear.obj");
-  Octane::MeshDX11 sphere_mesh_dx11 = render.CreateMesh(sphere_mesh);
-  Octane::Mesh cube_mesh = obj_parser.ParseOBJ(L"assets/models/PaperShuriken.obj");
-  Octane::MeshDX11 cube_mesh_dx11 = render.CreateMesh(cube_mesh);
-
-  render.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  render.UseMesh(sphere_mesh_dx11);
 
   DirectX::XMFLOAT3 light_position = {100.0f, 100.0f, 50.0f};
 
@@ -227,7 +215,7 @@ int main(int argc, char* argv[]) noexcept
   }
 
   ImGui_ImplSDL2_InitForD3D(engine.GetSystem<Octane::WindowManager>()->GetHandle());
-  ImGui_ImplDX11_Init(render.GetD3D11Device(), render.GetD3D11Context());
+  ImGui_ImplDX11_Init(device_dx11.GetD3D11Device(), device_dx11.GetD3D11Context());
 
   bool scene_settings_open = false;
   bool demo_window_open = false;
@@ -301,68 +289,7 @@ int main(int argc, char* argv[]) noexcept
       camera.RotateYawRelative(mouse_vel.x * 0.05f);
 
       camera.MoveRelativeToView(DirectX::XMLoadFloat3(&cam_velocity));
-
-      DirectX::XMMATRIX cam_view_matrix = camera.GetViewMatrix();
-      DirectX::XMMATRIX cam_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(
-        DirectX::XMConvertToRadians(20.0f),
-        engine.GetSystem<Octane::WindowManager>()->GetAspectRatio(),
-        0.05f,
-        1000.0f);
-
-      render.ShaderConstants()
-        .PerFrame()
-        .SetViewProjection(DirectX::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix))
-        .SetCameraPosition(camera.GetPosition())
-        .SetLightPosition(light_position);
-
-      render.Upload(render.ShaderConstants().PerFrame());
-
-      render.UseShader(phong);
-      render.SetClearColor(Octane::Colors::db32[25]);
-      render.ClearScreen();
-
-      auto* componentsys = engine.GetSystem<Octane::ComponentSys>();
-
-      for (auto* iter = engine.GetSystem<Octane::EntitySys>()->EntitiesBegin();
-           iter != engine.GetSystem<Octane::EntitySys>()->EntitiesEnd();
-           ++iter)
-      {
-        if (iter->active)
-        {
-          auto& transform = componentsys->GetTransform(iter->GetComponentHandle(Octane::ComponentKind::Transform));
-          auto& render_comp = componentsys->GetRender(iter->GetComponentHandle(Octane::ComponentKind::Render));
-
-          DirectX::XMMATRIX object_world_matrix = DirectX::XMMatrixIdentity();
-          auto scale = transform.scale;
-          object_world_matrix *= DirectX::XMMatrixScaling(scale, scale, scale);
-          object_world_matrix
-            *= DirectX::XMMatrixRotationAxis({0, 1, 0}, DirectX::XMConvertToRadians(transform.rotation));
-          auto pos = transform.pos;
-          object_world_matrix *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-
-          switch (render_comp.mesh_type)
-          {
-          case Octane::MeshType::Cube: render.UseMesh(cube_mesh_dx11); break;
-          case Octane::MeshType::Sphere:
-          default: render.UseMesh(sphere_mesh_dx11); break;
-          }
-
-          render.ShaderConstants()
-            .PerObject()
-            .SetWorldMatrix(DirectX::XMMatrixTranspose(object_world_matrix))
-            .SetWorldNormalMatrix(DirectX::XMMatrixInverse(nullptr, object_world_matrix))
-            .SetColor(render_comp.color);
-          render.Upload(render.ShaderConstants().PerObject());
-          render.DrawMesh();
-        }
-      }
     }
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault();
-
-    render.Present();
   }
   delete body_100;
   delete body_101;

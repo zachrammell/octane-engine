@@ -1,4 +1,4 @@
-#include <OctaneEngine/Graphics/RenderDX11.h>
+#include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
 
 #include <d3dcompiler.h>
 #include <iostream>
@@ -17,12 +17,12 @@ using namespace Octane::FormattedOutput;
 namespace Octane
 {
 
-RenderDX11::RenderDX11(SDL_Window* window) : w(0), h(0), clear_color_ {Colors::black}, current_mesh_ {nullptr}
+GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window) : clear_color_ {Colors::black}, current_mesh_ {nullptr}
 {
   Trace::Log(DEBUG) << "Initializing DirectX 11\n";
 
   HRESULT hr;
-  
+  int w, h;
   SDL_GetWindowSize(window, &w, &h);
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
@@ -161,18 +161,14 @@ RenderDX11::RenderDX11(SDL_Window* window) : w(0), h(0), clear_color_ {Colors::b
   device_context_->RSSetViewports(1, &viewport);
 }
 
-RenderDX11::~RenderDX11()
+GraphicsDeviceDX11::~GraphicsDeviceDX11()
 {
   swap_chain_->Release();
-
-  //Switch to window mode before exiting the application
-  swap_chain_->SetFullscreenState(false, nullptr);
-
   device_->Release();
   device_context_->Release();
 }
 
-void RenderDX11::ClearScreen()
+void GraphicsDeviceDX11::ClearScreen()
 {
   {
     auto* p_render_target_view = render_target_view_.get();
@@ -181,17 +177,17 @@ void RenderDX11::ClearScreen()
   ClearBuffers();
 }
 
-void RenderDX11::SetClearColor(Color c)
+void GraphicsDeviceDX11::SetClearColor(Color c)
 {
   clear_color_ = c;
 }
 
-void RenderDX11::Present()
+void GraphicsDeviceDX11::Present()
 {
   swap_chain_->Present(1, 0);
 }
 
-void RenderDX11::ResizeFramebuffer(SDL_Window* window)
+void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
   device_context_->OMSetRenderTargets(0, 0, 0);
   if (render_target_view_)
@@ -199,7 +195,7 @@ void RenderDX11::ResizeFramebuffer(SDL_Window* window)
     render_target_view_->Release();
   }
 
-  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
   assert(SUCCEEDED(hr));
 
   ID3D11Texture2D* d3d11_frame_buffer;
@@ -230,7 +226,7 @@ void RenderDX11::ResizeFramebuffer(SDL_Window* window)
   }
 }
 
-Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
+Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
 {
   Trace::Assert(
     std::filesystem::exists(shader_path),
@@ -390,14 +386,14 @@ Shader RenderDX11::CreateShader(LPCWSTR shader_path, int input_layout)
   return shader;
 }
 
-void RenderDX11::UseShader(Shader& shader)
+void GraphicsDeviceDX11::UseShader(Shader& shader)
 {
   GetD3D11Context()->IASetInputLayout(shader.GetInputLayout());
   GetD3D11Context()->VSSetShader(shader.vertex_shader_.get(), nullptr, 0);
   GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
 }
 
-MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
+MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
 {
   MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
   HRESULT hr;
@@ -433,7 +429,7 @@ MeshDX11 RenderDX11::CreateMesh(Mesh const& mesh)
   return mesh_dx11;
 }
 
-void RenderDX11::UseMesh(MeshDX11 const& mesh)
+void GraphicsDeviceDX11::UseMesh(MeshDX11 const& mesh)
 {
   UINT const vertex_stride = static_cast<UINT>(mesh.vertex_size_);
   UINT const vertex_offset = 0;
@@ -445,7 +441,7 @@ void RenderDX11::UseMesh(MeshDX11 const& mesh)
   current_mesh_ = &mesh;
 }
 
-void RenderDX11::DrawMesh()
+void GraphicsDeviceDX11::DrawMesh()
 {
   if (current_mesh_->index_count_)
   {
@@ -457,17 +453,17 @@ void RenderDX11::DrawMesh()
   }
 }
 
-ID3D11Device* RenderDX11::GetD3D11Device() const
+ID3D11Device* GraphicsDeviceDX11::GetD3D11Device() const
 {
   return device_.get();
 }
 
-ID3D11DeviceContext* RenderDX11::GetD3D11Context() const
+ID3D11DeviceContext* GraphicsDeviceDX11::GetD3D11Context() const
 {
   return device_context_.get();
 }
 
-void RenderDX11::ClearBuffers()
+void GraphicsDeviceDX11::ClearBuffers()
 {
   DirectX::XMFLOAT4 clear_color {clear_color_.r, clear_color_.g, clear_color_.b, 1.0};
   device_context_->ClearRenderTargetView(render_target_view_.get(), &(clear_color.x));

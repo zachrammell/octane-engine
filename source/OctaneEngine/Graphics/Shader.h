@@ -27,7 +27,7 @@ public:
   ID3D11InputLayout* GetInputLayout() { return vertex_shader_input_layout_.get(); }
 
 private:
-  friend class RenderDX11;
+  friend class GraphicsDeviceDX11;
   winrt::com_ptr<ID3D11VertexShader> vertex_shader_;
   winrt::com_ptr<ID3D11PixelShader> pixel_shader_;
   winrt::com_ptr<ID3DBlob> vertex_shader_buffer_;

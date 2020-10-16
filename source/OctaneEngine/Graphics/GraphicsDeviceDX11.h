@@ -20,11 +20,11 @@ namespace Octane
 /*!
  * \brief The interface to DirectX 11, and manager of DX11 GPU resources.
  */
-class RenderDX11
+class GraphicsDeviceDX11
 {
 public:
-  RenderDX11(SDL_Window* window);
-  ~RenderDX11();
+  GraphicsDeviceDX11(SDL_Window* window);
+  ~GraphicsDeviceDX11();
 
   void ClearScreen();
   void SetClearColor(Color c);
@@ -72,7 +72,7 @@ public:
       };
 
     private:
-      friend class RenderDX11;
+      friend class GraphicsDeviceDX11;
       RawData raw_data_;
     };
 
@@ -104,7 +104,7 @@ public:
       };
 
     private:
-      friend class RenderDX11;
+      friend class GraphicsDeviceDX11;
       RawData raw_data_;
     };
 
@@ -112,8 +112,8 @@ public:
     PerFrameConstants& PerFrame() { return per_frame_; }
 
   private:
-    PerObjectConstants per_object_{};
-    PerFrameConstants per_frame_{};
+    PerObjectConstants per_object_ {};
+    PerFrameConstants per_frame_ {};
   };
 
   ShaderConstantBuffers& ShaderConstants() { return shader_constants_; }

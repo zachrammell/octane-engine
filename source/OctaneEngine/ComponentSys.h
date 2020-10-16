@@ -2,8 +2,8 @@
 
 #include "ISystem.h"
 #include "SystemOrder.h"
-#include <EASTL/vector.h>
 #include <EASTL/numeric_limits.h>
+#include <EASTL/vector.h>
 
 #include "RenderComponent.h"
 #include "TransformComponent.h"
@@ -49,6 +49,11 @@ public:
   // currently no-ops, no memory management / re-use is done
   void FreeRender(ComponentHandle id);
   void FreeTransform(ComponentHandle id);
+
+  eastl::vector<RenderComponent>::const_iterator RenderBegin() const { return render_comps_.cbegin(); }
+  eastl::vector<RenderComponent>::const_iterator RenderEnd() const { return render_comps_.cend(); }
+  eastl::vector<TransformComponent>::const_iterator TransformBegin() const { return transform_comps_.cbegin(); }
+  eastl::vector<TransformComponent>::const_iterator TransformEnd() const { return transform_comps_.cend(); }
 
 private:
   static const SystemOrder ORDER = SystemOrder::Component;

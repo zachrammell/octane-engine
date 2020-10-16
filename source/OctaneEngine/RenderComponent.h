@@ -9,6 +9,15 @@ enum class MeshType
 {
   Cube,
   Sphere,
+  Cube_Rounded,
+  Bear,
+  Duck,
+  Crossbow,
+  Plane,
+  Shuriken,
+  Stack,
+
+  COUNT
 };
 
 struct RenderComponent

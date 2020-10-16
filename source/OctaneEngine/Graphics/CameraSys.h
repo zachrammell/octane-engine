@@ -11,8 +11,9 @@
 /******************************************************************************/
 #pragma once
 
-#include <OctaneEngine/ISystem.h>
 #include <DirectXMath.h>
+#include <OctaneEngine/Graphics/Camera.h>
+#include <OctaneEngine/ISystem.h>
 
 namespace Octane
 {
@@ -20,49 +21,34 @@ namespace Octane
 class CameraSys : public ISystem
 {
 public:
-  //Isystem class functions
-  CameraSys(Engine* engine);
-  void Load();
-  void LevelStart();
-  void Update();
-  void LevelEnd();
-  void Unload();
+  //ISystem class functions
+  explicit CameraSys(Engine* engine);
+  void Load() override {}
+  void LevelStart() override;
+  void Update() override;
+  void LevelEnd() override;
+  void Unload() override {}
   static SystemOrder GetOrder();
 
   //CameraSys specific functions
 
   //getters
-  DirectX::XMFLOAT4X4A View();
-  DirectX::XMFLOAT4X4A Proj();
-  DirectX::XMFLOAT3A Pos();
-  float NearDist();
-  float FarDist();
-  //setters
-  void Pos(const DirectX::XMFLOAT3A& position);
-  void LookAt(const DirectX::XMFLOAT3A& position);
-  void NearDist(float distance);
-  void FarDist(float distance);
+  FPSCamera& GetFPSCamera() { return fps_camera_; }
+  DirectX::XMMATRIX GetProjectionMatrix();
+  DirectX::XMMATRIX GetViewMatrix();
+
+  float GetFOV() const { return fov_; }
+  float GetNearDistance() const { return near_; }
+  float GetFarDistance() const { return far_; }
+
+  void SetFOV(float fov) { fov_ = fov; }
+  void SetNearDistance(float near) { near_ = near; }
+  void SetFarDistance(float far) { far_ = far; }
 
 private:
-  //Recalculates the projection matrix
-  void RecalcProjMat(float width = 1280.f, float height = 720.f);
-  //camera matrices
-  DirectX::XMFLOAT4X4A model;
-  DirectX::XMFLOAT4X4A view;
-  DirectX::XMFLOAT4X4A proj;
-  //camera basis vectors
-  DirectX::XMFLOAT4A right;
-  DirectX::XMFLOAT4A up;
-  DirectX::XMFLOAT4A forward;
-  //TODO: maybe make this a Transform ID
-  //once Transform is made
-  DirectX::XMFLOAT4A pos;
-
-  //distance of near and far plane
-  float nearDist = 1.f;
-  float farDist = 1000.f;
-
-  //to remove redundant calculations of matrices
-  bool isDirty;
+  FPSCamera fps_camera_;
+  DirectX::XMFLOAT4X4 proj_;
+  float fov_, near_, far_;
+  bool projection_dirty_;
 };
 } // namespace Octane

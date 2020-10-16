@@ -57,7 +57,7 @@ struct Mesh
  */
 class MeshDX11
 {
-  friend class RenderDX11;
+  friend class GraphicsDeviceDX11;
   MeshDX11(size_t vertex_size, size_t vertex_count, size_t index_count)
     : vertex_size_ {vertex_size},
       vertex_count_ {vertex_count},
