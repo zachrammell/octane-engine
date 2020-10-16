@@ -18,6 +18,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Handle building libraries
 set(BUILD_STATIC_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory("libraries/SDL")
 target_include_directories(SDL2 INTERFACE ${SDL2_INCLUDE_DIR})
@@ -63,6 +64,11 @@ file(GLOB_RECURSE OCTANE_LIB_SOURCE CONFIGURE_DEPENDS
   "source/OctaneEngine/**.h"
 )
 
+# assimp
+set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+add_subdirectory("libraries/assimp")
+
 # Add source to the library
 add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE} )
 
@@ -81,6 +87,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   EASTL
   IMGUI
   WWISE
+  assimp
 )
 
 file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
