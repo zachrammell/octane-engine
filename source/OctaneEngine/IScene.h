@@ -12,6 +12,7 @@
 #pragma once
 
 // Includes
+#include <string>
 
 namespace Octane
 {
@@ -39,7 +40,7 @@ class SceneSys;
           // {
           //   return parent_manager_.Get<System>();
          //  }
-
+                  virtual std::string GetName() const;
 		private:
           SceneSys& parent_manager_;
 	};

@@ -1,10 +1,10 @@
 ﻿/******************************************************************************/
 /*!
   \par        Project Octane
-  \file       TestScene.h
+  \file       MenuScene.h
   \author     Lowell Novitch
-  \date       2020/10/6
-  \brief      test scene
+  \date       2020/10/16
+  \brief      menu scene
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
@@ -16,10 +16,10 @@
 
 namespace Octane
 {
-class TestScene final : public IScene
+class MenuScene final : public IScene
 {
 public:
-  explicit TestScene(SceneSys * parent);
+  explicit MenuScene(SceneSys* parent);
 
   virtual void Load();
   virtual void Start();

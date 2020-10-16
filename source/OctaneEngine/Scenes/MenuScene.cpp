@@ -1,32 +1,30 @@
 /******************************************************************************/
 /*!
   \par        Project Octane
-  \file       TestScene.cpp
+  \file       MenuScene.cpp
   \author     Lowell Novitch
-  \date       2020/10/6
-  \brief      test scene
+  \date       2020/10/16
+  \brief      menu scene
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
 // Main include
-#include <OctaneEngine/Scenes/TestScene.h>
+#include <OctaneEngine/Scenes/MenuScene.h>
 #include <OctaneEngine/InputHandler.h>
 #include <iostream>
 namespace Octane
 {
-TestScene::TestScene(SceneSys* parent) : IScene(parent) {}
+MenuScene::MenuScene(SceneSys* parent) : IScene(parent) {}
 
-void TestScene::Load() 
-{
-
-}
-void TestScene::Start() 
-{
+void MenuScene::Load() {
 
 }
-void TestScene::Update(float dt) 
+void MenuScene::Start() {
+
+}
+void MenuScene::Update(float dt)
 {
  // auto* input = Get<InputHandler>();
 
@@ -36,18 +34,16 @@ void TestScene::Update(float dt)
  // }
 
 }
-void TestScene::End() 
-{
+void MenuScene::End() {
 
 }
-void TestScene::Unload() 
-{
+void MenuScene::Unload() {
 
 }
 
-std::string TestScene::GetName() const 
+std::string MenuScene::GetName() const
 {
-  return "TestScene";
+  return "MenuScene";
 }
 }
 

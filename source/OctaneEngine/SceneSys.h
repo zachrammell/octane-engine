@@ -14,6 +14,7 @@
 // Includes
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/IScene.h>
+#include <vector>
 namespace Octane
 {
 
@@ -37,5 +38,6 @@ public:
 
 private:
   IScene* current_scene_ = nullptr;
+  std::vector< IScene*> scene_holder_;
 };
 }

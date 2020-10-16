@@ -15,14 +15,18 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Scenes/TestScene.h>
+#include <OctaneEngine/Scenes/MenuScene.h>
 
 namespace Octane
 {
 SceneSys::SceneSys(Engine* engine) : ISystem(engine) 
 {
+    //such a bad way of doing this but it is fine for now
+  scene_holder_.push_back(new TestScene(this));
+  scene_holder_.push_back(new MenuScene(this));
     //initialize the starting scene
-  current_scene_ = new TestScene(this);
-};
+  current_scene_ = scene_holder_[0];
+}
 
 void SceneSys::Load() 
 {
