@@ -40,7 +40,8 @@ class SceneSys;
           // {
           //   return parent_manager_.Get<System>();
          //  }
-                  virtual std::string GetName() const;
+                  virtual std::string GetName() const { return ""; }
+                    
 		private:
           SceneSys& parent_manager_;
 	};
