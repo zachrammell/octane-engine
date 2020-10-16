@@ -6,16 +6,16 @@ namespace Octane
 {
 NarrowPhase::NarrowPhase()
 {
-  m_basis[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-  m_basis[1] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-  m_basis[2] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+  basis_[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+  basis_[1] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  basis_[2] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
-  m_search_directions[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-  m_search_directions[1] = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
-  m_search_directions[2] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-  m_search_directions[3] = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
-  m_search_directions[4] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-  m_search_directions[5] = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+  search_dir_[0] = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+  search_dir_[1] = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+  search_dir_[2] = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  search_dir_[3] = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+  search_dir_[4] = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+  search_dir_[5] = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 }
 
 SupportPoint NarrowPhase::GenerateCSOSupport(Primitive* a, Primitive* b, const DirectX::XMVECTOR& direction)
@@ -33,7 +33,7 @@ SupportPoint NarrowPhase::GenerateCSOSupport(Primitive* a, Primitive* b, const D
 bool NarrowPhase::GJKCollisionDetection(Primitive* a, Primitive* b, Simplex& simplex)
 {
   DirectX::XMVECTOR direction = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-  for (size_t i = 0; i < m_gjk_exit_iteration; ++i)
+  for (size_t i = 0; i < gjk_exit_count_; ++i)
   {
     if (Math::IsValid(direction) == false)
     {
@@ -57,7 +57,7 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
 {
   PolytopeFace closest_face = polytope.PickClosestFace();
   PolytopeFace prev_face = closest_face;
-  for (size_t i = 0; i < m_epa_exit_iteration; ++i)
+  for (size_t i = 0; i < epa_exit_count_; ++i)
   {
     if (polytope.faces.empty())
     {

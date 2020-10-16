@@ -1,14 +1,13 @@
 #pragma once
 
+#include <EASTL/vector.h>
 #include <OctaneEngine/Math.h>
 #include <OctaneEngine/Physics/Constraints.h>
-#include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/Physics/Primitive.h>
-#include <EASTL/vector.h>
+#include <OctaneEngine/Physics/RigidBody.h>
 
 namespace Octane
 {
-
 class ContactPoint
 {
 public:
@@ -72,8 +71,7 @@ private:
 private:
   friend class Resolution;
   friend class NarrowPhase;
-  friend class ContactConstraint;
-  friend class ManifoldTable;
+  friend class ContactConstraints;
 
 private:
   float persistent_threshold_squared = 0.01f;
@@ -85,8 +83,39 @@ private:
 
 class ContactConstraints final : public Constraints
 {
+private:
+  class Jacobian
+  {
+  public:
+    DirectX::XMVECTOR v_a;
+    DirectX::XMVECTOR w_a;
+    DirectX::XMVECTOR v_b;
+    DirectX::XMVECTOR w_b;
+    float bias = 0.0f;
+    float effective_mass = 0.0f;
+    float total_lambda = 0.0f;
+  };
+
+  class VelocityTerm
+  {
+  public:
+    DirectX::XMVECTOR v_a;
+    DirectX::XMVECTOR w_a;
+    DirectX::XMVECTOR v_b;
+    DirectX::XMVECTOR w_b;
+  };
+
+  class MassTerm
+  {
+  public:
+    float m_a = 0.0f;
+    float m_b = 0.0f;
+    DirectX::XMMATRIX i_a;
+    DirectX::XMMATRIX i_b;
+  };
+
 public:
-  ContactConstraints();
+  explicit ContactConstraints(ContactManifold* input, float restitution, float friction, float tangent_speed = 0.0f);
   ~ContactConstraints();
 
   void Release() override;
@@ -95,7 +124,34 @@ public:
   void Apply() override;
 
 private:
+  void GenerateBasis(const DirectX::XMVECTOR& normal, DirectX::XMVECTOR& tangent, DirectX::XMVECTOR& bitangent);
+  void WarmStart();
+  void InitializeJacobian(
+    const ContactPoint& contact,
+    const DirectX::XMVECTOR& direction,
+    Jacobian& jacobian,
+    float dt,
+    bool b_normal = false) const;
+  void SolveJacobian(Jacobian& jacobian, size_t i, bool b_normal = false);
+
+private:
   RigidBody* body_a = nullptr;
   RigidBody* body_b = nullptr;
+
+  ContactManifold* m_manifold = nullptr;
+  RigidBody* m_body_a = nullptr;
+  RigidBody* m_body_b = nullptr;
+
+  VelocityTerm m_velocity_term;
+  MassTerm m_mass_term;
+  Jacobian m_normal[4];
+  Jacobian m_tangent[4];
+  Jacobian m_bitangent[4];
+  float m_restitution = 0.0f;
+  float m_friction = 1.0f;
+  float m_tangent_speed = 0.0f;
+  float m_beta = 0.25f;
+  float m_slop = 0.05f;
+  size_t m_count = 0;
 };
 } // namespace Octane

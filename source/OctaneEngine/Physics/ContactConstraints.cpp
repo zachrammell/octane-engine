@@ -358,15 +358,177 @@ bool ContactManifold::OnTriangle(ContactPoint* point, ContactPoint* p0, ContactP
   return true;
 }
 
-ContactConstraints::ContactConstraints() {}
+ContactConstraints::ContactConstraints(ContactManifold* input, float restitution, float friction, float tangent_speed)
+  : m_manifold(input),
+    m_velocity_term(),
+    m_mass_term(),
+    m_normal {},
+    m_tangent {},
+    m_bitangent {},
+    m_restitution(restitution),
+    m_friction(friction),
+    m_tangent_speed(tangent_speed)
+
+{
+}
 
 ContactConstraints::~ContactConstraints() {}
 
 void ContactConstraints::Release() {}
 
-void ContactConstraints::Generate(float dt) {}
+void ContactConstraints::Generate(float dt)
+{
+  m_body_a = m_manifold->collider_a->GetRigidBody();
+  m_body_b = m_manifold->collider_b->GetRigidBody();
+  //set mass
+  m_mass_term.m_a = m_body_a->Mass();
+  m_mass_term.i_a = m_body_a->Inertia();
+  m_mass_term.m_b = m_body_b->Mass();
+  m_mass_term.i_b = m_body_b->Inertia();
+  //velocity term
+  m_velocity_term.v_a = m_body_a->GetLinearVelocity();
+  m_velocity_term.w_a = m_body_a->GetAngularVelocity();
+  m_velocity_term.v_b = m_body_b->GetLinearVelocity();
+  m_velocity_term.w_b = m_body_b->GetAngularVelocity();
+  m_count = m_manifold->contacts.size();
 
-void ContactConstraints::Solve(float dt) {}
+  DirectX::XMVECTOR tangent, bitangent;
 
-void ContactConstraints::Apply() {}
+  for (size_t i = 0; i < m_count; ++i)
+  {
+    GenerateBasis(m_manifold->contacts[i].normal, tangent, bitangent);
+    m_manifold->contacts[i].r_a
+      = DirectX::XMVectorSubtract(m_manifold->contacts[i].global_position_a, m_body_a->Centroid());
+    m_manifold->contacts[i].r_b
+      = DirectX::XMVectorSubtract(m_manifold->contacts[i].global_position_b, m_body_b->Centroid());
+    InitializeJacobian(m_manifold->contacts[i], m_manifold->contacts[i].normal, m_normal[i], dt, true);
+    InitializeJacobian(m_manifold->contacts[i], tangent, m_tangent[i], dt);
+    InitializeJacobian(m_manifold->contacts[i], bitangent, m_bitangent[i], dt);
+  }
+}
+
+void ContactConstraints::Solve(float /*dt*/)
+{
+  for (size_t i = 0; i < m_count; ++i)
+  {
+    // Solve tangent constraints first because non-penetration is more important than friction.
+    SolveJacobian(m_tangent[i], i, false);
+    SolveJacobian(m_bitangent[i], i, false);
+    // Solve normal constraints
+    SolveJacobian(m_normal[i], i, true);
+  }
+}
+
+void ContactConstraints::Apply()
+{
+  for (size_t i = 0; i < m_count; ++i)
+  {
+    m_manifold->contacts[i].tangent_lambda = m_tangent[i].total_lambda;
+    m_manifold->contacts[i].bitangent_lambda = m_bitangent[i].total_lambda;
+    m_manifold->contacts[i].normal_lambda = m_normal[i].total_lambda;
+  }
+
+  m_body_a->SetLinearVelocity(m_velocity_term.v_a);
+  m_body_a->SetAngularVelocity(m_velocity_term.w_a);
+  m_body_b->SetLinearVelocity(m_velocity_term.v_b);
+  m_body_b->SetAngularVelocity(m_velocity_term.w_b);
+}
+
+void ContactConstraints::GenerateBasis(
+  const DirectX::XMVECTOR& normal,
+  DirectX::XMVECTOR& tangent,
+  DirectX::XMVECTOR& bitangent)
+{
+  float x = DirectX::XMVectorGetX(normal);
+  float y = DirectX::XMVectorGetY(normal);
+  float z = DirectX::XMVectorGetZ(normal);
+
+  //sqrt(1/3) = 0.57735
+  if (fabsf(x) >= 0.57735f)
+  {
+    tangent = DirectX::XMVectorSet(y, -x, 0.0f, 0.0f);
+  }
+  else
+  {
+    tangent = DirectX::XMVectorSet(0.0f, z, -y, 0.0f);
+  }
+  tangent = DirectX::XMVector3Normalize(tangent);
+  bitangent = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(normal, tangent));
+}
+
+void ContactConstraints::WarmStart()
+{
+  //do noting now.
+}
+
+void ContactConstraints::InitializeJacobian(
+  const ContactPoint& contact,
+  const DirectX::XMVECTOR& direction,
+  Jacobian& jacobian,
+  float dt,
+  bool b_normal) const
+{
+  jacobian.v_a = DirectX::XMVectorNegate(direction);
+  jacobian.w_a = DirectX::XMVectorNegate(DirectX::XMVector3Cross(contact.r_a, direction));
+  jacobian.v_b = direction;
+  jacobian.w_b = DirectX::XMVector3Cross(contact.r_b, direction);
+  jacobian.bias = 0.0f;
+  if (b_normal)
+  {
+    float beta = m_beta;
+    DirectX::XMVECTOR relative_velocity = DirectX::XMVectorSubtract(m_velocity_term.v_b, m_velocity_term.v_a);
+    relative_velocity
+      = DirectX::XMVectorSubtract(relative_velocity, DirectX::XMVector3Cross(m_velocity_term.w_a, contact.r_a));
+    relative_velocity
+      = DirectX::XMVectorAdd(relative_velocity, DirectX::XMVector3Cross(m_velocity_term.w_b, contact.r_b));
+
+    float closing_velocity = Math::DotProductVector3(relative_velocity, direction);
+    jacobian.bias = -(beta / dt) * std::max(contact.depth - m_slop, 0.0f) + m_restitution * closing_velocity;
+  }
+  else
+  {
+    jacobian.bias = -m_tangent_speed;
+  }
+  float k = m_mass_term.m_a + m_mass_term.m_b
+            + Math::DotProductVector3(XMVector3Transform(jacobian.w_a, m_mass_term.i_a), jacobian.w_a)
+            + Math::DotProductVector3(XMVector3Transform(jacobian.w_b, m_mass_term.i_b), jacobian.w_b);
+  jacobian.effective_mass = k > 0.0f ? 1.0f / k : 0.0f;
+  jacobian.total_lambda = 0.0f;
+}
+
+void ContactConstraints::SolveJacobian(Jacobian& jacobian, size_t i, bool b_normal)
+{
+  // jv = Jacobian * velocity vector
+  float jv = Math::DotProductVector3(jacobian.v_a, m_velocity_term.v_a)
+             + Math::DotProductVector3(jacobian.w_a, m_velocity_term.w_a)
+             + Math::DotProductVector3(jacobian.v_b, m_velocity_term.v_b)
+             + Math::DotProductVector3(jacobian.w_b, m_velocity_term.w_b);
+  // raw lambda
+  float lambda = jacobian.effective_mass * -(jv + jacobian.bias);
+  // clamped lambda
+  float old_total_lambda = jacobian.total_lambda;
+  if (b_normal)
+  {
+    //normal - contact resolution : lambda >= 0
+    jacobian.total_lambda = std::max(0.0f, jacobian.total_lambda + lambda);
+  }
+  else
+  {
+    //tangent - friction : -max_friction <= lambda <= max_friction
+    float max_friction = m_friction * m_normal[i].total_lambda;
+    jacobian.total_lambda = std::clamp(jacobian.total_lambda + lambda, -max_friction, max_friction);
+  }
+  lambda = jacobian.total_lambda - old_total_lambda;
+  // velocity correction
+  m_velocity_term.v_a
+    = DirectX::XMVectorAdd(m_velocity_term.v_a, DirectX::XMVectorScale(jacobian.v_a, m_mass_term.m_a * lambda));
+  m_velocity_term.w_a = DirectX::XMVectorAdd(
+    m_velocity_term.w_a,
+    DirectX::XMVectorScale(XMVector3Transform(jacobian.w_a, m_mass_term.i_a), lambda));
+  m_velocity_term.v_b
+    = DirectX::XMVectorAdd(m_velocity_term.v_b, DirectX::XMVectorScale(jacobian.v_b, m_mass_term.m_b * lambda));
+  m_velocity_term.w_b = DirectX::XMVectorAdd(
+    m_velocity_term.w_b,
+    DirectX::XMVectorScale(XMVector3Transform(jacobian.w_b, m_mass_term.i_b), lambda));
+}
 } // namespace Octane

@@ -35,6 +35,16 @@ public:
   DirectX::XMVECTOR LocalToWorldVector(const DirectX::XMVECTOR& local_vector) const;
   DirectX::XMVECTOR WorldToLocalVector(const DirectX::XMVECTOR& world_vector) const;
 
+  float Mass() const;
+  DirectX::XMMATRIX Inertia() const;
+  DirectX::XMVECTOR Centroid() const;
+  DirectX::XMVECTOR GetLinearVelocity() const;
+  DirectX::XMVECTOR GetAngularVelocity() const;
+  void SetLinearVelocity(const DirectX::XMVECTOR& linear_velocity);
+  void SetAngularVelocity(const DirectX::XMVECTOR& angular_velocity);
+
+
+
 private:
   //linear data - positional
   DirectX::XMVECTOR position_;                                                          //vector3 - for transform

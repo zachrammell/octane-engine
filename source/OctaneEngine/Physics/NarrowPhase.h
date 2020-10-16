@@ -1,16 +1,14 @@
 #pragma once
 
 #include <OctaneEngine/Math.h>
+#include <OctaneEngine/Physics/ContactConstraints.h>
+#include <OctaneEngine/Physics/Polytope.h>
 #include <OctaneEngine/Physics/Primitive.h>
 #include <OctaneEngine/Physics/Simplex.h>
 #include <OctaneEngine/Physics/SupportPoint.h>
-#include <OctaneEngine/Physics/Polytope.h>
-#include <OctaneEngine/Physics/ContactConstraints.h>
-
 
 namespace Octane
 {
-
 class NarrowPhase
 {
 public:
@@ -22,11 +20,10 @@ public:
   bool EPAContactGeneration(Primitive* a, Primitive* b, Polytope& polytope, ContactPoint& result);
 
 private:
-  size_t m_gjk_exit_iteration = 100;
-  size_t m_epa_exit_iteration = 100;
+  size_t gjk_exit_count_ = 100;
+  size_t epa_exit_count_ = 100;
 
-  DirectX::XMVECTOR m_search_directions[6];
-  DirectX::XMVECTOR m_basis[3];
+  DirectX::XMVECTOR search_dir_[6];
+  DirectX::XMVECTOR basis_[3];
 };
-
 } // namespace Octane

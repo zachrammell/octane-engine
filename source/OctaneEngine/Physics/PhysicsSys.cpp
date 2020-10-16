@@ -49,13 +49,13 @@ void PhysicsSys::Update()
     Simplex simplex;
     if (narrow_phase_.GJKCollisionDetection(pair.a, pair.b, simplex))
     {
-      Trace::Log(TRACE) << "Collision!! \n";
+      //Trace::Log(TRACE) << "Collision!! \n";
       //Do EPA contact generation
       //Send Collision Event or Save Collision State
     }
     else
     {
-      Trace::Log(TRACE) << "None!! \n";
+      //Trace::Log(TRACE) << "None!! \n";
     }
   }
 

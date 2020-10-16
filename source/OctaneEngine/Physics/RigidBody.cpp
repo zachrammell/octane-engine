@@ -3,20 +3,20 @@
 
 namespace Octane
 {
-  RigidBody::RigidBody()
-    : position_(),
-      linear_velocity_(),
-      force_accumulator_(),
-      angular_velocity_(),
-      torque_accumulator_(),
-      mass_data_(),
-      global_centroid_()
-  {
-    inverse_orientation_ = DirectX::XMQuaternionInverse(orientation_);
-    inverse_orientation_ = DirectX::XMQuaternionNormalize(inverse_orientation_);
-  }
+RigidBody::RigidBody()
+  : position_(),
+    linear_velocity_(),
+    force_accumulator_(),
+    angular_velocity_(),
+    torque_accumulator_(),
+    mass_data_(),
+    global_centroid_()
+{
+  inverse_orientation_ = DirectX::XMQuaternionInverse(orientation_);
+  inverse_orientation_ = DirectX::XMQuaternionNormalize(inverse_orientation_);
+}
 
-  void RigidBody::Integrate(float dt)
+void RigidBody::Integrate(float dt)
 {
   //integrate velocity
   //calculate linear
@@ -77,7 +77,7 @@ void RigidBody::UpdateCentroid()
 void RigidBody::UpdatePosition()
 {
   position_ = DirectX::XMVectorAdd(
-                                   Math::Rotate(inverse_orientation_, orientation_, DirectX::XMVectorNegate(mass_data_.local_centroid)),
+    Math::Rotate(inverse_orientation_, orientation_, DirectX::XMVectorNegate(mass_data_.local_centroid)),
     global_centroid_);
 }
 
@@ -149,5 +149,40 @@ DirectX::XMVECTOR RigidBody::LocalToWorldVector(const DirectX::XMVECTOR& local_v
 DirectX::XMVECTOR RigidBody::WorldToLocalVector(const DirectX::XMVECTOR& world_vector) const
 {
   return Math::Rotate(inverse_orientation_, world_vector);
+}
+
+float RigidBody::Mass() const
+{
+  return mass_data_.mass;
+}
+
+DirectX::XMMATRIX RigidBody::Inertia() const
+{
+  return global_inertia_;
+}
+
+DirectX::XMVECTOR RigidBody::Centroid() const
+{
+  return global_centroid_;
+}
+
+DirectX::XMVECTOR RigidBody::GetLinearVelocity() const
+{
+  return linear_velocity_;
+}
+
+DirectX::XMVECTOR RigidBody::GetAngularVelocity() const
+{
+  return angular_velocity_;
+}
+
+void RigidBody::SetLinearVelocity(const DirectX::XMVECTOR& linear_velocity)
+{
+  linear_velocity_ = linear_velocity;
+}
+
+void RigidBody::SetAngularVelocity(const DirectX::XMVECTOR& angular_velocity)
+{
+  angular_velocity_ = angular_velocity;
 }
 } // namespace Octane
