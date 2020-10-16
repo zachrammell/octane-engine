@@ -41,7 +41,7 @@ public:
     return &engine_;
   }
 
-private:
+protected:
   Engine& engine_;
 };
 
