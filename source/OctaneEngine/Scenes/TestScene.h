@@ -16,6 +16,9 @@
 
 namespace Octane
 {
+//forward ref
+class InputHandler;
+
 class TestScene final : public IScene
 {
 public:
@@ -28,5 +31,8 @@ public:
 
   virtual void Update(float dt);
   virtual std::string GetName() const;
+
+private:
+  InputHandler& inhand_;
 };
 }

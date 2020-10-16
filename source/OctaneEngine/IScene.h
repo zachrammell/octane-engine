@@ -42,7 +42,7 @@ class SceneSys;
          //  }
                   virtual std::string GetName() const { return ""; }
                     
-		private:
+		protected:
           SceneSys& parent_manager_;
 	};
 }

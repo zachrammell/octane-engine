@@ -14,9 +14,13 @@
 // Includes
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/IScene.h>
+#include <OctaneEngine/Scenes/SceneDefs.h>
 #include <vector>
 namespace Octane
 {
+//forward declaration
+class FramerateController;
+
 
 class SceneSys final : public ISystem
 {
@@ -34,10 +38,12 @@ public:
   static SystemOrder GetOrder();
 
   //scene manager
-  void SetNextScene() {};
+  void SetNextScene(SceneE next_scene);
 
 private:
+  FramerateController& frc_;
   IScene* current_scene_ = nullptr;
+  IScene* next_scene_ = nullptr;
   std::vector< IScene*> scene_holder_;
 };
 }

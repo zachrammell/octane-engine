@@ -14,9 +14,10 @@
 #include <OctaneEngine/Scenes/MenuScene.h>
 #include <OctaneEngine/InputHandler.h>
 #include <iostream>
+#include <OctaneEngine/Engine.h>
 namespace Octane
 {
-MenuScene::MenuScene(SceneSys* parent) : IScene(parent) {}
+MenuScene::MenuScene(SceneSys* parent) : IScene(parent), inhand_(*parent->Get<InputHandler>()) {}
 
 void MenuScene::Load() {
 
@@ -26,13 +27,10 @@ void MenuScene::Start() {
 }
 void MenuScene::Update(float dt)
 {
- // auto* input = Get<InputHandler>();
-
-  //if (input->KeyReleased(SDLK_SPACE))
-  //{
-  //  std::cout << "hello" << std::endl;
- // }
-
+  if (inhand_.KeyReleased(SDLK_SPACE))
+  {
+    parent_manager_.SetNextScene(SceneE::TestScene);
+  }
 }
 void MenuScene::End() {
 

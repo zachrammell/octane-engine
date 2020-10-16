@@ -35,7 +35,7 @@ set(IMGUI_SRC
   ${IMGUI_SRC}
   ${IMGUI_DIR}/examples/imgui_impl_dx11.cpp
   ${IMGUI_DIR}/examples/imgui_impl_sdl.cpp)
-add_library(IMGUI ${IMGUI_SRC} )
+add_library(IMGUI ${IMGUI_SRC}  "source/OctaneEngine/Scenes/SceneDefs.h")
 target_include_directories(IMGUI PUBLIC ${IMGUI_INCLUDE_DIR})
 target_link_libraries(IMGUI
   PRIVATE
@@ -54,7 +54,7 @@ if (WIN32)
   file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp")
   set(WWISE_INCLUDE_DIR "${WWISE_INCLUDE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Win32")
 endif()
-add_library(WWISE ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
+add_library(WWISE ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES} "source/OctaneEngine/Scenes/SceneDefs.h")
 target_compile_definitions(WWISE PRIVATE UNICODE)
 set_target_properties(WWISE PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(WWISE PUBLIC ${WWISE_INCLUDE_DIR})
@@ -70,7 +70,7 @@ set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 add_subdirectory("libraries/assimp")
 
 # Add source to the library
-add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE} )
+add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE}  "source/OctaneEngine/Scenes/SceneDefs.h")
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
@@ -95,7 +95,7 @@ file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
   "source/OctaneGame/**.h"
 )
 
-add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE} )
+add_executable(${OCTANE_GAME} ${OCTANE_GAME_SOURCE}  "source/OctaneEngine/Scenes/SceneDefs.h")
 
 #remove /W3 and /GR flags since we're using /GR- and /W4
 string(REPLACE "/W3 /GR " "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
@@ -135,7 +135,7 @@ file(GLOB_RECURSE OCTANE_TEST_SOURCE CONFIGURE_DEPENDS
   "source/OctaneTest/**.h"
 )
 
-add_executable(${OCTANE_TEST} ${OCTANE_TEST_SOURCE} )
+add_executable(${OCTANE_TEST} ${OCTANE_TEST_SOURCE}  "source/OctaneEngine/Scenes/SceneDefs.h")
 
 target_include_directories(${OCTANE_TEST} PRIVATE
   "source"
