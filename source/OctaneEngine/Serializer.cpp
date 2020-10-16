@@ -4,14 +4,20 @@
   \file       WindowManager.h
   \author     Brayan Lopez
   \date       2020/10/06
-  \brief      <WHAT DOES IT DO>
+  \brief      Serializes data into NBT format
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 #include <OctaneEngine/Serializer.h>
+
+#ifndef DEPRECATED
+
 #include <OctaneEngine/SystemOrder.h>
 #include <cstddef>
+
+
+
 //NBT FORMAT:
 //First byte in file is TAG_Compound
 //Next 2 bytes are length of compound name
@@ -100,4 +106,4 @@ void Serializer::FinishSerializing()
 
 }; // namespace Octane
 
-
+#endif

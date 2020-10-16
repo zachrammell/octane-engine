@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 #define SDL_MAIN_HANDLED
 
@@ -35,7 +36,6 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/SceneSys.h>
-#include <OctaneEngine/Serializer.h>
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
 

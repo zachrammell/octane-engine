@@ -12,6 +12,8 @@
 
 #pragma once
 
+#define DEPRECATED
+#ifndef DEPRECATED
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
 #include <fstream>
@@ -123,3 +125,5 @@ void Serializer::Serialize(const eastl::vector<Type>& object, const eastl::strin
   SerializeHelper(object, fieldName);
 }
 }; // namespace Octane
+
+#endif
