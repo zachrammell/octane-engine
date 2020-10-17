@@ -17,7 +17,11 @@ using namespace Octane::FormattedOutput;
 namespace Octane
 {
 
-GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window) : clear_color_ {Colors::black}, current_mesh_ {nullptr}
+GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
+  : supported_mode_(nullptr),
+    currently_in_fullscreen_(false),
+    clear_color_ {Colors::black},
+    current_mesh_ {nullptr}
 {
   Trace::Log(DEBUG) << "Initializing DirectX 11\n";
 
@@ -36,6 +40,8 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window) : clear_color_ {Color
     DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
     DXGI_MODE_SCALING_UNSPECIFIED};
 
+  supported_mode_ = &buffer_description;
+
   SDL_SysWMinfo system_info;
   SDL_VERSION(&system_info.version);
   SDL_GetWindowWMInfo(window, &system_info);
@@ -49,6 +55,15 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window) : clear_color_ {Color
     true,
     DXGI_SWAP_EFFECT_DISCARD,
     DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH};
+
+  if (swap_chain_descriptor.Windowed == false)
+  {
+    swap_chain_->SetFullscreenState(true, nullptr);
+    currently_in_fullscreen_ = true;
+  }
+  else
+    currently_in_fullscreen_ = false;
+    
 
   hr = D3D11CreateDeviceAndSwapChain(
     nullptr,
@@ -189,13 +204,54 @@ void GraphicsDeviceDX11::Present()
 
 void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
+  SDL_SysWMinfo system_info;
+  SDL_VERSION(&system_info.version);
+  SDL_GetWindowWMInfo(window, &system_info);
+
+  //Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
+  DXGI_MODE_DESC zeroRefreshRate = *supported_mode_;
+  zeroRefreshRate.RefreshRate.Numerator = 0;
+  zeroRefreshRate.RefreshRate.Denominator = 0;
+
+  //check for fullscreen switch
+  BOOL in_full_screen_ = false;
+  swap_chain_->GetFullscreenState(&in_full_screen_, NULL);
+
+  if (currently_in_fullscreen_ != in_full_screen_)
+  {
+    //fullscreen switch
+    if (in_full_screen_)
+    {
+      swap_chain_->ResizeTarget(&zeroRefreshRate);
+      swap_chain_->SetFullscreenState(true, nullptr);
+    }
+    else
+    {
+      swap_chain_->SetFullscreenState(false, nullptr);
+      RECT rect = {0, 0, static_cast<LONG>(supported_mode_->Width), static_cast<LONG>(supported_mode_->Height)};
+      AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);
+      SetWindowPos(
+        system_info.info.win.window,
+        HWND_TOP,
+        0,
+        0,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        SWP_NOMOVE);
+    }
+
+    currently_in_fullscreen_ = !currently_in_fullscreen_;
+  }
+  //Resize target to the desired resolution
+  swap_chain_->ResizeTarget(&zeroRefreshRate);
+
   device_context_->OMSetRenderTargets(0, 0, 0);
   if (render_target_view_)
   {
     render_target_view_->Release();
   }
 
-  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
   assert(SUCCEEDED(hr));
 
   ID3D11Texture2D* d3d11_frame_buffer;
