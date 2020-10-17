@@ -157,6 +157,7 @@ private:
    */
   winrt::com_ptr<ID3D11Buffer> constant_buffers_[2];
 
+  int w, h;
   Color clear_color_;
   MeshDX11 const* current_mesh_;
   ShaderConstantBuffers shader_constants_;

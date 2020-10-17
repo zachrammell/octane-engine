@@ -17,12 +17,12 @@ using namespace Octane::FormattedOutput;
 namespace Octane
 {
 
-RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}, current_mesh_ {nullptr}
+RenderDX11::RenderDX11(SDL_Window* window) : w(0), h(0), clear_color_ {Colors::black}, current_mesh_ {nullptr}
 {
   Trace::Log(DEBUG) << "Initializing DirectX 11\n";
 
   HRESULT hr;
-  int w, h;
+  
   SDL_GetWindowSize(window, &w, &h);
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
@@ -164,6 +164,10 @@ RenderDX11::RenderDX11(SDL_Window* window) : clear_color_ {Colors::black}, curre
 RenderDX11::~RenderDX11()
 {
   swap_chain_->Release();
+
+  //Switch to window mode before exiting the application
+  swap_chain_->SetFullscreenState(false, nullptr);
+
   device_->Release();
   device_context_->Release();
 }
@@ -195,7 +199,7 @@ void RenderDX11::ResizeFramebuffer(SDL_Window* window)
     render_target_view_->Release();
   }
 
-  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
   assert(SUCCEEDED(hr));
 
   ID3D11Texture2D* d3d11_frame_buffer;

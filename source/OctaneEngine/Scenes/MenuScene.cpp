@@ -40,7 +40,7 @@ void MenuScene::Update(float dt)
     "menu",
     NULL,
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
+  ImGui::SetWindowPos("menu", ImVec2(1000.0f, 800.0f));
   
   if (ImGui::Button("play"))
   {
@@ -54,10 +54,12 @@ void MenuScene::Update(float dt)
 
   ImGui::End();
 }
-void MenuScene::End() {
+void MenuScene::End()
+{
 
 }
-void MenuScene::Unload() {
+void MenuScene::Unload()
+{
 
 }
 
