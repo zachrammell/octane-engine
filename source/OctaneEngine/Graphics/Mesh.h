@@ -50,7 +50,7 @@ struct Mesh
   //! Holds Mesh::Index data CPU-side. If size() is zero, the mesh is not indexed.
   eastl::vector<Index> index_buffer;
 };
-
+	
 /*!
  * \brief A DirectX 11 GPU resource holder corresponding to a Mesh.
  * Created by GraphicsDeviceDX11::CreateMesh.
@@ -78,6 +78,8 @@ public:
 
 private:
   friend class GraphicsDeviceDX11;
+  friend class Model;
+  friend class MeshSys;
   MeshDX11(size_t vertex_size, size_t vertex_count, size_t index_count)
     : vertex_size_ {vertex_size},
       vertex_count_ {vertex_count},
@@ -95,6 +97,13 @@ private:
   winrt::com_ptr<ID3D11Buffer> vertex_buffer_;
   //! Pointer to the index buffer DX11 GPU resource.
   winrt::com_ptr<ID3D11Buffer> index_buffer_;
+};
+/*!
+ * \brief A model to hold several meshes loaded by assimp in aiScenes
+ */
+struct Model
+{
+  eastl::vector<MeshDX11> meshes;
 };
 
 } // namespace Octane

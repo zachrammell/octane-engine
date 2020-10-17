@@ -39,6 +39,7 @@
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
