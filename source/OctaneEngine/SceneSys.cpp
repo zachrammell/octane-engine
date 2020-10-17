@@ -16,7 +16,9 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Trace.h>
+
 #include <iostream>
+#include <magic_enum.hpp>
 
 namespace Octane
 {
@@ -52,7 +54,6 @@ void SceneSys::Update()
 {
   if (current_scene_ != nullptr)
   {
-    
     float dt = frc_.GetDeltaTime();
     current_scene_->Update(dt);
   }
@@ -83,10 +84,10 @@ void SceneSys::SetNextScene(SceneE next_scene)
 {
   if (next_scene < SceneE::COUNT)
   {
-    next_scene_ = scene_holder_[static_cast<unsigned int>(next_scene)];
+    next_scene_ = scene_holder_[to_integral(next_scene)];
   }
 
-  Trace::Log(DEBUG) << "switched to scene #" << static_cast<unsigned int>(next_scene) << std::endl;
+  Trace::Log(DEBUG) << "switched to scene " << magic_enum::enum_name(next_scene) << std::endl;
 
   engine_.ChangeScene();
 }
@@ -100,4 +101,5 @@ void SceneSys::Quit()
 {
   engine_.Quit();
 }
+
 }

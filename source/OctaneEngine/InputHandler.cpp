@@ -75,6 +75,10 @@ void InputHandler::Update()
     break;
     case SDL_MOUSEMOTION:
     {
+      if (ImGui::GetIO().WantCaptureMouse)
+      {
+        break;
+      }
       mouse_movement_ = {e.motion.xrel, e.motion.yrel};
     }
     break;

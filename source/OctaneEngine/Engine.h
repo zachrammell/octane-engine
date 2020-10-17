@@ -30,6 +30,7 @@ public:
   ISystem* GetSystem(SystemOrder sys);
 
   template<class System>
+  [[nodiscard]]
   System* GetSystem()
   {
     static_assert(eastl::is_base_of_v<ISystem, System>);

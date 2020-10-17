@@ -9,6 +9,7 @@
   Copyright © 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
+
 #include <OctaneEngine/Graphics/RenderSys.h>
 
 #include <OctaneEngine/ComponentSys.h>
@@ -16,10 +17,18 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
+#include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/WindowManager.h>
 
 namespace dx = DirectX;
+
+namespace
+{
+
+Octane::Shader phong;
+
+}
 
 namespace Octane
 {
@@ -27,12 +36,14 @@ RenderSys::RenderSys(Engine* parent_engine)
   : ISystem(parent_engine),
     device_dx11_ {parent_engine->GetSystem<WindowManager>()->GetHandle()}
 {
-  Shader phong
-    = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
+  phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
+  device_dx11_.UseShader(phong);
+
+  meshes_.resize(to_integral(MeshType::COUNT));
 
   OBJParser obj_parser;
   auto addMesh = [=, &obj_parser](MeshType m, wchar_t const* filepath) {
-    meshes_.insert(meshes_.begin() + to_integral(m), device_dx11_.CreateMesh(obj_parser.ParseOBJ(filepath)));
+    device_dx11_.EmplaceMesh(meshes_.data() + to_integral(m), obj_parser.ParseOBJ(filepath));
   };
 
   // TODO: asset loading system instead of this
@@ -96,7 +107,7 @@ void RenderSys::Update()
   }
 
   // Render ImGui
-
+  Get<ImGuiSys>()->Render();
 
   // Present
   device_dx11_.Present();

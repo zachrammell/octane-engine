@@ -35,10 +35,10 @@ public:
   void LevelEnd() override {}
   void Unload() override {}
 
-  // Intentionally unimplemented in the interface. Still necessary.
   static SystemOrder GetOrder();
 
   void SetClearColor(Color clear_color);
+  GraphicsDeviceDX11 const& GetGraphicsDeviceDX11() const { return device_dx11_; }
 
 private:
   GraphicsDeviceDX11 device_dx11_;

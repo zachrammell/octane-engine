@@ -53,10 +53,30 @@ struct Mesh
 
 /*!
  * \brief A DirectX 11 GPU resource holder corresponding to a Mesh.
- * Created by RenderDX11::CreateMesh.
+ * Created by GraphicsDeviceDX11::CreateMesh.
  */
 class MeshDX11
 {
+public:
+  MeshDX11(MeshDX11 const& other)
+    : vertex_size_ {other.vertex_size_},
+      vertex_count_ {other.vertex_count_},
+      index_count_ {other.index_count_},
+      vertex_buffer_ {other.vertex_buffer_},
+      index_buffer_ {other.vertex_buffer_}
+  {
+  }
+
+  MeshDX11()
+    : vertex_size_ {0},
+      vertex_count_ {0},
+      index_count_ {0},
+      vertex_buffer_ {nullptr},
+      index_buffer_ {nullptr}
+  {
+  }
+
+private:
   friend class GraphicsDeviceDX11;
   MeshDX11(size_t vertex_size, size_t vertex_count, size_t index_count)
     : vertex_size_ {vertex_size},
@@ -64,6 +84,7 @@ class MeshDX11
       index_count_ {index_count}
   {
   }
+
   //! Size of a single vertex. The same GPU resource can be used for multiple sizes of vertex.
   size_t const vertex_size_;
   //! Number of vertices in the mesh.

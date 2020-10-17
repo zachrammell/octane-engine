@@ -32,10 +32,13 @@ public:
   void Present();
   void ResizeFramebuffer(SDL_Window* window);
 
+  void SetFullscreen(bool is_fullscreen);
+
   [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);
 
   [[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh);
+  void EmplaceMesh(MeshDX11* placement, Mesh const& mesh);
   void UseMesh(MeshDX11 const& mesh);
   void DrawMesh();
 

@@ -396,6 +396,15 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
 MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
 {
   MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
+
+  EmplaceMesh(&mesh_dx11, mesh);
+
+  return mesh_dx11;
+}
+
+void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh)
+{
+  new(placement)MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
 
   {
@@ -408,7 +417,7 @@ MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
       0};
     D3D11_SUBRESOURCE_DATA subresource_data {mesh.vertex_buffer.data(), 0, 0};
 
-    hr = GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, mesh_dx11.vertex_buffer_.put());
+    hr = GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, placement->vertex_buffer_.put());
     assert(SUCCEEDED(hr));
   }
 
@@ -422,11 +431,9 @@ MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
       0};
     D3D11_SUBRESOURCE_DATA subresource_data {mesh.index_buffer.data(), 0, 0};
 
-    hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, mesh_dx11.index_buffer_.put());
+    hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, placement->index_buffer_.put());
     assert(SUCCEEDED(hr));
   }
-
-  return mesh_dx11;
 }
 
 void GraphicsDeviceDX11::UseMesh(MeshDX11 const& mesh)

@@ -15,7 +15,8 @@
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/IScene.h>
 #include <OctaneEngine/Scenes/SceneDefs.h>
-#include <vector>
+#include <EASTL/vector.h>
+
 namespace Octane
 {
 //forward declaration
@@ -46,6 +47,7 @@ private:
   FramerateController& frc_;
   IScene* current_scene_ = nullptr;
   IScene* next_scene_ = nullptr;
-  std::vector< IScene*> scene_holder_;
+  eastl::vector<IScene*> scene_holder_;
 };
+
 }

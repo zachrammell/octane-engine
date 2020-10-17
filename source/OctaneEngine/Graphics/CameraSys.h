@@ -41,9 +41,21 @@ public:
   float GetNearDistance() const { return near_; }
   float GetFarDistance() const { return far_; }
 
-  void SetFOV(float fov) { fov_ = fov; }
-  void SetNearDistance(float near) { near_ = near; }
-  void SetFarDistance(float far) { far_ = far; }
+  void SetFOV(float fov)
+  {
+    fov_ = fov;
+    projection_dirty_ = true;
+  }
+  void SetNearDistance(float near_distance)
+  {
+    near_ = near_distance;
+    projection_dirty_ = true;
+  }
+  void SetFarDistance(float far_distance)
+  {
+    far_ = far_distance;
+    projection_dirty_ = true;
+  }
 
 private:
   FPSCamera fps_camera_;
@@ -51,4 +63,5 @@ private:
   float fov_, near_, far_;
   bool projection_dirty_;
 };
+
 } // namespace Octane

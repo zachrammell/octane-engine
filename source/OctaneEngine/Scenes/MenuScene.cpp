@@ -11,13 +11,15 @@
 /******************************************************************************/
 
 // Main include
+
 #include <OctaneEngine/Scenes/MenuScene.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Engine.h>
 
 #include <imgui.h>
-
 #include <iostream>
+
+#include <OctaneEngine/Graphics/RenderSys.h>
 
 namespace Octane
 {
@@ -26,8 +28,9 @@ MenuScene::MenuScene(SceneSys* parent) : IScene(parent), inhand_(*parent->Get<In
 void MenuScene::Load() {
 
 }
-void MenuScene::Start() {
-
+void MenuScene::Start()
+{
+  Get<RenderSys>()->SetClearColor(Colors::db32[1]);
 }
 void MenuScene::Update(float dt)
 {
