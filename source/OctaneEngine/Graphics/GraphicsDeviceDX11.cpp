@@ -449,7 +449,7 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
   GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
 }
 
-MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
+MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh) const
 {
   MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
 
@@ -458,7 +458,7 @@ MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh)
   return mesh_dx11;
 }
 
-void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh)
+void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh) const
 {
   new(placement)MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
