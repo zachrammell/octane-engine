@@ -42,6 +42,12 @@ void EntitySys::FreeEntity(EntityID which) {
   ResetEntity(entities_[which]);
   --entity_count_;
 }
+
+void EntitySys::FreeAllEntities()
+{
+  entities_.clear();
+}
+
 void EntitySys::Load() {}
 void EntitySys::LevelStart() {}
 void EntitySys::Update() {}

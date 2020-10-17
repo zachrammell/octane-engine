@@ -35,6 +35,8 @@ public:
   // frees an entity to be re-used later
   void FreeEntity(EntityID which);
 
+  void FreeAllEntities();
+
   Iterator EntitiesBegin();
   Iterator EntitiesEnd();
 

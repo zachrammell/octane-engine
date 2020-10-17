@@ -44,7 +44,7 @@ struct PhysicsComponentTemp
 
 namespace Octane
 {
-TestScene::TestScene(SceneSys* parent) : IScene(parent), inhand_(*parent->Get<InputHandler>()) {}
+TestScene::TestScene(SceneSys* parent) : IScene(parent) {}
 
 void TestScene::Load()
 {
@@ -69,7 +69,7 @@ void TestScene::Load()
     ent.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.color = Colors::db32[i % 32];
-    render_component.mesh_type = (i % 2) ? MeshType::Sphere : MeshType::Cube;
+    render_component.mesh_type = (i > 50) ? MeshType::Sphere : MeshType::Cube;
   }
 
   red_bear_id = Get<EntitySys>()->MakeEntity();
@@ -131,28 +131,22 @@ void TestScene::Start()
   esc_menu = false;
   demo_window_open = false;
   Get<RenderSys>()->SetClearColor(Colors::db32[19]);
+  SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 void TestScene::Update(float dt)
 {
-
-  /* if (inhand_.KeyReleased(SDLK_ESCAPE))
-  {
-    parent_manager_.SetNextScene(SceneE::MenuScene);
-
-  }*/
-
   ImGui::Begin(
-    "Sample Window",
+    "Instructions Window",
     NULL,
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 
   ImGui::Text(
-    "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nArrow Keys and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
+    "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nWASD and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
 
   ImGui::End();
 
   //If press the esc, make menu come out
-  if (inhand_.KeyReleased(SDLK_ESCAPE))
+  if (Get<InputHandler>()->KeyReleased(SDLK_ESCAPE))
   {
     esc_menu = true;
   }
@@ -174,7 +168,7 @@ void TestScene::Update(float dt)
       {
         if (ImGui::MenuItem("Visual Studio"))
         {
-          parent_manager_.Get<ImGuiSys>()->StyleVisualStudio();
+          ImGuiSys::StyleVisualStudio();
         }
         if (ImGui::MenuItem("ImGui Dark"))
         {
@@ -197,18 +191,6 @@ void TestScene::Update(float dt)
     ImGui::EndMainMenuBar();
   }
 
-  /*if (scene_settings_open)
-  {
-    ImGui::Begin("Scene Settings", &scene_settings_open, ImGuiWindowFlags_AlwaysAutoResize);
-    if (ImGui::CollapsingHeader("Light Properties"))
-    {
-      ImGui::DragFloat3("Light Position", (&light_position.x), 0.01f);
-    }
-    auto cam_pos = camera.GetPosition();
-    ImGui::Text("(%f, %f, %f)", cam_pos.x, cam_pos.y, cam_pos.z);
-    ImGui::End();
-  }*/
-
   if (demo_window_open)
   {
     ImGui::ShowDemoWindow(&demo_window_open);
@@ -216,71 +198,76 @@ void TestScene::Update(float dt)
 
   if (esc_menu)
   {
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+
     ImGui::Begin(
-      "menu",
+      "Pause Menu",
       NULL,
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::SetWindowPos("menu", ImVec2(800.0f, 500.0f));
+    ImGui::SetWindowPos("Pause Menu", ImVec2(800.0f, 500.0f));
 
-    if (ImGui::Button("resume"))
+    if (ImGui::Button("Resume"))
     {
       esc_menu = false;
+      SDL_SetRelativeMouseMode(SDL_TRUE);
     }
-    if (ImGui::Button("main menu"))
+    if (ImGui::Button("Main Menu"))
     {
-      parent_manager_.SetNextScene(SceneE::MenuScene);
+      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
     }
-    if (ImGui::Button("quit"))
+    if (ImGui::Button("Quit"))
     {
-      parent_manager_.Quit();
+      Get<SceneSys>()->Quit();
     }
 
     ImGui::End();
   }
+  else
+  {
+    auto* input = Get<InputHandler>();
 
-  auto* input = Get<InputHandler>();
+    //temp physics code
 
-  //temp physics code
+    dx::XMFLOAT3 sample_force;
+    sample_force.x = 1.0f * (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
+    sample_force.y = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
+    sample_force.z = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
 
-  dx::XMFLOAT3 sample_force;
-  sample_force.x = 1.0f * (input->KeyHeld(SDLK_d) - input->KeyHeld(SDLK_a));
-  sample_force.y = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
-  sample_force.z = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
+    dx::XMFLOAT3 sample_force2;
+    sample_force2.x = 1.0f * (input->KeyHeld(SDLK_f) - input->KeyHeld(SDLK_h));
+    sample_force2.y = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
+    sample_force2.z = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
 
-  dx::XMFLOAT3 sample_force2;
-  sample_force2.x = 1.0f * (input->KeyHeld(SDLK_f) - input->KeyHeld(SDLK_h));
-  sample_force2.y = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
-  sample_force2.z = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
+    auto& red_bear_pos
+      = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
+          .pos;
 
-  auto& red_bear_pos
-    = Get<ComponentSys>()
-        ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
-        .pos;
+    auto& blue_bear_pos
+      = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
+          .pos;
 
-  auto& blue_bear_pos
-    = Get<Octane::ComponentSys>()
-        ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(Octane::ComponentKind::Transform))
-        .pos;
+    red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
+    red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
 
-  red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-  red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
+    blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
+    blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
 
-  blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-  blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
+    dx::XMFLOAT3 cam_velocity;
+    cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
+    cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
+    cam_velocity.z = (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
 
-  dx::XMFLOAT3 cam_velocity;
-  cam_velocity.x = (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
-  cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
-  cam_velocity.z = (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+    dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
 
-  dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
+    dx::XMINT2 mouse_vel = input->GetMouseMovement();
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
+    camera.RotatePitchRelative(-mouse_vel.y);
+    camera.RotateYawRelative(mouse_vel.x);
 
-  dx::XMINT2 mouse_vel = input->GetMouseMovement();
-  auto& camera = Get<CameraSys>()->GetFPSCamera();
-  camera.RotatePitchRelative(-mouse_vel.y * 0.1f);
-  camera.RotateYawRelative(mouse_vel.x * 0.1f);
-
-  camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
+    camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
+  }
 }
 
 void TestScene::End()
@@ -290,11 +277,20 @@ void TestScene::End()
 
 void TestScene::Unload()
 {
-  
+  auto* entsys = Get<EntitySys>();
+  auto* compsys = Get<ComponentSys>();
+
+  entsys->FreeAllEntities();
+
+  //delete blue_bear_physics.rigid_body;
+  //delete blue_bear_physics.primitive;
+  //delete red_bear_physics.rigid_body;
+  //delete red_bear_physics.primitive;
 }
 
 SceneE TestScene::GetEnum() const
 {
   return SceneE::TestScene;
 }
+
 } // namespace Octane

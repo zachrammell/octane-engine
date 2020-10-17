@@ -69,7 +69,8 @@ void RenderSys::Update()
   device_dx11_.ShaderConstants()
     .PerFrame()
     .SetViewProjection(dx::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix))
-    .SetCameraPosition(Get<CameraSys>()->GetFPSCamera().GetPosition());
+    .SetCameraPosition(Get<CameraSys>()->GetFPSCamera().GetPosition())
+    .SetLightPosition({100, 100, 50});
   device_dx11_.Upload(device_dx11_.ShaderConstants().PerFrame());
 
   device_dx11_.ClearScreen();
