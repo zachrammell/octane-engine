@@ -22,16 +22,13 @@ namespace Octane
 {
 WindowManager::WindowManager(Engine* parent, char const* title, int width, int height) : ISystem(parent)
 {
-  // TODO: parameterize
-  int window_width = 1280;
-  int window_height = 720;
   //Create window
   window_ = SDL_CreateWindow(
-    "Project Octane",
+    title,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
-    window_width,
-    window_height,
+    width,
+    height,
     SDL_WINDOW_SHOWN);
   if (window_ == nullptr)
   {

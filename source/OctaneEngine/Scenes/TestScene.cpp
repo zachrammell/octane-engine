@@ -12,14 +12,16 @@
 
 // Main include
 
+
 #include <OctaneEngine/EntitySys.h>
 
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
-#include <OctaneEngine/ImGuiSys.h>
+#include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Scenes/TestScene.h>
+#include <OctaneEngine/ImGuiSys.h>
 #include <imgui.h>
 #include <iostream>
 
@@ -204,7 +206,9 @@ void TestScene::Update(float dt)
       "Pause Menu",
       NULL,
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::SetWindowPos("Pause Menu", ImVec2(800.0f, 500.0f));
+    ImGui::SetWindowPos(
+      "Pause Menu",
+      ImVec2(0.5f * Get<WindowManager>()->GetWidth(), 0.5f * Get<WindowManager>()->GetHeight()));
 
     if (ImGui::Button("Resume"))
     {

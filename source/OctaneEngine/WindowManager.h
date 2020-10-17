@@ -25,11 +25,11 @@ public:
   WindowManager(class Engine* parent, char const* title, int width, int height);
   ~WindowManager();
 
-  virtual void Load() {};
-  virtual void LevelStart() {};
-  virtual void Update() {};
-  virtual void LevelEnd() {};
-  virtual void Unload() {};
+  void Load() override {};
+  void LevelStart() override {};
+  void Update() override {};
+  void LevelEnd() override {};
+  void Unload() override {};
 
   static SystemOrder GetOrder();
 
