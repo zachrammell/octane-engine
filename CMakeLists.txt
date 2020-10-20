@@ -16,6 +16,8 @@ project("Octane")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+set(BUILD_SHARED_LIBS ON)
+
 # Handle building libraries
 add_subdirectory("libraries/SDL")
 target_include_directories(SDL2 INTERFACE ${SDL_INCLUDE_DIR})
