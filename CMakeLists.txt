@@ -21,7 +21,7 @@ set(BUILD_STATIC_LIBS ON)
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory("libraries/SDL")
-target_include_directories(SDL2 INTERFACE ${SDL2_INCLUDE_DIR})
+target_include_directories(SDL2-static INTERFACE ${SDL2_INCLUDE_DIR})
 
 add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
@@ -42,7 +42,7 @@ target_link_libraries(IMGUI
   d3d11
   dxgi
   d3dcompiler
-  SDL2
+  SDL2-static
 )
 
 # Wwise
