@@ -434,6 +434,11 @@ void ContactConstraints::Apply()
   m_body_b->SetAngularVelocity(m_velocity_term.w_b);
 }
 
+void ContactConstraints::WarmStart()
+{
+  //do noting now.
+}
+
 void ContactConstraints::GenerateBasis(
   const DirectX::XMVECTOR& normal,
   DirectX::XMVECTOR& tangent,
@@ -454,11 +459,6 @@ void ContactConstraints::GenerateBasis(
   }
   tangent = DirectX::XMVector3Normalize(tangent);
   bitangent = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(normal, tangent));
-}
-
-void ContactConstraints::WarmStart()
-{
-  //do noting now.
 }
 
 void ContactConstraints::InitializeJacobian(

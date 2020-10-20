@@ -69,7 +69,7 @@ private:
   bool OnTriangle(ContactPoint* point, ContactPoint* p0, ContactPoint* p1, ContactPoint* p2);
 
 private:
-  friend class Resolution;
+  friend class ResolutionPhase;
   friend class NarrowPhase;
   friend class ContactConstraints;
 
@@ -122,10 +122,10 @@ public:
   void Generate(float dt) override;
   void Solve(float dt) override;
   void Apply() override;
+  void WarmStart();
 
 private:
   void GenerateBasis(const DirectX::XMVECTOR& normal, DirectX::XMVECTOR& tangent, DirectX::XMVECTOR& bitangent);
-  void WarmStart();
   void InitializeJacobian(
     const ContactPoint& contact,
     const DirectX::XMVECTOR& direction,

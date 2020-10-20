@@ -18,6 +18,65 @@ NarrowPhase::NarrowPhase()
   search_dir_[5] = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 }
 
+void NarrowPhase::GenerateContact(
+  eastl::vector<PrimitivePair> potential_pairs_,
+  eastl::hash_map<size_t, ContactManifold>* manifold_table)
+{
+  //filter prev manifolds
+  for (auto& pair : potential_pairs_)
+  {
+    Simplex simplex;
+    if (GJKCollisionDetection(pair.a, pair.b, simplex) == true)
+    {
+      //collider pair have a collision do epa and create collision.
+      if (simplex.IsValid() == false)
+      {
+        if (simplex.count == 0)
+        {
+          continue;
+        }
+      }
+      Polytope polytope = Polytope(simplex);
+      ContactPoint new_contact_data;
+      if (EPAContactGeneration(pair.a, pair.b, polytope, new_contact_data) == true)
+      {
+        //send a event about start and persist.
+        size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
+        auto found = manifold_table->find(key);
+
+        if (found == manifold_table->end())
+        {
+          found = manifold_table->emplace(key, ContactManifold(pair.a, pair.b)).first;
+        }
+
+        ContactManifold& manifold = found->second;
+
+        manifold.UpdateCurrentManifold(new_contact_data);
+        manifold.CutDownManifold();
+        manifold.is_collide = true;
+      }
+      else
+      {
+        //generate invalid contact do not copy data.
+        //send a event invalid.
+      }
+    }
+    else
+    {
+      //if gjk result false, they are not colliding each other.
+      //send a event about none and end.
+      size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
+      auto found = manifold_table->find(key);
+
+      if (found != manifold_table->end())
+      {
+        found->second.ClearContacts();
+        found->second.is_collide = false;
+      }
+    }
+  }
+}
+
 SupportPoint NarrowPhase::GenerateCSOSupport(Primitive* a, Primitive* b, const DirectX::XMVECTOR& direction)
 {
   RigidBody* body_a = a->GetRigidBody();

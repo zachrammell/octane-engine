@@ -4,8 +4,10 @@
 #include <OctaneEngine/Physics/Primitive.h>
 #include <OctaneEngine/Physics/PrimitivePair.h>
 #include <OctaneEngine/Physics/NarrowPhase.h>
+#include <OctaneEngine/Physics/ResolutionPhase.h>
 
 #include <EASTL/vector.h>
+#include <EASTL/hash_map.h>
 
 namespace Octane
 {
@@ -34,7 +36,9 @@ private:
   eastl::vector<RigidBody*> rigid_bodies_;
   eastl::vector<Primitive*> primitives_;
   eastl::vector<PrimitivePair> potential_pairs_;
+  eastl::hash_map<size_t, ContactManifold> manifold_table_;
 
   NarrowPhase narrow_phase_;
+  ResolutionPhase resolution_phase_;
 };
 }

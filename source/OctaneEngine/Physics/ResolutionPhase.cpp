@@ -1,15 +1,10 @@
 #include <OctaneEngine/Physics/ResolutionPhase.h>
 
-
 namespace Octane
 {
-  ResolutionPhase::ResolutionPhase()
-{
-}
+ResolutionPhase::ResolutionPhase() {}
 
-void ResolutionPhase::Initialize()
-{
-}
+void ResolutionPhase::Initialize() {}
 
 void ResolutionPhase::Shutdown()
 {
@@ -34,5 +29,78 @@ void ResolutionPhase::Solve(
   eastl::vector<RigidBody*>* rigid_bodies,
   float dt)
 {
+  //Apply Forces
+  //for (auto& force : forces)
+  //{
+  //  for (auto& body : *rigid_bodies)
+  //  {
+  //    force->Update(body, dt);
+  //  }
+  //}
+
+  m_contact_constraints.clear();
+  if (m_velocity_iteration > 0)
+  {
+    for (auto& constraint : m_velocity_constraints)
+    {
+      constraint->Generate(dt);
+    }
+    for (auto& manifold : *manifold_table)
+    {
+      auto& contact = m_contact_constraints.emplace_back(&manifold.second, 0.1f, 0.1f);
+      contact.Generate(dt);
+    }
+    if (m_b_warm_start == true)
+    {
+      for (auto& contact_constraint : m_contact_constraints)
+      {
+        contact_constraint.WarmStart();
+      }
+    }
+    for (size_t i = 0; i < m_velocity_iteration; ++i)
+    {
+      for (auto& constraint : m_velocity_constraints)
+      {
+        constraint->Solve(dt);
+      }
+      for (auto& contact : m_contact_constraints)
+      {
+        contact.Solve(dt);
+      }
+    }
+    for (auto& constraint : m_velocity_constraints)
+    {
+      constraint->Apply();
+    }
+    for (auto& contact : m_contact_constraints)
+    {
+      contact.Apply();
+    }
+  }
+  for (auto& body : *rigid_bodies)
+  {
+    body->Integrate(dt);
+    body->UpdateOrientation();
+    body->UpdateInertia();
+    body->UpdatePosition();
+  }
+  if (m_position_iteration > 0)
+  {
+    for (auto& constraint : m_position_constraints)
+    {
+      constraint->Generate(dt);
+    }
+    for (size_t i = 0; i < m_position_iteration; ++i)
+    {
+      for (auto& constraint : m_position_constraints)
+      {
+        constraint->Solve(dt);
+      }
+    }
+    for (auto& constraint : m_position_constraints)
+    {
+      constraint->Apply();
+    }
+  }
 }
-}
+} // namespace Octane

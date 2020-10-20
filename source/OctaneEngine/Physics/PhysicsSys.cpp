@@ -27,6 +27,7 @@ void PhysicsSys::Update()
   //broad_phase->Update(dt);
   //broad_phase->ComputePairs(pairs);
 
+  //N^2 Brute Force Broad Phase
   potential_pairs_.clear();
   auto primitive_end = primitives_.end();
   for (auto it = primitives_.begin(); it != primitive_end; ++it)
@@ -42,39 +43,11 @@ void PhysicsSys::Update()
   }
 
   //[Narrow Phase]
-  //narrow_phase->GenerateContact(pairs, manifold_table);
-
-  for (auto& pair : potential_pairs_)
-  {
-    Simplex simplex;
-    if (narrow_phase_.GJKCollisionDetection(pair.a, pair.b, simplex))
-    {
-      //Trace::Log(TRACE) << "Collision!! \n";
-      //Do EPA contact generation
-      //Send Collision Event or Save Collision State
-    }
-    else
-    {
-      //Trace::Log(TRACE) << "None!! \n";
-    }
-  }
+  narrow_phase_.GenerateContact(potential_pairs_, &manifold_table_);
 
   //[Resolution Phase]
-  //resolution_phase->SolveConstraints(manifold_table, &rigid_bodies_, dt);
-  {
-    //Calculate Forces
-    //Solve Velocity Constraints
-    //Integrate
-    for (auto& body : rigid_bodies_)
-    {
-      body->Integrate(dt);
-      body->UpdateOrientation();
-      body->UpdateInertia();
-      body->UpdatePosition();
-    }
-    //Solve Position Constraints
-  }
-}
+  resolution_phase_.Solve(&manifold_table_, &rigid_bodies_, dt);
+ }
 
 void PhysicsSys::LevelEnd()
 {
