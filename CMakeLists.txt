@@ -21,7 +21,6 @@ set(BUILD_STATIC_LIBS ON)
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory("libraries/SDL")
-target_include_directories(SDL2-static INTERFACE ${SDL2_INCLUDE_DIR})
 
 add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
@@ -77,6 +76,7 @@ add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
+  "libraries/SDL/include"
 )
 
 target_link_libraries(${OCTANE_LIB} PRIVATE
@@ -86,7 +86,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   dxgi
   d3dcompiler
 # external libraries
-  SDL2
+  SDL2-static
   EASTL
   IMGUI
   WWISE
@@ -125,11 +125,12 @@ target_compile_options(${OCTANE_GAME} PRIVATE
 
 target_include_directories(${OCTANE_GAME} PRIVATE
   "source"
+  "libraries/SDL/include"
 )
 
 target_link_libraries(${OCTANE_GAME} PRIVATE
   ${OCTANE_LIB}
-  SDL2
+  SDL2-static
   EASTL
   IMGUI
 )
