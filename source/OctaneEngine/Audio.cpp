@@ -168,6 +168,17 @@ const AkOSChar* Audio::Get_Language()
   return AK::StreamMgr::GetCurrentLanguage();
 }
 
+AkTimeMs Audio::Get_Position(AkPlayingID event)
+{
+  AkTimeMs position;
+  if (AK::SoundEngine::GetSourcePlayPosition(event, &position) != AK_Success)
+  {
+    std::cerr << "Position acquisition failed!" << std::endl;
+    return NULL;
+  }
+  return position;
+}
+
 // Before anyone asks, cerr is temporary. Can be changed to however we handle errors
 AkBankID Audio::Load_Bank(const char* name)
 {
@@ -197,6 +208,19 @@ void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
   }
 }
 
+AkPlayingID Audio::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
+{
+  AkPlayingID PlayingID;
+  PlayingID = AK::SoundEngine::PostEvent(UniqueID, GameObjectID, AK_EnableGetSourcePlayPosition, NULL, NULL);
+
+  if (PlayingID == NULL)
+  {
+    std::cerr << "Event posting '" << UniqueID << "' failed!" << std::endl;
+  }
+
+  return PlayingID;
+}
+
 void Audio::Register_Object(AkGameObjectID id, const char* name)
 {
   if (AK::SoundEngine::RegisterGameObj(id, name) != AK_Success)
@@ -218,6 +242,28 @@ void Audio::Unregister_All_Objects()
   if (AK::SoundEngine::UnregisterAllGameObj() != AK_Success)
   {
     std::cerr << "Unregistering all objects failed!" << std::endl;
+  }
+}
+
+void Audio::Set_Position(AkGameObjectID object, const AkSoundPosition& position_)
+{
+  AkSoundPosition position;
+  position.Position.X = position_.Position.X;
+  position.Position.Y = position_.Position.Y;
+  position.Position.Z = position_.Position.Z;
+  position.OrientationFront = -1; // Not sure if this is correct yet, requires testing!
+  position.OrientationTop = 0;
+  if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
+  {
+    std::cerr << "Position setting failed!" << std::endl;
+  }
+}
+
+void Audio::Set_Multiple_Positions(AkGameObjectID object, const AkSoundPosition* position_, int NumPositions)
+{
+  if (AK::SoundEngine::SetMultiplePositions(object, position_, NumPositions) != AK_Success)
+  {
+    std::cerr << "Multiple position setting failed!" << std::endl;
   }
 }
 

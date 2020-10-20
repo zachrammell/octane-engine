@@ -20,6 +20,7 @@
 #include <SampleSoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>       // Sample low-level I/O implementation
 #include <AK/MusicEngine/Common/AkMusicEngine.h>                           // Music Engine
 #include <AK/SpatialAudio/Common/AkSpatialAudio.h>                         // Spatial Audio
+#include "Wwise_IDs.h"
 
 
 // Defines
@@ -47,6 +48,7 @@ private:
 
   // Getters
   static const AkOSChar* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
+  static AkTimeMs Get_Position(AkPlayingID);
 
   // Banks
   static AkBankID Load_Bank(const char*);
@@ -54,11 +56,18 @@ private:
 
   // Events
   static void Play_Event(AkUniqueID, AkGameObjectID);
+  static AkPlayingID Play_Event_RI(AkUniqueID, AkGameObjectID);
 
   // Game Objects
+  // Every Game Object must have a AkGameObjectID if sound wants to be associated to the object
   static void Register_Object(AkGameObjectID, const char*);
   static void Unregister_Object(AkGameObjectID);
   static void Unregister_All_Objects();
+
+  // Position
+  // AkSoundPosition needs to be changed to whatever vector format we're using
+  static void Set_Position(AkGameObjectID, const AkSoundPosition&);
+  static void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
 
   // Handle tabbing out
   // True = Partial on; Partial means to keep processing sound events
@@ -68,3 +77,9 @@ private:
   static void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
 };
 }
+
+// Current to do:
+// Put Init, Update, and Shutdown into game loop
+// register a game object
+// use Wwise IDs and event playing and game object to play a test sound
+// Implement the rest of the functions for now
