@@ -145,8 +145,48 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text(
-    "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nWASD and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
+  ImGui::Text("QAWSED for the Red Object Movement");
+  ImGui::Text("RFTGYH for the Blue Object");
+  ImGui::Text("WASD and Space/Shift for camera movement");
+  ImGui::Text("Alt+Enter for Fullscreen");
+
+  if (ImGui::CollapsingHeader("Default"))
+  {
+    if (ImGui::TreeNode("Objects"))
+    {
+      if (ImGui::Button("Default Redbear Position"))
+      {
+        auto* compsys = Get<ComponentSys>();
+
+        GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((red_bear_id));
+        ComponentHandle trans_id = compsys->MakeTransform();
+        obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+        TransformComponent& trans = compsys->GetTransform(trans_id);
+        trans.pos.x = 0.25f * 50;
+        trans.pos.y = 0.01f * 50 * 50;
+        trans.pos.z = 0.33f * 50;
+        trans.scale = 0.25f;
+        trans.rotation = 0.0f;
+      }
+
+      if (ImGui::Button("Default Bluebear Position"))
+      {
+        auto* compsys = Get<ComponentSys>();
+
+        GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((blue_bear_id));
+        ComponentHandle trans_id = compsys->MakeTransform();
+        obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+        TransformComponent& trans = compsys->GetTransform(trans_id);
+        trans.pos.x = 0.25f * 51;
+        trans.pos.y = 0.01f * 51 * 51;
+        trans.pos.z = 0.33f * 51;
+        trans.scale = 0.25f;
+        trans.rotation = 0.0f;
+      }
+
+      ImGui::TreePop();
+    }
+  }
 
   ImGui::End();
 
