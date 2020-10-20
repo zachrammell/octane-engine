@@ -4,4 +4,4 @@
 
 namespace dx = DirectX;
 
-void SimpleMove(dx::XMFLOAT3 fromPos, dx::XMFLOAT3 toPos, float speed);
+void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed);

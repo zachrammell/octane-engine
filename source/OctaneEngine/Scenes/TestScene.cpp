@@ -28,6 +28,8 @@
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 
+#include <OctaneEngine/TransformHelpers.h>
+
 namespace dx = DirectX;
 
 namespace
@@ -233,15 +235,15 @@ void TestScene::Update(float dt)
 
     //temp physics code
 
-    dx::XMFLOAT3 sample_force;
-    sample_force.x = 1.0f * (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
-    sample_force.y = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
-    sample_force.z = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
-
-    dx::XMFLOAT3 sample_force2;
-    sample_force2.x = 1.0f * (input->KeyHeld(SDLK_f) - input->KeyHeld(SDLK_h));
-    sample_force2.y = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
-    sample_force2.z = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
+    //dx::XMFLOAT3 sample_force;
+    //sample_force.x = 1.0f * (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
+    //sample_force.y = 1.0f * (input->KeyHeld(SDLK_q) - input->KeyHeld(SDLK_e));
+    //sample_force.z = 1.0f * (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
+    //
+    //dx::XMFLOAT3 sample_force2;
+    //sample_force2.x = 1.0f * (input->KeyHeld(SDLK_f) - input->KeyHeld(SDLK_h));
+    //sample_force2.y = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
+    //sample_force2.z = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
 
     auto& red_bear_pos
       = Get<ComponentSys>()
@@ -253,11 +255,11 @@ void TestScene::Update(float dt)
           ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
           .pos;
 
-    red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-    red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
+    //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
+    //red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
 
-    blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-    blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
+   //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
+    //blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
 
     dx::XMFLOAT3 cam_velocity;
     cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
@@ -272,6 +274,11 @@ void TestScene::Update(float dt)
     camera.RotateYawRelative(mouse_vel.x);
 
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
+
+
+  	//enemy movement
+    SimpleMove(red_bear_pos, camera.GetPosition(), 5.f * dt);
+    SimpleMove(blue_bear_pos, camera.GetPosition(), 3.5f * dt);
   }
 }
 
