@@ -17,10 +17,10 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Handle building libraries
-set(BUILD_STATIC_LIBS ON)
-set(BUILD_SHARED_LIBS OFF)
-
 add_subdirectory("libraries/SDL")
+target_include_directories(SDL2 INTERFACE ${SDL_INCLUDE_DIR})
+
+set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
@@ -41,19 +41,23 @@ target_link_libraries(IMGUI
   d3d11
   dxgi
   d3dcompiler
-  SDL2-static
+  SDL2
 )
 
 # Wwise
 set(WWISE_DIR "libraries/Wwise")
 set(WWISE_INCLUDE_DIR "${WWISE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Common")
-file(GLOB WWISE_BINARIES "${WWISE_DIR}/Debug/lib/*.lib")
+if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+  file(GLOB WWISE_BINARIES "${WWISE_DIR}/Debug/lib/*.lib")
+else()
+  file(GLOB WWISE_BINARIES "${WWISE_DIR}/Release/lib/*.lib")
+endif()
 file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/*.cpp")
 if (WIN32)
   file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp")
   set(WWISE_INCLUDE_DIR "${WWISE_INCLUDE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Win32")
 endif()
-add_library(WWISE ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
+add_library(WWISE STATIC ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
 target_compile_definitions(WWISE PRIVATE UNICODE)
 set_target_properties(WWISE PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(WWISE PUBLIC ${WWISE_INCLUDE_DIR})
@@ -76,7 +80,6 @@ add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
-  "libraries/SDL/include"
 )
 
 target_link_libraries(${OCTANE_LIB} PRIVATE
@@ -86,7 +89,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   dxgi
   d3dcompiler
 # external libraries
-  SDL2-static
+  SDL2
   EASTL
   IMGUI
   WWISE
@@ -125,12 +128,11 @@ target_compile_options(${OCTANE_GAME} PRIVATE
 
 target_include_directories(${OCTANE_GAME} PRIVATE
   "source"
-  "libraries/SDL/include"
 )
 
 target_link_libraries(${OCTANE_GAME} PRIVATE
   ${OCTANE_LIB}
-  SDL2-static
+  SDL2
   EASTL
   IMGUI
 )
