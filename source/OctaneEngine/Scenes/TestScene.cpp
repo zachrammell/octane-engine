@@ -140,7 +140,8 @@ void TestScene::Update(float dt)
   ImGui::Begin(
     "Instructions Window",
     NULL,
-    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
+      | ImGuiWindowFlags_NoNav);
 
   ImGui::Text(
     "QAWSED for the Red Object Movement\nRFTGYH for the Blue Object\nWASD and Space/Shift for camera movement\nAlt+Enter for Fullscreen");
