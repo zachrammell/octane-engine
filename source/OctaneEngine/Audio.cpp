@@ -248,11 +248,15 @@ void Audio::Unregister_All_Objects()
 void Audio::Set_Position(AkGameObjectID object, const AkSoundPosition& position_)
 {
   AkSoundPosition position;
+  // These things don't work? Need to figure out how new version works
+  /*
   position.Position.X = position_.Position.X;
   position.Position.Y = position_.Position.Y;
   position.Position.Z = position_.Position.Z;
   position.OrientationFront = -1; // Not sure if this is correct yet, requires testing!
   position.OrientationTop = 0;
+  */
+  
   if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
   {
     std::cerr << "Position setting failed!" << std::endl;

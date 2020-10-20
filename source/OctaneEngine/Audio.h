@@ -11,6 +11,7 @@
 /******************************************************************************/
 #pragma once
 // Includes
+#include <OctaneEngine/ISystem.h>                                          // Engine Class
 #include <AK/SoundEngine/Common/AkSoundEngine.h>                           // Core Engine
 #include <AK/IBytes.h>
 #include <AK/SoundEngine/Common/AkMemoryMgr.h>                             // Memory Manager interface
