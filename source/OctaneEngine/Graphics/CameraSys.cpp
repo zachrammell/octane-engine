@@ -36,6 +36,9 @@ void CameraSys::LevelStart()
 {
   //TODO: need some way to restart camera
   //back to original position in scene
+  fps_camera_.SetPosition(DirectX::XMVectorSet(0.0f, 1.0f, 10.0f, 1.0f));
+  fps_camera_.RotatePitchAbsolute(0);
+  fps_camera_.RotateYawAbsolute(0);
 }
 
 void CameraSys::Update() {}

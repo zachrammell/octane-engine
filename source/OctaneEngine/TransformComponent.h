@@ -5,7 +5,7 @@
 namespace Octane {
 struct TransformComponent {
   DirectX::XMFLOAT3 pos;
-  float scale;
+  DirectX::XMFLOAT3 scale;
   float rotation;
 };
 }

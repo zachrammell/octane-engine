@@ -6,7 +6,7 @@
   \date       2020/10/6
   \brief      test scene
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -54,27 +54,27 @@ void TestScene::Load()
 {
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
-  for (int i = 0; i < 100; ++i)
-  {
-    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
-    EntityID ent_id = entsys->MakeEntity();
-    GameEntity& ent = entsys->GetEntity((ent_id));
 
-    ComponentHandle trans_id = compsys->MakeTransform();
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color) {
+    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+    EntityID const ent_id = entsys->MakeEntity();
+    GameEntity& ent = entsys->GetEntity((ent_id));
+    ComponentHandle const trans_id = compsys->MakeTransform();
     ent.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.25f * (i - 50);
-    trans.pos.y = 0.01f * (i - 50) * (i - 50);
-    trans.pos.z = 0.33f * (i - 50);
-    trans.scale = 0.25f;
+    trans.pos = pos;
+    trans.scale = scale;
     trans.rotation = 0.0f;
-
-    ComponentHandle render_id = compsys->MakeRender();
+    ComponentHandle const render_id = compsys->MakeRender();
     ent.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.color = Colors::db32[i % 32];
-    render_component.mesh_type = (i > 50) ? MeshType::Sphere : MeshType::Cube;
-  }
+    render_component.color = color;
+    render_component.mesh_type = MeshType::Cube;
+  };
+
+  // ground plane
+  create_object({0.0f, 0.0f, 0.0f}, {30.0f, 0.25f, 30.0f}, Colors::db32[10]);
+  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
 
   red_bear_id = Get<EntitySys>()->MakeEntity();
 
@@ -86,7 +86,7 @@ void TestScene::Load()
     trans.pos.x = 0.0f;
     trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
-    trans.scale = 0.25f;
+    trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = 0.0f;
 
     ComponentHandle render_comp_id = compsys->MakeRender();
@@ -106,7 +106,7 @@ void TestScene::Load()
     trans.pos.x = 0.0f;
     trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
-    trans.scale = 0.25f;
+    trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = 0.0f;
 
     ComponentHandle render_comp_id = compsys->MakeRender();
@@ -116,7 +116,7 @@ void TestScene::Load()
     render_comp.mesh_type = MeshType::Bear;
   }
 
-  auto world = Get<PhysicsSys>();
+  auto* world = Get<PhysicsSys>();
 
   red_bear_physics.rigid_body = world->AddRigidBody();
   dx::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
@@ -165,7 +165,7 @@ void TestScene::Update(float dt)
         trans.pos.x = 0.25f * 50;
         trans.pos.y = 0.01f * 50 * 50;
         trans.pos.z = 0.33f * 50;
-        trans.scale = 0.25f;
+        trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = 0.0f;
       }
 
@@ -180,7 +180,7 @@ void TestScene::Update(float dt)
         trans.pos.x = 0.25f * 51;
         trans.pos.y = 0.01f * 51 * 51;
         trans.pos.z = 0.33f * 51;
-        trans.scale = 0.25f;
+        trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = 0.0f;
       }
 
