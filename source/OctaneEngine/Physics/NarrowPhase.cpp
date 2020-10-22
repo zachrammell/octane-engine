@@ -119,6 +119,7 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
 {
   PolytopeFace closest_face = polytope.PickClosestFace();
   PolytopeFace prev_face = closest_face;
+  DirectX::XMVECTOR closest_face_normal = DirectX::XMLoadFloat3(&closest_face.normal);
   for (size_t i = 0; i < epa_exit_count_; ++i)
   {
     if (polytope.faces.empty())
@@ -127,13 +128,15 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
       return false;
     }
     closest_face = polytope.PickClosestFace();
-    SupportPoint support_point = GenerateCSOSupport(a, b, closest_face.normal);
+    closest_face_normal = DirectX::XMLoadFloat3(&closest_face.normal);
+    SupportPoint support_point = GenerateCSOSupport(a, b, closest_face_normal);
     if (support_point.IsValid() == false)
     {
       closest_face = prev_face;
+      closest_face_normal = DirectX::XMLoadFloat3(&closest_face.normal);
       break;
     }
-    float distance = Math::DotProductVector3(DirectX::XMLoadFloat3(&support_point.global), closest_face.normal);
+    float distance = Math::DotProductVector3(DirectX::XMLoadFloat3(&support_point.global), closest_face_normal);
     if (distance - closest_face.distance < Math::EPSILON)
     {
       break;
@@ -144,7 +147,7 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
   }
   float u, v, w;
   closest_face
-    .BarycentricCoordinates(DirectX::XMVectorScale(closest_face.normal, closest_face.distance), u, v, w, &polytope);
+    .BarycentricCoordinates(DirectX::XMVectorScale(closest_face_normal, closest_face.distance), u, v, w, &polytope);
   if (Math::IsValid(u) == false || Math::IsValid(v) == false || Math::IsValid(w) == false)
   {
     result.is_valid = false;
@@ -180,7 +183,7 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
   result.global_position_a = a->GetRigidBody()->LocalToWorldPoint(result.local_position_a);
   result.global_position_b = b->GetRigidBody()->LocalToWorldPoint(result.local_position_b);
   result.is_valid = true;
-  result.normal = DirectX::XMVector3Normalize(closest_face.normal);
+  result.normal = DirectX::XMVector3Normalize(closest_face_normal);
   result.depth = closest_face.distance;
   return true;
 }

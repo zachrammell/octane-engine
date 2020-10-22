@@ -49,7 +49,7 @@ public:
   size_t a = 0, b = 0, c = 0;
   float distance = 0.0f;
   float pad = 0.0f;
-  DirectX::XMVECTOR normal = DirectX::XMVECTOR();
+  DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3();
 
 };
 

@@ -26,13 +26,13 @@ PolytopeFace::PolytopeFace()
   c = std::numeric_limits<size_t>::max();
 }
 
-PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const DirectX::XMVECTOR& normal, float distance)
+PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const DirectX::XMVECTOR& normal_, float distance)
   : a(a),
     b(b),
     c(c),
-    normal(normal),
     distance(distance)
 {
+  DirectX::XMStoreFloat3(&normal, normal_);
 }
 
 PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Simplex& simplex) : a(a), b(b), c(c)
@@ -41,11 +41,12 @@ PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Simplex& simplex)
   auto b_global = DirectX::XMLoadFloat3(&simplex[b].global);
   auto c_global = DirectX::XMLoadFloat3(&simplex[c].global);
 
-  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
+  DirectX::XMVECTOR normal_vec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
     DirectX::XMVectorSubtract(b_global, a_global),
     DirectX::XMVectorSubtract(c_global, a_global)));
 
-  distance = Math::DotProductVector3(normal, a_global);
+  DirectX::XMStoreFloat3(&normal, normal_vec);
+  distance = Math::DotProductVector3(normal_vec, a_global);
 }
 
 PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Polytope& polytope) : a(a), b(b), c(c)
@@ -54,12 +55,13 @@ PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Polytope& polytop
   auto b_global = DirectX::XMLoadFloat3(&polytope.vertices[b].global);
   auto c_global = DirectX::XMLoadFloat3(&polytope.vertices[c].global);
 
-  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
+  DirectX::XMVECTOR normal_vec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
     DirectX::XMVectorSubtract(b_global, a_global),
     DirectX::XMVectorSubtract(c_global, a_global)));
 
-  distance = Math::DotProductVector3(normal, a_global);
-  ;
+  DirectX::XMStoreFloat3(&normal, normal_vec);
+
+  distance = Math::DotProductVector3(normal_vec, a_global);
 }
 
 PolytopeFace::PolytopeFace(const SupportPoint& point_a, const SupportPoint& point_b, const SupportPoint& point_c)
@@ -71,11 +73,13 @@ PolytopeFace::PolytopeFace(const SupportPoint& point_a, const SupportPoint& poin
   a = point_a.index;
   b = point_b.index;
   c = point_c.index;
-  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
+  DirectX::XMVECTOR normal_vec = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
     DirectX::XMVectorSubtract(b_global, a_global),
     DirectX::XMVectorSubtract(c_global, a_global)));
 
-  distance = Math::DotProductVector3(normal, a_global);
+  DirectX::XMStoreFloat3(&normal, normal_vec);
+
+  distance = Math::DotProductVector3(normal_vec, a_global);
 }
 
 PolytopeFace::~PolytopeFace() {}
@@ -148,7 +152,8 @@ size_t PolytopeFace::Index(size_t index) const
 
 float PolytopeFace::TestFace(const DirectX::XMVECTOR& point) const
 {
-  return Math::DotProductVector3(normal, point);
+  DirectX::XMVECTOR normal_vec = DirectX::XMLoadFloat3(&normal);
+  return Math::DotProductVector3(normal_vec, point);
 }
 
 void PolytopeFace::BarycentricCoordinates(
