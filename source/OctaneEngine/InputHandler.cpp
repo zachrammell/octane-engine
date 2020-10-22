@@ -82,6 +82,8 @@ void InputHandler::Update()
       mouse_movement_ = {e.motion.xrel, e.motion.yrel};
     }
     break;
+    case SDL_WINDOWEVENT_RESIZED:
+
     default: break;
     }
   }

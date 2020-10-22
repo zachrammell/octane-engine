@@ -16,8 +16,6 @@
 
 namespace Octane
 {
-//forward ref
-class InputHandler;
 
 class TestScene final : public IScene
 {

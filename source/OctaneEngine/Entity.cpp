@@ -1,11 +1,11 @@
-#include "Entity.h"
+#include <OctaneEngine/Entity.h>
 
 namespace Octane
 {
 
 ComponentHandle& GameEntity::GetComponentHandle(ComponentKind which)
 {
-  return components[static_cast<int>(which)];
+  return components[to_integral(which)];
 }
 
 } // namespace Octane

@@ -6,7 +6,7 @@
   \date       2020/10/6
   \brief      test scene
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -54,27 +54,27 @@ void TestScene::Load()
 {
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
-  for (int i = 0; i < 100; ++i)
-  {
-    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
-    EntityID ent_id = entsys->MakeEntity();
-    GameEntity& ent = entsys->GetEntity((ent_id));
 
-    ComponentHandle trans_id = compsys->MakeTransform();
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, MeshType mesh_type = MeshType::Cube) {
+    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+    EntityID const ent_id = entsys->MakeEntity();
+    GameEntity& ent = entsys->GetEntity((ent_id));
+    ComponentHandle const trans_id = compsys->MakeTransform();
     ent.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.25f * (i - 50);
-    trans.pos.y = 0.01f * (i - 50) * (i - 50);
-    trans.pos.z = 0.33f * (i - 50);
-    trans.scale = 0.25f;
-    trans.rotation = 0.0f;
-
-    ComponentHandle render_id = compsys->MakeRender();
+    trans.pos = pos;
+    trans.scale = scale;
+    trans.rotation = {};
+    ComponentHandle const render_id = compsys->MakeRender();
     ent.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.color = Colors::db32[i % 32];
-    render_component.mesh_type = (i > 50) ? MeshType::Sphere : MeshType::Cube;
-  }
+    render_component.color = color;
+    render_component.mesh_type = mesh_type;
+  };
+
+  // ground plane
+  create_object({0.0f, 0.0f, 0.0f}, {30.0f, 0.25f, 30.0f}, Colors::db32[10]);
+  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
 
   red_bear_id = Get<EntitySys>()->MakeEntity();
 
@@ -83,11 +83,11 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
+    trans.pos.x = 2.0f;
+    trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
-    trans.scale = 0.25f;
-    trans.rotation = 0.0f;
+    trans.scale = {0.25f, 0.25f, 0.25f};
+    trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj100_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
@@ -103,11 +103,11 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
+    trans.pos.x = -2.0f;
+    trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
-    trans.scale = 0.25f;
-    trans.rotation = 0.0f;
+    trans.scale = {0.25f, 0.25f, 0.25f};
+    trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj101_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
@@ -116,7 +116,7 @@ void TestScene::Load()
     render_comp.mesh_type = MeshType::Bear;
   }
 
-  auto world = Get<PhysicsSys>();
+  auto* world = Get<PhysicsSys>();
 
   red_bear_physics.rigid_body = world->AddRigidBody();
   dx::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
@@ -125,11 +125,17 @@ void TestScene::Load()
   red_bear_physics.primitive = world->AddPrimitive(red_bear_physics.rigid_body, ePrimitiveType::Box);
   static_cast<Box*>(red_bear_physics.primitive)->SetBox(0.25f, 0.25f, 0.25f);
 
+
+	
   blue_bear_physics.rigid_body = world->AddRigidBody();
   blue_bear_physics.rigid_body->SetLinearConstraints(constraints);
   blue_bear_physics.rigid_body->SetAngularConstraints(constraints);
   blue_bear_physics.primitive = world->AddPrimitive(blue_bear_physics.rigid_body, ePrimitiveType::Ellipsoid);
+
+  red_bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
+  blue_bear_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
 }
+
 void TestScene::Start()
 {
   esc_menu = false;
@@ -137,6 +143,7 @@ void TestScene::Start()
   Get<RenderSys>()->SetClearColor(Colors::db32[19]);
   SDL_SetRelativeMouseMode(SDL_TRUE);
 }
+
 void TestScene::Update(float dt)
 {
   ImGui::Begin(
@@ -165,8 +172,8 @@ void TestScene::Update(float dt)
         trans.pos.x = 0.25f * 50;
         trans.pos.y = 0.01f * 50 * 50;
         trans.pos.z = 0.33f * 50;
-        trans.scale = 0.25f;
-        trans.rotation = 0.0f;
+        trans.scale = {0.25f, 0.25f, 0.25f};
+        trans.rotation = {};
       }
 
       if (ImGui::Button("Default Bluebear Position"))
@@ -180,8 +187,8 @@ void TestScene::Update(float dt)
         trans.pos.x = 0.25f * 51;
         trans.pos.y = 0.01f * 51 * 51;
         trans.pos.z = 0.33f * 51;
-        trans.scale = 0.25f;
-        trans.rotation = 0.0f;
+        trans.scale = {0.25f, 0.25f, 0.25f};
+        trans.rotation = {};
       }
 
       ImGui::TreePop();
@@ -285,23 +292,7 @@ void TestScene::Update(float dt)
     //sample_force2.y = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
     //sample_force2.z = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
 
-    auto& red_bear_pos
-      = Get<ComponentSys>()
-          ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
-          .pos;
-
-    auto& blue_bear_pos
-      = Get<ComponentSys>()
-          ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
-          .pos;
-
-    //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-    //red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
-
-   //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-    //blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
-
-    dx::XMFLOAT3 cam_velocity;
+        dx::XMFLOAT3 cam_velocity;
     cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
     cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
     cam_velocity.z = (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
@@ -315,10 +306,47 @@ void TestScene::Update(float dt)
 
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
 
+  	
+    auto& red_bear_pos
+      = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
+          .pos;
 
-  	//enemy movement
-    SimpleMove(red_bear_pos, camera.GetPosition(), 5.f * dt);
-    SimpleMove(blue_bear_pos, camera.GetPosition(), 3.5f * dt);
+    auto& blue_bear_pos
+      = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
+          .pos;
+
+        //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
+    red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
+
+    //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
+    blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
+
+    bool jumpPlease = input->KeyPressed(SDLK_j);
+  	
+    //enemy movement
+    SimpleMove(*red_bear_physics.rigid_body, red_bear_pos, camera.GetPosition(), 0.5f);
+    SimpleMove(*blue_bear_physics.rigid_body, blue_bear_pos, camera.GetPosition(), 0.5f);
+
+    float constexpr G = 9.81f;
+  	
+    LockYRelToTarget(blue_bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    LockYRelToTarget(red_bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    
+    RandomJump(*blue_bear_physics.rigid_body, blue_bear_pos, jumpPlease ? 100.f : 100.f, 25.f * G);
+    RandomJump(*red_bear_physics.rigid_body, red_bear_pos, jumpPlease ? 100.f : 100.f, 25.f * G);
+
+  	red_bear_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
+    blue_bear_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
+
+  	
+    red_bear_physics.rigid_body->SyncFromPosition(red_bear_pos);
+
+    blue_bear_physics.rigid_body->SyncFromPosition(blue_bear_pos);
+
+
+
   }
 }
 

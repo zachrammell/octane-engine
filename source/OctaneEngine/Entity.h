@@ -1,6 +1,9 @@
 #pragma once
 
-#include "ComponentSys.h"
+#include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/Helper.h>
+
+#include <EASTL/array.h>
 
 namespace Octane
 {
@@ -9,7 +12,7 @@ struct GameEntity
   // no constructor here -- this is simply a struct, the EntityManager will initialize it
 
   bool active;
-  ComponentHandle components[static_cast<int>(ComponentKind::COUNT)];
+  eastl::array<ComponentHandle, to_integral(ComponentKind::COUNT)> components;
 
   ComponentHandle& GetComponentHandle(ComponentKind which);
 };

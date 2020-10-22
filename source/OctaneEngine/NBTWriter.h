@@ -27,6 +27,10 @@ public:
   void WriteByteArray(string_view name, int8_t const* array, int32_t length);
   void WriteString(string_view name, string_view str);
 
+  template<typename T>
+  // This function is not implemented, only specialized! Specialize it on your own type to enable serialization
+  void Write(string_view name, T value);
+
 private:
   enum class TAG : uint8_t
   {

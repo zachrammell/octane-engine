@@ -1,6 +1,7 @@
 #pragma once
 #include <OctaneEngine/Scenes/MenuScene.h>
 #include <OctaneEngine/Scenes/TestScene.h>
+#include <OctaneEngine/Scenes/SerializationTestScene.h>
 
 namespace Octane
 {
@@ -10,6 +11,7 @@ enum class SceneE : unsigned int
 {
   MenuScene,
   TestScene,
+  SerializationTestScene,
 
   COUNT
 };

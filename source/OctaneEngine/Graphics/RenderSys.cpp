@@ -86,9 +86,9 @@ void RenderSys::Update()
       auto& render_comp = component_sys->GetRender(iter->GetComponentHandle(ComponentKind::Render));
 
       dx::XMMATRIX object_world_matrix = dx::XMMatrixIdentity();
-      float scale = transform.scale;
-      object_world_matrix *= dx::XMMatrixScaling(scale, scale, scale);
-      object_world_matrix *= dx::XMMatrixRotationAxis({0, 1, 0}, dx::XMConvertToRadians(transform.rotation));
+      dx::XMFLOAT3 scale = transform.scale;
+      object_world_matrix *= dx::XMMatrixScaling(scale.x, scale.y, scale.z);
+      object_world_matrix *= dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
       dx::XMFLOAT3 pos = transform.pos;
       object_world_matrix *= dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
