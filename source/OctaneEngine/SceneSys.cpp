@@ -27,6 +27,7 @@ SceneSys::SceneSys(Engine* engine) : ISystem(engine), frc_(*engine->GetSystem<Fr
     //such a bad way of doing this but it is fine for now
   scene_holder_.push_back(new MenuScene(this));
   scene_holder_.push_back(new TestScene(this));
+  scene_holder_.push_back(new SerializationTestScene(this));
     //initialize the starting scene
   next_scene_ = scene_holder_[0];
 

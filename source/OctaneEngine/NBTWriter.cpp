@@ -6,6 +6,9 @@
 // Load-time link with the networking library
 #pragma comment(lib, "ws2_32.lib")
 
+#include <OctaneEngine/Graphics/Colors.h>
+#include <DirectXMath.h>
+
 #include <OctaneEngine/Helper.h>
 #include <cassert>
 
@@ -90,7 +93,7 @@ void NBTWriter::EndCompound()
   }
   if (nesting.length == 0)
   {
-    Trace::Log(WARNING, "NBTWriter: Empty Compound - Compound Tag with no values.");
+    Trace::Log(WARNING, "NBTWriter: Empty Compound - Compound Tag with no values.\n");
   }
   nesting_info_.pop();
   WriteTag(TAG::End);
@@ -124,7 +127,7 @@ void NBTWriter::EndList()
   }
   if (nesting.length == 0)
   {
-    Trace::Log(WARNING, "NBTWriter: Empty List - List Tag with no values.");
+    Trace::Log(WARNING, "NBTWriter: Empty List - List Tag with no values.\n");
   }
 
   fpos_t current_file_pos;
@@ -139,17 +142,7 @@ void NBTWriter::EndList()
   nesting_info_.pop();
 }
 
-void NBTWriter::WriteString(string_view name, string_view str)
-{
-  HandleNesting(name, TAG::String);
-  // Tag and name information is only written for named tags
-  if (!name.empty())
-  {
-    WriteTag(TAG::String);
-    WriteStr(name);
-  }
-  WriteStr(str);
-}
+
 
 void NBTWriter::WriteByte(string_view name, int8_t b)
 {
@@ -233,6 +226,58 @@ void NBTWriter::WriteByteArray(string_view name, int8_t const* array, int32_t le
   WriteArrayLen(length);
   fwrite(&array, sizeof(array[0]), length, outfile_);
 }
+
+void NBTWriter::WriteString(string_view name, string_view str)
+{
+  HandleNesting(name, TAG::String);
+  // Tag and name information is only written for named tags
+  if (!name.empty())
+  {
+    WriteTag(TAG::String);
+    WriteStr(name);
+  }
+  WriteStr(str);
+}
+
+// Write specializations
+
+template <>
+void NBTWriter::Write(string_view name, int8_t b)
+{
+  WriteByte(name, b);
+}
+template<>
+void NBTWriter::Write(string_view name, int16_t s)
+{
+  WriteShort(name, s);
+}
+template<>
+void NBTWriter::Write(string_view name, int32_t i)
+{
+  WriteInt(name, i);
+}
+template<>
+void NBTWriter::Write(string_view name, int64_t l)
+{
+  WriteLong(name, l);
+}
+template<>
+void NBTWriter::Write(string_view name, float f)
+{
+  WriteFloat(name, f);
+}
+template<>
+void NBTWriter::Write(string_view name, double d)
+{
+  WriteDouble(name, d);
+}
+template<>
+void NBTWriter::Write(string_view name, string_view str)
+{
+  WriteString(name, str);
+}
+
+// private implementations
 
 void NBTWriter::WriteTag(TAG t)
 {

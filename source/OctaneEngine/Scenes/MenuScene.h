@@ -33,6 +33,6 @@ public:
   virtual SceneE GetEnum() const;
 
 private:
-  InputHandler& inhand_;
+  SceneE selected_scene_;
 };
 }

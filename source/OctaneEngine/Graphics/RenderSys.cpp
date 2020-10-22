@@ -88,7 +88,7 @@ void RenderSys::Update()
       dx::XMMATRIX object_world_matrix = dx::XMMatrixIdentity();
       dx::XMFLOAT3 scale = transform.scale;
       object_world_matrix *= dx::XMMatrixScaling(scale.x, scale.y, scale.z);
-      object_world_matrix *= dx::XMMatrixRotationAxis({0, 1, 0}, dx::XMConvertToRadians(transform.rotation));
+      object_world_matrix *= dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
       dx::XMFLOAT3 pos = transform.pos;
       object_world_matrix *= dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
 

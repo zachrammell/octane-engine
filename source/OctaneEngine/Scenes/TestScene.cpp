@@ -55,7 +55,7 @@ void TestScene::Load()
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color) {
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, MeshType mesh_type = MeshType::Cube) {
     // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& ent = entsys->GetEntity((ent_id));
@@ -64,12 +64,12 @@ void TestScene::Load()
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos = pos;
     trans.scale = scale;
-    trans.rotation = 0.0f;
+    trans.rotation = {};
     ComponentHandle const render_id = compsys->MakeRender();
     ent.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.color = color;
-    render_component.mesh_type = MeshType::Cube;
+    render_component.mesh_type = mesh_type;
   };
 
   // ground plane
@@ -87,7 +87,7 @@ void TestScene::Load()
     trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
-    trans.rotation = 0.0f;
+    trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj100_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
@@ -107,7 +107,7 @@ void TestScene::Load()
     trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
-    trans.rotation = 0.0f;
+    trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj101_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
@@ -135,6 +135,7 @@ void TestScene::Load()
   red_bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
   blue_bear_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
 }
+
 void TestScene::Start()
 {
   esc_menu = false;
@@ -142,6 +143,7 @@ void TestScene::Start()
   Get<RenderSys>()->SetClearColor(Colors::db32[19]);
   SDL_SetRelativeMouseMode(SDL_TRUE);
 }
+
 void TestScene::Update(float dt)
 {
   ImGui::Begin(
@@ -171,7 +173,7 @@ void TestScene::Update(float dt)
         trans.pos.y = 0.01f * 50 * 50;
         trans.pos.z = 0.33f * 50;
         trans.scale = {0.25f, 0.25f, 0.25f};
-        trans.rotation = 0.0f;
+        trans.rotation = {};
       }
 
       if (ImGui::Button("Default Bluebear Position"))
@@ -186,7 +188,7 @@ void TestScene::Update(float dt)
         trans.pos.y = 0.01f * 51 * 51;
         trans.pos.z = 0.33f * 51;
         trans.scale = {0.25f, 0.25f, 0.25f};
-        trans.rotation = 0.0f;
+        trans.rotation = {};
       }
 
       ImGui::TreePop();
