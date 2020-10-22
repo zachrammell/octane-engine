@@ -92,6 +92,9 @@ SupportPoint NarrowPhase::GenerateCSOSupport(Primitive* a, Primitive* b, const D
 bool NarrowPhase::GJKCollisionDetection(Primitive* a, Primitive* b, Simplex& simplex)
 {
   DirectX::XMVECTOR direction = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+  auto a_global = DirectX::XMLoadFloat3(&simplex.simplex_vertex_a.global);
+
   for (size_t i = 0; i < gjk_exit_count_; ++i)
   {
     if (Math::IsValid(direction) == false)
@@ -100,7 +103,7 @@ bool NarrowPhase::GJKCollisionDetection(Primitive* a, Primitive* b, Simplex& sim
       return false;
     }
     simplex.simplex_vertex_a = GenerateCSOSupport(a, b, direction);
-    if (Math::DotProductVector3(simplex.simplex_vertex_a.global, direction) < 0.0f)
+    if (Math::DotProductVector3(a_global, direction) < 0.0f)
     {
       return false;
     }
@@ -130,7 +133,7 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
       closest_face = prev_face;
       break;
     }
-    float distance = Math::DotProductVector3(support_point.global, closest_face.normal);
+    float distance = Math::DotProductVector3(DirectX::XMLoadFloat3(&support_point.global), closest_face.normal);
     if (distance - closest_face.distance < Math::EPSILON)
     {
       break;
@@ -154,16 +157,26 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
   }
   result.collider_a = a;
   result.collider_b = b;
+
+  auto a_a_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.a].local_a);
+  auto b_a_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.b].local_a);
+  auto c_a_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.c].local_a);
+
+  auto a_b_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.a].local_b);
+  auto b_b_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.b].local_b);
+  auto c_b_global = DirectX::XMLoadFloat3(&polytope.vertices[closest_face.c].local_b);
+
+
   result.local_position_a = DirectX::XMVectorAdd(
     DirectX::XMVectorAdd(
-      DirectX::XMVectorScale(polytope.vertices[closest_face.a].local_a, u),
-      DirectX::XMVectorScale(polytope.vertices[closest_face.b].local_a, v)),
-    DirectX::XMVectorScale(polytope.vertices[closest_face.c].local_a, w));
+      DirectX::XMVectorScale(a_a_global, u),
+      DirectX::XMVectorScale(b_a_global, v)),
+    DirectX::XMVectorScale(c_a_global, w));
   result.local_position_b = DirectX::XMVectorAdd(
     DirectX::XMVectorAdd(
-      DirectX::XMVectorScale(polytope.vertices[closest_face.a].local_b, u),
-      DirectX::XMVectorScale(polytope.vertices[closest_face.b].local_b, v)),
-    DirectX::XMVectorScale(polytope.vertices[closest_face.c].local_b, w));
+      DirectX::XMVectorScale(a_b_global, u),
+      DirectX::XMVectorScale(b_b_global, v)),
+    DirectX::XMVectorScale(c_b_global, w));
   result.global_position_a = a->GetRigidBody()->LocalToWorldPoint(result.local_position_a);
   result.global_position_b = b->GetRigidBody()->LocalToWorldPoint(result.local_position_b);
   result.is_valid = true;

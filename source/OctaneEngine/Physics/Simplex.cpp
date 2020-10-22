@@ -14,7 +14,7 @@ SupportPoint& Simplex::operator[](size_t index)
   }
 }
 
-SupportPoint Simplex::operator[](size_t index) const
+SupportPoint const& Simplex::operator[](size_t index) const
 {
   switch (index)
   {
@@ -28,7 +28,7 @@ SupportPoint Simplex::operator[](size_t index) const
 
 bool Simplex::DoSimplexPoint(DirectX::XMVECTOR& dir)
 {
-  dir = DirectX::XMVectorNegate(simplex_vertex_a.global);
+  dir = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&simplex_vertex_a.global));
   simplex_vertex_b = simplex_vertex_a;
   count = 1;
   return false;
@@ -36,8 +36,9 @@ bool Simplex::DoSimplexPoint(DirectX::XMVECTOR& dir)
 
 bool Simplex::DoSimplexLine(DirectX::XMVECTOR& dir)
 {
-  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(simplex_vertex_b.global, simplex_vertex_a.global);
-  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(simplex_vertex_a.global);
+  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&simplex_vertex_b.global), DirectX::XMLoadFloat3(&simplex_vertex_a.global));
+  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&simplex_vertex_a.global));
+
   dir = Math::CrossProductTwice(ab, ao);
   simplex_vertex_c = simplex_vertex_b;
   simplex_vertex_b = simplex_vertex_a;
@@ -47,9 +48,13 @@ bool Simplex::DoSimplexLine(DirectX::XMVECTOR& dir)
 
 bool Simplex::DoSimplexTriangle(DirectX::XMVECTOR& dir)
 {
-  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(simplex_vertex_a.global);
-  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(simplex_vertex_b.global, simplex_vertex_a.global);
-  DirectX::XMVECTOR ac = DirectX::XMVectorSubtract(simplex_vertex_c.global, simplex_vertex_a.global);
+  DirectX::XMVECTOR a_global = DirectX::XMLoadFloat3(&simplex_vertex_a.global);
+  DirectX::XMVECTOR b_global = DirectX::XMLoadFloat3(&simplex_vertex_b.global);
+  DirectX::XMVECTOR c_global = DirectX::XMLoadFloat3(&simplex_vertex_c.global);
+
+  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(a_global);
+  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(b_global, a_global);
+  DirectX::XMVECTOR ac = DirectX::XMVectorSubtract(c_global, a_global);
   DirectX::XMVECTOR abc = DirectX::XMVector3Cross(ab, ac);
   DirectX::XMVECTOR ab_abc = DirectX::XMVector3Cross(ab, abc);
   if (Math::DotProductVector3(ab_abc, ao) > 0.0f)
@@ -84,10 +89,15 @@ bool Simplex::DoSimplexTriangle(DirectX::XMVECTOR& dir)
 
 bool Simplex::DoSimplexTetrahedron(DirectX::XMVECTOR& dir)
 {
-  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(simplex_vertex_a.global);
-  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(simplex_vertex_b.global, simplex_vertex_a.global);
-  DirectX::XMVECTOR ac = DirectX::XMVectorSubtract(simplex_vertex_c.global, simplex_vertex_a.global);
-  DirectX::XMVECTOR ad = DirectX::XMVectorSubtract(simplex_vertex_d.global, simplex_vertex_a.global);
+  DirectX::XMVECTOR a_global = DirectX::XMLoadFloat3(&simplex_vertex_a.global);
+  DirectX::XMVECTOR b_global = DirectX::XMLoadFloat3(&simplex_vertex_b.global);
+  DirectX::XMVECTOR c_global = DirectX::XMLoadFloat3(&simplex_vertex_c.global);
+  DirectX::XMVECTOR d_global = DirectX::XMLoadFloat3(&simplex_vertex_d.global);
+
+  DirectX::XMVECTOR ao = DirectX::XMVectorNegate(a_global);
+  DirectX::XMVECTOR ab = DirectX::XMVectorSubtract(b_global, a_global);
+  DirectX::XMVECTOR ac = DirectX::XMVectorSubtract(c_global, a_global);
+  DirectX::XMVECTOR ad = DirectX::XMVectorSubtract(d_global, a_global);
   dir = DirectX::XMVector3Cross(ab, ac);
   if (Math::DotProductVector3(ao, dir) > 0.0f)
   {

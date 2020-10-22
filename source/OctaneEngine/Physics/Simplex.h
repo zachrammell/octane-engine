@@ -11,7 +11,7 @@ public:
   Simplex() = default;
   ~Simplex() = default;
   SupportPoint& operator[](size_t index);
-  SupportPoint operator[](size_t index) const;
+  SupportPoint const& operator[](size_t index) const;
 
   bool DoSimplexPoint(DirectX::XMVECTOR& dir);
   bool DoSimplexLine(DirectX::XMVECTOR& dir);

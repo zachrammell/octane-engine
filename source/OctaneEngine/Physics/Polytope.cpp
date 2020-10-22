@@ -37,33 +37,45 @@ PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const DirectX::XMVECTOR
 
 PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Simplex& simplex) : a(a), b(b), c(c)
 {
-  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
-    DirectX::XMVectorSubtract(simplex[b].global, simplex[a].global),
-    DirectX::XMVectorSubtract(simplex[c].global, simplex[a].global)));
+  auto a_global = DirectX::XMLoadFloat3(&simplex[a].global);
+  auto b_global = DirectX::XMLoadFloat3(&simplex[b].global);
+  auto c_global = DirectX::XMLoadFloat3(&simplex[c].global);
 
-  distance = Math::DotProductVector3(normal, simplex[a].global);
+  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
+    DirectX::XMVectorSubtract(b_global, a_global),
+    DirectX::XMVectorSubtract(c_global, a_global)));
+
+  distance = Math::DotProductVector3(normal, a_global);
 }
 
 PolytopeFace::PolytopeFace(size_t a, size_t b, size_t c, const Polytope& polytope) : a(a), b(b), c(c)
 {
-  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
-    DirectX::XMVectorSubtract(polytope.vertices[b].global, polytope.vertices[a].global),
-    DirectX::XMVectorSubtract(polytope.vertices[c].global, polytope.vertices[a].global)));
+  auto a_global = DirectX::XMLoadFloat3(&polytope.vertices[a].global);
+  auto b_global = DirectX::XMLoadFloat3(&polytope.vertices[b].global);
+  auto c_global = DirectX::XMLoadFloat3(&polytope.vertices[c].global);
 
-  distance = Math::DotProductVector3(normal, polytope.vertices[a].global);
+  normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
+    DirectX::XMVectorSubtract(b_global, a_global),
+    DirectX::XMVectorSubtract(c_global, a_global)));
+
+  distance = Math::DotProductVector3(normal, a_global);
   ;
 }
 
 PolytopeFace::PolytopeFace(const SupportPoint& point_a, const SupportPoint& point_b, const SupportPoint& point_c)
 {
+  auto a_global = DirectX::XMLoadFloat3(&point_a.global);
+  auto b_global = DirectX::XMLoadFloat3(&point_b.global);
+  auto c_global = DirectX::XMLoadFloat3(&point_c.global);
+
   a = point_a.index;
   b = point_b.index;
   c = point_c.index;
   normal = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(
-    DirectX::XMVectorSubtract(point_b.global, point_a.global),
-    DirectX::XMVectorSubtract(point_c.global, point_a.global)));
+    DirectX::XMVectorSubtract(b_global, a_global),
+    DirectX::XMVectorSubtract(c_global, a_global)));
 
-  distance = Math::DotProductVector3(normal, point_a.global);
+  distance = Math::DotProductVector3(normal, a_global);
 }
 
 PolytopeFace::~PolytopeFace() {}
@@ -146,9 +158,13 @@ void PolytopeFace::BarycentricCoordinates(
   float& w,
   Polytope* polytope) const
 {
-  DirectX::XMVECTOR v0 = DirectX::XMVectorSubtract(polytope->vertices[b].global, polytope->vertices[a].global);
-  DirectX::XMVECTOR v1 = DirectX::XMVectorSubtract(polytope->vertices[c].global, polytope->vertices[a].global);
-  DirectX::XMVECTOR v2 = DirectX::XMVectorSubtract(point, polytope->vertices[a].global);
+  auto a_global = DirectX::XMLoadFloat3(&polytope->vertices[a].global);
+  auto b_global = DirectX::XMLoadFloat3(&polytope->vertices[b].global);
+  auto c_global = DirectX::XMLoadFloat3(&polytope->vertices[c].global);
+
+  DirectX::XMVECTOR v0 = DirectX::XMVectorSubtract(b_global, a_global);
+  DirectX::XMVECTOR v1 = DirectX::XMVectorSubtract(c_global, a_global);
+  DirectX::XMVECTOR v2 = DirectX::XMVectorSubtract(point, a_global);
   float d00 = Math::DotProductVector3(v0, v0);
   float d01 = Math::DotProductVector3(v0, v1);
   float d11 = Math::DotProductVector3(v1, v1);
@@ -258,10 +274,15 @@ void Polytope::Expand(const SupportPoint& vertex)
 
 bool Polytope::IsFaceSeen(const PolytopeFace& face, const SupportPoint& vertex)
 {
-  DirectX::XMVECTOR v01 = DirectX::XMVectorSubtract(vertices[face.b].global, vertices[face.a].global);
-  DirectX::XMVECTOR v02 = DirectX::XMVectorSubtract(vertices[face.c].global, vertices[face.a].global);
+  auto a_global = DirectX::XMLoadFloat3(&vertices[face.a].global);
+  auto b_global = DirectX::XMLoadFloat3(&vertices[face.b].global);
+  auto c_global = DirectX::XMLoadFloat3(&vertices[face.c].global);
+  auto vertex_global = DirectX::XMLoadFloat3(&vertex.global);
+
+  DirectX::XMVECTOR v01 = DirectX::XMVectorSubtract(b_global, a_global);
+  DirectX::XMVECTOR v02 = DirectX::XMVectorSubtract(c_global, a_global);
   DirectX::XMVECTOR normal =DirectX::XMVector3Normalize( DirectX::XMVector3Cross(v01, v02));
-  return Math::DotProductVector3(normal, DirectX::XMVectorSubtract(vertex.global, vertices[face.a].global)) > 0.0f;
+  return Math::DotProductVector3(normal, DirectX::XMVectorSubtract(vertex_global, a_global)) > 0.0f;
 }
 
 void Polytope::AddEdge(size_t a, size_t b)

@@ -4,11 +4,23 @@ namespace Octane
 SupportPoint::SupportPoint() : global(), local_a(), local_b(), index(0) {}
 
 SupportPoint::SupportPoint(
-  const DirectX::XMVECTOR& global,
+  const DirectX::XMVECTOR& globalvec,
   const DirectX::XMVECTOR& local1,
   const DirectX::XMVECTOR& local2,
   size_t idx)
-  : global(global),
+  : index(idx)
+{
+  DirectX::XMStoreFloat3(&global, globalvec);
+  DirectX::XMStoreFloat3(&local_a, local1);
+  DirectX::XMStoreFloat3(&local_b, local2);
+}
+
+SupportPoint::SupportPoint(
+  const DirectX::XMFLOAT3& globalvec,
+  const DirectX::XMFLOAT3& local1,
+  const DirectX::XMFLOAT3& local2,
+  size_t idx)
+  : global(globalvec),
     local_a(local1),
     local_b(local2),
     index(idx)
@@ -37,28 +49,28 @@ SupportPoint& SupportPoint::operator=(const SupportPoint& rhs)
   return *this;
 }
 
-DirectX::XMVECTOR& SupportPoint::operator[](size_t i)
+DirectX::XMFLOAT3& SupportPoint::operator[](size_t i)
 {
   return (&global)[i];
 }
 
-DirectX::XMVECTOR SupportPoint::operator[](size_t i) const
+DirectX::XMFLOAT3 const& SupportPoint::operator[](size_t i) const
 {
   return (&global)[i];
 }
 
 bool SupportPoint::operator==(const SupportPoint& rhs)
 {
-  return Math::IsEqualVector3(global, rhs.global);
+  return global.x == rhs.global.x && global.y == rhs.global.y && global.z == rhs.global.z;
 }
 
 bool SupportPoint::operator==(const SupportPoint& rhs) const
 {
-  return Math::IsEqualVector3(global, rhs.global);
+  return global.x == rhs.global.x && global.y == rhs.global.y && global.z == rhs.global.z;
 }
 
 bool SupportPoint::IsValid() const
 {
-  return Math::IsValid(global);
+  return Math::IsValid(global.x) && Math::IsValid(global.y) && Math::IsValid(global.z);
 }
 } // namespace Octane
