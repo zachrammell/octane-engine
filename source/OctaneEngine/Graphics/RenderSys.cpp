@@ -53,9 +53,9 @@ RenderSys::RenderSys(Engine* parent_engine)
   addMesh(MeshType::Cube_Rounded, L"assets/models/cube_rounded.obj");
   addMesh(MeshType::Bear, L"assets/models/Bear.obj");
   addMesh(MeshType::Duck, L"assets/models/Duck.obj");
-  addMesh(MeshType::Crossbow, L"assets/models/PaperCrossbow.obj");
+  addMesh(MeshType::Crossbow, L"assets/models/Crossbow.obj");
   addMesh(MeshType::Plane, L"assets/models/PaperPlane.obj");
-  addMesh(MeshType::Shuriken, L"assets/models/PaperShuriken.obj");
+  addMesh(MeshType::Shuriken, L"assets/models/Shuriken.obj");
   addMesh(MeshType::Stack, L"assets/models/PaperStack.obj");
 
   device_dx11_.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
