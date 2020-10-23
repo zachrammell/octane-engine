@@ -2,7 +2,10 @@
 
 namespace Octane
 {
-Truncated::Truncated()  {}
+Truncated::Truncated()
+{
+  type_ = ePrimitiveType::Truncated;
+}
 
 Truncated::~Truncated() {}
 

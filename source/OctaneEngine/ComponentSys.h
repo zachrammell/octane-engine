@@ -1,10 +1,11 @@
 #pragma once
 
-#include <OctaneEngine/ISystem.h>
-#include <OctaneEngine/SystemOrder.h>
-#include <OctaneEngine/RenderComponent.h>
-#include <OctaneEngine/TransformComponent.h>
 #include <OctaneEngine/BehaviorComponent.h>
+#include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/PhysicsComponent.h>
+#include <OctaneEngine/RenderComponent.h>
+#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/TransformComponent.h>
 
 #include <EASTL/numeric_limits.h>
 #include <EASTL/vector.h>
@@ -16,6 +17,7 @@ enum class ComponentKind
 {
   Transform = 0,
   Render,
+  Physics,
   Behavior,
   COUNT,
 };
@@ -43,28 +45,34 @@ public:
   // does not initialize memory, it will be garbage
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
+  ComponentHandle MakePhysics();
   ComponentHandle MakeBehavior();
 
   // access actual data from id
   RenderComponent& GetRender(ComponentHandle id);
   TransformComponent& GetTransform(ComponentHandle id);
+  PhysicsComponent& GetPhysics(ComponentHandle id);
   BehaviorComponent& GetBehavior(ComponentHandle id);
 
   // currently no-ops, no memory management / re-use is done
   void FreeRender(ComponentHandle id);
   void FreeTransform(ComponentHandle id);
+  void FreePhysics(ComponentHandle id);
   void FreeBehavior(ComponentHandle id);
 
   eastl::vector<RenderComponent>::const_iterator RenderBegin() const { return render_comps_.cbegin(); }
   eastl::vector<RenderComponent>::const_iterator RenderEnd() const { return render_comps_.cend(); }
   eastl::vector<TransformComponent>::const_iterator TransformBegin() const { return transform_comps_.cbegin(); }
   eastl::vector<TransformComponent>::const_iterator TransformEnd() const { return transform_comps_.cend(); }
+  eastl::vector<PhysicsComponent>::const_iterator PhysicsBegin() const { return physics_comps_.cbegin(); }
+  eastl::vector<PhysicsComponent>::const_iterator PhysicsEnd() const { return physics_comps_.cend(); }
 
 private:
   static const SystemOrder ORDER = SystemOrder::Component;
 
   eastl::vector<RenderComponent> render_comps_;
   eastl::vector<TransformComponent> transform_comps_;
+  eastl::vector<PhysicsComponent> physics_comps_;
   eastl::vector<BehaviorComponent> behavior_comps_;
 };
 

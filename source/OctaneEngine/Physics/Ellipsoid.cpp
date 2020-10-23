@@ -2,7 +2,10 @@
 
 namespace Octane
 {
-Ellipsoid::Ellipsoid() {}
+Ellipsoid::Ellipsoid()
+{
+  type_ = ePrimitiveType::Ellipsoid;
+}
 
 Ellipsoid::~Ellipsoid() {}
 

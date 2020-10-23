@@ -2,7 +2,10 @@
 
 namespace Octane
 {
-Capsule::Capsule()  {}
+Capsule::Capsule()
+{
+  type_ = ePrimitiveType::Capsule;
+}
 
 Capsule::~Capsule() {}
 

@@ -2,7 +2,10 @@
 
 namespace Octane
 {
-Box::Box() : vertices_ {} {}
+Box::Box() : vertices_ {}
+{
+  type_ = ePrimitiveType::Box;
+}
 
 Box::~Box() {}
 

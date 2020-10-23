@@ -41,6 +41,7 @@ protected:
   DirectX::XMVECTOR local_centroid_; //vector3
   DirectX::XMMATRIX local_inertia_;  //matrix3x3
   RigidBody* rigid_body_ = nullptr;
+  ePrimitiveType type_;
 };
 
 } // namespace Octane
