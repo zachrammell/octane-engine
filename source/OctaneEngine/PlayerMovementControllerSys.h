@@ -36,6 +36,17 @@ private:
   DirectX::XMVECTOR CalcPlayerMoveDir();
   void FindPlayerID();
 
+  enum class MoveState {
+    STAND,
+    RUN,
+    CROUCH,
+    CROUCHWALK,
+    JUMP
+  } movementstate_;
+
+  void ExitState(MoveState);
+  void EnterState(MoveState);
+
   EntityID player_id_;
 };
 
