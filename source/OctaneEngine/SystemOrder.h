@@ -8,6 +8,7 @@ enum class SystemOrder : unsigned int
   FramerateController,
   InputHandler,
   ImGuiSys,
+  PlayerMovementControllerSys,
   CameraSys,
   WindowManager,
   World,
