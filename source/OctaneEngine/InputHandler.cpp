@@ -106,6 +106,12 @@ bool InputHandler::KeyHeld(SDL_KeyCode key)
   return (keys_[scancode] == HELD);
 }
 
+bool InputHandler::KeyPressedOrHeld(SDL_KeyCode key)
+{
+  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
+  return keys_[scancode] == PRESSED || keys_[scancode] == HELD;
+}
+
 bool InputHandler::KeyReleased(SDL_KeyCode key)
 {
   SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
@@ -116,5 +122,6 @@ DirectX::XMINT2 InputHandler::GetMouseMovement()
 {
   return mouse_movement_;
 }
+
 
 } // namespace Octane

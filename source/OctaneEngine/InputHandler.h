@@ -35,6 +35,7 @@ public:
 
   bool KeyPressed(SDL_KeyCode key);
   bool KeyHeld(SDL_KeyCode key);
+  bool KeyPressedOrHeld(SDL_KeyCode key);
   bool KeyReleased(SDL_KeyCode key);
 
   DirectX::XMINT2 GetMouseMovement();
