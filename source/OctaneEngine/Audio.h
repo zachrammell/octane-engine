@@ -11,7 +11,6 @@
 /******************************************************************************/
 #pragma once
 // Includes
-#include <OctaneEngine/ISystem.h>                                          // Engine Class
 #include <AK/SoundEngine/Common/AkSoundEngine.h>                           // Core Engine
 #include <AK/IBytes.h>
 #include <AK/SoundEngine/Common/AkMemoryMgr.h>                             // Memory Manager interface
@@ -21,6 +20,7 @@
 #include <SampleSoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>       // Sample low-level I/O implementation
 #include <AK/MusicEngine/Common/AkMusicEngine.h>                           // Music Engine
 #include <AK/SpatialAudio/Common/AkSpatialAudio.h>                         // Spatial Audio
+#include <OctaneEngine/ISystem.h>
 #include "Wwise_IDs.h"
 
 
@@ -34,48 +34,74 @@
 namespace Octane
 {
 
-
-static class Audio
+class Audio : public ISystem
 {
 public:
-  static bool Audio_Init();
-  static void Audio_Update();
-  static void Audio_Shutdown();
-  
+
+  explicit Audio(class Engine* parent_engine);
+
+  ~Audio() = default;
+
+  void Load() override;
+  void LevelStart() override;
+  void Update() override;
+  void LevelEnd() override;
+  void Unload() override;
+
+  static SystemOrder GetOrder();
+
+  bool AudioInit();
+  void AudioUpdate();
+  void AudioShutdown();
+
 private:
+  // Variables
+  AkMemSettings memSettings;
+  AkStreamMgrSettings stmSettings;
+  AkDeviceSettings deviceSettings;
+  AkInitSettings initSettings;
+  AkPlatformInitSettings platformInitSettings;
+  AkMusicSettings musicInit;
+
+#ifndef AK_OPTIMIZED
+  AkCommSettings commSettings;
+#endif // AK_OPTIMIZED
+  
+  
+
   // Setters
-  static void Set_Bank_Path(const AkOSChar*);
-  static void Set_Language(const AkOSChar*); // PASS IN "English(US)"
+  void Set_Bank_Path(const AkOSChar*);
+  void Set_Language(const AkOSChar*); // PASS IN "English(US)"
 
   // Getters
-  static const AkOSChar* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
-  static AkTimeMs Get_Position(AkPlayingID);
+  const AkOSChar* Get_Language(); // Not sure if the return value is convertible to const char * yet, but we'll see
+  AkTimeMs Get_Position(AkPlayingID);
 
   // Banks
-  static AkBankID Load_Bank(const char*);
-  static void Unload_Bank(const char*);
+  AkBankID Load_Bank(const char*);
+  void Unload_Bank(const char*);
 
   // Events
-  static void Play_Event(AkUniqueID, AkGameObjectID);
-  static AkPlayingID Play_Event_RI(AkUniqueID, AkGameObjectID);
+  void Play_Event(AkUniqueID, AkGameObjectID);
+  AkPlayingID Play_Event_RI(AkUniqueID, AkGameObjectID);
 
   // Game Objects
   // Every Game Object must have a AkGameObjectID if sound wants to be associated to the object
-  static void Register_Object(AkGameObjectID, const char*);
-  static void Unregister_Object(AkGameObjectID);
-  static void Unregister_All_Objects();
+  void Register_Object(AkGameObjectID, const char*);
+  void Unregister_Object(AkGameObjectID);
+  void Unregister_All_Objects();
 
   // Position
   // AkSoundPosition needs to be changed to whatever vector format we're using
-  static void Set_Position(AkGameObjectID, const AkSoundPosition&);
-  static void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
+  void Set_Position(AkGameObjectID, const AkSoundPosition&);
+  void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
 
   // Handle tabbing out
   // True = Partial on; Partial means to keep processing sound events
   // False = Completely suspend all sound
-  static void Suspend(bool partial);
-  static void Unsuspend();
-  static void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
+  void Suspend(bool partial);
+  void Unsuspend();
+  void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
 };
 }
 
@@ -83,4 +109,4 @@ private:
 // Put Init, Update, and Shutdown into game loop
 // register a game object
 // use Wwise IDs and event playing and game object to play a test sound
-// Implement the rest of the functions for now
+// Implement the rest of the functions for now 

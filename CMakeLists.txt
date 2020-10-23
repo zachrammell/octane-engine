@@ -48,6 +48,9 @@ target_link_libraries(IMGUI
 
 # Wwise
 set(WWISE_DIR "libraries/Wwise")
+# Not familiar with how CMake really works but I added this to make the include work
+# Feel free to change this as you see fit
+include_directories("${WWISE_DIR}")
 set(WWISE_INCLUDE_DIR "${WWISE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Common")
 if (CMAKE_BUILD_TYPE MATCHES DEBUG)
   file(GLOB WWISE_BINARIES "${WWISE_DIR}/Debug/lib/*.lib")

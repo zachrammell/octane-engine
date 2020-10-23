@@ -12,6 +12,7 @@
 
 // Main include
 #include <OctaneEngine/Audio.h>
+#include <OctaneEngine/SystemOrder.h>
 #include <cassert>
 #include <iostream>
 
@@ -24,10 +25,10 @@ CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
 namespace Octane
 {
-bool Audio::Audio_Init()
+
+bool Audio::AudioInit()
 {
   // Initialize memory manager
-  AkMemSettings memSettings;
   AK::MemoryMgr::GetDefaultSettings(memSettings);
   if (AK::MemoryMgr::Init(&memSettings) != AK_Success)
   {
@@ -36,7 +37,6 @@ bool Audio::Audio_Init()
   }
 
   // Initialize streaming manager
-  AkStreamMgrSettings stmSettings;
   AK::StreamMgr::GetDefaultSettings(stmSettings);
   // Customize the Stream Manager settings here.
   if (!AK::StreamMgr::Create(stmSettings))
@@ -46,7 +46,6 @@ bool Audio::Audio_Init()
   }
 
   // Create a streaming device with blocking low-level I/O handshaking.
-  AkDeviceSettings deviceSettings;
   AK::StreamMgr::GetDefaultDeviceSettings(deviceSettings);
   // Customize the streaming device settings here.
   // CAkFilePackageLowLevelIOBlocking::Init() creates a streaming device
@@ -59,8 +58,6 @@ bool Audio::Audio_Init()
 
   // Create the Sound Engine
   // Using default initialization parameters
-  AkInitSettings initSettings;
-  AkPlatformInitSettings platformInitSettings;
   AK::SoundEngine::GetDefaultInitSettings(initSettings);
   AK::SoundEngine::GetDefaultPlatformInitSettings(platformInitSettings);
   if (AK::SoundEngine::Init(&initSettings, &platformInitSettings) != AK_Success)
@@ -71,7 +68,6 @@ bool Audio::Audio_Init()
 
   // Initialize the music engine
   // Using default initialization parameters
-  AkMusicSettings musicInit;
   AK::MusicEngine::GetDefaultInitSettings(musicInit);
   if (AK::MusicEngine::Init(&musicInit) != AK_Success)
   {
@@ -90,7 +86,6 @@ bool Audio::Audio_Init()
 
 #ifndef AK_OPTIMIZED
   // Initialize communications (not in release build!)
-  AkCommSettings commSettings;
   AK::Comm::GetDefaultInitSettings(commSettings);
   if (AK::Comm::Init(commSettings) != AK_Success)
   {
@@ -102,16 +97,15 @@ bool Audio::Audio_Init()
   return true;
 }
 
-void Audio::Audio_Update()
+void Audio::AudioUpdate()
 {
-  // Recurring call to process everything
   AK::SoundEngine::RenderAudio();
 }
 
-void Audio::Audio_Shutdown()
+void Audio::AudioShutdown()
 {
   // Shutting down Wwise will be implemented here
-  // Start from last initialized to first
+// Start from last initialized to first
 #ifndef AK_OPTIMIZED
   // Terminate Communication Services
   AK::Comm::Term();
@@ -286,5 +280,40 @@ void Audio::Restart_Render()
   AK::SoundEngine::RenderAudio();
 }
 
+
+Audio::Audio(Engine* parent_engine) : ISystem(parent_engine)
+{
+  if (!AudioInit())
+  {
+    std::cerr << "Audio Engine failed initializing!" << std::endl;
+  }
+}
+
+void Audio::Load()
+{
+}
+
+void Audio::LevelStart()
+{
+}
+
+void Audio::Update()
+{
+  AudioUpdate();
+}
+
+void Audio::LevelEnd()
+{
+}
+
+void Audio::Unload()
+{
+  AudioShutdown();
+}
+
+SystemOrder Audio::GetOrder()
+{
+  return SystemOrder::Audio;
+}
 
 }

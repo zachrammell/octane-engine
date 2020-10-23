@@ -15,6 +15,7 @@ enum class SystemOrder : unsigned int
   Entity,
   Component,
   RenderSys,
+  Audio,
   // must be last, do not add anything after it.
   COUNT
 };
