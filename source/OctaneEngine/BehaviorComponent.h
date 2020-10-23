@@ -14,7 +14,8 @@ enum class BHVRType
 };
 
 struct BehaviorComponent {
-  BHVRType type;
+  BHVRType type = BHVRType::INVALID;
+  bool initialized = false;
 };
 
 }

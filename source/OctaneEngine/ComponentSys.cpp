@@ -46,7 +46,8 @@ ComponentHandle ComponentSys::MakeTransform()
 
 ComponentHandle ComponentSys::MakeBehavior()
 {
-  behavior_comps_.push_back_uninitialized();
+  behavior_comps_.push_back(BehaviorComponent());
+
   return static_cast<ComponentHandle>(behavior_comps_.size() - 1);
 }
 } // namespace Octane

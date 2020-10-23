@@ -30,11 +30,35 @@ BehaviorSys::BehaviorSys(Engine* engine) : ISystem(engine)
 void BehaviorSys::Load()
 {
   entsys_ = engine_.GetSystem<EntitySys>();
+
+   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  {
+    if (it->HasComponent(ComponentKind::Behavior))
+    {
+      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+
+      if (!beh.initialized)
+      {
+        if (beh.type == BHVRType::INVALID)
+        {
+          Trace::Log(WARNING) << "cannot initialize a behavior of INVALID type" << std::endl;
+        }
+        else
+        {
+          //initialize stuff
+          Trace::Log(DEBUG) << "intiialized behavior of type: " << magic_enum::enum_name(beh.type) << std::endl;
+        }
+
+        beh.initialized = true;
+      }
+    }
+  }
 }
 
 void BehaviorSys::LevelStart()
 {
-
+ 
 }
 
 void BehaviorSys::Update()
@@ -43,20 +67,46 @@ void BehaviorSys::Update()
   {
     if (it->HasComponent(ComponentKind::Behavior))
     {
-     // auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
       //std::cout << magic_enum::enum_name(engine_.GetSystem<ComponentSys>()->GetBehavior(handle).type) << std::endl;
+
+      if (!beh.initialized)
+      {
+        if (beh.type == BHVRType::INVALID)
+        {
+          Trace::Log(WARNING) << "cannot initialize a behavior of INVALID type" << std::endl;
+        }
+        else
+        {
+          //initialize stuff
+        }
+
+        beh.initialized = true;
+      }
+
+      switch (beh.type)
+      {
+      case BHVRType::PLAYER :
+          //update player
+          break;
+      case BHVRType::WINDTUNNEL: 
+          break;
+      default: 
+          break;
+      }
     }
   }
 }
 
 void BehaviorSys::LevelEnd()
 {
-
+  
 }
 
 void BehaviorSys::Unload()
 {
-
+    //unload initialized behaviors
 }
 
 SystemOrder BehaviorSys::GetOrder()
