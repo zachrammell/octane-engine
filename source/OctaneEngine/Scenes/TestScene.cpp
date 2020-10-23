@@ -206,11 +206,21 @@ void TestScene::Update(float dt)
         ComponentHandle trans_id = compsys->MakeTransform();
         obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
         TransformComponent& trans = compsys->GetTransform(trans_id);
-        trans.pos.x = 0.25f * 50;
-        trans.pos.y = 0.01f * 50 * 50;
-        trans.pos.z = 0.33f * 50;
+        trans.pos.x = 2.0f;
+        trans.pos.y = 2.0f;
+        trans.pos.z = 0.0f;
         trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = {};
+
+        auto& red_bear_pos1
+          = Get<ComponentSys>()
+              ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
+              .pos;
+
+        //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
+        red_bear_physics.rigid_body->SyncToPosition(red_bear_pos1);
+
+        dt = 0.f;
       }
 
       if (ImGui::Button("Default Bluebear Position"))
@@ -221,11 +231,21 @@ void TestScene::Update(float dt)
         ComponentHandle trans_id = compsys->MakeTransform();
         obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
         TransformComponent& trans = compsys->GetTransform(trans_id);
-        trans.pos.x = 0.25f * 51;
-        trans.pos.y = 0.01f * 51 * 51;
-        trans.pos.z = 0.33f * 51;
+        trans.pos.x = -2.0f;
+        trans.pos.y = 2.0f;
+        trans.pos.z = 0.0f;
         trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = {};
+
+        auto& blue_bear_pos1
+          = Get<ComponentSys>()
+              ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
+              .pos;
+
+        //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
+        blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos1);
+
+        dt = 0.f;
       }
 
       ImGui::TreePop();
