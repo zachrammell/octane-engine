@@ -20,6 +20,8 @@
 #include <iostream>
 #include <magic_enum.hpp>
 
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
+
 namespace Octane
 {
 BehaviorSys::BehaviorSys(Engine* engine) : ISystem(engine)
@@ -31,7 +33,7 @@ void BehaviorSys::Load()
 {
   entsys_ = engine_.GetSystem<EntitySys>();
 
-   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
     if (it->HasComponent(ComponentKind::Behavior))
     {
@@ -47,10 +49,25 @@ void BehaviorSys::Load()
         else
         {
           //initialize stuff
-          Trace::Log(DEBUG) << "intiialized behavior of type: " << magic_enum::enum_name(beh.type) << std::endl;
+          Trace::Log(DEBUG) << "intialized behavior of type: " << magic_enum::enum_name(beh.type) << std::endl;
+
+          if (beh.behavior == nullptr)
+          {
+
+            switch (beh.type)
+            {
+            case BHVRType::PLAYER:
+                beh.behavior = new WindTunnelBHV();
+                break;
+            case BHVRType::WINDTUNNEL:
+                beh.behavior = new WindTunnelBHV();
+                break;
+            default: break;
+            }
+          }
         }
 
-        beh.initialized = true;
+
       }
     }
   }
@@ -58,7 +75,23 @@ void BehaviorSys::Load()
 
 void BehaviorSys::LevelStart()
 {
- 
+  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  {
+    if (it->HasComponent(ComponentKind::Behavior))
+    {
+      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+
+      if (!beh.initialized)
+      {
+        if (beh.behavior != nullptr)
+        {
+          beh.behavior->Initialize();
+          beh.initialized = true;
+        }
+      }
+    }
+  }
 }
 
 void BehaviorSys::Update()
@@ -80,20 +113,31 @@ void BehaviorSys::Update()
         else
         {
           //initialize stuff
+          if (beh.behavior == nullptr)
+          {
+
+            switch (beh.type)
+            {
+            case BHVRType::PLAYER: 
+                beh.behavior = new WindTunnelBHV(); 
+                break;
+            case BHVRType::WINDTUNNEL: 
+                beh.behavior = new WindTunnelBHV(); 
+                break;
+            default: break;
+            }
+          }
+
+          beh.behavior->Initialize();
         }
 
         beh.initialized = true;
       }
 
-      switch (beh.type)
+      if (beh.type == BHVRType::INVALID)
       {
-      case BHVRType::PLAYER :
-          //update player
-          break;
-      case BHVRType::WINDTUNNEL: 
-          break;
-      default: 
-          break;
+        beh.behavior->Update();
+        
       }
     }
   }
@@ -101,12 +145,49 @@ void BehaviorSys::Update()
 
 void BehaviorSys::LevelEnd()
 {
-  
+  if (entsys_ == nullptr)
+  {
+    return;
+  }
+  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  {
+    if (it->HasComponent(ComponentKind::Behavior))
+    {
+      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+
+      if (!beh.initialized)
+      {
+        if (beh.behavior != nullptr)
+        {
+          beh.behavior->Shutdown();
+          beh.initialized = false;
+        }
+      }
+    }
+  }
 }
 
 void BehaviorSys::Unload()
 {
+  if (entsys_ == nullptr)
+  {
+    return;
+  }
     //unload initialized behaviors
+  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  {
+    if (it->HasComponent(ComponentKind::Behavior))
+    {
+      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+
+      if (beh.behavior != nullptr)
+      {
+        delete beh.behavior;
+      }
+    }
+  }
 }
 
 SystemOrder BehaviorSys::GetOrder()

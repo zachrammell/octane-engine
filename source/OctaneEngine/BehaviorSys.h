@@ -37,7 +37,7 @@ public:
 
 
 private:
-  EntitySys* entsys_;
+  EntitySys* entsys_ = nullptr;
 };
 
 }

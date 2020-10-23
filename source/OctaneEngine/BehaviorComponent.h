@@ -4,6 +4,8 @@
 
 namespace Octane {
 
+class IBehavior;
+
 enum class BHVRType
 {
 	PLAYER,
@@ -16,6 +18,7 @@ enum class BHVRType
 struct BehaviorComponent {
   BHVRType type = BHVRType::INVALID;
   bool initialized = false;
+  IBehavior* behavior= nullptr;
 };
 
 }

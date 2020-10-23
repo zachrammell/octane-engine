@@ -11,9 +11,26 @@
 /******************************************************************************/
 
 // Main include
-#include "WindTunnelBhv.h"
-
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <iostream>
 namespace Octane
 {
+
+WindTunnelBHV::WindTunnelBHV() {}
+
+void WindTunnelBHV::Initialize() 
+{
+  std::cout << "tunnel init" << std::endl;
+}
+
+void WindTunnelBHV::Update() 
+{
+  std::cout << "tunnel update" << std::endl;
+}
+
+void WindTunnelBHV::Shutdown()
+{
+  std::cout << "tunnel shutdown" << std::endl;
+}
 
 }

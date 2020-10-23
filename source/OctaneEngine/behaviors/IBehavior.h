@@ -1,10 +1,10 @@
 ﻿/******************************************************************************/
 /*!
   \par        Project Octane
-  \file       WindTunnelBhv.h
+  \file       IBehavior.h
   \author     Lowell Novitch
   \date       2020/10/23
-  \brief      behavior for wind tunnels
+  \brief      behavior interface class
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
@@ -12,21 +12,20 @@
 #pragma once
 
 // Includes
-#include <OctaneEngine/behaviors/IBehavior.h>
 
 namespace Octane
 {
 
-class WindTunnelBHV final: public IBehavior
+class IBehavior
 {
 public:
-  explicit WindTunnelBHV();
+  explicit IBehavior() {};
 
-  ~WindTunnelBHV() = default;
+  virtual ~IBehavior() = default;
 
-   void Initialize() override;
-   void Update() override ;
-   void Shutdown() override;
+  virtual void Initialize() = 0;
+  virtual void Update() = 0;
+  virtual void Shutdown() = 0;
 
 };
 
