@@ -59,10 +59,16 @@ else()
 endif()
 file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/*.cpp")
 if (WIN32)
-  file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp")
-  set(WWISE_INCLUDE_DIR "${WWISE_INCLUDE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Win32")
+  file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp" "${WWISE_DIR}/SampleSoundEngine/Common/*.cpp")
+  set(WWISE_INCLUDE_DIR ${WWISE_INCLUDE_DIR} "${WWISE_DIR}/SampleSoundEngine/Win32")
 endif()
-add_library(WWISE STATIC ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
+add_library(WWISE ${WWISE_SAMPLE_SOURCES})
+target_link_libraries(WWISE PRIVATE
+  ${WWISE_BINARIES}
+  dsound.lib
+  dxguid.lib
+  ws2_32.lib
+)
 target_compile_definitions(WWISE PRIVATE UNICODE)
 set_target_properties(WWISE PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(WWISE PUBLIC ${WWISE_INCLUDE_DIR})
