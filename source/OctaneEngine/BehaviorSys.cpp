@@ -66,9 +66,8 @@ void BehaviorSys::Load()
             }
           }
         }
-
-
       }
+
     }
   }
 }
@@ -134,7 +133,7 @@ void BehaviorSys::Update()
         beh.initialized = true;
       }
 
-      if (beh.type == BHVRType::INVALID)
+      if (beh.type != BHVRType::INVALID)
       {
         beh.behavior->Update();
         
@@ -156,7 +155,7 @@ void BehaviorSys::LevelEnd()
       auto handle = it->GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
 
-      if (!beh.initialized)
+      if (beh.initialized)
       {
         if (beh.behavior != nullptr)
         {
