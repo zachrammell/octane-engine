@@ -15,6 +15,7 @@ struct GameEntity
   eastl::array<ComponentHandle, to_integral(ComponentKind::COUNT)> components;
 
   ComponentHandle& GetComponentHandle(ComponentKind which);
+  bool HasComponent(ComponentKind which);
 };
 
 }

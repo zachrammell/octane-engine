@@ -7,6 +7,7 @@
 
 #include "RenderComponent.h"
 #include "TransformComponent.h"
+#include "BehaviorComponent.h"
 
 namespace Octane
 {
@@ -15,6 +16,7 @@ enum class ComponentKind
 {
   Transform = 0,
   Render,
+  Behavior,
   COUNT,
 };
 
@@ -41,14 +43,17 @@ public:
   // does not initialize memory, it will be garbage
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
+  ComponentHandle MakeBehavior();
 
   // access actual data from id
   RenderComponent& GetRender(ComponentHandle id);
   TransformComponent& GetTransform(ComponentHandle id);
+  BehaviorComponent& GetBehavior(ComponentHandle id);
 
   // currently no-ops, no memory management / re-use is done
   void FreeRender(ComponentHandle id);
   void FreeTransform(ComponentHandle id);
+  void FreeBehavior(ComponentHandle id);
 
   eastl::vector<RenderComponent>::const_iterator RenderBegin() const { return render_comps_.cbegin(); }
   eastl::vector<RenderComponent>::const_iterator RenderEnd() const { return render_comps_.cend(); }
@@ -60,6 +65,7 @@ private:
 
   eastl::vector<RenderComponent> render_comps_;
   eastl::vector<TransformComponent> transform_comps_;
+  eastl::vector<BehaviorComponent> behavior_comps_;
 };
 
 } // namespace Octane

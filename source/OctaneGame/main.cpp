@@ -39,6 +39,7 @@
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Audio.h>
 
 namespace fs = std::filesystem;
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::ComponentSys {&engine});
   engine.AddSystem(new Octane::SceneSys {&engine});
   engine.AddSystem(new Octane::RenderSys {&engine});
+  engine.AddSystem(new Octane::BehaviorSys {&engine});
   // depends on WindowSys and RenderSys
   engine.AddSystem(new Octane::ImGuiSys {&engine});
   //engine.AddSystem(new Octane::Audio {&engine});

@@ -115,6 +115,12 @@ void TestScene::Load()
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::blue;
     render_comp.mesh_type = MeshType::Bear;
+
+    //this is test code, it does nothing so dont worry about it 
+    ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
+    obj101_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
+    BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
+    beh_comp.type = BHVRType::INVALID;
   }
 
   #if 0

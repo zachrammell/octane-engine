@@ -12,6 +12,7 @@ enum class SystemOrder : unsigned int
   CameraSys,
   WindowManager,
   World,
+  Behavior,
   Scene,
   Entity,
   Component,
