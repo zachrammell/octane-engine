@@ -37,12 +37,13 @@ namespace
 
 Octane::EntityID red_bear_id;
 Octane::EntityID blue_bear_id;
+Octane::EntityID wind_tunnel_id;
 
 struct PhysicsComponentTemp
 {
   Octane::RigidBody* rigid_body;
   Octane::Primitive* primitive;
-} red_bear_physics, blue_bear_physics;
+} red_bear_physics, blue_bear_physics, wind_tunnel_physics;
 
 } // namespace
 
@@ -116,6 +117,28 @@ void TestScene::Load()
     render_comp.mesh_type = MeshType::Bear;
   }
 
+  #if 0
+  
+  wind_tunnel_id = Get<EntitySys>()->MakeEntity();
+
+  {
+    GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.0f;
+    trans.pos.y = 1.0f;
+    trans.pos.z = 5.0f;
+    trans.scale = {2.0f, 2.0f, 2.0f};
+    trans.rotation = {};
+
+    ComponentHandle render_comp_id = compsys->MakeRender();
+    obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Colors::white;
+    render_comp.mesh_type = MeshType::Cube;
+  }
+  #endif
   auto* world = Get<PhysicsSys>();
 
   red_bear_physics.rigid_body = world->AddRigidBody();
@@ -131,9 +154,16 @@ void TestScene::Load()
   blue_bear_physics.rigid_body->SetLinearConstraints(constraints);
   blue_bear_physics.rigid_body->SetAngularConstraints(constraints);
   blue_bear_physics.primitive = world->AddPrimitive(blue_bear_physics.rigid_body, ePrimitiveType::Ellipsoid);
-
+  #if 0
+  wind_tunnel_physics.rigid_body = world->AddRigidBody();
+  wind_tunnel_physics.rigid_body->SetLinearConstraints(constraints);
+  wind_tunnel_physics.rigid_body->SetAngularConstraints(constraints);
+  wind_tunnel_physics.primitive = world->AddPrimitive(wind_tunnel_physics.rigid_body, ePrimitiveType::Box);
+  static_cast<Box*>(wind_tunnel_physics.primitive)->SetBox(2.0f, 2.0f, 2.0f);
+  #endif
   red_bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
   blue_bear_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
+  //wind_tunnel_physics.rigid_body->SyncFromPosition({0.f, 1.f, 5.f});
 }
 
 void TestScene::Start()
