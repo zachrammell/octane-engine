@@ -3,6 +3,7 @@
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/Engine.h>
 
 #include <SDL_keycode.h>
 
