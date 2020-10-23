@@ -1,4 +1,4 @@
-#include "EntitySys.h"
+#include <OctaneEngine/EntitySys.h>
 
 #include <iostream> // error logging
 

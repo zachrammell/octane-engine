@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ISystem.h"
-#include "SystemOrder.h"
+#include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/RenderComponent.h>
+#include <OctaneEngine/TransformComponent.h>
+#include <OctaneEngine/BehaviorComponent.h>
+
 #include <EASTL/numeric_limits.h>
 #include <EASTL/vector.h>
-
-#include "RenderComponent.h"
-#include "TransformComponent.h"
-#include "BehaviorComponent.h"
 
 namespace Octane
 {

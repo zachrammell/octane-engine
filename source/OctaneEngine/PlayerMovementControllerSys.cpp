@@ -1,4 +1,4 @@
-#include "PlayerMovementControllerSys.h"
+#include <OctaneEngine/PlayerMovementControllerSys.h>
 
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
@@ -169,7 +169,8 @@ void PlayerMovementControllerSys::Update()
 
       // clamp new_vel to max airspeed
       float squarespeed = DirectX::XMVector3LengthSq(new_vel).m128_f32[0];
-      if (squarespeed > PLAYER_AIRSTRAFE_MAXSPEED * PLAYER_AIRSTRAFE_MAXSPEED) {
+      if (squarespeed > PLAYER_AIRSTRAFE_MAXSPEED * PLAYER_AIRSTRAFE_MAXSPEED)
+      {
         new_vel = DirectX::XMVectorScale(DirectX::XMVector3Normalize(new_vel), PLAYER_AIRSTRAFE_MAXSPEED);
       }
     }

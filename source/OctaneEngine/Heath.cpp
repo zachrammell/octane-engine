@@ -6,12 +6,12 @@
   \date       2020/10/20
   \brief      Class for HP for entities
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
 // Main include
-#include "Heath.h"
+#include <OctaneEngine/Heath.h>
 namespace Octane
 {
 Health::Health(int maxHP) :maxHP_(maxHP), currentHP_(maxHP)
