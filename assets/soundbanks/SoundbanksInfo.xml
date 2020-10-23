@@ -21,6 +21,22 @@
 			<ShortName>Main</ShortName>
 			<Path>Main.bnk</Path>
 			<IncludedEvents>
+				<Event Id="1205999388" Name="Enemy_Death" ObjectPath="\Events\Default Work Unit\Enemy_Death">
+					<IncludedMemoryFiles>
+						<File Id="987537408" Language="SFX">
+							<ShortName>enemy_death.wav</ShortName>
+							<Path>SFX\enemy_death_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1526102535" Name="Enemy_Spawn" ObjectPath="\Events\Default Work Unit\Enemy_Spawn">
+					<IncludedMemoryFiles>
+						<File Id="237714643" Language="SFX">
+							<ShortName>enemy_spawn.wav</ShortName>
+							<Path>SFX\enemy_spawn_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 				<Event Id="3092211194" Name="Explosion_Laser" ObjectPath="\Events\Default Work Unit\Explosion_Laser">
 					<IncludedMemoryFiles>
 						<File Id="172320610" Language="SFX">
@@ -57,6 +73,14 @@
 						</File>
 					</IncludedMemoryFiles>
 				</Event>
+				<Event Id="278617630" Name="Play_Ambience" ObjectPath="\Events\Default Work Unit\Play_Ambience">
+					<IncludedMemoryFiles>
+						<File Id="825500729" Language="SFX">
+							<ShortName>ambience.wav</ShortName>
+							<Path>SFX\ambience_D79FB2B7.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 				<Event Id="860775431" Name="Play_ButtonBack" ObjectPath="\Events\Default Work Unit\Play_ButtonBack">
 					<IncludedMemoryFiles>
 						<File Id="121146813" Language="SFX">
@@ -78,6 +102,42 @@
 						<File Id="482488142" Language="SFX">
 							<ShortName>ButtonSelect.wav</ShortName>
 							<Path>SFX\ButtonSelect_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="4285763406" Name="Play_Crossbow" ObjectPath="\Events\Default Work Unit\Play_Crossbow">
+					<IncludedMemoryFiles>
+						<File Id="492977736" Language="SFX">
+							<ShortName>crossbow_fire_3.wav</ShortName>
+							<Path>SFX\crossbow_fire_3_10C4C929.wem</Path>
+						</File>
+						<File Id="550157343" Language="SFX">
+							<ShortName>crossbow_fire_2.wav</ShortName>
+							<Path>SFX\crossbow_fire_2_10C4C929.wem</Path>
+						</File>
+						<File Id="564887950" Language="SFX">
+							<ShortName>crossbow_fire_1.wav</ShortName>
+							<Path>SFX\crossbow_fire_1_10C4C929.wem</Path>
+						</File>
+						<File Id="927845912" Language="SFX">
+							<ShortName>crossbow_fire_4.wav</ShortName>
+							<Path>SFX\crossbow_fire_4_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="2574533045" Name="Play_CrossbowReload" ObjectPath="\Events\Default Work Unit\Play_CrossbowReload">
+					<IncludedMemoryFiles>
+						<File Id="601987283" Language="SFX">
+							<ShortName>crossbow_reload.wav</ShortName>
+							<Path>SFX\crossbow_reload_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="3083087645" Name="Player_Death" ObjectPath="\Events\Default Work Unit\Player_Death">
+					<IncludedMemoryFiles>
+						<File Id="866153004" Language="SFX">
+							<ShortName>player_death.wav</ShortName>
+							<Path>SFX\player_death_10C4C929.wem</Path>
 						</File>
 					</IncludedMemoryFiles>
 				</Event>
@@ -129,6 +189,7 @@
 						</File>
 					</IncludedMemoryFiles>
 				</Event>
+				<Event Id="2477713992" Name="Stop_Ambience" ObjectPath="\Events\Default Work Unit\Stop_Ambience"/>
 				<Event Id="3991482221" Name="Stop_TestMusic" ObjectPath="\Events\Default Work Unit\Stop_TestMusic"/>
 				<Event Id="1324413170" Name="TestMusic" ObjectPath="\Events\Default Work Unit\TestMusic">
 					<IncludedMemoryFiles>
