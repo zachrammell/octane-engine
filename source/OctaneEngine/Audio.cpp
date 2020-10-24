@@ -13,6 +13,7 @@
 // Main include
 #include <OctaneEngine/Audio.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/Trace.h>
 #include <cassert>
 #include <iostream>
 
@@ -180,7 +181,7 @@ AkBankID Audio::Load_Bank(const char* name)
   
   if (AK::SoundEngine::LoadBank(name, bankID) != AK_Success)
   {
-    std::cerr << "Bank load '" << name << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Bank load '" << name << "' failed!" << std::endl;
   }
 
   return bankID;
@@ -190,7 +191,7 @@ void Audio::Unload_Bank(const char* name)
 {
   if (AK::SoundEngine::UnloadBank(name, NULL) != AK_Success)
   {
-    std::cerr << "Bank unload '" << name << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Bank unload '" << name << "' failed!" << std::endl;
   }
 }
 
@@ -198,7 +199,7 @@ void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
 {
   if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) != AK_Success)
   {
-    std::cerr << "Event posting '" << UniqueID << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
   }
 }
 
@@ -209,7 +210,7 @@ AkPlayingID Audio::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectI
 
   if (PlayingID == NULL)
   {
-    std::cerr << "Event posting '" << UniqueID << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
   }
 
   return PlayingID;
@@ -219,7 +220,7 @@ void Audio::Register_Object(AkGameObjectID id, const char* name)
 {
   if (AK::SoundEngine::RegisterGameObj(id, name) != AK_Success)
   {
-    std::cerr << "Object registration '" << name << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Object registration '" << name << "' failed!" << std::endl;
   }
 }
 
@@ -227,7 +228,7 @@ void Audio::Unregister_Object(AkGameObjectID id)
 {
   if (AK::SoundEngine::UnregisterGameObj(id) != AK_Success)
   {
-    std::cerr << "Unregistering object '" << id << "' failed!" << std::endl;
+    Trace::Log(ERROR) << "Unregistering object '" << id << "' failed!" << std::endl;
   }
 }
 
@@ -235,7 +236,7 @@ void Audio::Unregister_All_Objects()
 {
   if (AK::SoundEngine::UnregisterAllGameObj() != AK_Success)
   {
-    std::cerr << "Unregistering all objects failed!" << std::endl;
+    Trace::Log(ERROR) << "Unregistering all objects failed!" << std::endl;
   }
 }
 
@@ -253,7 +254,7 @@ void Audio::Set_Position(AkGameObjectID object, const AkSoundPosition& position_
   
   if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
   {
-    std::cerr << "Position setting failed!" << std::endl;
+    Trace::Log(ERROR) << "Position setting failed!" << std::endl;
   }
 }
 
@@ -261,7 +262,7 @@ void Audio::Set_Multiple_Positions(AkGameObjectID object, const AkSoundPosition*
 {
   if (AK::SoundEngine::SetMultiplePositions(object, position_, NumPositions) != AK_Success)
   {
-    std::cerr << "Multiple position setting failed!" << std::endl;
+    Trace::Log(ERROR) << "Multiple position setting failed!" << std::endl;
   }
 }
 
@@ -285,7 +286,7 @@ Audio::Audio(Engine* parent_engine) : ISystem(parent_engine)
 {
   if (!AudioInit())
   {
-    std::cerr << "Audio Engine failed initializing!" << std::endl;
+    Trace::Log(ERROR) << "Audio Engine failed initializing!" << std::endl;
   }
 }
 
