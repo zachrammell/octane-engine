@@ -19,6 +19,12 @@
 #include <EASTL/fixed_vector.h>
 // Includes
 
+//forward declarations
+struct aiScene;
+struct aiNode;
+struct aiMesh;
+
+
 namespace Octane
 {
 
@@ -43,6 +49,11 @@ public:
 private:
   GraphicsDeviceDX11 device_dx11_;
   eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
+  //eastl::fixed_vector<Model, to_integral(MeshType::COUNT), false> models_;
+
+  Mesh LoadMesh(const char* path);
+  void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
+  void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);
 };
 
 }

@@ -1,4 +1,5 @@
-
+#define DEPRECATED
+#ifndef DEPRECATED
 #include <EASTL/string.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
@@ -109,3 +110,5 @@ MeshDX11 MeshSys::ProcessMesh(const aiScene* scene, aiMesh* mesh)
 }
 
 } // namespace Octane
+#endif
+#undef DEPRECATED

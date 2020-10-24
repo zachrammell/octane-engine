@@ -14,7 +14,6 @@ enum class SystemOrder : unsigned int
   Scene,
   Entity,
   Component,
-  Mesh,
   RenderSys,
   // must be last, do not add anything after it.
   COUNT

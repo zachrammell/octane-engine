@@ -16,6 +16,7 @@ enum class MeshType
   Plane,
   Shuriken,
   Stack,
+  TestFBX,
 
   COUNT
 };

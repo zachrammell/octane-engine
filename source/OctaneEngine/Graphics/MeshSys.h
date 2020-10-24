@@ -1,4 +1,7 @@
 #pragma once
+
+#define DEPRECATED
+#ifndef DEPRECATED
 #include <Windows.h>
 #include <d3d11.h>
 //#include <winrt/base.h>
@@ -50,3 +53,6 @@ private:
 };
 
 } // namespace Octane
+
+#endif
+#undef DEPRECATED

@@ -102,6 +102,7 @@ private:
 struct Model
 {
   eastl::vector<MeshDX11> meshes;
+  size_t size = 0;
 };
 
 } // namespace Octane
