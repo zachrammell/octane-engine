@@ -52,17 +52,24 @@ set(WWISE_DIR "libraries/Wwise")
 # Feel free to change this as you see fit
 include_directories("${WWISE_DIR}")
 set(WWISE_INCLUDE_DIR "${WWISE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Common")
-if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+# if (CMAKE_BUILD_TYPE MATCHES DEBUG)
   file(GLOB WWISE_BINARIES "${WWISE_DIR}/Debug/lib/*.lib")
-else()
-  file(GLOB WWISE_BINARIES "${WWISE_DIR}/Release/lib/*.lib")
-endif()
+# else()
+  # file(GLOB WWISE_BINARIES "${WWISE_DIR}/Release/lib/*.lib")
+# endif()
 file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/*.cpp")
 if (WIN32)
-  file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp")
-  set(WWISE_INCLUDE_DIR "${WWISE_INCLUDE_DIR}" "${WWISE_DIR}/SampleSoundEngine/Win32")
+  file(GLOB WWISE_SAMPLE_SOURCES "${WWISE_DIR}/SampleSoundEngine/Win32/*.cpp" "${WWISE_DIR}/SampleSoundEngine/Common/*.cpp")
+  set(WWISE_INCLUDE_DIR ${WWISE_INCLUDE_DIR} "${WWISE_DIR}/SampleSoundEngine/Win32")
 endif()
-add_library(WWISE STATIC ${WWISE_BINARIES} ${WWISE_SAMPLE_SOURCES})
+add_library(WWISE ${WWISE_SAMPLE_SOURCES})
+target_link_libraries(WWISE PRIVATE
+  ${WWISE_BINARIES}
+  dsound.lib
+  dxguid.lib
+  ws2_32.lib
+)
+message(${WWISE_BINARIES})
 target_compile_definitions(WWISE PRIVATE UNICODE)
 set_target_properties(WWISE PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(WWISE PUBLIC ${WWISE_INCLUDE_DIR})
