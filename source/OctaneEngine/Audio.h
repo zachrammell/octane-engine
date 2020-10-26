@@ -39,8 +39,7 @@ class Audio : public ISystem
 public:
 
   explicit Audio(class Engine* parent_engine);
-
-  ~Audio() = default;
+  ~Audio();
 
   void Load() override;
   void LevelStart() override;

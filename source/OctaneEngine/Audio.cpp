@@ -100,7 +100,7 @@ bool Audio::AudioInit()
 
 void Audio::AudioUpdate()
 {
-  AK::SoundEngine::RenderAudio();
+  //AK::SoundEngine::RenderAudio();
 }
 
 void Audio::AudioShutdown()
@@ -290,6 +290,11 @@ Audio::Audio(Engine* parent_engine) : ISystem(parent_engine)
   }
 }
 
+Audio::~Audio()
+{
+  AudioShutdown();
+}
+
 void Audio::Load()
 {
 }
@@ -309,7 +314,7 @@ void Audio::LevelEnd()
 
 void Audio::Unload()
 {
-  AudioShutdown();
+  
 }
 
 SystemOrder Audio::GetOrder()
