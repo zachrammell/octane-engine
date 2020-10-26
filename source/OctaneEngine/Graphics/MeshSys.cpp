@@ -33,9 +33,9 @@ MeshSys::MeshSys(class Engine* parent_engine)
   addMesh(MeshType::Bear, "assets/models/Bear.fbx");
   addMesh(MeshType::Duck, "assets/models/Duck.obj");
   addMesh(MeshType::Crossbow, "assets/models/Crossbow.obj");
-  addMesh(MeshType::Plane, "assets/models/PaperPlane.obj");
+  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.obj");
   addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
-  addMesh(MeshType::Stack, "assets/models/PaperStack.obj");
+  addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj");
   addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
 }
 
@@ -56,7 +56,7 @@ eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& MeshSys::Mes
 Mesh MeshSys::LoadMesh(const char* path)
 {
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
   Mesh new_mesh;
   if (scene)
   {
@@ -85,12 +85,13 @@ void MeshSys::ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh)
 void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
 {
   size_t start = new_mesh.vertex_buffer.size(); //start of next mesh in aiScene
-
+  const bool hasNormals = mesh->HasNormals();
+  
   for (int i = 0; i < mesh->mNumVertices; ++i)
   {
     auto& mVert = mesh->mVertices[i];
     dx::XMFLOAT3 norm {};
-    if (mesh->HasNormals())
+    if (hasNormals)
     {
       norm = {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
     }
@@ -108,7 +109,6 @@ void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
   for (int i = 0; i < mesh->mNumFaces; ++i)
   {
     auto& face = mesh->mFaces[i];
-
     for (int j = 0; j < face.mNumIndices; ++j)
     {
       new_mesh.index_buffer.push_back(face.mIndices[j] + start);

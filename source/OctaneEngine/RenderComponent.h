@@ -13,9 +13,9 @@ enum class MeshType
   Bear,
   Duck,
   Crossbow,
-  Plane,
+  PaperPlane,
   Shuriken,
-  Stack,
+  PaperStack,
   TestFBX,
 
   COUNT
