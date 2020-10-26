@@ -39,7 +39,7 @@ vs_out vs_main(vs_in input)
 float4 ps_main(vs_out input) : SV_TARGET
 {
   float3 light_color = float3(1.0f, 1.0f, 1.0f);
-  const float specCoeff = .3f;
+  const float specCoeff = .1f;
   const int specIndex = 4;
   //L
   const float3 light_dir = normalize(LightPosition.xyz - input.position_world);
