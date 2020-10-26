@@ -42,7 +42,6 @@ public:
 
 private:
   GraphicsDeviceDX11 device_dx11_;
-  eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
 };
 
 }

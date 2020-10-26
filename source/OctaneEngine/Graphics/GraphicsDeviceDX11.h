@@ -37,8 +37,8 @@ public:
   [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);
 
-  [[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh);
-  void EmplaceMesh(MeshDX11* placement, Mesh const& mesh);
+  [[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh) const;
+  void EmplaceMesh(MeshDX11* placement, Mesh const& mesh) const;
   void UseMesh(MeshDX11 const& mesh);
   void DrawMesh();
 

@@ -30,21 +30,31 @@ struct vs_out
 vs_out vs_main(vs_in input)
 {
   vs_out output;
-  output.position_world = mul(float4(input.position_local, 1.0f), World);
-  output.position_clip = mul(output.position_world, ViewProjection);
-  output.normal = mul(input.normal, WorldNormal);
+    output.position_world = mul(World,float4(input.position_local, 1.0f) );
+    output.position_clip = mul(ViewProjection,output.position_world);
+    output.normal = normalize(mul(WorldNormal, float4(input.normal, 0.f)));
   return output;
 }
 
 float4 ps_main(vs_out input) : SV_TARGET
 {
-  const float3 light_dir = normalize(-LightPosition.xyz - input.position_world);
+  float3 light_color = float3(1.0f, 1.0f, 1.0f);
+  const float specCoeff = .3f;
+  const int specIndex = 4;
+  //L
+  const float3 light_dir = normalize(LightPosition.xyz - input.position_world);
+  //V
   const float3 view_dir = normalize(CameraPosition.xyz - input.position_world);
-  const float3 reflection = normalize(reflect(light_dir, normalize(input.normal)));
-  float specular_intensity = pow(saturate(dot(reflection, view_dir)), 4);
-  float diffuse_intensity = saturate(dot(normalize(input.normal), light_dir));
+  //m*L
+  const float diffuse_intensity = max(dot(input.normal, light_dir), 0.f);
+  //R
+  const float3 reflection = diffuse_intensity > 0.f ? 2 * diffuse_intensity * input.normal - light_dir : float3(0.f, 0.f, 0.f);
+  //(RL*V)^ns
+  const float3 specular_intensity = pow(dot(reflection, view_dir), specIndex);
+  //const float3 reflection = normalize(reflect(normalize(input.normal) ,light_dir));
+  //float specular_intensity = pow(saturate(dot(reflection, view_dir)), 4);
+  //float diffuse_intensity = saturate(dot(normalize(input.normal), light_dir));
   float3 ambient_color = float3(0.01f, 0.01f, 0.01f);
-  float3 light_color = float3(1, 1, 1);
-  float3 color = ambient_color + (diffuse_intensity * ObjectColor.rgb) + (specular_intensity * light_color);
+    float3 color = ambient_color + (diffuse_intensity * ObjectColor.rgb) + (specCoeff * specular_intensity * light_color);
   return float4(color, 1.0); // must return an RGBA color
 }

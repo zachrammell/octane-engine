@@ -39,6 +39,7 @@
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Audio.h>
 
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::BehaviorSys {&engine});
   // depends on WindowSys and RenderSys
   engine.AddSystem(new Octane::ImGuiSys {&engine});
+  engine.AddSystem(new Octane::MeshSys {&engine});
   engine.AddSystem(new Octane::Audio {&engine});
 
   // NBT writing demo
