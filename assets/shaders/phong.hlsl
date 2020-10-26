@@ -30,16 +30,17 @@ struct vs_out
 vs_out vs_main(vs_in input)
 {
   vs_out output;
-  output.position_world = mul(float4(input.position_local, 1.0f), World);
-  output.position_clip = mul(output.position_world, ViewProjection);
-  output.normal = mul(input.normal, WorldNormal);
+    output.position_world = mul(World,
+    float4(input.position_local, 1.0f) );
+    output.position_clip = mul(ViewProjection,output.position_world);
+    output.normal = mul(WorldNormal, float4(input.normal, 0.f));
   return output;
 }
 
 float4 ps_main(vs_out input) : SV_TARGET
 {
-  const float3 light_dir = normalize(-LightPosition.xyz - input.position_world);
-  const float3 view_dir = normalize(CameraPosition.xyz - input.position_world);
+    const float3 light_dir = normalize(LightPosition.xyz - input.position_world);
+    const float3 view_dir = normalize(CameraPosition.xyz - input.position_world);
   const float3 reflection = normalize(reflect(light_dir, normalize(input.normal)));
   float specular_intensity = pow(saturate(dot(reflection, view_dir)), 4);
   float diffuse_intensity = saturate(dot(normalize(input.normal), light_dir));

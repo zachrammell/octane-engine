@@ -54,7 +54,7 @@ void RenderSys::Update()
 
   device_dx11_.ShaderConstants()
     .PerFrame()
-    .SetViewProjection(dx::XMMatrixTranspose(cam_view_matrix * cam_projection_matrix))
+    .SetViewProjection(/*dx::XMMatrixTranspose(*/cam_view_matrix * cam_projection_matrix/*)*/)
     .SetCameraPosition(Get<CameraSys>()->GetFPSCamera().GetPosition())
     .SetLightPosition({100, 100, 50});
   device_dx11_.Upload(device_dx11_.ShaderConstants().PerFrame());
@@ -76,9 +76,9 @@ void RenderSys::Update()
       dx::XMMATRIX object_world_matrix = dx::XMMatrixIdentity();
       dx::XMFLOAT3 scale = transform.scale;
       object_world_matrix *= dx::XMMatrixScaling(scale.x, scale.y, scale.z);
-      object_world_matrix *= dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
+      object_world_matrix = object_world_matrix*dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
       dx::XMFLOAT3 pos = transform.pos;
-      object_world_matrix *= dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
+      object_world_matrix = object_world_matrix*dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
       if (current_mesh != render_comp.mesh_type)
       {
@@ -87,8 +87,8 @@ void RenderSys::Update()
       }
       device_dx11_.ShaderConstants()
         .PerObject()
-        .SetWorldMatrix(dx::XMMatrixTranspose(object_world_matrix))
-        .SetWorldNormalMatrix(dx::XMMatrixInverse(nullptr, object_world_matrix))
+        .SetWorldMatrix(/*dx::XMMatrixTranspose(*/object_world_matrix/*)*/)
+        .SetWorldNormalMatrix(dx::XMMatrixTranspose(dx::XMMatrixInverse(nullptr, object_world_matrix)))
         .SetColor(render_comp.color);
       device_dx11_.Upload(device_dx11_.ShaderConstants().PerObject());
       device_dx11_.DrawMesh();
