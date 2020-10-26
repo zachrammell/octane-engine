@@ -1,7 +1,4 @@
 #pragma once
-
-#define DEPRECATED
-#ifndef DEPRECATED
 #include <Windows.h>
 #include <d3d11.h>
 //#include <winrt/base.h>
@@ -11,9 +8,13 @@
 //#include <EASTL/string.h>
 #include <OctaneEngine/ISystem.h>
 
-class aiScene;
-class aiNode;
-class aiMesh;
+
+#include <EASTL/fixed_vector.h>
+#include <OctaneEngine/RenderComponent.h>
+
+struct aiScene;
+struct aiNode;
+struct aiMesh;
 
 namespace Octane
 {
@@ -43,16 +44,17 @@ public:
   virtual void Unload(){};
 
   static SystemOrder GetOrder();
-
- 
+  eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& Meshes();
 private:
-  Model* LoadModel(const char* path);
-  void ProcessNode(const aiScene* scene, aiNode* node, eastl::vector<MeshDX11>& meshes);
-  MeshDX11 ProcessMesh(const aiScene* scene, aiMesh* mesh);
-  eastl::map<Models, Model*> models;
+  //Model* LoadModel(const char* path);
+  //void ProcessNode(const aiScene* scene, aiNode* node, eastl::vector<MeshDX11>& meshes);
+  //MeshDX11 ProcessMesh(const aiScene* scene, aiMesh* mesh);
+  //eastl::map<Models, Model*> models;
+  eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
+
+  Mesh LoadMesh(const char* path);
+  void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
+  void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);
 };
 
 } // namespace Octane
-
-#endif
-#undef DEPRECATED

@@ -114,7 +114,7 @@ void TestScene::Load()
     obj101_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::blue;
-    render_comp.mesh_type = MeshType::TestFBX;
+    render_comp.mesh_type = MeshType::Bear;
   }
 
   #if 0

@@ -25,6 +25,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "MeshSys.h"
+
 namespace dx = DirectX;
 
 namespace
@@ -42,29 +44,6 @@ RenderSys::RenderSys(Engine* parent_engine)
 {
   phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
   device_dx11_.UseShader(phong);
-
-  meshes_.resize(to_integral(MeshType::COUNT));
-
-
-	
-  //OBJParser obj_parser;
-  auto addMesh = [=](MeshType m, char const* filepath) {
-    device_dx11_.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath)/*obj_parser.ParseOBJ(filepath)*/);
-  };
-
-  // TODO: asset loading system instead of this
-
-  addMesh(MeshType::Cube, "assets/models/cube.obj");
-  addMesh(MeshType::Sphere, "assets/models/sphere.obj");
-  addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
-  addMesh(MeshType::Bear, "assets/models/Bear.obj");
-  addMesh(MeshType::Duck, "assets/models/Duck.obj");
-  addMesh(MeshType::Crossbow, "assets/models/Crossbow.obj");
-  addMesh(MeshType::Plane, "assets/models/PaperPlane.obj");
-  addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
-  addMesh(MeshType::Stack, "assets/models/PaperStack.obj");
-  addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
-
   device_dx11_.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
@@ -85,6 +64,8 @@ void RenderSys::Update()
   // Render all objects
   auto* component_sys = Get<ComponentSys>();
   MeshType current_mesh = MeshType::COUNT;
+  auto* meshSys = reinterpret_cast<MeshSys*>(engine_.GetSystem(SystemOrder::MeshSys));
+  auto& meshes_ = meshSys->Meshes();
   for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
   {
     if (iter->active)
@@ -132,66 +113,5 @@ void RenderSys::SetClearColor(Color clear_color)
 }
 
 
-Mesh RenderSys::LoadMesh(const char* path)
-{
-  Assimp::Importer importer;
-  const aiScene* scene =  importer.ReadFile(path, aiProcess_Triangulate);
-  Mesh new_mesh;
-  if (scene)
-  {
-    ProcessNode(scene, scene->mRootNode, new_mesh);
-  }
 
-  return new_mesh;
-}
-
-void RenderSys::ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh)
-{
-  for (int i = 0; i < node->mNumMeshes; ++i)
-  {
-    aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
-    ProcessMesh(aimesh, mesh);
-  }
-
-  for (int i = 0; i < node->mNumChildren; ++i)
-  {
-    ProcessNode(scene, node->mChildren[i], mesh);
-  }
-}
-
-void RenderSys::ProcessMesh(aiMesh* mesh,Mesh& new_mesh)
-{
-  size_t start = new_mesh.vertex_buffer.size(); //start of next mesh in aiScene
-
-  for (int i = 0; i < mesh->mNumVertices; ++i)
-  {
-    auto& mVert = mesh->mVertices[i];
-    dx::XMFLOAT3 norm{};
-    if (mesh->HasNormals())
-    {
-      norm = {mesh->mNormals[i].x,mesh->mNormals[i].y,mesh->mNormals[i].z};
-    }
-    Mesh::Vertex vert {{mVert.x, mVert.y, mVert.z}, norm};
-    // TODO: implement texture coordinates
-#if 0
-        if (mesh->mTextureCoords && mesh->mTextureCoords[0])
-    {
-          vert.uv.x = mesh->mTextureCoords[0][i].x;
-          vert.uv.y = mesh->mTextureCoords[0][i].y;
-    }
-#endif
-    new_mesh.vertex_buffer.push_back(vert);
-  }
-  for (int i = 0; i < mesh->mNumFaces; ++i)
-  {
-    auto& face = mesh->mFaces[i];
-
-    for (int j = 0; j < face.mNumIndices; ++j)
-    {
-      new_mesh.index_buffer.push_back(face.mIndices[j]+start);
-    }
-  }
-}
-
-	
 } // namespace Octane

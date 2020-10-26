@@ -1,5 +1,3 @@
-#define DEPRECATED
-#ifndef DEPRECATED
 #include <EASTL/string.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
@@ -10,81 +8,93 @@
 #include <assimp/scene.h>
 #include <magic_enum.hpp>
 
+namespace dx = DirectX;
+
 namespace Octane
 {
 MeshSys::MeshSys(class Engine* parent_engine)
   : ISystem(parent_engine)
 {
+  auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
 
+  meshes_.resize(to_integral(MeshType::COUNT));
+
+
+  // TODO: use wide strings for path
+  auto addMesh = [=](MeshType m, char const* filepath)
+	{
+          device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
+	};
+
+
+  addMesh(MeshType::Cube, "assets/models/cube.obj");
+  addMesh(MeshType::Sphere, "assets/models/sphere.obj");
+  addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
+  addMesh(MeshType::Bear, "assets/models/Bear.fbx");
+  addMesh(MeshType::Duck, "assets/models/Duck.obj");
+  addMesh(MeshType::Crossbow, "assets/models/Crossbow.obj");
+  addMesh(MeshType::Plane, "assets/models/PaperPlane.obj");
+  addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
+  addMesh(MeshType::Stack, "assets/models/PaperStack.obj");
+  addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
 }
 
 MeshSys::~MeshSys()
 {
-  for (int i = 0; i < models.size(); ++i)
-  {
-    if (models.at(Models(i)))
-    {
-      delete models.at(Models(i));
-      models[Models(i)] = nullptr;
-    }
-  }
-}
-
-Model* MeshSys::GetModel(Models model)
-{
-  //if didnt find model, load it in
-  if (models.find(model) == models.end())
-  {
-    models[model] = LoadModel(eastl::string {
-      eastl::string {"./assets/models/"} + eastl::string {magic_enum::enum_name<Models>(model).data() + 1} + ".obj"}
-                                .c_str());
-  }
-
-  return models[model];
 }
 
 SystemOrder MeshSys::GetOrder()
 {
-  return SystemOrder::Mesh;
+  return SystemOrder::MeshSys;
 }
 
-Model* MeshSys::LoadModel(const char* path)
+eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& MeshSys::Meshes()
+{
+  return meshes_;
+}
+
+Mesh MeshSys::LoadMesh(const char* path)
 {
   Assimp::Importer importer;
-  const aiScene* scene = nullptr; //= importer.ReadFile(path, aiProcess_Triangulate);
-  eastl::vector<MeshDX11> meshes;
-
+  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+  Mesh new_mesh;
   if (scene)
   {
-    ProcessNode(scene, scene->mRootNode, meshes);
+    ProcessNode(scene, scene->mRootNode, new_mesh);
   }
 
-  return new Model {meshes};
+  return new_mesh;
 }
 
-void MeshSys::ProcessNode(const aiScene* scene, aiNode* node, eastl::vector<MeshDX11>& meshes)
+void MeshSys::ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh)
 {
+  /*todo: load the scene with each mesh having its transformation from the scene
+	instead of local space */
   for (int i = 0; i < node->mNumMeshes; ++i)
   {
-    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    meshes.push_back(ProcessMesh(scene, mesh));
+    aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
+    ProcessMesh(aimesh, mesh);
   }
 
   for (int i = 0; i < node->mNumChildren; ++i)
   {
-    ProcessNode(scene, node->mChildren[i], meshes);
+    ProcessNode(scene, node->mChildren[i], mesh);
   }
 }
 
-MeshDX11 MeshSys::ProcessMesh(const aiScene* scene, aiMesh* mesh)
+void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
 {
-  Mesh new_mesh;
+  size_t start = new_mesh.vertex_buffer.size(); //start of next mesh in aiScene
 
   for (int i = 0; i < mesh->mNumVertices; ++i)
   {
     auto& mVert = mesh->mVertices[i];
-    Mesh::Vertex vert {{mVert.x, mVert.y, mVert.z}, {}};
-
+    dx::XMFLOAT3 norm {};
+    if (mesh->HasNormals())
+    {
+      norm = {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
+    }
+    Mesh::Vertex vert {{mVert.x, mVert.y, mVert.z}, norm};
     // TODO: implement texture coordinates
 #if 0
         if (mesh->mTextureCoords && mesh->mTextureCoords[0])
@@ -95,20 +105,15 @@ MeshDX11 MeshSys::ProcessMesh(const aiScene* scene, aiMesh* mesh)
 #endif
     new_mesh.vertex_buffer.push_back(vert);
   }
-
   for (int i = 0; i < mesh->mNumFaces; ++i)
   {
     auto& face = mesh->mFaces[i];
 
     for (int j = 0; j < face.mNumIndices; ++j)
     {
-      new_mesh.index_buffer.push_back(face.mIndices[j]);
+      new_mesh.index_buffer.push_back(face.mIndices[j] + start);
     }
   }
-
-  return Get<RenderSys>()->GetGraphicsDeviceDX11().CreateMesh(new_mesh);
 }
 
 } // namespace Octane
-#endif
-#undef DEPRECATED
