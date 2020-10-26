@@ -383,8 +383,8 @@ void TestScene::Update(float dt)
     bool jumpPlease = input->KeyPressed(SDLK_j);
   	
     //enemy movement
-    SimpleMove(*red_bear_physics.rigid_body, red_bear_pos, camera.GetPosition(), 0.5f);
-    SimpleMove(*blue_bear_physics.rigid_body, blue_bear_pos, camera.GetPosition(), 0.5f);
+    SimpleMove(*red_bear_physics.rigid_body, red_bear_pos, camera.GetPosition(), 0.05f);
+    SimpleMove(*blue_bear_physics.rigid_body, blue_bear_pos, camera.GetPosition(), 0.05f);
 
     float constexpr G = 9.81f;
   	
