@@ -12,7 +12,7 @@
 	url = https://github.com/ocornut/imgui.git
 [submodule "libraries/assimp"]
 	path = libraries/assimp
-	url = https://github.com/assimp/assimp
+	url = https://github.com/BrayanLopezDev/assimp.git
 [submodule "libraries/magic_enum"]
 	path = libraries/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
