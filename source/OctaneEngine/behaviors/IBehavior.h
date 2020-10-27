@@ -15,18 +15,30 @@
 
 namespace Octane
 {
+class BehaviorSys;
+class ComponentHandle;
 
 class IBehavior
 {
 public:
-  explicit IBehavior() {};
+  explicit IBehavior(class BehaviorSys* parent, ComponentHandle handle) : parent_sys(*parent), handle_(handle) {};
 
   virtual ~IBehavior() = default;
 
   virtual void Initialize() = 0;
-  virtual void Update() = 0;
+  virtual void Update(float dt) = 0;
   virtual void Shutdown() = 0;
 
+  template<class System>
+  System* Get()
+  {
+    static_assert(eastl::is_base_of_v<ISystem, System>);
+    return parent_sys.Get<System>();
+  }
+
+protected:
+  BehaviorSys& parent_sys;
+  ComponentHandle handle_;
 };
 
 }

@@ -11,19 +11,20 @@
 /******************************************************************************/
 
 // Main include
+#include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
 #include <iostream>
 namespace Octane
 {
 
-WindTunnelBHV::WindTunnelBHV() {}
+WindTunnelBHV::WindTunnelBHV(BehaviorSys* parent, ComponentHandle handle) : IBehavior(parent, handle) {}
 
 void WindTunnelBHV::Initialize() 
 {
   //std::cout << "tunnel init" << std::endl;
 }
 
-void WindTunnelBHV::Update() 
+void WindTunnelBHV::Update(float dt) 
 {
  // std::cout << "tunnel update" << std::endl;
 }

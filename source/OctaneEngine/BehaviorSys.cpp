@@ -16,6 +16,7 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/EntitySys.h>
+#include <OctaneEngine/FramerateController.h>
 
 #include <iostream>
 #include <magic_enum.hpp>
@@ -57,10 +58,10 @@ void BehaviorSys::Load()
             switch (beh.type)
             {
             case BHVRType::PLAYER:
-                beh.behavior = new WindTunnelBHV();
+                beh.behavior = new WindTunnelBHV(this, handle);
                 break;
-            case BHVRType::WINDTUNNEL:
-                beh.behavior = new WindTunnelBHV();
+            case BHVRType::WINDTUNNEL: 
+                beh.behavior = new WindTunnelBHV(this, handle);
                 break;
             default: break;
             }
@@ -95,6 +96,7 @@ void BehaviorSys::LevelStart()
 
 void BehaviorSys::Update()
 {
+  float dt = engine_.GetSystem<FramerateController>()->GetDeltaTime();
   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
     if (it->HasComponent(ComponentKind::Behavior))
@@ -118,10 +120,10 @@ void BehaviorSys::Update()
             switch (beh.type)
             {
             case BHVRType::PLAYER: 
-                beh.behavior = new WindTunnelBHV(); 
+                beh.behavior = new WindTunnelBHV(this, handle); 
                 break;
             case BHVRType::WINDTUNNEL: 
-                beh.behavior = new WindTunnelBHV(); 
+                beh.behavior = new WindTunnelBHV(this, handle); 
                 break;
             default: break;
             }
@@ -135,7 +137,7 @@ void BehaviorSys::Update()
 
       if (beh.type != BHVRType::INVALID)
       {
-        beh.behavior->Update();
+        beh.behavior->Update(dt);
         
       }
     }

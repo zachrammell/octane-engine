@@ -20,12 +20,12 @@ namespace Octane
 class WindTunnelBHV final: public IBehavior
 {
 public:
-  explicit WindTunnelBHV();
+  explicit WindTunnelBHV(BehaviorSys* parent, ComponentHandle handle);
 
   ~WindTunnelBHV() = default;
 
    void Initialize() override;
-   void Update() override ;
+   void Update(float dt) override ;
    void Shutdown() override;
 
 };
