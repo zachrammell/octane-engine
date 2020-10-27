@@ -5,6 +5,7 @@
 #include <OctaneEngine/Physics/PrimitivePair.h>
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/ResolutionPhase.h>
+#include <OctaneEngine/PhysicsComponent.h>
 
 #include <EASTL/vector.h>
 #include <EASTL/hash_map.h>
@@ -27,13 +28,10 @@ public:
   static SystemOrder GetOrder();
 
 public:
-  RigidBody* GetRigidBody(size_t index);
-  RigidBody* AddRigidBody();
 
-  Primitive* AddPrimitive(RigidBody* owner, ePrimitiveType type);
+  void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
 
 private:
-  eastl::vector<RigidBody*> rigid_bodies_;
   eastl::vector<Primitive*> primitives_;
   eastl::vector<PrimitivePair> potential_pairs_;
   eastl::hash_map<size_t, ContactManifold> manifold_table_;

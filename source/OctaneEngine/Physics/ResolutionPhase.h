@@ -1,14 +1,16 @@
 #pragma once
 
 #include <OctaneEngine/Math.h>
-#include <OctaneEngine/Physics/ContactConstraints.h>
 #include <OctaneEngine/Physics/Constraints.h>
+#include <OctaneEngine/Physics/ContactConstraints.h>
+#include <OctaneEngine/PhysicsComponent.h>
 
-#include <EASTL/vector.h>
 #include <EASTL/hash_map.h>
+#include <EASTL/vector.h>
 
 namespace Octane
 {
+
 class ResolutionPhase
 {
 public:
@@ -17,7 +19,11 @@ public:
 
   void Initialize();
   void Shutdown();
-  void Solve(eastl::hash_map<size_t, ContactManifold>* manifold_table, eastl::vector<RigidBody*>* rigid_bodies, float dt);
+  void Solve(
+    eastl::hash_map<size_t, ContactManifold>* manifold_table,
+    PhysicsComponent* begin,
+    PhysicsComponent* end,
+    float dt);
 
 private:
   bool m_b_warm_start = false;

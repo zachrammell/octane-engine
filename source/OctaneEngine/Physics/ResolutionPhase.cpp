@@ -26,7 +26,8 @@ void ResolutionPhase::Shutdown()
 
 void ResolutionPhase::Solve(
   eastl::hash_map<size_t, ContactManifold>* manifold_table,
-  eastl::vector<RigidBody*>* rigid_bodies,
+  PhysicsComponent* begin,
+  PhysicsComponent* end,
   float dt)
 {
   //Apply Forces
@@ -37,7 +38,6 @@ void ResolutionPhase::Solve(
   //    force->Update(body, dt);
   //  }
   //}
-
   m_contact_constraints.clear();
   if (m_velocity_iteration > 0)
   {
@@ -77,13 +77,15 @@ void ResolutionPhase::Solve(
       contact.Apply();
     }
   }
-  for (auto& body : *rigid_bodies)
+
+  for (auto it = begin; it != end; ++it)
   {
-    body->Integrate(dt);
-    body->UpdateOrientation();
-    body->UpdateInertia();
-    body->UpdatePosition();
+    it->rigid_body.Integrate(dt);
+    it->rigid_body.UpdateOrientation();
+    it->rigid_body.UpdateInertia();
+    it->rigid_body.UpdatePosition();
   }
+
   if (m_position_iteration > 0)
   {
     for (auto& constraint : m_position_constraints)

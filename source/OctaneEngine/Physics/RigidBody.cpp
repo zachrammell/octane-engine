@@ -200,5 +200,4 @@ void RigidBody::SetAngularVelocity(const DirectX::XMVECTOR& angular_velocity)
   angular_velocity_ = angular_velocity;
 }
 
-
 } // namespace Octane

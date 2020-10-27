@@ -2,13 +2,16 @@
 
 #include <iostream>
 
-#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/Engine.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/Capsule.h>
 #include <OctaneEngine/Physics/Ellipsoid.h>
-#include <OctaneEngine/Physics/Truncated.h>
 #include <OctaneEngine/Physics/Simplex.h>
+#include <OctaneEngine/Physics/Truncated.h>
+#include <OctaneEngine/SystemOrder.h>
 
 #include <OctaneEngine/Trace.h>
 
@@ -21,6 +24,20 @@ void PhysicsSys::LevelStart() {}
 void PhysicsSys::Update()
 {
   float dt = 1.0f / 60.0f;
+
+  auto* component_sys = Get<ComponentSys>();
+  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  {
+    if (entity->active)
+    {
+      auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
+      auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+
+      physics_component.rigid_body.SetPosition(transform.pos);
+      physics_component.rigid_body.SetOrientation(transform.rotation);
+    }
+  }
+
   //Three stage of physics pipeline
 
   //[Broad Phase]
@@ -46,14 +63,28 @@ void PhysicsSys::Update()
   narrow_phase_.GenerateContact(potential_pairs_, &manifold_table_);
 
   //[Resolution Phase]
-  resolution_phase_.Solve(&manifold_table_, &rigid_bodies_, dt);
- }
+  auto* physics_begin = component_sys->PhysicsBegin();
+  auto* physics_end = component_sys->PhysicsEnd();
+  resolution_phase_.Solve(&manifold_table_, physics_begin, physics_end, dt);
+
+
+  //copy physics calculation to transform
+  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  {
+    if (entity->active)
+    {
+      auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
+      auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+
+      transform.pos = physics_component.rigid_body.GetPosition();
+      transform.rotation = physics_component.rigid_body.GetOrientation();
+    }
+  }
+}
 
 void PhysicsSys::LevelEnd()
 {
   //TODO clear world!
-  //rigid_bodies_.clear();
-  //
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -61,21 +92,7 @@ SystemOrder PhysicsSys::GetOrder()
   return SystemOrder::World;
 }
 
-RigidBody* PhysicsSys::GetRigidBody(size_t index)
-{
-  return rigid_bodies_[index];
-}
-
-RigidBody* PhysicsSys::AddRigidBody()
-{
-  RigidBody* body = new RigidBody();
-
-  rigid_bodies_.push_back(body);
-  //initialize general rigid body here when it need.
-  return body;
-}
-
-Primitive* PhysicsSys::AddPrimitive(RigidBody* owner, ePrimitiveType type)
+void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
 {
   Primitive* primitive = nullptr;
 
@@ -89,10 +106,9 @@ Primitive* PhysicsSys::AddPrimitive(RigidBody* owner, ePrimitiveType type)
 
   if (primitive != nullptr)
   {
-    primitive->rigid_body_ = owner;
+    primitive->rigid_body_ = &compo.rigid_body;
     primitives_.push_back(primitive);
+    compo.primitive = primitive;
   }
-
-  return primitive;
 }
 } // namespace Octane

@@ -64,8 +64,8 @@ public:
   eastl::vector<RenderComponent>::const_iterator RenderEnd() const { return render_comps_.cend(); }
   eastl::vector<TransformComponent>::const_iterator TransformBegin() const { return transform_comps_.cbegin(); }
   eastl::vector<TransformComponent>::const_iterator TransformEnd() const { return transform_comps_.cend(); }
-  eastl::vector<PhysicsComponent>::const_iterator PhysicsBegin() const { return physics_comps_.cbegin(); }
-  eastl::vector<PhysicsComponent>::const_iterator PhysicsEnd() const { return physics_comps_.cend(); }
+  eastl::vector<PhysicsComponent>::iterator PhysicsBegin() { return physics_comps_.begin(); }
+  eastl::vector<PhysicsComponent>::iterator PhysicsEnd() { return physics_comps_.end(); }
 
 private:
   static const SystemOrder ORDER = SystemOrder::Component;
