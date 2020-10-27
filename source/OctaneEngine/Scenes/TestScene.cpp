@@ -35,15 +35,16 @@ namespace dx = DirectX;
 namespace
 {
 
-Octane::EntityID red_bear_id;
-Octane::EntityID blue_bear_id;
+Octane::EntityID bear_id;
+Octane::EntityID duck_id;
+Octane::EntityID bunny_id;
 Octane::EntityID wind_tunnel_id;
 
 struct PhysicsComponentTemp
 {
   Octane::RigidBody* rigid_body;
   Octane::Primitive* primitive;
-} red_bear_physics, blue_bear_physics, wind_tunnel_physics;
+} bear_physics, duck_physics, bunny_physics, wind_tunnel_physics;
 
 } // namespace
 
@@ -77,15 +78,15 @@ void TestScene::Load()
   create_object({0.0f, 0.0f, 0.0f}, {30.0f, 0.25f, 30.0f}, Colors::db32[10]);
   create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
 
-  red_bear_id = Get<EntitySys>()->MakeEntity();
+  bear_id = Get<EntitySys>()->MakeEntity();
 
   {
-    GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((red_bear_id));
+    GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((bear_id));
     ComponentHandle trans_id = compsys->MakeTransform();
     obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 2.0f;
-    trans.pos.y = 2.0f;
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -94,18 +95,18 @@ void TestScene::Load()
     obj100_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = MeshType::Bunny;
+    render_comp.mesh_type = MeshType::Bear;
   }
 
-  blue_bear_id = Get<EntitySys>()->MakeEntity();
+  duck_id = Get<EntitySys>()->MakeEntity();
 
   {
-    GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((blue_bear_id));
+    GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((duck_id));
     ComponentHandle trans_id = compsys->MakeTransform();
     obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = -2.0f;
-    trans.pos.y = 2.0f;
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -113,8 +114,8 @@ void TestScene::Load()
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj101_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-    render_comp.color = Colors::blue;
-    render_comp.mesh_type = MeshType::Bear;
+    render_comp.color = Colors::peach;
+    render_comp.mesh_type = MeshType::Duck;
 
     //this is test code, it does nothing so dont worry about it 
    /*ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
@@ -123,6 +124,27 @@ void TestScene::Load()
     beh_comp.type = BHVRType::WINDTUNNEL;*/
 
   }
+
+    bunny_id = Get<EntitySys>()->MakeEntity();
+
+  {
+    GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((bunny_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
+    trans.pos.z = 0.0f;
+    trans.scale = {0.25f, 0.25f, 0.25f};
+    trans.rotation = {};
+
+    ComponentHandle render_comp_id = compsys->MakeRender();
+    obj100_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Colors::green;
+    render_comp.mesh_type = MeshType::Bunny;
+  }
+
 
   #if 0
   
@@ -148,19 +170,25 @@ void TestScene::Load()
   #endif
   auto* world = Get<PhysicsSys>();
 
-  red_bear_physics.rigid_body = world->AddRigidBody();
+  bear_physics.rigid_body = world->AddRigidBody();
   dx::XMFLOAT3 constraints = {1.0f, 1.0f, 1.0f};
-  red_bear_physics.rigid_body->SetLinearConstraints(constraints);
-  red_bear_physics.rigid_body->SetAngularConstraints(constraints);
-  red_bear_physics.primitive = world->AddPrimitive(red_bear_physics.rigid_body, ePrimitiveType::Box);
-  static_cast<Box*>(red_bear_physics.primitive)->SetBox(0.25f, 0.25f, 0.25f);
+  bear_physics.rigid_body->SetLinearConstraints(constraints);
+  bear_physics.rigid_body->SetAngularConstraints(constraints);
+  bear_physics.primitive = world->AddPrimitive(bear_physics.rigid_body, ePrimitiveType::Box);
+  static_cast<Box*>(bear_physics.primitive)->SetBox(0.25f, 0.25f, 0.25f);
+
+  duck_physics.rigid_body = world->AddRigidBody();
+  duck_physics.rigid_body->SetLinearConstraints(constraints);
+  duck_physics.rigid_body->SetAngularConstraints(constraints);
+  duck_physics.primitive = world->AddPrimitive(duck_physics.rigid_body, ePrimitiveType::Ellipsoid);
+
+  bunny_physics.rigid_body = world->AddRigidBody();
+  bunny_physics.rigid_body->SetLinearConstraints(constraints);
+  bunny_physics.rigid_body->SetAngularConstraints(constraints);
+  bunny_physics.primitive = world->AddPrimitive(bunny_physics.rigid_body, ePrimitiveType::Box);
+  static_cast<Box*>(bunny_physics.primitive)->SetBox(0.25f, 0.25f, 0.25f);
 
 
-	
-  blue_bear_physics.rigid_body = world->AddRigidBody();
-  blue_bear_physics.rigid_body->SetLinearConstraints(constraints);
-  blue_bear_physics.rigid_body->SetAngularConstraints(constraints);
-  blue_bear_physics.primitive = world->AddPrimitive(blue_bear_physics.rigid_body, ePrimitiveType::Ellipsoid);
   #if 0
   wind_tunnel_physics.rigid_body = world->AddRigidBody();
   wind_tunnel_physics.rigid_body->SetLinearConstraints(constraints);
@@ -168,8 +196,9 @@ void TestScene::Load()
   wind_tunnel_physics.primitive = world->AddPrimitive(wind_tunnel_physics.rigid_body, ePrimitiveType::Box);
   static_cast<Box*>(wind_tunnel_physics.primitive)->SetBox(2.0f, 2.0f, 2.0f);
   #endif
-  red_bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
-  blue_bear_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
+  bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
+  duck_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
+  bunny_physics.rigid_body->SyncFromPosition({0.f,0.25f,-2.f});
   //wind_tunnel_physics.rigid_body->SyncFromPosition({0.f, 1.f, 5.f});
 }
 
@@ -198,11 +227,11 @@ void TestScene::Update(float dt)
   {
     if (ImGui::TreeNode("Objects"))
     {
-      if (ImGui::Button("Default Redbear Position"))
+      if (ImGui::Button("Default Bear Position"))
       {
         auto* compsys = Get<ComponentSys>();
 
-        GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((red_bear_id));
+        GameEntity& obj100_entity = Get<EntitySys>()->GetEntity((bear_id));
         ComponentHandle trans_id = compsys->MakeTransform();
         obj100_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
         TransformComponent& trans = compsys->GetTransform(trans_id);
@@ -212,22 +241,22 @@ void TestScene::Update(float dt)
         trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = {};
 
-        auto& red_bear_pos1
+        auto& bear_pos1
           = Get<ComponentSys>()
-              ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
+              ->GetTransform(Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Transform))
               .pos;
 
         //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-        red_bear_physics.rigid_body->SyncToPosition(red_bear_pos1);
+        bear_physics.rigid_body->SyncToPosition(bear_pos1);
 
         dt = 0.f;
       }
 
-      if (ImGui::Button("Default Bluebear Position"))
+      if (ImGui::Button("Default Duck Position"))
       {
         auto* compsys = Get<ComponentSys>();
 
-        GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((blue_bear_id));
+        GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((duck_id));
         ComponentHandle trans_id = compsys->MakeTransform();
         obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
         TransformComponent& trans = compsys->GetTransform(trans_id);
@@ -237,16 +266,42 @@ void TestScene::Update(float dt)
         trans.scale = {0.25f, 0.25f, 0.25f};
         trans.rotation = {};
 
-        auto& blue_bear_pos1
+        auto& duck_pos1
           = Get<ComponentSys>()
-              ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
+              ->GetTransform(Get<EntitySys>()->GetEntity(duck_id).GetComponentHandle(ComponentKind::Transform))
               .pos;
 
         //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-        blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos1);
+        duck_physics.rigid_body->SyncToPosition(duck_pos1);
 
         dt = 0.f;
       }
+
+      if (ImGui::Button("Default Bunny Position"))
+      {
+        auto* compsys = Get<ComponentSys>();
+
+        GameEntity& obj101_entity = Get<EntitySys>()->GetEntity((bunny_id));
+        ComponentHandle trans_id = compsys->MakeTransform();
+        obj101_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+        TransformComponent& trans = compsys->GetTransform(trans_id);
+        trans.pos.x = 0.0f;
+        trans.pos.y = 2.0f;
+        trans.pos.z = -2.0f;
+        trans.scale = {0.25f, 0.25f, 0.25f};
+        trans.rotation = {};
+
+        auto& bunny_pos1
+          = Get<ComponentSys>()
+              ->GetTransform(Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform))
+              .pos;
+
+        //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
+        bunny_physics.rigid_body->SyncToPosition(bunny_pos1);
+
+        dt = 0.f;
+      }
+
 
       ImGui::TreePop();
     }
@@ -349,7 +404,7 @@ void TestScene::Update(float dt)
     //sample_force2.y = 1.0f * (input->KeyHeld(SDLK_r) - input->KeyHeld(SDLK_y));
     //sample_force2.z = 1.0f * (input->KeyHeld(SDLK_t) - input->KeyHeld(SDLK_g));
 
-        dx::XMFLOAT3 cam_velocity;
+    dx::XMFLOAT3 cam_velocity;
     cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
     cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
     cam_velocity.z = (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
@@ -364,43 +419,56 @@ void TestScene::Update(float dt)
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
 
   	
-    auto& red_bear_pos
+    auto& bear_pos
       = Get<ComponentSys>()
-          ->GetTransform(Get<EntitySys>()->GetEntity(red_bear_id).GetComponentHandle(ComponentKind::Transform))
+          ->GetTransform(Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Transform))
           .pos;
 
-    auto& blue_bear_pos
+    auto& duck_pos
       = Get<ComponentSys>()
-          ->GetTransform(Get<EntitySys>()->GetEntity(blue_bear_id).GetComponentHandle(ComponentKind::Transform))
+          ->GetTransform(Get<EntitySys>()->GetEntity(duck_id).GetComponentHandle(ComponentKind::Transform))
+          .pos;
+
+    auto& bunny_pos = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform))
           .pos;
 
         //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-    red_bear_physics.rigid_body->SyncToPosition(red_bear_pos);
+    bear_physics.rigid_body->SyncToPosition(bear_pos);
 
     //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-    blue_bear_physics.rigid_body->SyncToPosition(blue_bear_pos);
+    duck_physics.rigid_body->SyncToPosition(duck_pos);
+
+    bunny_physics.rigid_body->SyncToPosition(bunny_pos);
 
     bool jumpPlease = input->KeyPressed(SDLK_j);
   	
     //enemy movement
-    SimpleMove(*red_bear_physics.rigid_body, red_bear_pos, camera.GetPosition(), 0.05f);
-    SimpleMove(*blue_bear_physics.rigid_body, blue_bear_pos, camera.GetPosition(), 0.05f);
+    SimpleMove(*bear_physics.rigid_body, bear_pos, camera.GetPosition(), 1.05f);
+    SimpleMove(*duck_physics.rigid_body, duck_pos, camera.GetPosition(), 0.95f);
+    SimpleMove(*bunny_physics.rigid_body, bunny_pos, camera.GetPosition(), 0.505f);
 
     float constexpr G = 9.81f;
-  	
-    LockYRelToTarget(blue_bear_pos, {0.f, 0.f, 0.f}, -.25f);
-    LockYRelToTarget(red_bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    //TODO: add collider to ground plane and then remove these lines
+    LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
+    LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
     
-    RandomJump(*blue_bear_physics.rigid_body, blue_bear_pos, jumpPlease ? 100.f : 100.f, 25.f * G);
-    RandomJump(*red_bear_physics.rigid_body, red_bear_pos, jumpPlease ? 100.f : 100.f, 25.f * G);
+    //make them slightly more interesting by having them jump
+    RandomJump(*bear_physics.rigid_body, bear_pos, jumpPlease ? 100.f : 0.2f, 15.f * G);
+    RandomJump(*duck_physics.rigid_body, duck_pos, jumpPlease ? 100.f : 0.7f, 25.f * G);
+    BunnyHop(*bunny_physics.rigid_body, bunny_pos, 35.f * G);
 
-  	red_bear_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
-    blue_bear_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
+    //apply gravity
+  	bear_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
+    duck_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
+    bunny_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
 
   	
-    red_bear_physics.rigid_body->SyncFromPosition(red_bear_pos);
+    bear_physics.rigid_body->SyncFromPosition(bear_pos);
+    duck_physics.rigid_body->SyncFromPosition(duck_pos);
+    bunny_physics.rigid_body->SyncFromPosition(bunny_pos);
 
-    blue_bear_physics.rigid_body->SyncFromPosition(blue_bear_pos);
 
 
 

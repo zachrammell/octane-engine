@@ -31,7 +31,7 @@ MeshSys::MeshSys(class Engine* parent_engine)
   addMesh(MeshType::Sphere, "assets/models/sphere.obj");
   addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
   addMesh(MeshType::Bear, "assets/models/Bear.fbx");
-  addMesh(MeshType::Duck, "assets/models/Duck.obj");
+  addMesh(MeshType::Duck, "assets/models/Duck.fbx");
   addMesh(MeshType::Bunny, "assets/models/Bunny.fbx");
   addMesh(MeshType::Crossbow, "assets/models/Crossbow.obj");
   addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.obj");

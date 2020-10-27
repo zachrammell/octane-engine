@@ -4,7 +4,7 @@
 
 void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
 {
-
+  //simplemove using transform, no physics
   dx::XMVECTOR from {dx::XMLoadFloat3(&fromPos)};
   dx::XMVECTOR to {dx::XMLoadFloat3(&toPos)};
 
@@ -28,6 +28,7 @@ void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
 
 void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidBody& toPos, float speed)
 {
+  //simplemove using physics
   dx::XMFLOAT3 to;
   toPos.SyncToPosition(to);
 
@@ -36,16 +37,17 @@ void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidB
 
 void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
 {
+  //simplemove using physics
   const dx::XMVECTOR difference = dx::XMVectorSubtract({toPos.x,toPos.y,toPos.z}, {fromPos.x,fromPos.y,fromPos.z});
   const float dist = dx::XMVector3Length(difference).m128_f32[0];
-
+  auto& yVel = fromRB.GetLinearVelocity().m128_f32[1];
   if (!dx::XMScalarNearEqual(dist, 0.f, .000001f))
   {
     dx::XMVECTOR move {dx::XMVector3Normalize(difference)};
 
     move = dx::XMVectorScale(move, speed);
-    move.m128_f32[1] = 0.f;
-    fromRB.ApplyForceCentroid({move.m128_f32[0],move.m128_f32[1],move.m128_f32[2]});
+    //fromRB.ApplyForceCentroid();
+    fromRB.SetLinearVelocity({move.m128_f32[0], yVel, move.m128_f32[2]});
   }
 }
 
