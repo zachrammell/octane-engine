@@ -12,6 +12,7 @@ enum class MeshType
   Cube_Rounded,
   Bear,
   Duck,
+  Bunny,
   Crossbow,
   PaperPlane,
   Shuriken,

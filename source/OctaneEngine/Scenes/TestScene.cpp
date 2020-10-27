@@ -94,7 +94,7 @@ void TestScene::Load()
     obj100_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = MeshType::Bear;
+    render_comp.mesh_type = MeshType::Bunny;
   }
 
   blue_bear_id = Get<EntitySys>()->MakeEntity();

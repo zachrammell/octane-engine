@@ -64,3 +64,8 @@ void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, fl
     rb.ApplyForceCentroid({0.f, jumpForce, 0.f}); //SetLinearVelocity({0.f, jumpForce, 0.f}); //ApplyForce({0.f, jumpForce, 0.f}, {0.f, 1.f, 0.f});
   }
 }
+
+void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos,float jumpForce)
+{
+  RandomJump(rb, pos, 100.f, jumpForce);
+}
