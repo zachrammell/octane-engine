@@ -34,7 +34,6 @@ public:
 
 private:
   DirectX::XMVECTOR CalcPlayerMoveDir();
-  void FindPlayerID();
 
   enum class MoveState {
     STAND,
@@ -46,8 +45,6 @@ private:
 
   void ExitState(MoveState);
   void EnterState(MoveState);
-
-  EntityID player_id_;
 };
 
 } // namespace Octane

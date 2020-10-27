@@ -32,6 +32,10 @@ public:
   // access an entity
   GameEntity& GetEntity(EntityID which);
 
+  void SetPlayerID(EntityID id);
+  // returns null if no player id is set
+  GameEntity* GetPlayer();
+
   // frees an entity to be re-used later
   void FreeEntity(EntityID which);
 
@@ -45,6 +49,7 @@ private:
   // actual memory management not yet implemented, just use a vector for now
   eastl::vector<GameEntity> entities_;
 
+  EntityID player_entity_id_ = INVALID_ENTITY;
   size_t entity_count_ = 0;
 };
 

@@ -30,13 +30,19 @@ const float PLAYER_JUMP_VEL = 5.0f;
 
 const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
+const float HACKY_GROUND_Y_LEVEL = -0.25f;
+
+bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics) {
+  DirectX::XMFLOAT3 pos;
+  player_physics.rigid_body.SyncToPosition(pos);
+  return pos.y <= HACKY_GROUND_Y_LEVEL;
+}
+
 } // namespace
 
 void PlayerMovementControllerSys::Load() {}
 
-PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISystem(engine), player_id_(INVALID_ENTITY)
-{
-}
+PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISystem(engine) {}
 
 PlayerMovementControllerSys::~PlayerMovementControllerSys() {}
 
@@ -44,14 +50,14 @@ void PlayerMovementControllerSys::LevelStart() {}
 
 void PlayerMovementControllerSys::Update()
 {
-  if (player_id_ == INVALID_ENTITY)
+  GameEntity* player = Get<EntitySys>()->GetPlayer();
+  if (!player)
   {
-    FindPlayerID(); // try to find player
-    if (player_id_ == INVALID_ENTITY)
-    {
-      return; // still no player, bail out
-    }
+    return; // no player exists, bail out
   }
+
+  ComponentHandle phys_id = player->GetComponentHandle(ComponentKind::Physics);
+  PhysicsComponent player_physics = Get<ComponentSys>()->GetPhysics(phys_id);
 
   bool jump_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_JUMP);
   bool crouch_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_CROUCH);
@@ -61,8 +67,8 @@ void PlayerMovementControllerSys::Update()
 
   MoveState nextstate = movementstate_;
 
-  // TODO new_vel = player.getvelocity()
-  DirectX::XMVECTOR new_vel = ZERO_VEC;
+  const DirectX::XMVECTOR old_vel = player_physics.rigid_body.GetLinearVelocity();
+  DirectX::XMVECTOR new_vel = old_vel;
 
   switch (movementstate_)
   {
@@ -133,7 +139,7 @@ void PlayerMovementControllerSys::Update()
     }
     break;
   case MoveState::JUMP:
-    if (/* getplayery <= HACKY_GROUND_LEVEL_CONST */ false)
+    if (isPlayerCollidingWithGround(player_physics))
     {
       if (is_moving)
       {
@@ -184,16 +190,15 @@ void PlayerMovementControllerSys::Update()
     EnterState(nextstate);
   }
 
-  // TODO
-  // Get<EntitySys>->GetEntity(player_id_)->GetPhysics()->setvelocity (newvel)....
+  if (!DirectX::XMVector3Equal(new_vel, old_vel))
+  {
+    player_physics.rigid_body.SetLinearVelocity(new_vel);
+  }
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
 
-void PlayerMovementControllerSys::Unload()
-{
-  player_id_ = INVALID_ENTITY; // clear player id setting when unloading
-}
+void PlayerMovementControllerSys::Unload() {}
 
 SystemOrder PlayerMovementControllerSys::GetOrder()
 {
@@ -228,12 +233,6 @@ DirectX::XMVECTOR PlayerMovementControllerSys::CalcPlayerMoveDir()
   move_dir = DirectX::XMVector2Normalize(move_dir);
 
   return move_dir;
-}
-
-void PlayerMovementControllerSys::FindPlayerID()
-{
-  //TODO
-  player_id_ = INVALID_ENTITY;
 }
 
 // just no-ops, but can handle animation stuff later
