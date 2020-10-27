@@ -12,16 +12,17 @@
 #pragma once
 
 // Includes
+#include <OctaneEngine/ComponentSys.h>
 
 namespace Octane
 {
 class BehaviorSys;
-class ComponentHandle;
+//class ComponentHandle;
 
 class IBehavior
 {
 public:
-  explicit IBehavior(class BehaviorSys* parent, ComponentHandle handle) : parent_sys(*parent), handle_(handle) {};
+  explicit IBehavior(class BehaviorSys* parent, ComponentHandle handle) : parent_sys {*parent}, handle_(handle) {};
 
   virtual ~IBehavior() = default;
 

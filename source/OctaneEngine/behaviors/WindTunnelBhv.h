@@ -28,6 +28,8 @@ public:
    void Update(float dt) override ;
    void Shutdown() override;
 
+ private:
+   ComponentHandle phys_handle_ = INVALID_COMPONENT;
 };
 
 }
