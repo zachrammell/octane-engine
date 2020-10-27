@@ -6,7 +6,7 @@ namespace Octane
 {
 struct PhysicsComponent
 {
-  Octane::RigidBody rigid_body;
-  Octane::Primitive* primitive = nullptr;
+  RigidBody rigid_body;
+  Primitive* primitive = nullptr;
 };
 } // namespace Octane
