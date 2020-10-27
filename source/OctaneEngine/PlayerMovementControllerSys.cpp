@@ -33,9 +33,7 @@ const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 const float HACKY_GROUND_Y_LEVEL = -0.25f;
 
 bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics) {
-  DirectX::XMFLOAT3 pos;
-  player_physics.rigid_body.SyncToPosition(pos);
-  return pos.y <= HACKY_GROUND_Y_LEVEL;
+  return player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
 }
 
 } // namespace

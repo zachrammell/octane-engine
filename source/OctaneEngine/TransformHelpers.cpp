@@ -29,8 +29,7 @@ void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
 void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidBody& toPos, float speed)
 {
   //simplemove using physics
-  dx::XMFLOAT3 to;
-  toPos.SyncToPosition(to);
+  dx::XMFLOAT3 to = toPos.GetPosition();
 
   SimpleMove(fromRB, fromPos, to, speed);
 }

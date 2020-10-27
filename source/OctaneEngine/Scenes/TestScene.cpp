@@ -196,10 +196,10 @@ void TestScene::Load()
   wind_tunnel_physics.primitive = world->AddPrimitive(wind_tunnel_physics.rigid_body, ePrimitiveType::Box);
   static_cast<Box*>(wind_tunnel_physics.primitive)->SetBox(2.0f, 2.0f, 2.0f);
   #endif
-  bear_physics.rigid_body->SyncFromPosition({-2.f,0.25f,0.f});
-  duck_physics.rigid_body->SyncFromPosition({2.f,0.25f,0.f});
-  bunny_physics.rigid_body->SyncFromPosition({0.f,0.25f,-2.f});
-  //wind_tunnel_physics.rigid_body->SyncFromPosition({0.f, 1.f, 5.f});
+  bear_physics.rigid_body->SetPosition({-2.f, 0.25f, 0.f});
+  duck_physics.rigid_body->SetPosition({2.f, 0.25f, 0.f});
+  bunny_physics.rigid_body->SetPosition({0.f, 0.25f, -2.f});
+  //wind_tunnel_physics.rigid_body->SetPosition({0.f, 1.f, 5.f});
 }
 
 void TestScene::Start()
@@ -247,7 +247,7 @@ void TestScene::Update(float dt)
               .pos;
 
         //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-        bear_physics.rigid_body->SyncToPosition(bear_pos1);
+        bear_pos1 = bear_physics.rigid_body->GetPosition();
 
         dt = 0.f;
       }
@@ -272,7 +272,7 @@ void TestScene::Update(float dt)
               .pos;
 
         //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-        duck_physics.rigid_body->SyncToPosition(duck_pos1);
+        duck_pos1 = duck_physics.rigid_body->GetPosition();
 
         dt = 0.f;
       }
@@ -297,7 +297,7 @@ void TestScene::Update(float dt)
               .pos;
 
         //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-        bunny_physics.rigid_body->SyncToPosition(bunny_pos1);
+        bunny_pos1 = bunny_physics.rigid_body->GetPosition();
 
         dt = 0.f;
       }
@@ -434,12 +434,12 @@ void TestScene::Update(float dt)
           .pos;
 
         //red_bear_physics.rigid_body->ApplyForceCentroid(sample_force);
-    bear_physics.rigid_body->SyncToPosition(bear_pos);
+    bear_pos = bear_physics.rigid_body->GetPosition();
 
     //blue_bear_physics.rigid_body->ApplyForceCentroid(sample_force2);
-    duck_physics.rigid_body->SyncToPosition(duck_pos);
+    duck_pos = duck_physics.rigid_body->GetPosition();
 
-    bunny_physics.rigid_body->SyncToPosition(bunny_pos);
+    bunny_pos = bunny_physics.rigid_body->GetPosition();
 
     bool jumpPlease = input->KeyPressed(SDLK_j);
   	
@@ -464,10 +464,9 @@ void TestScene::Update(float dt)
     duck_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
     bunny_physics.rigid_body->ApplyForceCentroid({0.f, -G, 0.f});
 
-  	
-    bear_physics.rigid_body->SyncFromPosition(bear_pos);
-    duck_physics.rigid_body->SyncFromPosition(duck_pos);
-    bunny_physics.rigid_body->SyncFromPosition(bunny_pos);
+    bear_physics.rigid_body->SetPosition(bear_pos);
+    duck_physics.rigid_body->SetPosition(duck_pos);
+    bunny_physics.rigid_body->SetPosition(bunny_pos);
 
 
 

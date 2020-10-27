@@ -25,10 +25,12 @@ public:
   void SetLinearConstraints(const DirectX::XMFLOAT3& linear_constraints);
   void SetAngularConstraints(const DirectX::XMFLOAT3& angular_constraints);
 
-  void SyncFromPosition(const DirectX::XMFLOAT3& position);
-  void SyncFromOrientation(const DirectX::XMFLOAT4& orientation);
-  void SyncToPosition(DirectX::XMFLOAT3& position) const;
-  void SyncToOrientation(DirectX::XMFLOAT4& orientation) const;
+  void SetPosition(const DirectX::XMFLOAT3& position);
+  void SetOrientation(const DirectX::XMFLOAT4& orientation);
+
+  DirectX::XMFLOAT3 GetPosition() const;
+  DirectX::XMFLOAT4 GetOrientation() const;
+
 
   DirectX::XMVECTOR LocalToWorldPoint(const DirectX::XMVECTOR& local_point) const;
   DirectX::XMVECTOR WorldToLocalPoint(const DirectX::XMVECTOR& world_point) const;
@@ -43,9 +45,10 @@ public:
   void SetLinearVelocity(const DirectX::XMVECTOR& linear_velocity);
   void SetAngularVelocity(const DirectX::XMVECTOR& angular_velocity);
 
-
-
 private:
+  void SyncToPosition(DirectX::XMFLOAT3& position) const;
+  void SyncToOrientation(DirectX::XMFLOAT4& orientation) const;
+
   //linear data - positional
   DirectX::XMVECTOR position_;                                                          //vector3 - for transform
   DirectX::XMVECTOR linear_velocity_;                                                   //vector3

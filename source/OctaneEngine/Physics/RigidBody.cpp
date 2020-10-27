@@ -107,13 +107,13 @@ void RigidBody::SetAngularConstraints(const DirectX::XMFLOAT3& angular_constrain
   angular_constraints_ = XMLoadFloat3(&angular_constraints);
 }
 
-void RigidBody::SyncFromPosition(const DirectX::XMFLOAT3& position)
+void RigidBody::SetPosition(const DirectX::XMFLOAT3& position)
 {
   position_ = XMLoadFloat3(&position);
   UpdateCentroid();
 }
 
-void RigidBody::SyncFromOrientation(const DirectX::XMFLOAT4& orientation)
+void RigidBody::SetOrientation(const DirectX::XMFLOAT4& orientation)
 {
   orientation_ = XMLoadFloat4(&orientation);
   UpdateOrientation();
@@ -126,9 +126,23 @@ void RigidBody::SyncToPosition(DirectX::XMFLOAT3& position) const
   XMStoreFloat3(&position, position_);
 }
 
+DirectX::XMFLOAT3 RigidBody::GetPosition() const
+{
+  DirectX::XMFLOAT3 pos;
+  SyncToPosition(pos);
+  return pos;
+}
+
 void RigidBody::SyncToOrientation(DirectX::XMFLOAT4& orientation) const
 {
   XMStoreFloat4(&orientation, orientation_);
+}
+
+DirectX::XMFLOAT4 RigidBody::GetOrientation() const
+{
+  DirectX::XMFLOAT4 orientation;
+  SyncToOrientation(orientation);
+  return orientation;
 }
 
 DirectX::XMVECTOR RigidBody::LocalToWorldPoint(const DirectX::XMVECTOR& local_point) const
@@ -185,4 +199,6 @@ void RigidBody::SetAngularVelocity(const DirectX::XMVECTOR& angular_velocity)
 {
   angular_velocity_ = angular_velocity;
 }
+
+
 } // namespace Octane
