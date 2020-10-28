@@ -29,21 +29,33 @@ void ComponentSys::FreeBehavior(ComponentHandle id) {}
 
 RenderComponent& ComponentSys::GetRender(ComponentHandle id)
 {
+  assert(id != INVALID_COMPONENT);
+  assert(id >= 0);
+  assert(id <= transform_comps_.size());
   return render_comps_[id];
 }
 
 TransformComponent& ComponentSys::GetTransform(ComponentHandle id)
 {
+  assert(id != INVALID_COMPONENT);
+  assert(id >= 0);
+  assert(id <= transform_comps_.size());
   return transform_comps_[id];
 }
 
 PhysicsComponent& ComponentSys::GetPhysics(ComponentHandle id)
 {
+  assert(id != INVALID_COMPONENT);
+  assert(id >= 0);
+  assert(id <= transform_comps_.size());
   return physics_comps_[id];
 }
 
 BehaviorComponent& ComponentSys::GetBehavior(ComponentHandle id)
 {
+  assert(id != INVALID_COMPONENT);
+  assert(id >= 0);
+  assert(id <= transform_comps_.size());
   return behavior_comps_[id];
 }
 
