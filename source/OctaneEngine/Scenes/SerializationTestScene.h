@@ -38,6 +38,7 @@ public:
 private:
   bool entity_creator_ = true;
   bool entity_editor_ = true;
+  bool camera_moving_ = false;
   struct EntityData
   {
     EntityID id = -1;

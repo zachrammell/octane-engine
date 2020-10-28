@@ -34,6 +34,8 @@
   using optional = eastl::optional<T>;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = eastl::string;
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = eastl::string_view;
+#include <OctaneEngine/Graphics/CameraSys.h>
+
 #include <magic_enum.hpp>
 
 #include <DirectXMath.h>
@@ -87,6 +89,35 @@ void SerializationTestScene::Start()
 
 void SerializationTestScene::Update(float dt)
 {
+  auto& input = *Get<InputHandler>();
+
+  if (camera_moving_)
+  {
+    if (input.KeyPressed(SDLK_ESCAPE))
+    {
+      camera_moving_ = false;
+      SDL_SetRelativeMouseMode(SDL_FALSE);
+    }
+    dx::XMFLOAT3 cam_velocity;
+    cam_velocity.x = (input.KeyHeld(SDLK_a) - input.KeyHeld(SDLK_d));
+    cam_velocity.y = (input.KeyHeld(SDLK_SPACE) - input.KeyHeld(SDLK_LSHIFT));
+    cam_velocity.z = (input.KeyHeld(SDLK_w) - input.KeyHeld(SDLK_s));
+
+    dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
+
+    dx::XMINT2 mouse_vel = input.GetMouseMovement();
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
+    camera.RotatePitchRelative(-mouse_vel.y);
+    camera.RotateYawRelative(mouse_vel.x);
+
+    camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
+  }
+  else if (input.MouseButtonReleased(InputHandler::MouseButton::LEFT))
+  {
+    camera_moving_ = true;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+  }
+
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
@@ -144,7 +175,6 @@ void SerializationTestScene::Update(float dt)
     mesh_type = render_component.mesh_type;
   };
 
-  InputHandler& input = *Get<InputHandler>();
   bool save = false, load = false;
   if (input.KeyHeld(SDLK_LCTRL) || input.KeyHeld(SDLK_RCTRL))
   {
