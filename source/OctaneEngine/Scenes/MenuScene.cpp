@@ -61,7 +61,7 @@ void MenuScene::Update(float dt)
 
   if (ImGui::Begin("Scene Picker", nullptr, flags))
   {
-    ImGui::SetWindowPos({0.75f * w, 0.5f * h}, ImGuiCond_Always);
+    ImGui::SetWindowPos({0.8f *w, 0.5f * h}, ImGuiCond_Always);
     if (ImGui::BeginCombo("Scene", magic_enum::enum_name(selected_scene_).data(), ImGuiComboFlags_None))
     {
       for (auto const& scene : magic_enum::enum_entries<SceneE>())

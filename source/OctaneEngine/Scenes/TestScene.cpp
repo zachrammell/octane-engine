@@ -222,8 +222,6 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text("QAWSED for the Red Object Movement");
-  ImGui::Text("RFTGYH for the Blue Object");
   ImGui::Text("WASD and Space/Shift for camera movement");
   ImGui::Text("Alt+Enter for Fullscreen");
 
