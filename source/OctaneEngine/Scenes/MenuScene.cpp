@@ -25,6 +25,7 @@
 
 #include <OctaneEngine/Graphics/RenderSys.h>
 
+
 namespace Octane
 {
 MenuScene::MenuScene(SceneSys* parent) : IScene(parent), selected_scene_ {SceneE::TestScene} {}

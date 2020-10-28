@@ -31,6 +31,8 @@
 #include <AK/Comm/AkCommunication.h> // Communications, not for release!
 #endif // AK_OPTIMIZED
 
+
+
 namespace Octane
 {
 
@@ -49,9 +51,12 @@ public:
 
   static SystemOrder GetOrder();
 
-  bool AudioInit();
-  void AudioUpdate();
-  void AudioShutdown();
+  void button_sound();
+  void back_sound();
+  void music_play();
+  void music_stop();
+  void ambience_start();
+  void ambience_stop();
 
 private:
   // Variables
@@ -66,7 +71,18 @@ private:
   AkCommSettings commSettings;
 #endif // AK_OPTIMIZED
   
-  
+  // Possibly temporary
+  AkBankID init;
+  AkBankID main;
+
+  // Test object
+  AkGameObjectID test_object;
+  AkGameObjectID test_emitter;
+  AkGameObjectID test_listener;
+
+  bool AudioInit();
+  void AudioUpdate();
+  void AudioShutdown();
 
   // Setters
   void Set_Bank_Path(const AkOSChar*);
@@ -77,7 +93,7 @@ private:
   AkTimeMs Get_Position(AkPlayingID);
 
   // Banks
-  AkBankID Load_Bank(const char*);
+  AkBankID Load_Bank(const wchar_t*);
   void Unload_Bank(const char*);
 
   // Events
@@ -92,8 +108,12 @@ private:
 
   // Position
   // AkSoundPosition needs to be changed to whatever vector format we're using
-  void Set_Position(AkGameObjectID, const AkSoundPosition&);
+  void Set_Position(AkGameObjectID);
   void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
+
+  // Listeners
+  void Set_Default_Listener(const AkGameObjectID*, AkUInt32);
+  void Set_Listener(AkGameObjectID, const AkGameObjectID*, AkUInt32);
 
   // Handle tabbing out
   // True = Partial on; Partial means to keep processing sound events
@@ -104,8 +124,7 @@ private:
 };
 }
 
+
 // Current to do:
-// Put Init, Update, and Shutdown into game loop
-// register a game object
-// use Wwise IDs and event playing and game object to play a test sound
-// Implement the rest of the functions for now 
+// Make the game play a sound
+

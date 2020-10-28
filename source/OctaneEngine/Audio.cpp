@@ -17,10 +17,6 @@
 #include <cassert>
 #include <iostream>
 
-// defines
-#define AKTEXT
-
-
 // Wwise's default implementation
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
@@ -95,12 +91,37 @@ bool Audio::AudioInit()
   }
 #endif // AK_OPTIMIZED
 
+  // Set bank path
+  Set_Bank_Path(AKTEXT("assets/soundbanks/"));
+  Set_Language(AKTEXT("English(US)")); // Remember, we have to wrap all text in AKTEXT
+
+  // Test but load our two banks
+  init = Load_Bank(AKTEXT("Init.bnk"));
+  main = Load_Bank(AKTEXT("Main.bnk"));
+
+  // Register our test objects
+  test_listener = 0;
+  test_emitter = 1;
+  test_object = 100;
+  Register_Object(test_object, "test");
+  Register_Object(test_listener, "Listener");
+  Register_Object(test_emitter, "Emitter");
+
+  // Set listener and emitter
+  Set_Default_Listener(&test_listener, 1);
+
+  Set_Position(test_listener);
+  Set_Position(test_object);
+
   return true;
 }
 
 void Audio::AudioUpdate()
 {
-  //AK::SoundEngine::RenderAudio();
+  if (AK::SoundEngine::RenderAudio() != AK_Success)
+  {
+    Trace::Log(ERROR) << "Audio Rendering failed!" << std::endl;
+  }
 }
 
 void Audio::AudioShutdown()
@@ -134,27 +155,13 @@ void Audio::AudioShutdown()
   AK::MemoryMgr::Term();
 }
 
-void Audio::Set_Bank_Path(const AkOSChar * path)
+void Audio::Set_Bank_Path(const AkOSChar* path)
 {
-  // Why is this needed?
-  //int wchars_num = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-  //wchar_t* wstr = new wchar_t[wchars_num];
-  // MultiByteToWideChar(CP_UTF8, 0, path, -1, wstr, wchars_num);
-  
-  //delete[] wstr;
-
   g_lowLevelIO.SetBasePath(path);
 }
 
 void Audio::Set_Language(const AkOSChar* language)
 {
-  // This too
-  //int wchars_num = MultiByteToWideChar(CP_UTF8, 0, language, -1, NULL, 0);
-  //wchar_t* wstr = new wchar_t[wchars_num];
-  //MultiByteToWideChar(CP_UTF8, 0, language, -1, wstr, wchars_num);
-  
-  //delete[] wstr;
-
   AK::StreamMgr::SetCurrentLanguage(language);
 }
 
@@ -168,17 +175,16 @@ AkTimeMs Audio::Get_Position(AkPlayingID event)
   AkTimeMs position;
   if (AK::SoundEngine::GetSourcePlayPosition(event, &position) != AK_Success)
   {
-    std::cerr << "Position acquisition failed!" << std::endl;
+    Trace::Log(ERROR) << "Position acquisition failed!" << std::endl;
     return NULL;
   }
   return position;
 }
 
-// Before anyone asks, cerr is temporary. Can be changed to however we handle errors
-AkBankID Audio::Load_Bank(const char* name)
+AkBankID Audio::Load_Bank(const wchar_t* name)
 {
   AkBankID bankID;
-  
+
   if (AK::SoundEngine::LoadBank(name, bankID) != AK_Success)
   {
     Trace::Log(ERROR) << "Bank load '" << name << "' failed!" << std::endl;
@@ -197,9 +203,13 @@ void Audio::Unload_Bank(const char* name)
 
 void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
 {
-  if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) != AK_Success)
+  if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) == AK_INVALID_PLAYING_ID)
   {
     Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
+  }
+  else
+  {
+    Trace::Log(DEBUG) << "Playing event '" << UniqueID << " at " << GameObjectID << std::endl;
   }
 }
 
@@ -208,7 +218,7 @@ AkPlayingID Audio::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectI
   AkPlayingID PlayingID;
   PlayingID = AK::SoundEngine::PostEvent(UniqueID, GameObjectID, AK_EnableGetSourcePlayPosition, NULL, NULL);
 
-  if (PlayingID == NULL)
+  if (PlayingID == AK_INVALID_PLAYING_ID)
   {
     Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
   }
@@ -240,7 +250,7 @@ void Audio::Unregister_All_Objects()
   }
 }
 
-void Audio::Set_Position(AkGameObjectID object, const AkSoundPosition& position_)
+void Audio::Set_Position(AkGameObjectID object)
 {
   AkSoundPosition position;
   // These things don't work? Need to figure out how new version works
@@ -251,6 +261,10 @@ void Audio::Set_Position(AkGameObjectID object, const AkSoundPosition& position_
   position.OrientationFront = -1; // Not sure if this is correct yet, requires testing!
   position.OrientationTop = 0;
   */
+
+  // Set location ontop of origin
+  position.SetPosition(0, 0, 0);
+  position.SetOrientation(0, 0, -1, 0, 1, 0);
   
   if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
   {
@@ -263,6 +277,14 @@ void Audio::Set_Multiple_Positions(AkGameObjectID object, const AkSoundPosition*
   if (AK::SoundEngine::SetMultiplePositions(object, position_, NumPositions) != AK_Success)
   {
     Trace::Log(ERROR) << "Multiple position setting failed!" << std::endl;
+  }
+}
+
+void Audio::Set_Default_Listener(const AkGameObjectID* id, AkUInt32 count)
+{
+  if (AK::SoundEngine::SetDefaultListeners(id, count) != AK_Success)
+  {
+    Trace::Log(ERROR) << "Default Listener " << *id << " setting failed!" << std::endl;
   }
 }
 
@@ -281,7 +303,6 @@ void Audio::Restart_Render()
   AK::SoundEngine::RenderAudio();
 }
 
-
 Audio::Audio(Engine* parent_engine) : ISystem(parent_engine)
 {
   if (!AudioInit())
@@ -297,10 +318,14 @@ Audio::~Audio()
 
 void Audio::Load()
 {
+  
 }
 
 void Audio::LevelStart()
 {
+  ambience_start();
+  button_sound();
+  music_play();
 }
 
 void Audio::Update()
@@ -310,11 +335,13 @@ void Audio::Update()
 
 void Audio::LevelEnd()
 {
+  ambience_stop();
+  back_sound();
+  music_stop();
 }
 
 void Audio::Unload()
 {
-  
 }
 
 SystemOrder Audio::GetOrder()
@@ -322,4 +349,29 @@ SystemOrder Audio::GetOrder()
   return SystemOrder::Audio;
 }
 
+void Audio::button_sound()
+{
+  Play_Event(AK::EVENTS::PLAY_BUTTONSELECT, test_object);
+}
+
+void Audio::back_sound()
+{
+  Play_Event(AK::EVENTS::PLAY_BUTTONBACK, test_object);
+}
+void Audio::music_play()
+{
+  Play_Event(AK::EVENTS::TESTMUSIC, test_object);
+}
+void Audio::music_stop()
+{
+  Play_Event(AK::EVENTS::STOP_TESTMUSIC, test_object);
+}
+void Audio::ambience_start()
+{
+  Play_Event(AK::EVENTS::PLAY_AMBIENCE, test_object);
+}
+void Audio::ambience_stop()
+{
+  Play_Event(AK::EVENTS::STOP_AMBIENCE, test_object);
+}
 }

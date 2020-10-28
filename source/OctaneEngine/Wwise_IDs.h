@@ -13,14 +13,21 @@ namespace AK
 {
     namespace EVENTS
     {
+        static const AkUniqueID ENEMY_DEATH = 1205999388U;
+        static const AkUniqueID ENEMY_SPAWN = 1526102535U;
         static const AkUniqueID EXPLOSION_LASER = 3092211194U;
         static const AkUniqueID PLAY_AIRPLANELAUNCHER = 2971505500U;
+        static const AkUniqueID PLAY_AMBIENCE = 278617630U;
         static const AkUniqueID PLAY_BUTTONBACK = 860775431U;
         static const AkUniqueID PLAY_BUTTONHOVER = 479606568U;
         static const AkUniqueID PLAY_BUTTONSELECT = 3159718618U;
+        static const AkUniqueID PLAY_CROSSBOW = 4285763406U;
+        static const AkUniqueID PLAY_CROSSBOWRELOAD = 2574533045U;
+        static const AkUniqueID PLAYER_DEATH = 3083087645U;
         static const AkUniqueID PLAYER_FOOTSTEP = 2453392179U;
         static const AkUniqueID PLAYER_HURT = 1068092414U;
         static const AkUniqueID PLAYER_JUMP = 1305133589U;
+        static const AkUniqueID STOP_AMBIENCE = 2477713992U;
         static const AkUniqueID STOP_TESTMUSIC = 3991482221U;
         static const AkUniqueID TESTMUSIC = 1324413170U;
     } // namespace EVENTS
