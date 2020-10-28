@@ -70,3 +70,22 @@ void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos,float jumpForce)
 {
   RandomJump(rb, pos, 100.f, jumpForce);
 }
+
+void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
+{
+  dx::XMVECTOR from {obj.pos.x, 0.f, obj.pos.z};
+  dx::XMVECTOR to {pos.x, 0.f, pos.z};
+  //dx::XMMATRIX lookatMat = dx::XMMatrixLookAtLH(from, to, {0.f, 1.f, 0.f});
+  //dx::XMMATRIX invMat = dx::XMMatrixInverse(nullptr,lookatMat);
+  //dx::XMVECTOR rot = dx::XMQuaternionRotationMatrix(invMat);
+  //dx::XMStoreFloat4(&obj.rotation,rot);
+
+  dx::XMVECTOR disp = dx::XMVectorSubtract(to, from);
+
+  float pitch = 0.f; /*asin(-disp.m128_f32[1]);*/
+  float yaw = atan2(disp.m128_f32[0], disp.m128_f32[2]);
+  float roll = 0.f;
+
+  dx::XMStoreFloat4(&obj.rotation, dx::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
+
+}

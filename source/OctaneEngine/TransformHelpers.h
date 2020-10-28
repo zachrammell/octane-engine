@@ -2,6 +2,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <OctaneEngine/Physics/RigidBody.h>
+#include <OctaneEngine/TransformComponent.h>
 
 namespace dx = DirectX;
 
@@ -13,3 +14,4 @@ void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float de
 //chance between 0 and 10, 0 being 0%, 10 being 100%
 void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce);
 void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos,float jumpForce);
+void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos);

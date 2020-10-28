@@ -377,17 +377,31 @@ void TestScene::Update(float dt)
     PhysicsComponent& bunny_physics = Get<ComponentSys>()->GetPhysics(
       Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Physics)
     );
+    auto& bear_trans = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Transform));
 
+    auto& duck_trans = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(duck_id).GetComponentHandle(ComponentKind::Transform));
+
+    auto& bunny_trans = Get<ComponentSys>()
+          ->GetTransform(Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform));
+  	
     auto bear_pos = bear_physics.rigid_body.GetPosition();
     auto duck_pos = duck_physics.rigid_body.GetPosition();
     auto bunny_pos = bunny_physics.rigid_body.GetPosition();
 
     bool jumpPlease = input->KeyPressed(SDLK_j);
   	
+    auto& cam_pos = camera.GetPosition();
+
     //enemy movement
-    SimpleMove(bear_physics.rigid_body, bear_pos, camera.GetPosition(), 1.05f);
-    SimpleMove(duck_physics.rigid_body, duck_pos, camera.GetPosition(), 0.95f);
-    SimpleMove(bunny_physics.rigid_body, bunny_pos, camera.GetPosition(), 0.505f);
+    SimpleMove(bear_physics.rigid_body, bear_pos, cam_pos, 1.05f);
+    SimpleMove(duck_physics.rigid_body, duck_pos, cam_pos, 0.95f);
+    SimpleMove(bunny_physics.rigid_body, bunny_pos, cam_pos, 0.505f);
+
+    FacePos(bear_trans, cam_pos);//, false, true, false);
+    FacePos(duck_trans, cam_pos);//, false, true, false);
+    FacePos(bunny_trans,cam_pos);//, false, true, false);
 
     float constexpr G = 9.81f;
     //TODO: add collider to ground plane and then remove these lines
