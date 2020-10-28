@@ -67,9 +67,8 @@ void PhysicsSys::Update()
   auto* physics_end = component_sys->PhysicsEnd();
   resolution_phase_.Solve(&manifold_table_, physics_begin, physics_end, dt);
 
-
   //copy physics calculation to transform
-  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
     if (entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
@@ -90,6 +89,28 @@ void PhysicsSys::LevelEnd()
 SystemOrder PhysicsSys::GetOrder()
 {
   return SystemOrder::World;
+}
+
+void PhysicsSys::InitializeRigidBody(PhysicsComponent& compo)
+{
+  //linear data - positional
+  compo.rigid_body.position_ = DirectX::XMVECTOR();
+  compo.rigid_body.linear_velocity_ = DirectX::XMVECTOR();
+  compo.rigid_body.force_accumulator_ = DirectX::XMVECTOR();
+  compo.rigid_body.linear_constraints_ = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+
+  //angular data - rotational
+  compo.rigid_body.orientation_ = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+  compo.rigid_body.inverse_orientation_ = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+  compo.rigid_body.angular_velocity_ = DirectX::XMVECTOR();
+  compo.rigid_body.torque_accumulator_ = DirectX::XMVECTOR();
+  compo.rigid_body.angular_constraints_ = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+
+  //mass data
+  compo.rigid_body.mass_data_ = MassData();
+  compo.rigid_body.global_centroid_ = DirectX::XMVECTOR();
+  compo.rigid_body.global_inertia_ = DirectX::XMMatrixIdentity();
+  compo.rigid_body.global_inverse_inertia_ = DirectX::XMMatrixIdentity();
 }
 
 void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)

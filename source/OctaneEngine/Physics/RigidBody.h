@@ -49,6 +49,9 @@ private:
   void SyncToPosition(DirectX::XMFLOAT3& position) const;
   void SyncToOrientation(DirectX::XMFLOAT4& orientation) const;
 
+  private:
+  friend class PhysicsSys;
+
   //linear data - positional
   DirectX::XMVECTOR position_;                                                          //vector3 - for transform
   DirectX::XMVECTOR linear_velocity_;                                                   //vector3
@@ -68,8 +71,5 @@ private:
   //vector3 - physics calculation with center of mass.
   DirectX::XMMATRIX global_inertia_ = DirectX::XMMatrixIdentity();         //matrix3x3
   DirectX::XMMATRIX global_inverse_inertia_ = DirectX::XMMatrixIdentity(); //matrix3x3
-
-  //tool
-  const DirectX::XMFLOAT3 zero_vector_ = DirectX::XMFLOAT3();
 };
 } // namespace Octane

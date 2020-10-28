@@ -28,8 +28,8 @@ void RigidBody::Integrate(float dt)
     angular_velocity_,
     DirectX::XMVectorScale(XMVector3Transform(torque_accumulator_, global_inverse_inertia_), dt));
   //reset accumulator.
-  force_accumulator_ = XMLoadFloat3(&zero_vector_);
-  torque_accumulator_ = XMLoadFloat3(&zero_vector_);
+  force_accumulator_ = DirectX::XMVECTOR();
+  torque_accumulator_ = DirectX::XMVECTOR();
   //integrate transformation
   //calculate linear
   DirectX::XMVECTOR delta_linear_velocity

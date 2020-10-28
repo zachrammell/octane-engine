@@ -29,7 +29,9 @@ public:
 
 public:
 
+  void InitializeRigidBody(PhysicsComponent& compo);
   void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
+ 
 
 private:
   eastl::vector<Primitive*> primitives_;
