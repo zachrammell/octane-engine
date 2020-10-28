@@ -290,15 +290,15 @@ void NBTWriter::WriteStr(string_view name)
   fwrite(name.data(), sizeof(string_view::value_type), name.size(), outfile_);
 }
 
-void NBTWriter::WriteStrLen(uint16_t len)
+void NBTWriter::WriteStrLen(int16_t len)
 {
-  uint16_t const len_big_endian = htons(len);
+  int16_t const len_big_endian = htons(len);
   fwrite(&len_big_endian, sizeof(len_big_endian), 1, outfile_);
 }
 
-void NBTWriter::WriteArrayLen(uint32_t len)
+void NBTWriter::WriteArrayLen(int32_t len)
 {
-  uint32_t const len_big_endian = htonl(len);
+  int32_t const len_big_endian = htonl(len);
   fwrite(&len_big_endian, sizeof(len_big_endian), 1, outfile_);
 }
 

@@ -5,8 +5,9 @@
 namespace Octane
 {
 
-enum class MeshType
+enum class MeshType : int32_t
 {
+  INVALID = -1,
   Cube,
   Sphere,
   Cube_Rounded,

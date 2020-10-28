@@ -14,10 +14,13 @@ class NBTWriter
 public:
   NBTWriter(string_view filepath);
   ~NBTWriter();
+
   bool BeginCompound(string_view name);
   void EndCompound();
+
   bool BeginList(string_view name);
   void EndList();
+
   void WriteByte(string_view name, int8_t b);
   void WriteShort(string_view name, int16_t s);
   void WriteInt(string_view name, int32_t i);
@@ -27,8 +30,8 @@ public:
   void WriteByteArray(string_view name, int8_t const* array, int32_t length);
   void WriteString(string_view name, string_view str);
 
-  template<typename T>
   // This function is not implemented, only specialized! Specialize it on your own type to enable serialization
+  template<typename T>
   void Write(string_view name, T value);
 
 private:
@@ -51,8 +54,8 @@ private:
   /* The following functions are for raw writing without considering names, types, or nesting */
 
   void WriteStr(string_view name);
-  void WriteStrLen(uint16_t len);
-  void WriteArrayLen(uint32_t len);
+  void WriteStrLen(int16_t len);
+  void WriteArrayLen(int32_t len);
 
   void BeginRoot();
 

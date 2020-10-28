@@ -52,6 +52,7 @@ void EntitySys::FreeEntity(EntityID which)
 void EntitySys::FreeAllEntities()
 {
   entities_.clear();
+  entity_count_ = 0;
 }
 
 void EntitySys::Load() {}
