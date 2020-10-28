@@ -9,7 +9,7 @@ class IForce
 public:
   IForce() {}
   virtual ~IForce() {}
-  virtual void Solve(RigidBody* body, float dt) = 0;
+  virtual void Solve(RigidBody& body, float dt) = 0;
 
 private:
 };

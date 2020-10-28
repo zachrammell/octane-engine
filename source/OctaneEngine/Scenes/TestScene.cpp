@@ -59,24 +59,33 @@ void TestScene::Load()
   auto* physics_sys = Get<PhysicsSys>();
 
   auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, MeshType mesh_type = MeshType::Cube) {
-    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+    // todo: custom entity_id / component_id types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
-    GameEntity& ent = entsys->GetEntity((ent_id));
+    GameEntity& game_entity = entsys->GetEntity((ent_id));
     ComponentHandle const trans_id = compsys->MakeTransform();
-    ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+    game_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos = pos;
     trans.scale = scale;
-    trans.rotation = {};
+    trans.rotation = {0, 0, 0, 1};
     ComponentHandle const render_id = compsys->MakeRender();
-    ent.components[to_integral(ComponentKind::Render)] = render_id;
+    game_entity.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.color = color;
     render_component.mesh_type = mesh_type;
-  };
 
+    //ComponentHandle physics_comp_id = compsys->MakePhysics();
+    //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    //physics_sys->InitializeRigidBody(physics_comp);
+    //physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    //static_cast<Box*>(physics_comp.primitive)->SetBox(2.0f * scale.x, 2.0f * scale.y, 2.0f * scale.z);
+    //physics_comp.rigid_body.SetPosition(trans.pos);
+    //trans.rotation = physics_comp.rigid_body.GetOrientation();
+    //physics_comp.rigid_body.SetStatic();
+  };
   // ground plane
-  create_object({0.0f, 0.0f, 0.0f}, {30.0f, 0.25f, 30.0f}, Colors::db32[10]);
+  create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
   create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
 
   bear_id = Get<EntitySys>()->MakeEntity();
@@ -415,7 +424,7 @@ void TestScene::Update(float dt)
     auto& bunny_pos = bunny_trans.pos; //bunny_physics.rigid_body.GetPosition();
 
     float constexpr G = 9.81f;
-    //TODO: add collider to ground plane and then remove these lines
+    ////TODO: add collider to ground plane and then remove these lines
     LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
     LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
     LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
@@ -430,9 +439,9 @@ void TestScene::Update(float dt)
     bunny_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
 
     dx::XMFLOAT3 bear_velocity;
-    bear_velocity.x = -1.0f * (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
+    bear_velocity.x = -10.0f * (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
     bear_velocity.y = 0.0f;
-    bear_velocity.z = -1.0f * (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+    bear_velocity.z = -10.0f * (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
 
     bear_physics.rigid_body.ApplyForceCentroid(bear_velocity);
 

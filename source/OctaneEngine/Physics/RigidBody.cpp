@@ -121,6 +121,22 @@ void RigidBody::SetOrientation(const DirectX::XMFLOAT4& orientation)
   UpdateInertia();
 }
 
+void RigidBody::SetStatic()
+{
+  mass_data_.local_inertia = DirectX::XMMATRIX();
+  mass_data_.local_inverse_inertia = DirectX::XMMATRIX();
+  global_inertia_ = DirectX::XMMATRIX();
+  global_inverse_inertia_ = DirectX::XMMATRIX();
+  mass_data_.mass = 0.0f;
+  mass_data_.inverse_mass = 0.0f;
+  is_dynamic_ = false;
+}
+
+bool RigidBody::IsDynamic() const
+{
+  return is_dynamic_;
+}
+
 void RigidBody::SyncToPosition(DirectX::XMFLOAT3& position) const
 {
   XMStoreFloat3(&position, position_);

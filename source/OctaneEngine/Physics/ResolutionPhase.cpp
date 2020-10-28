@@ -8,20 +8,27 @@ void ResolutionPhase::Initialize() {}
 
 void ResolutionPhase::Shutdown()
 {
-  for (auto& constraint : m_velocity_constraints)
+  for (auto& constraint : velocity_constraints_)
   {
     constraint->Release();
     delete constraint;
     constraint = nullptr;
   }
-  m_velocity_constraints.clear();
-  for (auto& constraint : m_position_constraints)
+  velocity_constraints_.clear();
+  for (auto& constraint : position_constraints_)
   {
     constraint->Release();
     delete constraint;
     constraint = nullptr;
   }
-  m_position_constraints.clear();
+  position_constraints_.clear();
+
+  for (auto& force : forces_)
+  {
+    delete force;
+    force = nullptr;
+  }
+  forces_.clear();
 }
 
 void ResolutionPhase::Solve(
@@ -31,17 +38,17 @@ void ResolutionPhase::Solve(
   float dt)
 {
   //Apply Forces
-  //for (auto& force : forces)
-  //{
-  //  for (auto& body : *rigid_bodies)
-  //  {
-  //    force->Update(body, dt);
-  //  }
-  //}
-  m_contact_constraints.clear();
-  if (m_velocity_iteration > 0)
+  for (auto& force : forces_)
   {
-    for (auto& constraint : m_velocity_constraints)
+    for (auto it = begin; it != end; ++it)
+    {
+      force->Solve(it->rigid_body, dt);
+    }
+  }
+  m_contact_constraints.clear();
+  if (velocity_iteration_ > 0)
+  {
+    for (auto& constraint : velocity_constraints_)
     {
       constraint->Generate(dt);
     }
@@ -50,16 +57,16 @@ void ResolutionPhase::Solve(
       auto& contact = m_contact_constraints.emplace_back(&manifold.second, 0.1f, 0.1f);
       contact.Generate(dt);
     }
-    if (m_b_warm_start == true)
+    if (is_warm_start_ == true)
     {
       for (auto& contact_constraint : m_contact_constraints)
       {
         contact_constraint.WarmStart();
       }
     }
-    for (size_t i = 0; i < m_velocity_iteration; ++i)
+    for (size_t i = 0; i < velocity_iteration_; ++i)
     {
-      for (auto& constraint : m_velocity_constraints)
+      for (auto& constraint : velocity_constraints_)
       {
         constraint->Solve(dt);
       }
@@ -68,7 +75,7 @@ void ResolutionPhase::Solve(
         contact.Solve(dt);
       }
     }
-    for (auto& constraint : m_velocity_constraints)
+    for (auto& constraint : velocity_constraints_)
     {
       constraint->Apply();
     }
@@ -86,23 +93,28 @@ void ResolutionPhase::Solve(
     it->rigid_body.UpdatePosition();
   }
 
-  if (m_position_iteration > 0)
+  if (position_iteration_ > 0)
   {
-    for (auto& constraint : m_position_constraints)
+    for (auto& constraint : position_constraints_)
     {
       constraint->Generate(dt);
     }
-    for (size_t i = 0; i < m_position_iteration; ++i)
+    for (size_t i = 0; i < position_iteration_; ++i)
     {
-      for (auto& constraint : m_position_constraints)
+      for (auto& constraint : position_constraints_)
       {
         constraint->Solve(dt);
       }
     }
-    for (auto& constraint : m_position_constraints)
+    for (auto& constraint : position_constraints_)
     {
       constraint->Apply();
     }
   }
+}
+
+void ResolutionPhase::AddForce(IForce* force)
+{
+  forces_.push_back(force);
 }
 } // namespace Octane

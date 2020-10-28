@@ -4,6 +4,7 @@
 #include <OctaneEngine/Physics/Constraints.h>
 #include <OctaneEngine/Physics/ContactConstraints.h>
 #include <OctaneEngine/PhysicsComponent.h>
+#include <OctaneEngine/Physics/Force.h>
 
 #include <EASTL/hash_map.h>
 #include <EASTL/vector.h>
@@ -25,12 +26,15 @@ public:
     PhysicsComponent* end,
     float dt);
 
+  void AddForce(IForce* force);
+
 private:
-  bool m_b_warm_start = false;
-  size_t m_velocity_iteration = 8;
-  size_t m_position_iteration = 3;
+  bool is_warm_start_ = false;
+  size_t velocity_iteration_ = 8;
+  size_t position_iteration_ = 3;
   eastl::vector<ContactConstraints> m_contact_constraints;
-  eastl::vector<Constraints*> m_velocity_constraints;
-  eastl::vector<Constraints*> m_position_constraints;
+  eastl::vector<Constraints*> velocity_constraints_;
+  eastl::vector<Constraints*> position_constraints_;
+  eastl::vector<IForce*> forces_;
 };
 } // namespace Octane

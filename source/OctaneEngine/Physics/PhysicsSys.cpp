@@ -8,7 +8,9 @@
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/Capsule.h>
+#include <OctaneEngine/Physics/DragForce.h>
 #include <OctaneEngine/Physics/Ellipsoid.h>
+#include <OctaneEngine/Physics/GlobalGravityForce.h>
 #include <OctaneEngine/Physics/Simplex.h>
 #include <OctaneEngine/Physics/Truncated.h>
 #include <OctaneEngine/SystemOrder.h>
@@ -19,7 +21,11 @@ namespace Octane
 {
 PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
 
-void PhysicsSys::LevelStart() {}
+void PhysicsSys::LevelStart()
+{
+  //resolution_phase_.AddForce(new GlobalGravityForce({0.0f, -9.81f, 0.0f}));
+  resolution_phase_.AddForce(new DragForce(0.15f, 0.15f));
+}
 
 void PhysicsSys::Update()
 {
@@ -122,6 +128,7 @@ void PhysicsSys::InitializeRigidBody(PhysicsComponent& compo)
   compo.rigid_body.global_centroid_ = DirectX::XMVECTOR();
   compo.rigid_body.global_inertia_ = DirectX::XMMatrixIdentity();
   compo.rigid_body.global_inverse_inertia_ = DirectX::XMMatrixIdentity();
+  compo.rigid_body.is_dynamic_ = true;
 }
 
 void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
@@ -159,7 +166,7 @@ bool PhysicsSys::HasCollision(
   const TransformComponent& transform_a,
   Primitive* primitive_a,
   const TransformComponent& transform_b,
-  Primitive* primitive_b, 
+  Primitive* primitive_b,
   size_t exit_count)
 {
   Simplex simplex;
