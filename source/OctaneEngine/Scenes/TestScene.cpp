@@ -86,8 +86,8 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     bear.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
+    trans.pos.x = 2.0f;
+    trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -103,7 +103,7 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.25f, 0.25f, 0.25f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
@@ -115,8 +115,8 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     duck.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
+    trans.pos.x = -2.0f;
+    trans.pos.y = 2.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -132,7 +132,7 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.25f, 0.25f, 0.25f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
 
@@ -151,8 +151,8 @@ void TestScene::Load()
     bunny.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
-    trans.pos.z = 0.0f;
+    trans.pos.y = 2.0f;
+    trans.pos.z = -2.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
 
@@ -167,10 +167,11 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.25f, 0.25f, 0.25f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
+
 
 #if 0
 
@@ -393,6 +394,8 @@ void TestScene::Update(float dt)
 
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
 
+    auto handle = Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Physics);
+
     PhysicsComponent& bear_physics = Get<ComponentSys>()->GetPhysics(
       Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Physics));
     PhysicsComponent& duck_physics = Get<ComponentSys>()->GetPhysics(
@@ -408,14 +411,37 @@ void TestScene::Update(float dt)
     auto& bunny_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform));
 
-    auto bear_pos = bear_physics.rigid_body.GetPosition();
-    auto duck_pos = duck_physics.rigid_body.GetPosition();
-    auto bunny_pos = bunny_physics.rigid_body.GetPosition();
+    //auto& bear_pos = bear_trans.pos; //bear_physics.rigid_body.GetPosition();
+    //auto& duck_pos = duck_trans.pos; //duck_physics.rigid_body.GetPosition();
+    //auto& bunny_pos = bunny_trans.pos; //bunny_physics.rigid_body.GetPosition();
 
+    //float constexpr G = 9.81f;
+    ////TODO: add collider to ground plane and then remove these lines
+    //LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    //LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
+    //LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
+
+    //bear_physics.rigid_body.SetPosition(bear_pos);
+    //duck_physics.rigid_body.SetPosition(duck_pos);
+    //bunny_physics.rigid_body.SetPosition(bunny_pos);
+
+    ////apply gravity
+    //bear_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+    //duck_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+    //bunny_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+
+    dx::XMFLOAT3 bear_velocity;
+    bear_velocity.x = -1.0f * (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
+    bear_velocity.y = 0.0f;
+    bear_velocity.z = -1.0f * (input->KeyHeld(SDLK_UP) - input->KeyHeld(SDLK_DOWN));
+
+    bear_physics.rigid_body.ApplyForceCentroid(bear_velocity);
+
+
+
+#if 0
     bool jumpPlease = input->KeyPressed(SDLK_j);
-
     auto& cam_pos = camera.GetPosition();
-
     //enemy movement
     SimpleMove(bear_physics.rigid_body, bear_pos, cam_pos, 1.05f);
     SimpleMove(duck_physics.rigid_body, duck_pos, cam_pos, 0.95f);
@@ -424,26 +450,11 @@ void TestScene::Update(float dt)
     FacePos(bear_trans, cam_pos);  //, false, true, false);
     FacePos(duck_trans, cam_pos);  //, false, true, false);
     FacePos(bunny_trans, cam_pos); //, false, true, false);
-
-    float constexpr G = 9.81f;
-    //TODO: add collider to ground plane and then remove these lines
-    LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
-    LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
-    LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
-
     //make them slightly more interesting by having them jump
     RandomJump(bear_physics.rigid_body, bear_pos, jumpPlease ? 100.f : 0.2f, 15.f * G);
     RandomJump(duck_physics.rigid_body, duck_pos, jumpPlease ? 100.f : 0.7f, 25.f * G);
     BunnyHop(bunny_physics.rigid_body, bunny_pos, 35.f * G);
-
-    //apply gravity
-    bear_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
-    duck_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
-    bunny_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
-
-    bear_physics.rigid_body.SetPosition(bear_pos);
-    duck_physics.rigid_body.SetPosition(duck_pos);
-    bunny_physics.rigid_body.SetPosition(bunny_pos);
+#endif
   }
 }
 

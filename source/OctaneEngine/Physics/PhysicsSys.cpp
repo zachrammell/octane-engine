@@ -34,8 +34,9 @@ void PhysicsSys::Update()
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
-      physics_component.rigid_body.SetPosition(transform.pos);
-      physics_component.rigid_body.SetOrientation(transform.rotation);
+      physics_component.primitive->rigid_body_ = &physics_component.rigid_body;
+      //physics_component.rigid_body.SetPosition(transform.pos);
+      //physics_component.rigid_body.SetOrientation(transform.rotation);
     }
   }
 
@@ -85,7 +86,15 @@ void PhysicsSys::Update()
 
 void PhysicsSys::LevelEnd()
 {
-  //TODO clear world!
+  potential_pairs_.clear();
+  manifold_table_.clear();
+  collision_table_.clear();
+  for (auto& primitive : primitives_)
+  {
+    delete primitive;
+    primitive = nullptr;
+  }
+  primitives_.clear();
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -144,5 +153,16 @@ eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& 
     return collision->second;
   }
   return eCollisionState::None;
+}
+
+bool PhysicsSys::HasCollision(
+  const TransformComponent& transform_a,
+  Primitive* primitive_a,
+  const TransformComponent& transform_b,
+  Primitive* primitive_b, 
+  size_t exit_count)
+{
+  Simplex simplex;
+  return narrow_phase_.GJKCollisionDetection(transform_a, primitive_a, transform_b, primitive_b, exit_count, simplex);
 }
 } // namespace Octane

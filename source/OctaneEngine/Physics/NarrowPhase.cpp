@@ -1,6 +1,7 @@
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/PrimitivePair.h>
 #include <OctaneEngine/Physics/RigidBody.h>
+#include <OctaneEngine/TransformHelpers.h>
 
 namespace Octane
 {
@@ -185,5 +186,51 @@ bool NarrowPhase::EPAContactGeneration(Primitive* a, Primitive* b, Polytope& pol
   result.normal = DirectX::XMVector3Normalize(closest_face.normal);
   result.depth = closest_face.distance;
   return true;
+}
+
+SupportPoint NarrowPhase::GenerateCSOSupport(
+  const TransformComponent& transform_a,
+  Primitive* primitive_a,
+  const TransformComponent& transform_b,
+  Primitive* primitive_b,
+  const DirectX::XMVECTOR& direction)
+{
+  DirectX::XMVECTOR local_a = primitive_a->Support(
+    DirectX::XMVector3Normalize(WorldToLocalVector(transform_a, direction)));
+  DirectX::XMVECTOR local_b = primitive_b->Support(
+    DirectX::XMVector3Normalize(WorldToLocalVector(transform_b, DirectX::XMVectorNegate(direction))));
+  DirectX::XMVECTOR support_a = LocalToWorldPoint(transform_a, local_a);
+  DirectX::XMVECTOR support_b = LocalToWorldPoint(transform_b, local_b);
+  return SupportPoint(DirectX::XMVectorSubtract(support_a, support_b), local_a, local_b);
+}
+
+bool NarrowPhase::GJKCollisionDetection(
+  const TransformComponent& transform_a,
+  Primitive* primitive_a,
+  const TransformComponent& transform_b,
+  Primitive* primitive_b,
+  size_t exit_count,
+  Simplex& simplex)
+{
+  DirectX::XMVECTOR direction = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+  for (size_t i = 0; i < exit_count; ++i)
+  {
+    if (Math::IsValid(direction) == false)
+    {
+      //if direction is infinite, nan return false
+      //usually divide by zero 
+      return false;
+    }
+    simplex.simplex_vertex_a = GenerateCSOSupport(transform_a, primitive_a, transform_b, primitive_b, direction);
+    if (Math::DotProductVector3(simplex.simplex_vertex_a.global, direction) < 0.0f)
+    {
+      return false;
+    }
+    if (simplex.DoSimplex(direction) == true)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 } // namespace Octane

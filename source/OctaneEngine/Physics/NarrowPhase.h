@@ -8,6 +8,7 @@
 #include <OctaneEngine/Physics/Simplex.h>
 #include <OctaneEngine/Physics/SupportPoint.h>
 #include <OctaneEngine/Physics/BoundingAABB.h>
+#include <OctaneEngine/TransformComponent.h>
 
 #include <EASTL/hash_map.h>
 
@@ -38,6 +39,21 @@ public:
   bool EPAContactGeneration(Primitive* a, Primitive* b, Polytope& polytope, ContactPoint& result);
 
 private:
+  SupportPoint GenerateCSOSupport(
+    const TransformComponent& transform_a,
+    Primitive* primitive_a,
+    const TransformComponent& transform_b,
+    Primitive* primitive_b, const DirectX::XMVECTOR& direction);
+  bool GJKCollisionDetection(
+    const TransformComponent& transform_a,
+    Primitive* primitive_a,
+    const TransformComponent& transform_b,
+    Primitive* primitive_b,
+    size_t exit_count,
+    Simplex& simplex);
+
+private:
+  friend class PhysicsSys;
   size_t gjk_exit_count_ = 100;
   size_t epa_exit_count_ = 100;
 

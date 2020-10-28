@@ -6,6 +6,7 @@
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/ResolutionPhase.h>
 #include <OctaneEngine/PhysicsComponent.h>
+#include <OctaneEngine/TransformComponent.h>
 
 #include <EASTL/vector.h>
 #include <EASTL/hash_map.h>
@@ -32,6 +33,11 @@ public:
   void InitializeRigidBody(PhysicsComponent& compo);
   void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
   eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
+  bool HasCollision(
+    const TransformComponent& transform_a,
+    Primitive* primitive_a,
+    const TransformComponent& transform_b,
+    Primitive* primitive_b, size_t exit_count = 100);
 
 private:
   eastl::vector<Primitive*> primitives_;
