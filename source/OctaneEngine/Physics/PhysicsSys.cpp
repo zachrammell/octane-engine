@@ -28,7 +28,7 @@ void PhysicsSys::Update()
   auto* component_sys = Get<ComponentSys>();
   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
-    if (entity->active)
+    if (entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
@@ -71,7 +71,7 @@ void PhysicsSys::Update()
   //copy physics calculation to transform
   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
-    if (entity->active)
+    if (entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
