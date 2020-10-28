@@ -28,7 +28,8 @@ void PhysicsSys::Update()
   auto* component_sys = Get<ComponentSys>();
   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
-    if (entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
+    if (
+      entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
@@ -60,7 +61,7 @@ void PhysicsSys::Update()
   }
 
   //[Narrow Phase]
-  narrow_phase_.GenerateContact(potential_pairs_, &manifold_table_);
+  narrow_phase_.GenerateContact(potential_pairs_, &manifold_table_, &collision_table_);
 
   //[Resolution Phase]
   auto* physics_begin = component_sys->PhysicsBegin();
@@ -68,9 +69,10 @@ void PhysicsSys::Update()
   resolution_phase_.Solve(&manifold_table_, physics_begin, physics_end, dt);
 
   //copy physics calculation to transform
-   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
-    if (entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
+    if (
+      entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
@@ -131,5 +133,16 @@ void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
     primitives_.push_back(primitive);
     compo.primitive = primitive;
   }
+}
+
+eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& b) const
+{
+  size_t key = reinterpret_cast<size_t>(a.primitive) + reinterpret_cast<size_t>(b.primitive);
+  auto collision = collision_table_.find(key);
+  if (collision != collision_table_.end())
+  {
+    return collision->second;
+  }
+  return eCollisionState::None;
 }
 } // namespace Octane

@@ -13,6 +13,15 @@
 
 namespace Octane
 {
+enum class eCollisionState
+{
+  None,
+  Start,
+  Persist,
+  End,
+  Invalid
+};
+
 class NarrowPhase
 {
 public:
@@ -21,7 +30,8 @@ public:
 
   void GenerateContact(
     eastl::vector<PrimitivePair> potential_pairs_,
-    eastl::hash_map<size_t, ContactManifold>* manifold_table);
+    eastl::hash_map<size_t, ContactManifold>* manifold_table,
+    eastl::hash_map<size_t, eCollisionState>* collision_table);
 
   SupportPoint GenerateCSOSupport(Primitive* a, Primitive* b, const DirectX::XMVECTOR& direction);
   bool GJKCollisionDetection(Primitive* a, Primitive* b, Simplex& simplex);

@@ -31,12 +31,13 @@ public:
 
   void InitializeRigidBody(PhysicsComponent& compo);
   void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
- 
+  eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
   eastl::vector<Primitive*> primitives_;
   eastl::vector<PrimitivePair> potential_pairs_;
   eastl::hash_map<size_t, ContactManifold> manifold_table_;
+  eastl::hash_map<size_t, eCollisionState> collision_table_;
 
   NarrowPhase narrow_phase_;
   ResolutionPhase resolution_phase_;

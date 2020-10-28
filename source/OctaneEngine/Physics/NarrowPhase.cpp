@@ -20,7 +20,8 @@ NarrowPhase::NarrowPhase()
 
 void NarrowPhase::GenerateContact(
   eastl::vector<PrimitivePair> potential_pairs_,
-  eastl::hash_map<size_t, ContactManifold>* manifold_table)
+  eastl::hash_map<size_t, ContactManifold>* manifold_table,
+  eastl::hash_map<size_t, eCollisionState>* collision_table)
 {
   //filter prev manifolds
   for (auto& pair : potential_pairs_)
@@ -43,22 +44,34 @@ void NarrowPhase::GenerateContact(
         //send a event about start and persist.
         size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
         auto found = manifold_table->find(key);
+        auto collision = collision_table->find(key);
 
         if (found == manifold_table->end())
         {
           found = manifold_table->emplace(key, ContactManifold(pair.a, pair.b)).first;
+          collision = collision_table->emplace(key, eCollisionState::Start).first;
         }
 
         ContactManifold& manifold = found->second;
 
         manifold.UpdateCurrentManifold(new_contact_data);
         manifold.CutDownManifold();
+        collision->second = manifold.is_collide ? eCollisionState::Persist : eCollisionState::Start;
         manifold.is_collide = true;
       }
       else
       {
-        //generate invalid contact do not copy data.
-        //send a event invalid.
+        //invalid collision
+        size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
+        auto collision = collision_table->find(key);
+        if (collision == collision_table->end())
+        {
+          collision = collision_table->emplace(key, eCollisionState::Invalid).first;
+        }
+        else
+        {
+          collision->second = eCollisionState::Invalid;
+        }
       }
     }
     else
@@ -67,10 +80,12 @@ void NarrowPhase::GenerateContact(
       //send a event about none and end.
       size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
       auto found = manifold_table->find(key);
+      auto collision = collision_table->find(key);
 
       if (found != manifold_table->end())
       {
         found->second.ClearContacts();
+        collision->second = found->second.is_collide ? eCollisionState::End : eCollisionState::None;
         found->second.is_collide = false;
       }
     }
