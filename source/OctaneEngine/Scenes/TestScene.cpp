@@ -172,7 +172,6 @@ void TestScene::Load()
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
 
-
 #if 0
 
         wind_tunnel_id = Get<EntitySys>()->MakeEntity();
@@ -411,24 +410,24 @@ void TestScene::Update(float dt)
     auto& bunny_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform));
 
-    //auto& bear_pos = bear_trans.pos; //bear_physics.rigid_body.GetPosition();
-    //auto& duck_pos = duck_trans.pos; //duck_physics.rigid_body.GetPosition();
-    //auto& bunny_pos = bunny_trans.pos; //bunny_physics.rigid_body.GetPosition();
+    auto& bear_pos = bear_trans.pos;   //bear_physics.rigid_body.GetPosition();
+    auto& duck_pos = duck_trans.pos;   //duck_physics.rigid_body.GetPosition();
+    auto& bunny_pos = bunny_trans.pos; //bunny_physics.rigid_body.GetPosition();
 
-    //float constexpr G = 9.81f;
-    ////TODO: add collider to ground plane and then remove these lines
-    //LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
-    //LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
-    //LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
+    float constexpr G = 9.81f;
+    //TODO: add collider to ground plane and then remove these lines
+    LockYRelToTarget(bear_pos, {0.f, 0.f, 0.f}, -.25f);
+    LockYRelToTarget(duck_pos, {0.f, 0.f, 0.f}, -.25f);
+    LockYRelToTarget(bunny_pos, {0.f, 0.f, 0.f}, -.25f);
 
-    //bear_physics.rigid_body.SetPosition(bear_pos);
-    //duck_physics.rigid_body.SetPosition(duck_pos);
-    //bunny_physics.rigid_body.SetPosition(bunny_pos);
+    bear_physics.rigid_body.SetPosition(bear_pos);
+    duck_physics.rigid_body.SetPosition(duck_pos);
+    bunny_physics.rigid_body.SetPosition(bunny_pos);
 
-    ////apply gravity
-    //bear_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
-    //duck_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
-    //bunny_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+    //apply gravity
+    bear_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+    duck_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
+    bunny_physics.rigid_body.ApplyForceCentroid({0.f, -G, 0.f});
 
     dx::XMFLOAT3 bear_velocity;
     bear_velocity.x = -1.0f * (input->KeyHeld(SDLK_LEFT) - input->KeyHeld(SDLK_RIGHT));
@@ -437,11 +436,8 @@ void TestScene::Update(float dt)
 
     bear_physics.rigid_body.ApplyForceCentroid(bear_velocity);
 
-
-
-#if 0
     bool jumpPlease = input->KeyPressed(SDLK_j);
-    auto& cam_pos = camera.GetPosition();
+    auto cam_pos = camera.GetPosition();
     //enemy movement
     SimpleMove(bear_physics.rigid_body, bear_pos, cam_pos, 1.05f);
     SimpleMove(duck_physics.rigid_body, duck_pos, cam_pos, 0.95f);
@@ -454,7 +450,6 @@ void TestScene::Update(float dt)
     RandomJump(bear_physics.rigid_body, bear_pos, jumpPlease ? 100.f : 0.2f, 15.f * G);
     RandomJump(duck_physics.rigid_body, duck_pos, jumpPlease ? 100.f : 0.7f, 25.f * G);
     BunnyHop(bunny_physics.rigid_body, bunny_pos, 35.f * G);
-#endif
   }
 }
 
