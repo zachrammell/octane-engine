@@ -209,7 +209,7 @@ void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
   }
   else
   {
-    Trace::Log(DEBUG) << "Playing event '" << UniqueID << " at " << GameObjectID << std::endl;
+    Trace::Log(DEBUG) << "Playing event '" << UniqueID << "' at " << GameObjectID << std::endl;
   }
 }
 

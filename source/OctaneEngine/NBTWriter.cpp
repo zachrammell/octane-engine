@@ -6,8 +6,8 @@
 // Load-time link with the networking library
 #pragma comment(lib, "ws2_32.lib")
 
-#include <OctaneEngine/Graphics/Colors.h>
 #include <DirectXMath.h>
+#include <OctaneEngine/Graphics/Colors.h>
 
 #include <OctaneEngine/Helper.h>
 #include <cassert>
@@ -67,7 +67,7 @@ NBTWriter::~NBTWriter()
   EndCompound();
   if (!nesting_info_.empty())
   {
-    assert(!"[ERROR] NBTWriter: Mismatched Compound Begin/End - A Compound Tag was not closed.");
+    Trace::Error("NBTWriter : Mismatched Compound Begin / End - A Compound Tag was not closed.\n");
   }
   fclose(outfile_);
 }
@@ -89,7 +89,7 @@ void NBTWriter::EndCompound()
   NestingInfo& nesting = nesting_info_.top();
   if (nesting.container_type != NestingInfo::ContainerType::Compound)
   {
-    assert(!"[ERROR] NBTWriter: Mismatched Compound Begin/End - Compound Tag closed without being opened.");
+    Trace::Error("NBTWriter: Mismatched Compound Begin/End - Compound Tag closed without being opened.\n");
   }
   if (nesting.length == 0)
   {
@@ -102,7 +102,7 @@ void NBTWriter::EndCompound()
 bool NBTWriter::BeginList(string_view name)
 {
   HandleNesting(name, TAG::List);
-//  NestingInfo& nesting = nesting_info_.top();
+  //  NestingInfo& nesting = nesting_info_.top();
   if (!name.empty())
   {
     WriteTag(TAG::List);
@@ -123,7 +123,7 @@ void NBTWriter::EndList()
   NestingInfo& nesting = nesting_info_.top();
   if (nesting.container_type != NestingInfo::ContainerType::List)
   {
-    assert(!"[ERROR] NBTWriter: Mismatched List Begin/End - List Tag closed without being opened.");
+    Trace::Error("NBTWriter: Mismatched List Begin/End - List Tag closed without being opened.\n");
   }
   if (nesting.length == 0)
   {
@@ -141,8 +141,6 @@ void NBTWriter::EndList()
 
   nesting_info_.pop();
 }
-
-
 
 void NBTWriter::WriteByte(string_view name, int8_t b)
 {
@@ -241,7 +239,7 @@ void NBTWriter::WriteString(string_view name, string_view str)
 
 // Write specializations
 
-template <>
+template<>
 void NBTWriter::Write(string_view name, int8_t b)
 {
   WriteByte(name, b);
@@ -317,8 +315,8 @@ void NBTWriter::HandleNesting(string_view name, TAG t)
   {
     if (!name.empty())
     {
-      assert(
-        !"[ERROR] NBTWriter: Name Error - Attempted to add a named tag to a List. Lists cannot contain named tags.");
+      Trace::Error(
+        "NBTWriter: Name Error - Attempted to add a named tag to a List. Lists cannot contain named tags.\n");
     }
     // The list is not exclusively the same type as this tag
     if (nesting.data_type != t)
@@ -330,8 +328,8 @@ void NBTWriter::HandleNesting(string_view name, TAG t)
       }
       else
       {
-        assert(
-          !"[ERROR] NBTWriter: Type Error - Attempted to add a tag to a list with tags of different type. All tags in a list must be of the same type.");
+        Trace::Error(
+          "NBTWriter: Type Error - Attempted to add a tag to a list with tags of different type. All tags in a list must be of the same type.\n");
       }
     }
   }
@@ -339,8 +337,7 @@ void NBTWriter::HandleNesting(string_view name, TAG t)
   {
     if (name.empty())
     {
-      assert(
-        !"[ERROR] NBTWriter: Structure Error - Attempted to add an unnamed tag to a compound. All tags in a compound must be named.");
+      Trace::Error("NBTWriter: Structure Error - Attempted to add an unnamed tag to a compound. All tags in a compound must be named.\n");
     }
   }
   ++(nesting.length);

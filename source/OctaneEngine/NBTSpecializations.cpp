@@ -41,7 +41,6 @@ void NBTWriter::Write(string_view name, RenderComponent render_component)
 {
   if (BeginCompound(name))
   {
-    Write("ComponentType", to_integral(ComponentKind::Render));
     Write("Mesh", to_integral(render_component.mesh_type));
     Write("Color", render_component.color);
     EndCompound();
@@ -53,7 +52,6 @@ void NBTWriter::Write(string_view name, TransformComponent transform_component)
 {
   if (BeginCompound(name))
   {
-    Write("ComponentType", to_integral(ComponentKind::Transform));
     Write("Pos", transform_component.pos);
     Write("Scale", transform_component.scale);
     Write("Rotation", transform_component.rotation);
@@ -72,13 +70,13 @@ Color NBTReader::Read(string_view name)
 template<>
 DirectX::XMFLOAT3 NBTReader::Read(string_view name)
 {
-  if (EnterList(name))
+  if (OpenList(name))
   {
     DirectX::XMFLOAT3 vec;
     vec.x = ReadFloat("");
     vec.y = ReadFloat("");
     vec.z = ReadFloat("");
-    ExitList();
+    CloseList();
     return vec;
   }
 }
@@ -86,14 +84,14 @@ DirectX::XMFLOAT3 NBTReader::Read(string_view name)
 template<>
 DirectX::XMFLOAT4 NBTReader::Read(string_view name)
 {
-  if (EnterList(name))
+  if (OpenList(name))
   {
     DirectX::XMFLOAT4 vec;
     vec.x = ReadFloat("");
     vec.y = ReadFloat("");
     vec.z = ReadFloat("");
     vec.w = ReadFloat("");
-    ExitList();
+    CloseList();
     return vec;
   }
 }
@@ -102,6 +100,12 @@ template<>
 MeshType NBTReader::Read(string_view name)
 {
   return magic_enum::enum_cast<MeshType>(ReadInt(name)).value_or(MeshType::INVALID);
+}
+
+template<>
+ComponentKind NBTReader::Read(string_view name)
+{
+  return magic_enum::enum_cast<ComponentKind>(ReadInt(name)).value_or(ComponentKind::INVALID);
 }
 
 }

@@ -13,8 +13,9 @@
 namespace Octane
 {
 
-enum class ComponentKind
+enum class ComponentKind : int32_t
 {
+  INVALID = -1,
   Transform = 0,
   Render,
   Physics,

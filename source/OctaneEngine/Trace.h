@@ -56,8 +56,12 @@ private:
   static constexpr int MAX_STREAMS = 4;
   eastl::fixed_vector<StreamEntry, MAX_STREAMS, false> streams_;
 
+  Severity severity_level_;
+
   void Attach(std::ostream* log);
   void AttachColored(std::ostream* log);
+
+  void SetSeverity(Severity level);
 };
 
 void SetMinSeverity(Severity level);
@@ -70,6 +74,8 @@ void Assert(bool expression, Severity level, char const* format, ...);
 int Log(Severity level, char const* format, ...);
 // Trace::Log(DEBUG) << "blah blah c++" << std::endl;
 LogStream& Log(Severity level);
+// Trace::Error("You did something bad! Error code: %d", err);
+void Error(char const* format, ...);
 
 void AddLog(std::ostream* log);
 void AddLogColored(std::ostream* log);

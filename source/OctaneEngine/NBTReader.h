@@ -28,12 +28,12 @@ public:
   NBTReader(string_view filepath);
   ~NBTReader();
 
-  bool EnterCompound(string_view name);
-  void ExitCompound();
+  bool OpenCompound(string_view name);
+  void CloseCompound();
 
-  bool EnterList(string_view name);
+  bool OpenList(string_view name);
   int32_t ListSize();
-  void ExitList();
+  void CloseList();
 
   int8_t ReadByte(string_view name);
   int16_t ReadShort(string_view name);
@@ -117,7 +117,7 @@ private:
 
   /* READING HELPER FUNCTIONS */
 
-  void HandleNesting(string_view name, TAG t);
+  bool HandleNesting(string_view name, TAG t);
   void EnterRoot();
 
   /* PARSING FUNCTIONS */

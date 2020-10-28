@@ -88,7 +88,7 @@ void SceneSys::SetNextScene(SceneE next_scene)
     next_scene_ = scene_holder_[to_integral(next_scene)];
   }
 
-  Trace::Log(DEBUG) << "switched to scene " << magic_enum::enum_name(next_scene) << std::endl;
+  Trace::Log(DEBUG) << "Switched to scene " << magic_enum::enum_name(next_scene) << std::endl;
 
   engine_.ChangeScene();
 }

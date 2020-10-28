@@ -19,6 +19,8 @@
 
 #include <cassert>
 
+#include <OctaneEngine/Trace.h>
+
 namespace Octane
 {
 
@@ -55,7 +57,7 @@ file_open:
 
 NBTReader::~NBTReader()
 {
-  ExitCompound();
+  CloseCompound();
   fclose(infile_);
 }
 
@@ -71,9 +73,12 @@ void NBTReader::EnterRoot()
   PopLatestName();
 }
 
-bool NBTReader::EnterCompound(string_view name)
+bool NBTReader::OpenCompound(string_view name)
 {
-  HandleNesting(name, TAG::Compound);
+  if (!HandleNesting(name, TAG::Compound))
+  {
+    return false;
+  }
   auto const found = named_tags_.find(current_name_.c_str());
   if (found != named_tags_.end())
   {
@@ -84,14 +89,24 @@ bool NBTReader::EnterCompound(string_view name)
   return false;
 }
 
-void NBTReader::ExitCompound()
+void NBTReader::CloseCompound()
 {
-  PopLatestName();
+  NestingInfo& nesting = nesting_info_.top();
+  if (nesting.container_type == NestingInfo::ContainerType::Compound)
+  {
+    nesting_info_.pop();
+    PopLatestName();
+    return;
+  }
+  Trace::Error("NBTReader : Compound Close Mismatch - Attempted to close a compound when a compound was not open.");
 }
 
-bool NBTReader::EnterList(string_view name)
+bool NBTReader::OpenList(string_view name)
 {
-  HandleNesting(name, TAG::List);
+  if (!HandleNesting(name, TAG::List))
+  {
+    return false;
+  }
   auto const found = named_tags_.find(current_name_.c_str());
   if (found != named_tags_.end())
   {
@@ -105,13 +120,25 @@ bool NBTReader::EnterList(string_view name)
 
 int32_t NBTReader::ListSize()
 {
-  return named_tags_.find(current_name_.c_str())->second.list_length_;
+  NestingInfo& nesting = nesting_info_.top();
+  if (nesting.container_type == NestingInfo::ContainerType::List)
+  {
+    return nesting.length;
+  }
+  Trace::Error("NBTReader : Invalid List Size Read - Attempted to read list size when a list was not open.");
+  return -1;
 }
 
-void NBTReader::ExitList()
+void NBTReader::CloseList()
 {
-  nesting_info_.pop();
-  PopLatestName();
+  NestingInfo& nesting = nesting_info_.top();
+  if (nesting.container_type == NestingInfo::ContainerType::List)
+  {
+    nesting_info_.pop();
+    PopLatestName();
+    return;
+  }
+  Trace::Error("NBTReader : List Close Mismatch - Attempted to close a list when a list was not open.");
 }
 
 float NBTReader::ReadFloat(string_view name)
@@ -130,7 +157,7 @@ int32_t NBTReader::ReadInt(string_view name)
   return ret;
 }
 
-void NBTReader::HandleNesting(string_view name, TAG t)
+bool NBTReader::HandleNesting(string_view name, TAG t)
 {
   NestingInfo& nesting = nesting_info_.top();
   // Lists have strict requirements
@@ -152,6 +179,11 @@ void NBTReader::HandleNesting(string_view name, TAG t)
     }
     else
     {
+      if (nesting.list_index >= nesting.length)
+      {
+        // read too many from list
+        return false;
+      }
       AddToCurrentName(eastl::to_string(nesting.list_index));
       ++(nesting.list_index);
     }
@@ -165,6 +197,7 @@ void NBTReader::HandleNesting(string_view name, TAG t)
     }
     AddToCurrentName(name);
   }
+  return true;
 }
 
 void NBTReader::ParseDataTree()

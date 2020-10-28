@@ -90,8 +90,8 @@ static void Assert_Internal(bool expression, Severity level, char const* format,
   else
   {
     Log(FAILURE) << "Failed to assert that " << formatted.sprintf_va_list(format, args) << "\n";
-    assert(expression);
   }
+  assert(expression);
 }
 
 void Assert(bool expression, char const* format, ...)
@@ -140,6 +140,17 @@ LogStream& Log(Severity level)
     return log_stream;
   }
   return log_null;
+}
+
+void Error(char const* format, ...)
+{
+  std::va_list args;
+  eastl::string formatted;
+  va_start(args, format);
+  Log(ERROR) << formatted.sprintf_va_list(format, args);
+  va_end(args);
+  // Something has gone very wrong! Check output.
+  assert(0);
 }
 
 void AddLog(std::ostream* log)

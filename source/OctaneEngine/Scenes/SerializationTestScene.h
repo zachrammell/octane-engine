@@ -12,7 +12,12 @@
 #pragma once
 
 // Includes
+
 #include <OctaneEngine/SceneSys.h>
+
+#include <OctaneEngine/RenderComponent.h>
+#include <OctaneEngine/EntitySys.h>
+#include <DirectXMath.h>
 
 namespace Octane
 {
@@ -31,6 +36,17 @@ public:
   virtual SceneE GetEnum() const;
 
 private:
+  bool entity_creator_ = true;
+  bool entity_editor_ = true;
+  struct EntityData
+  {
+    EntityID id = -1;
+    DirectX::XMFLOAT3 position{};
+    DirectX::XMFLOAT3 scale{1,1,1};
+    DirectX::XMFLOAT3 rotation {};
+    Color color{};
+    MeshType mesh {MeshType::Cube};
+  } entity_creator_data_, entity_editor_data_;
 };
 
 } // namespace Octane

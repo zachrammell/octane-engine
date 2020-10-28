@@ -4,8 +4,10 @@
 #include <OctaneEngine/NBTReader.h>
 
 #include <OctaneEngine/Graphics/Colors.h>
+#include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/RenderComponent.h>
 #include <OctaneEngine/TransformComponent.h>
+
 #include <DirectXMath.h>
 
 namespace Octane
@@ -30,5 +32,7 @@ template<>
 DirectX::XMFLOAT4 NBTReader::Read(string_view name);
 template<>
 MeshType NBTReader::Read(string_view name);
+template<>
+ComponentKind NBTReader::Read(string_view name);
 
 }
