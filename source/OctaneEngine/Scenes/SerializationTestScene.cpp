@@ -216,7 +216,6 @@ void SerializationTestScene::Update(float dt)
       }
       nbt_reader.ExitList();
     }
-    __debugbreak();
   }
 }
 
