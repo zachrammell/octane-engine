@@ -6,7 +6,7 @@
   \date       YYYY/MM/DD
   \brief      <WHAT DOES IT DO>
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -68,7 +68,7 @@ void RenderSys::Update()
   auto& meshes_ = meshSys->Meshes();
   for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
   {
-    if (iter->active)
+    if (iter->active && iter->HasComponent(ComponentKind::Transform) && iter->HasComponent(ComponentKind::Render))
     {
       auto& transform = component_sys->GetTransform(iter->GetComponentHandle(ComponentKind::Transform));
       auto& render_comp = component_sys->GetRender(iter->GetComponentHandle(ComponentKind::Render));
