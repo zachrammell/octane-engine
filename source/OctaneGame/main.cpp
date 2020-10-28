@@ -11,32 +11,22 @@
 #include <fstream>
 
 #define SDL_MAIN_HANDLED
-
-#include <EASTL/vector.h>
 #include <SDL.h>
-#include <SDL_syswm.h>
-
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_sdl.h>
 
 #include <OctaneEngine/Engine.h>
-#include <OctaneEngine/Graphics/OBJParser.h>
-#include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
+
+#include <OctaneEngine/Trace.h>
+#include <OctaneEngine/FormattedOutput.h>
+#include <OctaneEngine/Registry.h>
 
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/EntitySys.h>
-#include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
-#include <OctaneEngine/NBTWriter.h>
-#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/SceneSys.h>
-#include <OctaneEngine/Trace.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
@@ -45,7 +35,6 @@
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
-
 
 int main(int argc, char* argv[]) noexcept
 {
@@ -61,7 +50,15 @@ int main(int argc, char* argv[]) noexcept
   std::ofstream logfile("sandbox/latest.txt");
 
   Octane::Trace::AddLog(&logfile);
-  Octane::Trace::AddLog(&std::clog);
+  if (IsDebuggerPresent() || Octane::Registry::GetDword(HKEY_CURRENT_USER, "Console", "VirtualTerminalLevel").value_or(0) == 0x1)
+  {
+    Octane::Trace::AddLogColored(&std::clog);
+  }
+  else
+  {
+    Octane::Trace::AddLog(&std::clog);
+  }
+  
   Octane::Trace::Log(Octane::INFO) << "[== Project Octane ==]\n";
 
   Octane::Engine engine;
@@ -79,52 +76,6 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::ImGuiSys {&engine});
   engine.AddSystem(new Octane::MeshSys {&engine});
   engine.AddSystem(new Octane::Audio {&engine});
-
-  
-
-  // NBT writing demo
-  {
-    Octane::NBTWriter nbt_writer("sandbox/test_list.nbt");
-    nbt_writer.WriteInt("hi", 300);
-    if (nbt_writer.BeginCompound("stuff"))
-    {
-      if (nbt_writer.BeginList("players"))
-      {
-        if (nbt_writer.BeginCompound(""))
-        {
-          nbt_writer.WriteByte("lives", 3);
-          nbt_writer.WriteFloat("health", 56.7f);
-          if (nbt_writer.BeginList("inventory"))
-          {
-            if (nbt_writer.BeginCompound(""))
-            {
-              nbt_writer.WriteInt("id", 276);
-              nbt_writer.WriteByte("count", 1);
-              nbt_writer.EndCompound();
-            }
-            if (nbt_writer.BeginCompound(""))
-            {
-              nbt_writer.WriteInt("id", 46);
-              nbt_writer.WriteByte("count", 64);
-              nbt_writer.EndCompound();
-            }
-            nbt_writer.EndList(); // inventory
-          }
-          nbt_writer.EndCompound();
-        }
-        nbt_writer.EndList(); // players
-      }
-      if (nbt_writer.BeginList("vehicles"))
-      {
-        nbt_writer.WriteString("", "car");
-        nbt_writer.WriteString("", "truck");
-        nbt_writer.WriteString("", "subaru wrx");
-        nbt_writer.WriteString("", "bike");
-        nbt_writer.EndList(); // vehicles
-      }
-      nbt_writer.EndCompound(); // stuff
-    }
-  }
 
   while (!engine.ShouldQuit())
   {
