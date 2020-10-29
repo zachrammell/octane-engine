@@ -163,9 +163,19 @@ dx::XMMATRIX FPSCamera::GetViewMatrix()
   return XMLoadFloat4x4(&view_matrix_);
 }
 
+DirectX::XMMATRIX FPSCamera::GetWorldMatrix() const
+{
+  return dx::XMMatrixAffineTransformation({1.f,1.f,1.f},{position_.x,position_.y,position_.z},dx::XMQuaternionRotationRollPitchYaw(pitch_,yaw_,0.f),{position_.x,position_.y,position_.z});
+}
+
 dx::XMFLOAT3 FPSCamera::GetPosition() const
 {
   return position_;
+}
+
+DirectX::XMVECTOR FPSCamera::GetInverseOrientation() const
+{
+  return dx::XMQuaternionInverse( dx::XMQuaternionRotationRollPitchYaw(pitch_, yaw_, 0.f));
 }
 
 bool FPSCamera::Dirty() const

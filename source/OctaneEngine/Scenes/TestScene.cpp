@@ -21,6 +21,7 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Scenes/TestScene.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <imgui.h>
 #include <iostream>
 
@@ -38,6 +39,7 @@ Octane::EntityID bear_id;
 Octane::EntityID duck_id;
 Octane::EntityID bunny_id;
 Octane::EntityID wind_tunnel_id;
+Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 
 //struct PhysicsComponentTemp
@@ -50,6 +52,7 @@ const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 
 namespace Octane
 {
+
 TestScene::TestScene(SceneSys* parent) : IScene(parent) {}
 
 void TestScene::Load()
@@ -87,6 +90,7 @@ void TestScene::Load()
   // ground plane
   create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
   create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
+  
 
   bear_id = Get<EntitySys>()->MakeEntity();
 
@@ -181,6 +185,27 @@ void TestScene::Load()
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
 
+
+  crossbow_id = Get<EntitySys>()->MakeEntity();
+  {
+    GameEntity& crossbow = Get<EntitySys>()->GetEntity((crossbow_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    crossbow.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 0.0f;
+    trans.pos.y = 0.0f;
+    trans.pos.z = 0.0f;
+    trans.scale = {0.15f, 0.1f, 0.1f};
+    trans.rotation = {};
+
+    ComponentHandle render_comp_id = compsys->MakeRender();
+    crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Colors::cerulean;
+    render_comp.mesh_type = MeshType::Crossbow;
+  }
+
+
 #if 0
 
         wind_tunnel_id = Get<EntitySys>()->MakeEntity();
@@ -225,6 +250,46 @@ void TestScene::Start()
 
 void TestScene::Update(float dt)
 {
+  auto create_plane = [=](dx::XMFLOAT3 pos)
+  {
+    auto* entsys = Get<EntitySys>();
+    auto* compsys = Get<ComponentSys>();
+    auto* physics_sys = Get<PhysicsSys>();
+
+    auto plane_id = Get<EntitySys>()->MakeEntity();
+    GameEntity& plane = Get<EntitySys>()->GetEntity((plane_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    plane.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos = pos;
+    trans.scale = {0.15f, 0.1f, 0.1f};
+    trans.rotation = {};
+
+    ComponentHandle render_comp_id = compsys->MakeRender();
+    plane.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Colors::db32[rand()%32];
+    render_comp.mesh_type = MeshType::PaperPlane;
+
+    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    plane.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    physics_sys->InitializeRigidBody(physics_comp);
+    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(0.15f, 0.15f, 0.15f);
+    physics_comp.rigid_body.SetPosition(trans.pos);
+    trans.rotation = physics_comp.rigid_body.GetOrientation();
+
+    ComponentHandle behavior_comp_id = compsys->MakeBehavior();
+    plane.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
+    BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
+    behavior_comp.type = BHVRType::PLANE;
+    //PlaneBehavior& plane_behavior = *reinterpret_cast<PlaneBehavior*>(behavior_comp.behavior);
+    //plane_behavior.GivePhysics(physics_comp_id);
+  };
+
+
+
   ImGui::Begin(
     "Instructions Window",
     NULL,
@@ -419,6 +484,9 @@ void TestScene::Update(float dt)
     auto& bunny_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Transform));
 
+    auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
+      Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
+
     auto& bear_pos = bear_trans.pos;   //bear_physics.rigid_body.GetPosition();
     auto& duck_pos = duck_trans.pos;   //duck_physics.rigid_body.GetPosition();
     auto& bunny_pos = bunny_trans.pos; //bunny_physics.rigid_body.GetPosition();
@@ -452,13 +520,23 @@ void TestScene::Update(float dt)
     SimpleMove(duck_physics.rigid_body, duck_pos, cam_pos, 0.95f);
     SimpleMove(bunny_physics.rigid_body, bunny_pos, cam_pos, 0.505f);
 
-    FacePos(bear_trans, cam_pos);  //, false, true, false);
+    //crossbow placement and rotation
+    PlaceRelativeTo(crossbow_trans, .25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
+
+    FacePos(bear_trans, cam_pos);  //, false, true false);
     FacePos(duck_trans, cam_pos);  //, false, true, false);
     FacePos(bunny_trans, cam_pos); //, false, true, false);
     //make them slightly more interesting by having them jump
     RandomJump(bear_physics.rigid_body, bear_pos, jumpPlease ? 100.f : 0.2f, 15.f * G);
     RandomJump(duck_physics.rigid_body, duck_pos, jumpPlease ? 100.f : 0.7f, 25.f * G);
     BunnyHop(bunny_physics.rigid_body, bunny_pos, 35.f * G);
+
+    //shoot paper airplanes
+    if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT))
+    {
+      create_plane(crossbow_trans.pos);
+    }
+
   }
 }
 

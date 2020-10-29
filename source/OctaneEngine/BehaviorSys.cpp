@@ -22,6 +22,8 @@
 #include <magic_enum.hpp>
 
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/Graphics/CameraSys.h>
 
 namespace Octane
 {
@@ -63,6 +65,12 @@ void BehaviorSys::Load()
             case BHVRType::WINDTUNNEL: 
                 beh.behavior = new WindTunnelBHV(this, handle);
                 break;
+            case BHVRType::PLANE:
+            {
+              auto& camera = Get<CameraSys>()->GetFPSCamera();
+              beh.behavior = new PlaneBehavior(this, handle,camera.GetViewDirection());
+            }
+              break;
             default: break;
             }
           }
@@ -125,6 +133,13 @@ void BehaviorSys::Update()
             case BHVRType::WINDTUNNEL: 
                 beh.behavior = new WindTunnelBHV(this, handle); 
                 break;
+            case BHVRType::PLANE:
+            {
+              auto& camera = Get<CameraSys>()->GetFPSCamera();
+              beh.behavior = new PlaneBehavior(this, handle, camera.GetViewDirection());
+            }
+            break;
+
             default: break;
             }
           }

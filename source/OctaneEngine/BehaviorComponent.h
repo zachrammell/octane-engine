@@ -10,6 +10,7 @@ enum class BHVRType
 {
 	PLAYER,
 	WINDTUNNEL,
+  PLANE,
 
 
 	INVALID

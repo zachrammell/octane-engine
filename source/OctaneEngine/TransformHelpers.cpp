@@ -93,6 +93,21 @@ void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
   dx::XMStoreFloat4(&obj.rotation, dx::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
 }
 
+void PlaceRelativeTo(Octane::TransformComponent& obj,float offset,
+  const dx::XMFLOAT3& relPos,const dx::XMVECTOR& invOrientation,const dx::XMVECTOR& direction)
+{
+  //placement
+  dx::XMVECTOR offset_ {dx::XMVectorScale(direction,offset)};
+  dx::XMStoreFloat3(&obj.pos, dx::XMVectorAdd(offset_, dx::XMLoadFloat3(&relPos)));
+  //rotation
+  ReorientTo(obj, invOrientation);
+}
+
+void ReorientTo(Octane::TransformComponent& obj, const dx::XMVECTOR& invOrientation)
+{
+  dx::XMStoreFloat4(&obj.rotation, invOrientation);
+}
+
 dx::XMVECTOR LocalToWorldPoint(const Octane::TransformComponent& transform, const dx::XMVECTOR& local_point)
 {
   dx::XMVECTOR orientation = XMLoadFloat4(&transform.rotation);

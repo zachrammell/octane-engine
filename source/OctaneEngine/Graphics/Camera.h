@@ -61,8 +61,9 @@ public:
 
   DirectX::XMVECTOR GetViewDirection();
   DirectX::XMMATRIX GetViewMatrix();
-
+  DirectX::XMMATRIX GetWorldMatrix() const;
   DirectX::XMFLOAT3 GetPosition() const;
+  DirectX::XMVECTOR GetInverseOrientation() const;
 
 private:
   DirectX::XMFLOAT3 position_;
