@@ -41,8 +41,8 @@ void PlaneBehavior::Initialize()
   auto& cam = Get<CameraSys>()->GetFPSCamera();
   auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
   auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
-  physics.rigid_body.SetOrientation(trans.rotation);
   ReorientTo(trans, cam.GetInverseOrientation());
+  physics.rigid_body.SetOrientation(trans.rotation);
 
 }
 

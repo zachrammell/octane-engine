@@ -195,7 +195,7 @@ void TestScene::Load()
     trans.pos.x = 0.0f;
     trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
-    trans.scale = {0.15f, 0.1f, 0.1f};
+    trans.scale = {0.15f, 0.2f, 0.1f};
     trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
