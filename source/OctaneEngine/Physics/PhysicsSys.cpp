@@ -29,7 +29,7 @@ void PhysicsSys::LevelStart()
 
 void PhysicsSys::Update()
 {
-  float dt = 1.0f / 60.0f;
+  float dt = Get<FramerateController>()->GetDeltaTime(); //1.0f / 60.0f;
 
   auto* component_sys = Get<ComponentSys>();
   for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)

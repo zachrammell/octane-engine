@@ -521,7 +521,7 @@ void TestScene::Update(float dt)
     SimpleMove(bunny_physics.rigid_body, bunny_pos, cam_pos, 0.505f);
 
     //crossbow placement and rotation
-    PlaceRelativeTo(crossbow_trans, .25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
+    PlaceRelativeTo(crossbow_trans, 0.25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
 
     FacePos(bear_trans, cam_pos);  //, false, true false);
     FacePos(duck_trans, cam_pos);  //, false, true, false);
