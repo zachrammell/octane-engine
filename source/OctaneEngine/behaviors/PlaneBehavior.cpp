@@ -19,39 +19,40 @@ PlaneBehavior::PlaneBehavior(BehaviorSys* parent, ComponentHandle handle, dx::XM
 
 void PlaneBehavior::Initialize() 
 {
-  auto enty = Get<EntitySys>();
+  
 
-  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
-  {
-    //check if compared entity is the current plane
-    if (it->HasComponent(ComponentKind::Behavior))
-    {
-      auto other = it->GetComponentHandle(ComponentKind::Behavior);
+  //for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  //{
+  //  //check if compared entity is the current plane
+  //  if (it->HasComponent(ComponentKind::Behavior))
+  //  {
+  //    auto other = it->GetComponentHandle(ComponentKind::Behavior);
 
-      if (other == handle_)
-      {
-        //assume this plane has a physics component
-        phys_handle_ = it->GetComponentHandle(ComponentKind::Physics);
-        trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
-        break;
-      }
-    }
-  }
+  //    if (other == handle_)
+  //    {
+  //      //assume this plane has a physics component
+  //      phys_handle_ = it->GetComponentHandle(ComponentKind::Physics);
+  //      trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
+  //      break;
+  //    }
+  //  }
+  //}
 
-  auto& cam = Get<CameraSys>()->GetFPSCamera();
-  auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
-  auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
-  ReorientTo(trans, cam.GetInverseOrientation());
-  physics.rigid_body.SetOrientation(trans.rotation);
+  //auto& cam = Get<CameraSys>()->GetFPSCamera();
+  //auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
+  //auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
+  //ReorientTo(trans, cam.GetInverseOrientation());
+  //physics.rigid_body.SetOrientation(trans.rotation);
 
 }
 
 void PlaneBehavior::Update(float dt, EntityID myid)
 {
-  if (phys_handle_ == INVALID_COMPONENT)
-    return;
+  auto enty = Get<EntitySys>();
+  auto& physics = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
+  auto& trans_me
+    = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
 
-  auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
 
   float constexpr G = -9.81f;
 

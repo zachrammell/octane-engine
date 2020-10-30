@@ -29,8 +29,6 @@ public:
   void Shutdown() override;
 
   private:
-    ComponentHandle phys_handle_ = INVALID_COMPONENT;
-    ComponentHandle trans_handle_ = INVALID_COMPONENT;
     dx::XMVECTOR dir_;
     float lifetime = 5.0f;
     bool impulsed = false;
