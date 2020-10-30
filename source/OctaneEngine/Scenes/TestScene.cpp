@@ -159,11 +159,6 @@ void TestScene::Load()
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
 
-    //this is test code, it does nothing so dont worry about it
-    /*ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
-           obj101_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
-            BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
-            beh_comp.type = BHVRType::WINDTUNNEL;*/
   }
 
   bunny_id = Get<EntitySys>()->MakeEntity();
@@ -255,6 +250,7 @@ void TestScene::Load()
         }
         
 #endif
+
 
 }
 
