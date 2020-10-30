@@ -21,9 +21,8 @@
 #include <iostream>
 #include <magic_enum.hpp>
 
-#include <OctaneEngine/behaviors/WindTunnelBhv.h>
-#include <OctaneEngine/behaviors/PlaneBehavior.h>
-#include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/behaviors/IBehavior.h>
+
 
 namespace Octane
 {
@@ -82,7 +81,7 @@ void BehaviorSys::Update()
         beh.initialized = true;
       }
 
-      if (beh.type != BHVRType::INVALID)
+      if (beh.type != BHVRType::INVALID && beh.behavior != nullptr)
       {
         EntityID id = static_cast<EntityID>(it - entsys_->EntitiesBegin());
         beh.behavior->Update(dt, id);

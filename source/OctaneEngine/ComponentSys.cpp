@@ -11,7 +11,9 @@
 
 namespace Octane
 {
-void ComponentSys::Load() {}
+void ComponentSys::Load() {
+ 
+}
 
 void ComponentSys::LevelStart() {}
 
@@ -20,6 +22,7 @@ void ComponentSys::Update() {}
 void ComponentSys::LevelEnd() {}
 
 void ComponentSys::Unload() {
+ 
   for (auto it = BehaviorBegin(); it != BehaviorEnd(); ++it)
   {
     if (it->behavior != nullptr)
@@ -28,7 +31,7 @@ void ComponentSys::Unload() {
     }
   }
 
-  behavior_comps_.empty();
+  behavior_comps_.erase(BehaviorBegin(), BehaviorEnd());
 }
 
 SystemOrder ComponentSys::GetOrder()
