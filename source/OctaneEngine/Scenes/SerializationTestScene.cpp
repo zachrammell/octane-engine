@@ -34,9 +34,9 @@
   using optional = eastl::optional<T>;
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = eastl::string;
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = eastl::string_view;
-#include <OctaneEngine/Graphics/CameraSys.h>
-
 #include <magic_enum.hpp>
+
+#include <OctaneEngine/Graphics/CameraSys.h>
 
 #include <DirectXMath.h>
 
@@ -69,7 +69,7 @@ void SerializationTestScene::Load()
     render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
   };
 
-  for (int i = 0; i < 100; ++i)
+  /*for (int i = 0; i < 100; ++i)
   {
     float scale = 0.25f * (i % 8);
     auto random_pos = []() {
@@ -80,7 +80,7 @@ void SerializationTestScene::Load()
       {scale, scale, scale},
       Colors::db32[i % 32],
       magic_enum::enum_cast<MeshType>(rand() % to_integral(MeshType::COUNT)).value_or(MeshType::Cube));
-  }
+  }*/
 }
 
 void SerializationTestScene::Start()
@@ -241,6 +241,10 @@ void SerializationTestScene::Update(float dt)
     }
     if (ImGui::BeginMenu("View"))
     {
+      if (ImGui::MenuItem("Editor Settings"))
+      {
+        editor_settings_ = !editor_settings_;
+      }
       if (ImGui::MenuItem("Entity Creator"))
       {
         entity_creator_ = !entity_creator_;
@@ -252,6 +256,12 @@ void SerializationTestScene::Update(float dt)
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
+  }
+
+  if (editor_settings_ && ImGui::Begin("Editor Settings"), &editor_settings_, ImGuiWindowFlags_AlwaysAutoResize)
+  {
+    ImGui::DragFloat("Slider Sensitivity", &slider_sensitivity, 0.001f, 0.001f, 1.0f);
+    ImGui::End();
   }
 
   if (entity_creator_ && ImGui::Begin("Entity Creator", &entity_creator_, ImGuiWindowFlags_AlwaysAutoResize))
@@ -282,6 +292,10 @@ void SerializationTestScene::Update(float dt)
         }
       }
       ImGui::EndCombo();
+    }
+    if (ImGui::Button("Copy Selected Entity"))
+    {
+      entity_creator_data_ = entity_editor_data_;
     }
     if (ImGui::Button("Create Entity"))
     {

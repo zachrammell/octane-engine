@@ -39,6 +39,7 @@ private:
   float slider_sensitivity = 0.1f;
   bool entity_creator_ = true;
   bool entity_editor_ = true;
+  bool editor_settings_ = true;
   bool camera_moving_ = false;
   struct EntityData
   {
