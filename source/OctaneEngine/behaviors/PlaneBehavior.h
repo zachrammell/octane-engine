@@ -25,7 +25,7 @@ public:
   virtual ~PlaneBehavior() = default;
 
   void Initialize() override;
-  void Update(float dt) override;
+  void Update(float dt, EntityID myid) override;
   void Shutdown() override;
 
   private:

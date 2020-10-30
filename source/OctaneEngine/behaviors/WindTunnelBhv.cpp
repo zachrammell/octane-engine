@@ -23,40 +23,21 @@ namespace Octane
 
 WindTunnelBHV::WindTunnelBHV(BehaviorSys* parent, ComponentHandle handle) : IBehavior(parent, handle)
 {
-  phys_handle_ = INVALID_COMPONENT;
+
 }
 
 void WindTunnelBHV::Initialize() 
 {
   //std::cout << "tunnel init" << std::endl;
-  auto enty = Get<EntitySys>();
-
-  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
-  {
-
-      //check if compared entity is the current wind tunnel
-      if (it->HasComponent(ComponentKind::Behavior))
-      {
-        auto other = it->GetComponentHandle(ComponentKind::Behavior);
-
-        if (other == handle_)
-        {
-          //assume this tunnel has a physics component
-          phys_handle_ = it->GetComponentHandle(ComponentKind::Physics);
-          trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
-          break;
-        }
-      }
-
-      
-    
-  }
+  
 }
-int gol = 0;
-void WindTunnelBHV::Update(float dt) 
+
+void WindTunnelBHV::Update(float dt, EntityID myid) 
 {
  // std::cout << "tunnel update" << std::endl;
   auto enty = Get<EntitySys>();
+  auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
+  auto& trans_me = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
 
   for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
   {
@@ -72,16 +53,12 @@ void WindTunnelBHV::Update(float dt)
           continue;
         }
 
-        auto othbeh = Get<ComponentSys>()->GetBehavior(other);
+        const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
 
         if (othbeh.type == BHVRType::PLANE)
         {
-          auto& phys_me = Get<ComponentSys>()->GetPhysics(phys_handle_);
-          auto& trans_me = Get<ComponentSys>()->GetTransform(trans_handle_);
-          auto other_hand = it->GetComponentHandle(ComponentKind::Physics);
-          auto& phys_other = Get<ComponentSys>()->GetPhysics(other_hand);
+          auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-
 
           if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
           {

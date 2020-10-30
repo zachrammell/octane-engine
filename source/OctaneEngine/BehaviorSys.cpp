@@ -84,7 +84,8 @@ void BehaviorSys::Update()
 
       if (beh.type != BHVRType::INVALID)
       {
-        beh.behavior->Update(dt);
+        EntityID id = static_cast<EntityID>(it - entsys_->EntitiesBegin());
+        beh.behavior->Update(dt, id);
         
       }
     }

@@ -16,6 +16,7 @@
 
 namespace Octane
 {
+using EntityID = uint32_t;
 class BehaviorSys;
 //class ComponentHandle;
 
@@ -27,7 +28,7 @@ public:
   virtual ~IBehavior() = default;
 
   virtual void Initialize() = 0;
-  virtual void Update(float dt) = 0;
+  virtual void Update(float dt, EntityID myid) = 0;
   virtual void Shutdown() = 0;
 
   template<class System>

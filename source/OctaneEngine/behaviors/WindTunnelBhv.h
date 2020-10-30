@@ -25,12 +25,11 @@ public:
   ~WindTunnelBHV() = default;
 
    void Initialize() override;
-   void Update(float dt) override ;
+   void Update(float dt, EntityID myid) override ;
    void Shutdown() override;
 
  private:
-   ComponentHandle phys_handle_ = INVALID_COMPONENT;
-   ComponentHandle trans_handle_ = INVALID_COMPONENT;
+
 
 };
 

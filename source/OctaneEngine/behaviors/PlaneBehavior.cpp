@@ -46,7 +46,7 @@ void PlaneBehavior::Initialize()
 
 }
 
-void PlaneBehavior::Update(float dt)
+void PlaneBehavior::Update(float dt, EntityID myid)
 {
   if (phys_handle_ == INVALID_COMPONENT)
     return;
