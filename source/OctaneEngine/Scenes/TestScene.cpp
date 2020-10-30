@@ -42,12 +42,6 @@ Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 
-//struct PhysicsComponentTemp
-//{
-//  Octane::RigidBody* rigid_body;
-//  Octane::Primitive* primitive;
-//} bear_physics, duck_physics, bunny_physics, wind_tunnel_physics;
-//
 } // namespace
 
 namespace Octane
