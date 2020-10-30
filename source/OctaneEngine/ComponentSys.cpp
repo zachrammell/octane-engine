@@ -123,7 +123,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   beh.type = type;
   switch (beh.type)
   {
-  case BHVRType::PLAYER: beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size())); break;
+ // case BHVRType::PLAYER: beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size())); break;
   case BHVRType::WINDTUNNEL:
     beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;

@@ -8,7 +8,7 @@ class IBehavior;
 
 enum class BHVRType
 {
-  PLAYER,
+ // PLAYER,
   WINDTUNNEL,
   PLANE,
   BEAR,
