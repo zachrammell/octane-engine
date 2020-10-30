@@ -1,6 +1,6 @@
 #pragma once
-#include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/Physics/Primitive.h>
+#include <OctaneEngine/Physics/RigidBody.h>
 
 namespace Octane
 {

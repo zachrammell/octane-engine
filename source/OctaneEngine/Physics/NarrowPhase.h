@@ -8,7 +8,7 @@
 #include <OctaneEngine/Physics/Simplex.h>
 #include <OctaneEngine/Physics/SupportPoint.h>
 #include <OctaneEngine/Physics/BoundingAABB.h>
-#include <OctaneEngine/TransformComponent.h>
+#include <OctaneEngine/Components/TransformComponent.h>
 
 #include <EASTL/hash_map.h>
 

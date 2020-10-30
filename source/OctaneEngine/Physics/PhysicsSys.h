@@ -5,14 +5,15 @@
 #include <OctaneEngine/Physics/PrimitivePair.h>
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/ResolutionPhase.h>
-#include <OctaneEngine/PhysicsComponent.h>
-#include <OctaneEngine/TransformComponent.h>
+#include <OctaneEngine/Components/PhysicsComponent.h>
+#include <OctaneEngine/Components/TransformComponent.h>
 
 #include <EASTL/vector.h>
 #include <EASTL/hash_map.h>
 
 namespace Octane
 {
+
 class PhysicsSys final : public ISystem
 {
   // ISystem implementation
@@ -29,7 +30,6 @@ public:
   static SystemOrder GetOrder();
 
 public:
-
   void InitializeRigidBody(PhysicsComponent& compo);
   void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
   eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
@@ -48,4 +48,5 @@ private:
   NarrowPhase narrow_phase_;
   ResolutionPhase resolution_phase_;
 };
+
 }

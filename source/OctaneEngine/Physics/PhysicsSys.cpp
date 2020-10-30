@@ -105,7 +105,7 @@ void PhysicsSys::LevelEnd()
 
 SystemOrder PhysicsSys::GetOrder()
 {
-  return SystemOrder::World;
+  return SystemOrder::PhysicsSys;
 }
 
 void PhysicsSys::InitializeRigidBody(PhysicsComponent& compo)

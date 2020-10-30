@@ -208,7 +208,7 @@ void BehaviorSys::Unload()
 
 SystemOrder BehaviorSys::GetOrder()
 {
-  return SystemOrder::Behavior;
+  return SystemOrder::BehaviorSys;
 }
 
 

@@ -45,7 +45,7 @@ public:
   Iterator EntitiesEnd();
 
 private:
-  static const SystemOrder ORDER = SystemOrder::Entity;
+  static const SystemOrder ORDER = SystemOrder::EntitySys;
   // actual memory management not yet implemented, just use a vector for now
   eastl::vector<GameEntity> entities_;
 

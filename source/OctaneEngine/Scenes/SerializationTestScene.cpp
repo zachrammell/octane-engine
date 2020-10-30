@@ -121,40 +121,63 @@ void SerializationTestScene::Update(float dt)
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
-  auto set_object =
-    [=](EntityID id, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLOAT3 rotation, Color color, MeshType mesh_type) {
-      GameEntity& ent = entsys->GetEntity(id);
-      ComponentHandle const trans_id = ent.GetComponentHandle(ComponentKind::Transform);
-      TransformComponent& trans = compsys->GetTransform(trans_id);
-      trans.pos = pos;
-      trans.scale = scale;
-      dx::XMStoreFloat4(&(trans.rotation), dx::XMQuaternionRotationRollPitchYawFromVector(dx::XMLoadFloat3(&rotation)));
+  auto set_object = [=](
+                      EntityID id,
+                      dx::XMFLOAT3 pos,
+                      dx::XMFLOAT3 scale,
+                      dx::XMFLOAT3 rotation,
+                      Color color,
+                      MeshType mesh_type,
+                      string_view name) {
+    GameEntity& ent = entsys->GetEntity(id);
+    ComponentHandle const trans_id = ent.GetComponentHandle(ComponentKind::Transform);
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos = pos;
+    trans.scale = scale;
+    dx::XMStoreFloat4(&(trans.rotation), dx::XMQuaternionRotationRollPitchYawFromVector(dx::XMLoadFloat3(&rotation)));
 
-      ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
-      RenderComponent& render_component = compsys->GetRender(render_id);
-      render_component.color = color;
-      render_component.mesh_type = mesh_type;
-    };
+    ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
+    RenderComponent& render_component = compsys->GetRender(render_id);
+    render_component.color = color;
+    render_component.mesh_type = mesh_type;
 
-  auto create_object =
-    [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLOAT3 rotation, Color color, MeshType mesh_type = MeshType::Cube) {
-      // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
-      EntityID const ent_id = entsys->MakeEntity();
-      GameEntity& ent = entsys->GetEntity((ent_id));
-      ComponentHandle const trans_id = compsys->MakeTransform();
-      ent.components[to_integral(ComponentKind::Transform)] = trans_id;
-      ComponentHandle const render_id = compsys->MakeRender();
-      ent.components[to_integral(ComponentKind::Render)] = render_id;
+    if (!name.empty())
+    {
+      ComponentHandle const metadata_id = ent.GetComponentHandle(ComponentKind::Metadata);
+      MetadataComponent& metadata_component = compsys->GetMetadata(metadata_id);
+      metadata_component.name = name;
+    }
+  };
 
-      set_object(ent_id, pos, scale, rotation, color, mesh_type);
-    };
+  auto create_object = [=](
+                         dx::XMFLOAT3 pos,
+                         dx::XMFLOAT3 scale,
+                         dx::XMFLOAT3 rotation,
+                         Color color,
+                         MeshType mesh_type = MeshType::Cube,
+                         string_view name = "") {
+    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+    EntityID const ent_id = entsys->MakeEntity();
+    GameEntity& ent = entsys->GetEntity((ent_id));
+    ComponentHandle const trans_id = compsys->MakeTransform();
+    ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+    ComponentHandle const render_id = compsys->MakeRender();
+    ent.components[to_integral(ComponentKind::Render)] = render_id;
+    if (!name.empty())
+    {
+      ComponentHandle const metadata_id = compsys->MakeMetadata();
+      ent.components[to_integral(ComponentKind::Metadata)] = metadata_id;
+    }
+    set_object(ent_id, pos, scale, rotation, color, mesh_type, name);
+  };
   auto load_object = [=](
                        EntityID id,
                        dx::XMFLOAT3& pos,
                        dx::XMFLOAT3& scale,
                        dx::XMFLOAT3& rotation,
                        Color& color,
-                       MeshType& mesh_type) {
+                       MeshType& mesh_type,
+                       eastl::string& name) {
     GameEntity& ent = entsys->GetEntity(id);
     ComponentHandle const trans_id = ent.GetComponentHandle(ComponentKind::Transform);
     TransformComponent const& trans = compsys->GetTransform(trans_id);
@@ -173,6 +196,13 @@ void SerializationTestScene::Update(float dt)
     RenderComponent const& render_component = compsys->GetRender(render_id);
     color = render_component.color;
     mesh_type = render_component.mesh_type;
+
+    if (ent.HasComponent(ComponentKind::Metadata))
+    {
+      ComponentHandle const metadata_id = ent.GetComponentHandle(ComponentKind::Metadata);
+      MetadataComponent const& metadata_component = compsys->GetMetadata(metadata_id);
+      name = metadata_component.name;
+    }
   };
 
   bool save = false, load = false;
@@ -225,9 +255,10 @@ void SerializationTestScene::Update(float dt)
 
   if (entity_creator_ && ImGui::Begin("Entity Creator", &entity_creator_, ImGuiWindowFlags_AlwaysAutoResize))
   {
-    ImGui::DragFloat3("Position", &(entity_creator_data_.position.x), 0.25f);
-    ImGui::DragFloat3("Scale", &(entity_creator_data_.scale.x), 0.25f);
-    ImGui::DragFloat3("Rotation", &(entity_creator_data_.rotation.x), dx::XM_2PI / 360.0f);
+    ImGui::InputText("Name", entity_creator_data_.name.data(), entity_creator_data_.name.capacity());
+    ImGui::DragFloat3("Position", &(entity_creator_data_.position.x), slider_sensitivity);
+    ImGui::DragFloat3("Scale", &(entity_creator_data_.scale.x), slider_sensitivity);
+    ImGui::DragFloat3("Rotation", &(entity_creator_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_creator_data_.color.r));
     if (ImGui::BeginCombo("Mesh", magic_enum::enum_name(entity_creator_data_.mesh).data(), ImGuiComboFlags_None))
     {
@@ -251,21 +282,31 @@ void SerializationTestScene::Update(float dt)
         entity_creator_data_.scale,
         entity_creator_data_.rotation,
         entity_creator_data_.color,
-        entity_creator_data_.mesh);
+        entity_creator_data_.mesh,
+        entity_creator_data_.name);
     }
     ImGui::End();
   }
 
   if (entity_editor_ && ImGui::Begin("Entity Editor", &entity_editor_, ImGuiWindowFlags_AlwaysAutoResize))
   {
-    if (ImGui::BeginCombo("ID", eastl::to_string(entity_editor_data_.id).c_str(), ImGuiComboFlags_None))
+    if (ImGui::BeginCombo("Entity", eastl::to_string(entity_editor_data_.id).c_str(), ImGuiComboFlags_None))
     {
       for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
       {
         if (iter->active && iter->HasComponent(ComponentKind::Transform) && iter->HasComponent(ComponentKind::Render))
         {
           auto id = iter - Get<EntitySys>()->EntitiesBegin();
-          if (ImGui::Selectable(eastl::to_string(id).c_str()))
+          eastl::string display = eastl::to_string(id);
+          if (iter->HasComponent(ComponentKind::Metadata))
+          {
+            eastl::string& name = compsys->GetMetadata(iter->GetComponentHandle(ComponentKind::Metadata)).name;
+            if (!(name.empty()))
+            {
+              display = name;
+            }
+          }
+          if (ImGui::Selectable((display + "##unique_id").c_str()))
           {
             entity_editor_data_.id = id;
             load_object(
@@ -274,16 +315,24 @@ void SerializationTestScene::Update(float dt)
               entity_editor_data_.scale,
               entity_editor_data_.rotation,
               entity_editor_data_.color,
-              entity_editor_data_.mesh);
+              entity_editor_data_.mesh,
+              entity_editor_data_.name);
           }
         }
       }
       ImGui::EndCombo();
     }
-
-    ImGui::DragFloat3("Position", &(entity_editor_data_.position.x), 0.25f);
-    ImGui::DragFloat3("Scale", &(entity_editor_data_.scale.x), 0.25f);
-    ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), dx::XM_2PI / 360.0f);
+    char name_buf[32];
+    memcpy(name_buf, entity_editor_data_.name.data(), 32);
+    ImGui::InputText("Name", name_buf, 32);
+    entity_editor_data_.name = name_buf;
+    if (entity_editor_data_.name == " ")
+    {
+      entity_editor_data_.name.clear();
+    }
+    ImGui::DragFloat3("Position", &(entity_editor_data_.position.x), slider_sensitivity);
+    ImGui::DragFloat3("Scale", &(entity_editor_data_.scale.x), slider_sensitivity);
+    ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_editor_data_.color.r));
     if (ImGui::BeginCombo("Mesh", magic_enum::enum_name(entity_editor_data_.mesh).data(), ImGuiComboFlags_None))
     {
@@ -295,13 +344,13 @@ void SerializationTestScene::Update(float dt)
         }
         if (ImGui::Selectable(mesh.second.data()))
         {
-          entity_creator_data_.mesh = mesh.first;
+          entity_editor_data_.mesh = mesh.first;
         }
       }
       ImGui::EndCombo();
     }
 
-    if (entity_editor_data_.id != -1u)
+    if (entity_editor_data_.id != INVALID_ENTITY)
     {
       set_object(
         entity_editor_data_.id,
@@ -309,7 +358,8 @@ void SerializationTestScene::Update(float dt)
         entity_editor_data_.scale,
         entity_editor_data_.rotation,
         entity_editor_data_.color,
-        entity_editor_data_.mesh);
+        entity_editor_data_.mesh,
+        entity_editor_data_.name);
     }
     ImGui::End();
   }
@@ -338,6 +388,13 @@ void SerializationTestScene::Update(float dt)
               = component_sys.GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
             nbt_writer.Write(magic_enum::enum_name(ComponentKind::Transform), transform_component);
 
+            if (entity->HasComponent(ComponentKind::Metadata))
+            {
+              MetadataComponent& metadata_component
+                = component_sys.GetMetadata(entity->GetComponentHandle(ComponentKind::Metadata));
+              nbt_writer.Write("Name", string_view {metadata_component.name});
+            }
+
             // automatically get all components (needs generic component interface)
             /*for (auto component_type : magic_enum::enum_values<ComponentKind>())
             {
@@ -358,6 +415,8 @@ void SerializationTestScene::Update(float dt)
   if (load)
   {
     Get<EntitySys>()->FreeAllEntities();
+    // prevents retained data from overwriting loaded entities
+    entity_editor_data_ = {};
 
     Trace::Log(DEBUG, "Loading entities.\n");
     EntitySys& entity_sys = *Get<EntitySys>();
@@ -376,6 +435,12 @@ void SerializationTestScene::Update(float dt)
         {
           EntityID const ent_id = entity_sys.MakeEntity();
           GameEntity& ent = entity_sys.GetEntity((ent_id));
+
+          ComponentHandle const metadata_id = component_sys.MakeMetadata();
+          ent.components[to_integral(ComponentKind::Metadata)] = metadata_id;
+          MetadataComponent& metadata_component = component_sys.GetMetadata(metadata_id);
+          metadata_component.name = nbt_reader.MaybeReadString("Name").value_or("");
+
           for (auto component_type : magic_enum::enum_values<ComponentKind>())
           {
             if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))

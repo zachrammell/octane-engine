@@ -1,5 +1,7 @@
 #include <OctaneEngine/ComponentSys.h>
 
+#include <OctaneEngine/SystemOrder.h>
+
 namespace Octane
 {
 void ComponentSys::Load() {}
@@ -14,7 +16,7 @@ void ComponentSys::Unload() {}
 
 SystemOrder ComponentSys::GetOrder()
 {
-  return ORDER;
+  return SystemOrder::ComponentSys;
 }
 
 ComponentSys::ComponentSys(class Engine* parent_engine) : ISystem(parent_engine) {}
@@ -27,11 +29,13 @@ void ComponentSys::FreeRender(ComponentHandle id) {}
 
 void ComponentSys::FreeBehavior(ComponentHandle id) {}
 
+void ComponentSys::FreeMetadata(ComponentHandle id) {}
+
 RenderComponent& ComponentSys::GetRender(ComponentHandle id)
 {
   assert(id != INVALID_COMPONENT);
   assert(id >= 0);
-  assert(id <= transform_comps_.size());
+  assert(id <= render_comps_.size());
   return render_comps_[id];
 }
 
@@ -47,7 +51,7 @@ PhysicsComponent& ComponentSys::GetPhysics(ComponentHandle id)
 {
   assert(id != INVALID_COMPONENT);
   assert(id >= 0);
-  assert(id <= transform_comps_.size());
+  assert(id <= physics_comps_.size());
   return physics_comps_[id];
 }
 
@@ -55,8 +59,16 @@ BehaviorComponent& ComponentSys::GetBehavior(ComponentHandle id)
 {
   assert(id != INVALID_COMPONENT);
   assert(id >= 0);
-  assert(id <= transform_comps_.size());
+  assert(id <= behavior_comps_.size());
   return behavior_comps_[id];
+}
+
+MetadataComponent& ComponentSys::GetMetadata(ComponentHandle id)
+{
+  assert(id != INVALID_COMPONENT);
+  assert(id >= 0);
+  assert(id <= metadata_comps_.size());
+  return metadata_comps_[id];
 }
 
 ComponentHandle ComponentSys::MakeRender()
@@ -79,8 +91,13 @@ ComponentHandle ComponentSys::MakePhysics()
 
 ComponentHandle ComponentSys::MakeBehavior()
 {
-  behavior_comps_.push_back(BehaviorComponent());
-
+  behavior_comps_.emplace_back(BehaviorComponent {});
   return static_cast<ComponentHandle>(behavior_comps_.size() - 1);
+}
+
+ComponentHandle ComponentSys::MakeMetadata()
+{
+  metadata_comps_.emplace_back(MetadataComponent {});
+  return static_cast<ComponentHandle>(metadata_comps_.size() - 1);
 }
 } // namespace Octane

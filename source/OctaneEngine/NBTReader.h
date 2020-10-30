@@ -13,6 +13,7 @@
 
 // Includes
 #include <cstdio>
+#include <EASTL/optional.h>
 #include <EASTL/string_view.h>
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
@@ -42,11 +43,23 @@ public:
   float ReadFloat(string_view name);
   double ReadDouble(string_view name);
   eastl::vector<int8_t> ReadByteArray(string_view name);
-  eastl::string ReadString(string_view name);
+  string_view ReadString(string_view name);
+
+  eastl::optional<int8_t> MaybeReadByte(string_view name);
+  eastl::optional<int16_t> MaybeReadShort(string_view name);
+  eastl::optional<int32_t> MaybeReadInt(string_view name);
+  eastl::optional<int64_t> MaybeReadLong(string_view name);
+  eastl::optional<float> MaybeReadFloat(string_view name);
+  eastl::optional<double> MaybeReadDouble(string_view name);
+  eastl::optional<eastl::vector<int8_t>> MaybeReadByteArray(string_view name);
+  eastl::optional<string_view> MaybeReadString(string_view name);
 
   // This function is not implemented, only specialized! Specialize it on your own type to enable deserialization
   template<typename T>
   T Read(string_view name);
+
+  template<typename T>
+  eastl::optional<T> MaybeRead(string_view name);
 
 private:
   enum class TAG : uint8_t
@@ -96,9 +109,10 @@ private:
 
   eastl::string_hash_map<DataTag> named_tags_;
   eastl::string current_name_ = "";
-  eastl::vector<eastl::string> string_pool_;
+  eastl::vector<char> string_pool_;
   eastl::vector<uint8_t> byte_array_pool_;
   size_t parsing_nesting_depth_ = 0;
+
   struct NestingInfo
   {
     TAG data_type;

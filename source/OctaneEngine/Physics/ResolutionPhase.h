@@ -3,7 +3,7 @@
 #include <OctaneEngine/Math.h>
 #include <OctaneEngine/Physics/Constraints.h>
 #include <OctaneEngine/Physics/ContactConstraints.h>
-#include <OctaneEngine/PhysicsComponent.h>
+#include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Physics/Force.h>
 
 #include <EASTL/hash_map.h>

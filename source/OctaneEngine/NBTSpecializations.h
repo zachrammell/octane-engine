@@ -5,8 +5,8 @@
 
 #include <OctaneEngine/Graphics/Colors.h>
 #include <OctaneEngine/ComponentSys.h>
-#include <OctaneEngine/RenderComponent.h>
-#include <OctaneEngine/TransformComponent.h>
+#include <OctaneEngine/Components/RenderComponent.h>
+#include <OctaneEngine/Components/TransformComponent.h>
 
 #include <DirectXMath.h>
 

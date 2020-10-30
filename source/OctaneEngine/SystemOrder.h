@@ -3,7 +3,7 @@
 namespace Octane
 {
 
-enum class SystemOrder : unsigned int
+enum class SystemOrder : uint32_t
 {
   FramerateController,
   InputHandler,
@@ -11,11 +11,11 @@ enum class SystemOrder : unsigned int
   PlayerMovementControllerSys,
   CameraSys,
   WindowManager,
-  World,
-  Scene,
-  Behavior,
-  Entity,
-  Component,
+  PhysicsSys,
+  SceneSys,
+  BehaviorSys,
+  EntitySys,
+  ComponentSys,
   RenderSys,
   MeshSys,
   Audio,

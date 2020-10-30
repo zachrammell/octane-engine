@@ -15,7 +15,7 @@
 
 #include <OctaneEngine/SceneSys.h>
 
-#include <OctaneEngine/RenderComponent.h>
+#include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/EntitySys.h>
 #include <DirectXMath.h>
 
@@ -36,17 +36,19 @@ public:
   virtual SceneE GetEnum() const;
 
 private:
+  float slider_sensitivity = 0.1f;
   bool entity_creator_ = true;
   bool entity_editor_ = true;
   bool camera_moving_ = false;
   struct EntityData
   {
-    EntityID id = -1;
+    EntityID id = INVALID_ENTITY;
     DirectX::XMFLOAT3 position{};
     DirectX::XMFLOAT3 scale{1,1,1};
     DirectX::XMFLOAT3 rotation {};
     Color color{};
     MeshType mesh {MeshType::Cube};
+    eastl::string name {32 ,'\0'};
   } entity_creator_data_, entity_editor_data_;
 };
 

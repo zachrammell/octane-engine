@@ -1,25 +1,24 @@
 #pragma once
 
-#include <DirectXMath.h>
-
-namespace Octane {
+namespace Octane
+{
 
 class IBehavior;
 
 enum class BHVRType
 {
-	PLAYER,
-	WINDTUNNEL,
+  PLAYER,
+  WINDTUNNEL,
   PLANE,
 
-
-	INVALID
+  INVALID
 };
 
-struct BehaviorComponent {
+struct BehaviorComponent
+{
   BHVRType type = BHVRType::INVALID;
   bool initialized = false;
-  IBehavior* behavior= nullptr;
+  IBehavior* behavior = nullptr;
 };
 
-}
+} // namespace Octane

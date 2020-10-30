@@ -78,7 +78,7 @@ void SceneSys::Unload()
 
 SystemOrder SceneSys::GetOrder()
 {
-  return SystemOrder::Scene;
+  return SystemOrder::SceneSys;
 }
 
 void SceneSys::SetNextScene(SceneE next_scene) 

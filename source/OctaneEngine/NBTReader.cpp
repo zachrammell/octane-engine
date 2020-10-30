@@ -43,7 +43,8 @@ file_open:
   {
 #ifdef _DEBUG
     // the file is open, close it and continue debugging.
-    __debugbreak();
+    eastl::wstring file_open_msg {L"File already open in another program: %S\nClose it and press OK."};
+    MessageBoxW(nullptr, file_open_msg.c_str(), L"File already open", MB_OK);
     goto file_open;
 #endif
     // TODO: actual error handling
@@ -98,7 +99,7 @@ void NBTReader::CloseCompound()
     PopLatestName();
     return;
   }
-  Trace::Error("NBTReader : Compound Close Mismatch - Attempted to close a compound when a compound was not open.");
+  Trace::Error("NBTReader : Compound Close Mismatch - Attempted to close a compound when a list was not open.");
 }
 
 bool NBTReader::OpenList(string_view name)
@@ -141,20 +142,70 @@ void NBTReader::CloseList()
   Trace::Error("NBTReader : List Close Mismatch - Attempted to close a list when a list was not open.");
 }
 
-float NBTReader::ReadFloat(string_view name)
-{
-  HandleNesting(name, TAG::Float);
-  float const ret = named_tags_.find(current_name_.c_str())->second.float_;
-  PopLatestName();
-  return ret;
-}
-
 int32_t NBTReader::ReadInt(string_view name)
 {
   HandleNesting(name, TAG::Int);
-  int32_t const ret = named_tags_.find(current_name_.c_str())->second.int_;
+  auto const found = named_tags_.find(current_name_.c_str());
   PopLatestName();
-  return ret;
+  assert(found->second.type_ == TAG::Int);
+  return found->second.int_;
+}
+
+float NBTReader::ReadFloat(string_view name)
+{
+  HandleNesting(name, TAG::Float);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Float);
+  return found->second.float_;
+}
+
+string_view NBTReader::ReadString(string_view name)
+{
+  HandleNesting(name, TAG::String);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::String);
+  return string_view{found->second.string_, static_cast<size_t>(found->second.string_length_)};
+}
+
+eastl::optional<int32_t> NBTReader::MaybeReadInt(string_view name)
+{
+  HandleNesting(name, TAG::Int);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Int);
+    return eastl::make_optional(found->second.int_);
+  }
+  return eastl::nullopt;
+}
+
+eastl::optional<float> NBTReader::MaybeReadFloat(string_view name)
+{
+  HandleNesting(name, TAG::Float);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Float);
+    return eastl::make_optional(found->second.float_);
+  }
+  return eastl::nullopt;
+}
+
+eastl::optional<string_view> NBTReader::MaybeReadString(string_view name)
+{
+  HandleNesting(name, TAG::String);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::String);
+    return eastl::make_optional<string_view>(found->second.string_, static_cast<size_t>(found->second.string_length_));
+  }
+  return eastl::nullopt;
 }
 
 bool NBTReader::HandleNesting(string_view name, TAG t)
@@ -273,8 +324,18 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     data_tag.float_ = htonf(val);
   }
   break;
+  case TAG::String:
+  {
+    int16_t const length = ReadStrLen();
+    size_t const insertion_point = string_pool_.size();
+    string_pool_.resize(insertion_point + length + 1, '\0');
+    fread_s(string_pool_.data() + insertion_point, length, sizeof(char), length, infile_);
+    data_tag.string_ = string_pool_.data() + insertion_point;
+    data_tag.string_length_ = length;
+  }
+  break;
   default:
-    __debugbreak(); // uh oh
+    __debugbreak(); // ask Zach to stop being lazy and implement deserialization for the right primitive type
     break;
   }
 

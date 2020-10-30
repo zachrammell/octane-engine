@@ -1,31 +1,27 @@
-#include <EASTL/string.h>
-#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
+
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <magic_enum.hpp>
+#include <assimp/mesh.h>
 
 namespace dx = DirectX;
 
 namespace Octane
 {
-MeshSys::MeshSys(class Engine* parent_engine)
-  : ISystem(parent_engine)
+MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
 {
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
 
   meshes_.resize(to_integral(MeshType::COUNT));
 
-
   // TODO: use wide strings for path
-  auto addMesh = [=](MeshType m, char const* filepath)
-	{
-          device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
-	};
-
+  auto addMesh = [=](MeshType m, char const* filepath) {
+    device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
+  };
 
   addMesh(MeshType::Cube, "assets/models/cube.obj");
   addMesh(MeshType::Sphere, "assets/models/sphere.obj");
@@ -40,9 +36,7 @@ MeshSys::MeshSys(class Engine* parent_engine)
   addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
 }
 
-MeshSys::~MeshSys()
-{
-}
+MeshSys::~MeshSys() {}
 
 SystemOrder MeshSys::GetOrder()
 {
@@ -87,7 +81,7 @@ void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
 {
   size_t start = new_mesh.vertex_buffer.size(); //start of next mesh in aiScene
   const bool hasNormals = mesh->HasNormals();
-  
+
   for (int i = 0; i < mesh->mNumVertices; ++i)
   {
     auto& mVert = mesh->mVertices[i];

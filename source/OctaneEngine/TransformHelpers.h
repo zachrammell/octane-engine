@@ -2,7 +2,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <OctaneEngine/Physics/RigidBody.h>
-#include <OctaneEngine/TransformComponent.h>
+#include <OctaneEngine/Components/TransformComponent.h>
 
 namespace dx = DirectX;
 
