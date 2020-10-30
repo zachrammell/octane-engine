@@ -16,7 +16,7 @@
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <iostream>
 namespace Octane
 {
@@ -51,7 +51,7 @@ void WindTunnelBHV::Initialize()
     
   }
 }
-
+int gol = 0;
 void WindTunnelBHV::Update(float dt) 
 {
  // std::cout << "tunnel update" << std::endl;
@@ -70,18 +70,25 @@ void WindTunnelBHV::Update(float dt)
         {
           continue;
         }
+
+        auto othbeh = Get<ComponentSys>()->GetBehavior(other);
+
+        if (othbeh.type == BHVRType::PLANE)
+        {
+          auto phys_me = Get<ComponentSys>()->GetPhysics(phys_handle_);
+          auto other_hand = it->GetComponentHandle(ComponentKind::Physics);
+          auto& phys_other = Get<ComponentSys>()->GetPhysics(other_hand);
+
+
+          if (Get<PhysicsSys>()->HasCollision(phys_me,phys_other) != eCollisionState::None)
+          {
+            //std::cout << "wind tunnel collide " << gol++ << std::endl;
+            phys_other.rigid_body.ApplyForceCentroid({100.0f, 10.f,0.f});
+          }
+        }
       }
        
-      auto phys_me = Get<ComponentSys>()->GetPhysics(phys_handle_);
-      auto other_hand = it->GetComponentHandle(ComponentKind::Physics);
-      auto phys_other = Get<ComponentSys>()->GetPhysics(other_hand);
       
-      NarrowPhase narrow;
-
-      if (narrow.GJKCollisionDetection(phys_me.primitive, phys_other.primitive, Simplex()))
-      {
-        std::cout << "wind tunnel collide" << std::endl;
-      }
     }
   }
 }

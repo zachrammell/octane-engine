@@ -216,7 +216,7 @@ void TestScene::Load()
   }
 
 
-#if 0
+#if 1
 
         wind_tunnel_id = Get<EntitySys>()->MakeEntity();
 
@@ -236,15 +236,23 @@ void TestScene::Load()
             RenderComponent& render_comp = compsys->GetRender(render_comp_id);
             render_comp.color = Colors::white;
             render_comp.mesh_type = MeshType::Cube;
-        }
-#endif
 
-#if 0
-        wind_tunnel_physics.rigid_body = world->AddRigidBody();
-        wind_tunnel_physics.rigid_body->SetLinearConstraints(constraints);
-        wind_tunnel_physics.rigid_body->SetAngularConstraints(constraints);
-        wind_tunnel_physics.primitive = world->AddPrimitive(wind_tunnel_physics.rigid_body, ePrimitiveType::Box);
-        static_cast<Box*>(wind_tunnel_physics.primitive)->SetBox(2.0f, 2.0f, 2.0f);
+            ComponentHandle physics_comp_id = compsys->MakePhysics();
+            obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+            PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+            physics_sys->InitializeRigidBody(physics_comp);
+            physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+            static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
+            physics_comp.rigid_body.SetPosition(trans.pos);
+            physics_comp.rigid_body.SetStatic();
+            trans.rotation = physics_comp.rigid_body.GetOrientation();
+
+            ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
+            obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
+            BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
+            beh_comp.type = BHVRType::WINDTUNNEL;
+        }
+        
 #endif
 
   //wind_tunnel_physics.rigid_body->SetPosition({0.f, 1.f, 5.f});
