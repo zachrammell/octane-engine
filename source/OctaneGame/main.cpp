@@ -75,12 +75,15 @@ int main(int argc, char* argv[]) noexcept
   // depends on WindowSys and RenderSys
   engine.AddSystem(new Octane::ImGuiSys {&engine});
   engine.AddSystem(new Octane::MeshSys {&engine});
-  engine.AddSystem(new Octane::Audio {&engine});
+  Octane::Audio* AudioSystem = new Octane::Audio{&engine};
+  engine.AddSystem(AudioSystem);
 
   while (!engine.ShouldQuit())
   {
     engine.Update(); 
   }
+
+  delete AudioSystem;
 
   _CrtDumpMemoryLeaks();
   return 0;

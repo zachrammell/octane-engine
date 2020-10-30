@@ -126,5 +126,5 @@ private:
 
 
 // Current to do:
-// Make the game play a sound
+// We need to make a separate, static class that can be accessed by scenes to perform loading/unloading of banks and sounds
 
