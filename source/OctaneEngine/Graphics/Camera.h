@@ -58,7 +58,7 @@ public:
 
   void RotatePitchAbsolute(float angle);
   void RotateYawAbsolute(float angle);
-
+  
   DirectX::XMVECTOR GetViewDirection();
   DirectX::XMMATRIX GetViewMatrix();
   DirectX::XMMATRIX GetWorldMatrix() const;

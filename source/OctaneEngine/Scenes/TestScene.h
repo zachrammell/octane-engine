@@ -33,5 +33,7 @@ public:
 private:
   bool esc_menu = false;
   bool demo_window_open = false;
+  bool zoom_button = false;
+  float fov = 0.0f;
 };
 }

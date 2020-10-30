@@ -286,6 +286,7 @@ void TestScene::Start()
   demo_window_open = false;
   Get<RenderSys>()->SetClearColor(Colors::db32[19]);
   SDL_SetRelativeMouseMode(SDL_TRUE);
+  fov = Get<CameraSys>()->GetFOV();
 }
 
 void TestScene::Update(float dt)
@@ -578,6 +579,17 @@ void TestScene::Update(float dt)
     if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT))
     {
       create_plane(crossbow_trans.pos);
+    }
+
+    if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT) && zoom_button == false)
+    {
+      Get<CameraSys>()->SetFOV(fov - 10.0f);
+      zoom_button = true;
+    }
+    if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT) && zoom_button == true)
+    {
+      Get<CameraSys>()->SetFOV(fov + 10.0f);
+      zoom_button = false;
     }
 
   }
