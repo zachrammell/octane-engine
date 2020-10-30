@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
+#include <d3d11.h>
 
 namespace dx = DirectX;
 
@@ -18,23 +19,29 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
 
   meshes_.resize(to_integral(MeshType::COUNT));
+  primitives_.resize(to_integral(MeshType::COUNT));
 
   // TODO: use wide strings for path
-  auto addMesh = [=](MeshType m, char const* filepath) {
-    device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
+  auto addMesh = [=](MeshType m, char const* filepath,D3D11_PRIMITIVE_TOPOLOGY primitive)
+  {
+    device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath)),
+      primitives_[to_integral(m)] = primitive;
   };
 
-  addMesh(MeshType::Cube, "assets/models/cube.obj");
-  addMesh(MeshType::Sphere, "assets/models/sphere.obj");
-  addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
-  addMesh(MeshType::Bear, "assets/models/Bear.fbx");
-  addMesh(MeshType::Duck, "assets/models/Duck.fbx");
-  addMesh(MeshType::Bunny, "assets/models/Bunny.fbx");
-  addMesh(MeshType::Crossbow, "assets/models/Crossbow.fbx");
-  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.obj");
-  addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
-  addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj");
-  addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
+  auto tri = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+  auto line = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+
+  addMesh(MeshType::Cube, "assets/models/cube.obj", tri);
+  addMesh(MeshType::Sphere, "assets/models/sphere.obj", tri);
+  addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj", tri);
+  addMesh(MeshType::Bear, "assets/models/Bear.fbx", tri);
+  addMesh(MeshType::Duck, "assets/models/Duck.fbx", tri);
+  addMesh(MeshType::Bunny, "assets/models/Bunny.fbx", tri);
+  addMesh(MeshType::Crossbow, "assets/models/Crossbow.fbx", tri);
+  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.obj", tri);
+  addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj", tri);
+  addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj", tri);
+  addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx", tri);
 }
 
 MeshSys::~MeshSys() {}

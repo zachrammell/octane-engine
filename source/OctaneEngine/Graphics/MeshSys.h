@@ -32,7 +32,6 @@ public:
   explicit MeshSys(class Engine* parent_engine);
   ~MeshSys();
   //MeshSys(ID3D11Device* device, ID3D11DeviceContext* context);
-  Model* GetModel(Models model);
 
   virtual void Load() {};
   virtual void LevelStart() {};
@@ -49,7 +48,7 @@ private:
   //MeshDX11 ProcessMesh(const aiScene* scene, aiMesh* mesh);
   //eastl::map<Models, Model*> models;
   eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
-
+  eastl::fixed_vector<D3D11_PRIMITIVE_TOPOLOGY, to_integral(MeshType::COUNT), false> primitives_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
   void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);
