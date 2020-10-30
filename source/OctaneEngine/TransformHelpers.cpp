@@ -66,7 +66,7 @@ void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, fl
     rb.ApplyForceCentroid(
       {0.f,
        jumpForce,
-       0.f}); //SetLinearVelocity({0.f, jumpForce, 0.f}); //ApplyForce({0.f, jumpForce, 0.f}, {0.f, 1.f, 0.f});
+       0.f});
   }
 }
 
@@ -79,10 +79,6 @@ void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
 {
   dx::XMVECTOR from {obj.pos.x, 0.f, obj.pos.z};
   dx::XMVECTOR to {pos.x, 0.f, pos.z};
-  //dx::XMMATRIX lookatMat = dx::XMMatrixLookAtLH(from, to, {0.f, 1.f, 0.f});
-  //dx::XMMATRIX invMat = dx::XMMatrixInverse(nullptr,lookatMat);
-  //dx::XMVECTOR rot = dx::XMQuaternionRotationMatrix(invMat);
-  //dx::XMStoreFloat4(&obj.rotation,rot);
 
   dx::XMVECTOR disp = dx::XMVectorSubtract(to, from);
 

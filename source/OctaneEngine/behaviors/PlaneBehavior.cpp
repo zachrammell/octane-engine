@@ -1,7 +1,6 @@
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
-#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Physics/NarrowPhase.h>
@@ -72,7 +71,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
   //if (lifetime <= 0.f)
   //{
-  //  Get<EntitySys>()->FreeEntity()
+  //  Get<EntitySys>()->FreeEntity(me->)
   //}
 }
 void PlaneBehavior::Shutdown()

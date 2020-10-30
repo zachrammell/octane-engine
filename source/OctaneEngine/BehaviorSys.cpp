@@ -6,7 +6,7 @@
   \date       2020/10/6
   \brief      Manages the current scene
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 

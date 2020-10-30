@@ -11,6 +11,7 @@ enum class BHVRType
   PLAYER,
   WINDTUNNEL,
   PLANE,
+  BEAR,
 
   INVALID
 };
