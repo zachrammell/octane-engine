@@ -29,6 +29,7 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 
 #include <OctaneEngine/TransformHelpers.h>
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 
 // define to use actual player entity instead of separate camera movement
@@ -45,6 +46,7 @@ Octane::EntityID bunny_id;
 Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
+const dx::XMFLOAT3 WINDTUNNELFORCE = {100.f, 30.f, 0.f};
 
 } // namespace
 
@@ -267,10 +269,10 @@ void TestScene::Load()
             physics_comp.rigid_body.SetGhost(true);
             trans.rotation = physics_comp.rigid_body.GetOrientation();
 
-            ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
+            ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
             obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
             BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
-            beh_comp.type = BHVRType::WINDTUNNEL;
+            beh_comp.force = WINDTUNNELFORCE;
         }
         
 #endif
@@ -318,7 +320,7 @@ void TestScene::Update(float dt)
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
 
-    ComponentHandle behavior_comp_id = compsys->MakeBehavior();
+    ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::PLANE);
     plane.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
     BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
     behavior_comp.type = BHVRType::PLANE;

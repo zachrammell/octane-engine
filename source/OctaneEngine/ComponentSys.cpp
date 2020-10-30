@@ -2,6 +2,13 @@
 
 #include <OctaneEngine/SystemOrder.h>
 
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/Engine.h>
+#include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/BehaviorSys.h>
+
+
 namespace Octane
 {
 void ComponentSys::Load() {}
@@ -95,9 +102,30 @@ ComponentHandle ComponentSys::MakePhysics()
   return static_cast<ComponentHandle>(physics_comps_.size() - 1);
 }
 
-ComponentHandle ComponentSys::MakeBehavior()
+ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
 {
-  behavior_comps_.emplace_back(BehaviorComponent {});
+  BehaviorComponent beh = BehaviorComponent();
+  beh.type = type;
+  switch (beh.type)
+  {
+  case BHVRType::PLAYER: beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size())); break;
+  case BHVRType::WINDTUNNEL:
+    beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
+    break;
+  case BHVRType::PLANE:
+  {
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
+    beh.behavior = new PlaneBehavior(
+      Get<BehaviorSys>(),
+      static_cast<ComponentHandle>(behavior_comps_.size()),
+      camera.GetViewDirection());
+  }
+  break;
+
+  default: break;
+  }
+
+  behavior_comps_.emplace_back(beh);
   return static_cast<ComponentHandle>(behavior_comps_.size() - 1);
 }
 

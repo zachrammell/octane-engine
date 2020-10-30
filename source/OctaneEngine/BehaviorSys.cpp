@@ -36,49 +36,49 @@ void BehaviorSys::Load()
 {
   entsys_ = engine_.GetSystem<EntitySys>();
 
-  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
-  {
-    if (it->HasComponent(ComponentKind::Behavior))
-    {
-      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
-      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+  //for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  //{
+  //  if (it->HasComponent(ComponentKind::Behavior))
+  //  {
+  //    auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+  //    BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
 
-      if (!beh.initialized)
-      {
-        if (beh.type == BHVRType::INVALID)
-        {
-          Trace::Log(WARNING) << "cannot initialize a behavior of INVALID type" << std::endl;
-        }
-        else
-        {
-          //initialize stuff
-          Trace::Log(DEBUG) << "intialized behavior of type: " << magic_enum::enum_name(beh.type) << std::endl;
+  //    if (!beh.initialized)
+  //    {
+  //      if (beh.type == BHVRType::INVALID)
+  //      {
+  //        Trace::Log(WARNING) << "cannot initialize a behavior of INVALID type" << std::endl;
+  //      }
+  //      else
+  //      {
+  //        //initialize stuff
+  //        Trace::Log(DEBUG) << "intialized behavior of type: " << magic_enum::enum_name(beh.type) << std::endl;
 
-          if (beh.behavior == nullptr)
-          {
+  //        if (beh.behavior == nullptr)
+  //        {
 
-            switch (beh.type)
-            {
-            case BHVRType::PLAYER:
-                beh.behavior = new WindTunnelBHV(this, handle);
-                break;
-            case BHVRType::WINDTUNNEL: 
-                beh.behavior = new WindTunnelBHV(this, handle);
-                break;
-            case BHVRType::PLANE:
-            {
-              auto& camera = Get<CameraSys>()->GetFPSCamera();
-              beh.behavior = new PlaneBehavior(this, handle,camera.GetViewDirection());
-            }
-              break;
-            default: break;
-            }
-          }
-        }
-      }
+  //          switch (beh.type)
+  //          {
+  //          case BHVRType::PLAYER:
+  //              beh.behavior = new WindTunnelBHV(this, handle);
+  //              break;
+  //          case BHVRType::WINDTUNNEL: 
+  //              beh.behavior = new WindTunnelBHV(this, handle);
+  //              break;
+  //          case BHVRType::PLANE:
+  //          {
+  //            auto& camera = Get<CameraSys>()->GetFPSCamera();
+  //            beh.behavior = new PlaneBehavior(this, handle,camera.GetViewDirection());
+  //          }
+  //            break;
+  //          default: break;
+  //          }
+  //        }
+  //      }
+  //    }
 
-    }
-  }
+  //  }
+  //}
 }
 
 void BehaviorSys::LevelStart()
@@ -119,35 +119,33 @@ void BehaviorSys::Update()
         {
           Trace::Log(WARNING) << "cannot initialize a behavior of INVALID type" << std::endl;
         }
-        else
-        {
-          //initialize stuff
-          if (beh.behavior == nullptr)
-          {
+        //else
+        //{
+        //  //initialize stuff
+        //  if (beh.behavior == nullptr)
+        //  {
 
-            switch (beh.type)
-            {
-            case BHVRType::PLAYER: 
-                beh.behavior = new WindTunnelBHV(this, handle); 
-                break;
-            case BHVRType::WINDTUNNEL: 
-                beh.behavior = new WindTunnelBHV(this, handle); 
-                break;
-            case BHVRType::PLANE:
-            {
-              auto& camera = Get<CameraSys>()->GetFPSCamera();
-              beh.behavior = new PlaneBehavior(this, handle, camera.GetViewDirection());
-            }
-            break;
+        //    switch (beh.type)
+        //    {
+        //    case BHVRType::PLAYER: 
+        //        beh.behavior = new WindTunnelBHV(this, handle); 
+        //        break;
+        //    case BHVRType::WINDTUNNEL: 
+        //        beh.behavior = new WindTunnelBHV(this, handle); 
+        //        break;
+        //    case BHVRType::PLANE:
+        //    {
+        //      auto& camera = Get<CameraSys>()->GetFPSCamera();
+        //      beh.behavior = new PlaneBehavior(this, handle, camera.GetViewDirection());
+        //    }
+        //    break;
 
-            default: break;
-            }
-          }
+        //    default: break;
+        //    }
+        //  }
 
           beh.behavior->Initialize();
-        }
-
-        beh.initialized = true;
+          beh.initialized = true;
       }
 
       if (beh.type != BHVRType::INVALID)
@@ -186,25 +184,25 @@ void BehaviorSys::LevelEnd()
 
 void BehaviorSys::Unload()
 {
-  if (entsys_ == nullptr)
-  {
-    return;
-  }
-    //unload initialized behaviors
-  for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
-  {
-    if (it->HasComponent(ComponentKind::Behavior))
-    {
-      auto handle = it->GetComponentHandle(ComponentKind::Behavior);
-      BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
+  //if (entsys_ == nullptr)
+  //{
+  //  return;
+  //}
+  //  //unload initialized behaviors
+  //for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
+  //{
+  //  if (it->HasComponent(ComponentKind::Behavior))
+  //  {
+  //    auto handle = it->GetComponentHandle(ComponentKind::Behavior);
+  //    BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
 
-      if (beh.behavior != nullptr)
-      {
-        delete beh.behavior;
-        beh.behavior = nullptr;
-      }
-    }
-  }
+  //    if (beh.behavior != nullptr)
+  //    {
+  //      delete beh.behavior;
+  //      beh.behavior = nullptr;
+  //    }
+  //  }
+  //}
 }
 
 SystemOrder BehaviorSys::GetOrder()

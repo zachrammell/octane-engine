@@ -86,7 +86,7 @@ void WindTunnelBHV::Update(float dt)
           if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
           {
             //std::cout << "wind tunnel collide " << gol++ << std::endl;
-            phys_other.rigid_body.ApplyForceCentroid({100.0f, 10.f,0.f});
+            phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
           }
         }
       }

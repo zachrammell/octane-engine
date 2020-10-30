@@ -1,4 +1,5 @@
 #pragma once
+#include <DirectXMath.h>
 
 namespace Octane
 {
@@ -19,6 +20,7 @@ struct BehaviorComponent
   BHVRType type = BHVRType::INVALID;
   bool initialized = false;
   IBehavior* behavior = nullptr;
+  DirectX::XMFLOAT3 force = {0.f, 0.f, 0.f};
 };
 
 } // namespace Octane

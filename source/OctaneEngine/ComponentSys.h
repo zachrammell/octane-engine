@@ -48,7 +48,7 @@ public:
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
   ComponentHandle MakePhysics();
-  ComponentHandle MakeBehavior();
+  ComponentHandle MakeBehavior(BHVRType type);
   ComponentHandle MakeMetadata();
 
   // access actual data from id
