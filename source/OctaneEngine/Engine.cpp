@@ -8,6 +8,15 @@
 namespace Octane
 {
 
+namespace {
+// systems in this array will be shutdown first, in the order they appear
+// afterwards, all remaining systems will be shutdown
+const SystemOrder PRIORITY_SHUTDOWN_ORDER[] = {
+  SystemOrder::WindowManager,
+  SystemOrder::Audio
+};
+}
+
 Engine::Engine()
     // Start with all systems missing
   : systems_ {nullptr},
@@ -27,6 +36,16 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+  // shutdown some systems in priority order
+  for (SystemOrder idx : PRIORITY_SHUTDOWN_ORDER) {
+    ISystem*& system = systems_[to_integral(idx)];
+    if (system) {
+      delete system;
+      system = nullptr;
+    }
+  }
+
+  // shutdown the rest
   for (ISystem* system : systems_)
   {
     if (system)
