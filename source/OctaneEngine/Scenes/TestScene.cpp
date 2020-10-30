@@ -98,8 +98,8 @@ void TestScene::Load()
     //physics_comp.rigid_body.SetStatic();
   };
   // ground plane
-  /*create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
-  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);*/
+  create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
+  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
   
 
   bear_id = Get<EntitySys>()->MakeEntity();
