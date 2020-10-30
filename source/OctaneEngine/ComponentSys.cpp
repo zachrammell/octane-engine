@@ -19,7 +19,17 @@ void ComponentSys::Update() {}
 
 void ComponentSys::LevelEnd() {}
 
-void ComponentSys::Unload() {}
+void ComponentSys::Unload() {
+  for (auto it = BehaviorBegin(); it != BehaviorEnd(); ++it)
+  {
+    if (it->behavior != nullptr)
+    {
+      delete it->behavior;
+    }
+  }
+
+  behavior_comps_.empty();
+}
 
 SystemOrder ComponentSys::GetOrder()
 {
@@ -39,6 +49,7 @@ void ComponentSys::FreeBehavior(ComponentHandle id) {
   if (beh.behavior != nullptr)
   {
     delete beh.behavior;
+    beh.behavior = nullptr;
   }
 }
 

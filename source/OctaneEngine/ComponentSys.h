@@ -78,6 +78,8 @@ public:
   iter<PhysicsComponent> PhysicsEnd() { return physics_comps_.end(); }
   const_iter<MetadataComponent> MetadataBegin() const { return metadata_comps_.cbegin(); }
   const_iter<MetadataComponent> MetadataEnd() const { return metadata_comps_.cend(); }
+  iter<BehaviorComponent> BehaviorBegin() { return behavior_comps_.begin(); }
+  iter<BehaviorComponent> BehaviorEnd() { return behavior_comps_.end(); }
 
 
 private:
