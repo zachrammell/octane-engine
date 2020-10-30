@@ -4,6 +4,7 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <assimp/Importer.hpp>
+#include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
@@ -50,8 +51,18 @@ eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& MeshSys::Mes
 
 Mesh MeshSys::LoadMesh(const char* path)
 {
-  Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals);
+  aiPropertyStore* props = aiCreatePropertyStore();
+  aiSetImportPropertyInteger(props, "PP_PTV_NORMALIZE", 1);
+  const aiScene* scene = (aiScene*)aiImportFileExWithProperties(
+    path,
+    aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices
+      | aiProcess_PreTransformVertices | aiProcess_OptimizeMeshes,
+    NULL,
+    props);
+  aiReleasePropertyStore(props);
+
+  //Assimp::Importer importer;
+  //const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_OptimizeMeshes);
   Mesh new_mesh;
   if (scene)
   {

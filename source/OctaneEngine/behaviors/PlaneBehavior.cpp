@@ -66,6 +66,7 @@ void PlaneBehavior::Update(float dt)
     physics.rigid_body.ApplyForceCentroid(force);
     impulsed = true;
   }
+  //Todo: free the entity
   lifetime -= dt;
 
   //if (lifetime <= 0.f)

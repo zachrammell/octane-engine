@@ -77,6 +77,16 @@ void TestScene::Load()
     render_component.color = color;
     render_component.mesh_type = mesh_type;
 
+    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    physics_sys->InitializeRigidBody(physics_comp);
+    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(scale.x*2.f, scale.y, scale.z*2.f);
+    physics_comp.rigid_body.SetPosition(trans.pos);
+    trans.rotation = physics_comp.rigid_body.GetOrientation();
+    physics_comp.rigid_body.SetStatic();
+
     //ComponentHandle physics_comp_id = compsys->MakePhysics();
     //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
@@ -100,7 +110,7 @@ void TestScene::Load()
     bear.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos.x = 2.0f;
-    trans.pos.y = 2.0f;
+    trans.pos.y = 5.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -116,7 +126,7 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
@@ -129,7 +139,7 @@ void TestScene::Load()
     duck.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos.x = -2.0f;
-    trans.pos.y = 2.0f;
+    trans.pos.y = 5.0f;
     trans.pos.z = 0.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -145,7 +155,7 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
 
@@ -164,7 +174,7 @@ void TestScene::Load()
     bunny.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos.x = 0.0f;
-    trans.pos.y = 2.0f;
+    trans.pos.y = 5.0f;
     trans.pos.z = -2.0f;
     trans.scale = {0.25f, 0.25f, 0.25f};
     trans.rotation = {};
@@ -180,7 +190,7 @@ void TestScene::Load()
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.5f, 0.5f, 0.5f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
   }
@@ -195,7 +205,7 @@ void TestScene::Load()
     trans.pos.x = 0.0f;
     trans.pos.y = 0.0f;
     trans.pos.z = 0.0f;
-    trans.scale = {0.15f, 0.2f, 0.1f};
+    trans.scale = {0.1f, 0.1f, 0.1f};
     trans.rotation = {};
 
     ComponentHandle render_comp_id = compsys->MakeRender();
@@ -276,7 +286,7 @@ void TestScene::Update(float dt)
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(0.15f, 0.15f, 0.15f);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(0.25f, 0.25f, 0.25f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
 
