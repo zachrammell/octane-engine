@@ -14,6 +14,7 @@
 #include <OctaneEngine/Audio.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
+#include <OctaneEngine/FormattedOutput.h>
 #include <cassert>
 #include <iostream>
 
@@ -203,13 +204,17 @@ void Audio::Unload_Bank(const char* name)
 
 void Audio::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
 {
+  using FormattedOutput::Set;
+  using FormattedOutput::ColorANSI;
   if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) == AK_INVALID_PLAYING_ID)
   {
     Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
   }
   else
   {
-    Trace::Log(DEBUG) << "Playing event '" << UniqueID << "' at " << GameObjectID << std::endl;
+    Trace::Log(DEBUG) << "Playing audio event #"
+                      << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
+                      << Set(ColorANSI::Lime) << GameObjectID << Set() << std::endl;
   }
 }
 
