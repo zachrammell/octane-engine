@@ -14,6 +14,7 @@
 // Includes
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/ISystem.h>
+#include <OctaneEngine/Heath.h>
 
 namespace Octane
 {
@@ -45,6 +46,10 @@ private:
 
   void ExitState(MoveState);
   void EnterState(MoveState);
+
+  Health playerHP_ = Health(5);
+  float i_time = 1.0f;
+  bool took_damage = false;
 };
 
 } // namespace Octane

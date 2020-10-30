@@ -4,6 +4,7 @@
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/SceneSys.h>
 
 #include "FramerateController.h"
 #include <SDL_keycode.h>
@@ -26,6 +27,8 @@ const float PLAYER_CROUCH_SPEED = 3.0f;
 const float PLAYER_AIRSTRAFE_MAXSPEED = 12.0f;
 const float PLAYER_AIRSTRAFE_ACCEL = 4.5f;
 const float PLAYER_GRAVITY_ACCEL = 9.81f;
+const float PLAYER_I_TIME = 1.0f;
+const int PLAYER_MAX_HP = 5;
 
 // vertical velocity when starting jump
 const float PLAYER_JUMP_VEL = 9.0f;
@@ -48,7 +51,12 @@ PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISyst
 
 PlayerMovementControllerSys::~PlayerMovementControllerSys() {}
 
-void PlayerMovementControllerSys::LevelStart() {}
+void PlayerMovementControllerSys::LevelStart() 
+{
+  playerHP_.set_maxHP(PLAYER_MAX_HP);
+  playerHP_.setCurrentHP(PLAYER_MAX_HP);
+  took_damage = false;
+}
 
 void PlayerMovementControllerSys::Update()
 {
@@ -198,6 +206,40 @@ void PlayerMovementControllerSys::Update()
     }
     break;
   }
+
+  //damage stuff
+  /*
+    if(took_damage)
+    {
+        i_time -= dt;
+
+        if(i_time <= 0.f)
+        {
+            tool_damage = false;
+        }
+    }
+    else
+    {
+        for(all entities)
+        {
+            if(entity is enemy)
+            {
+                if(enemy is colliding with player}
+                {
+                    playerHP_.ChangeCurrentHPby(1);
+                    took_damage = true;
+                    i_time = PLAYER_I_TIME;
+
+                    if(playerHP_.is_dead())
+                    {
+                        Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+                    }
+                }
+            }
+        }
+    }
+  */
+
 
   if (nextstate != movementstate_)
   {
