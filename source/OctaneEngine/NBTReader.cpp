@@ -166,7 +166,9 @@ string_view NBTReader::ReadString(string_view name)
   auto const found = named_tags_.find(current_name_.c_str());
   PopLatestName();
   assert(found->second.type_ == TAG::String);
-  return string_view{found->second.string_, static_cast<size_t>(found->second.string_length_)};
+  return string_view {
+    string_pool_.begin() + found->second.string_pool_index,
+    static_cast<size_t>(found->second.string_length_)};
 }
 
 eastl::optional<int32_t> NBTReader::MaybeReadInt(string_view name)
@@ -203,7 +205,9 @@ eastl::optional<string_view> NBTReader::MaybeReadString(string_view name)
   if (found != named_tags_.end())
   {
     assert(found->second.type_ == TAG::String);
-    return eastl::make_optional<string_view>(found->second.string_, static_cast<size_t>(found->second.string_length_));
+    return eastl::make_optional<string_view>(
+      string_pool_.begin() + found->second.string_pool_index,
+      static_cast<size_t>(found->second.string_length_));
   }
   return eastl::nullopt;
 }
@@ -330,7 +334,7 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     size_t const insertion_point = string_pool_.size();
     string_pool_.resize(insertion_point + length + 1, '\0');
     fread_s(string_pool_.data() + insertion_point, length, sizeof(char), length, infile_);
-    data_tag.string_ = string_pool_.data() + insertion_point;
+    data_tag.string_pool_index = insertion_point;
     data_tag.string_length_ = length;
   }
   break;

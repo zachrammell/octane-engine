@@ -92,12 +92,12 @@ private:
       struct
       {
         int32_t byte_array_length_;
-        uint8_t* byte_array_;
+        size_t byte_array_pool_index;
       };
       struct
       {
         int16_t string_length_;
-        char const* string_;
+        size_t string_pool_index;
       };
       struct
       {
