@@ -27,6 +27,14 @@ Engine::Engine()
 
 Engine::~Engine()
 {
+  for (ISystem* system : systems_)
+  {
+    if (system)
+    {
+      delete system;
+      system = nullptr;
+    }
+  }
   SDL_Quit();
 }
 
