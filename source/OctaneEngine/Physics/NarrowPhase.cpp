@@ -38,40 +38,64 @@ void NarrowPhase::GenerateContact(
           continue;
         }
       }
-      Polytope polytope = Polytope(simplex);
-      ContactPoint new_contact_data;
-      if (EPAContactGeneration(pair.a, pair.b, polytope, new_contact_data) == true)
+
+      if (pair.a->GetRigidBody()->IsGhost() || pair.b->GetRigidBody()->IsGhost())
       {
-        //send a event about start and persist.
-        size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
-        auto found = manifold_table->find(key);
-        auto collision = collision_table->find(key);
-
-        if (found == manifold_table->end())
-        {
-          found = manifold_table->emplace(key, ContactManifold(pair.a, pair.b)).first;
-          collision = collision_table->emplace(key, eCollisionState::Start).first;
-        }
-
-        ContactManifold& manifold = found->second;
-
-        manifold.UpdateCurrentManifold(new_contact_data);
-        manifold.CutDownManifold();
-        collision->second = manifold.is_collide ? eCollisionState::Persist : eCollisionState::Start;
-        manifold.is_collide = true;
-      }
-      else
-      {
-        //invalid collision
         size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
         auto collision = collision_table->find(key);
         if (collision == collision_table->end())
         {
-          collision = collision_table->emplace(key, eCollisionState::Invalid).first;
+          collision_table->emplace(key, eCollisionState::Start).first;
         }
         else
         {
-          collision->second = eCollisionState::Invalid;
+          if (collision->second == eCollisionState::None || collision->second == eCollisionState::End || collision->second == eCollisionState::Invalid)
+          {
+            collision->second = eCollisionState::Start;
+          }
+          else
+          {
+            collision->second = eCollisionState::Persist;
+          }
+        }
+      }
+      else
+      {
+        Polytope polytope = Polytope(simplex);
+        ContactPoint new_contact_data;
+        if (EPAContactGeneration(pair.a, pair.b, polytope, new_contact_data) == true)
+        {
+          //send a event about start and persist.
+          size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
+          auto found = manifold_table->find(key);
+          auto collision = collision_table->find(key);
+
+          if (found == manifold_table->end())
+          {
+            found = manifold_table->emplace(key, ContactManifold(pair.a, pair.b)).first;
+            collision = collision_table->emplace(key, eCollisionState::Start).first;
+          }
+
+          ContactManifold& manifold = found->second;
+
+          manifold.UpdateCurrentManifold(new_contact_data);
+          manifold.CutDownManifold();
+          collision->second = manifold.is_collide ? eCollisionState::Persist : eCollisionState::Start;
+          manifold.is_collide = true;
+        }
+        else
+        {
+          //invalid collision
+          size_t key = reinterpret_cast<size_t>(pair.a) + reinterpret_cast<size_t>(pair.b);
+          auto collision = collision_table->find(key);
+          if (collision == collision_table->end())
+          {
+            collision = collision_table->emplace(key, eCollisionState::Invalid).first;
+          }
+          else
+          {
+            collision->second = eCollisionState::Invalid;
+          }
         }
       }
     }
