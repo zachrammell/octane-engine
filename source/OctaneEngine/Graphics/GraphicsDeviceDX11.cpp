@@ -529,7 +529,7 @@ void GraphicsDeviceDX11::SetWireframeMode(bool enable)
 {
   D3D11_RASTERIZER_DESC rasterizer_descriptor {
     (enable ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID),
-    D3D11_CULL_BACK,
+    (enable ? D3D11_CULL_NONE : D3D11_CULL_BACK),
     true,
   };
 
