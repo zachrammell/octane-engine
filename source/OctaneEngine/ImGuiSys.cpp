@@ -32,7 +32,7 @@ ImGuiSys::ImGuiSys(Engine* parent_engine) : ISystem(parent_engine)
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
   io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
 
-  io.ConfigViewportsNoTaskBarIcon = true;
+  //io.ConfigViewportsNoTaskBarIcon = true;
   io.IniFilename = "editor_config.ini";
 
   //ImGui::StyleColorsDark();

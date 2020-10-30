@@ -23,10 +23,19 @@ enum class MeshType : int32_t
   COUNT
 };
 
+enum class RenderType : int32_t
+{
+  Filled,
+  Wireframe,
+
+  COUNT
+};
+
 struct RenderComponent
 {
-  Color color;
-  MeshType mesh_type;
+  Color color {};
+  MeshType mesh_type = MeshType::INVALID;
+  RenderType render_type = RenderType::Filled;
 };
 
 } // namespace Octane

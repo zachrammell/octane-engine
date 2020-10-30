@@ -13,7 +13,6 @@
 
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
-#include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/Helper.h>
 
 #include <EASTL/fixed_vector.h>

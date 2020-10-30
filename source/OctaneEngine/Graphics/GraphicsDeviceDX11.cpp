@@ -18,8 +18,8 @@ namespace Octane
 {
 
 GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
-  : supported_mode_(nullptr),
-    currently_in_fullscreen_(false),
+  : supported_mode_ {nullptr},
+    currently_in_fullscreen_ {false},
     clear_color_ {Colors::black},
     current_mesh_ {nullptr}
 {
@@ -63,7 +63,6 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   }
   else
     currently_in_fullscreen_ = false;
-    
 
   hr = D3D11CreateDeviceAndSwapChain(
     nullptr,
@@ -460,7 +459,7 @@ MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh) const
 
 void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh) const
 {
-  new(placement)MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
+  new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
 
   {
@@ -524,6 +523,19 @@ ID3D11Device* GraphicsDeviceDX11::GetD3D11Device() const
 ID3D11DeviceContext* GraphicsDeviceDX11::GetD3D11Context() const
 {
   return device_context_.get();
+}
+
+void GraphicsDeviceDX11::SetWireframeMode(bool enable)
+{
+  D3D11_RASTERIZER_DESC rasterizer_descriptor {
+    (enable ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID),
+    D3D11_CULL_BACK,
+    true,
+  };
+
+  rasterizer_state_ = nullptr;
+  GetD3D11Device()->CreateRasterizerState(&rasterizer_descriptor, rasterizer_state_.put());
+  GetD3D11Context()->RSSetState(rasterizer_state_.get());
 }
 
 void GraphicsDeviceDX11::ClearBuffers()

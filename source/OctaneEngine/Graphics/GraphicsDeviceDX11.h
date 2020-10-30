@@ -45,6 +45,8 @@ public:
   ID3D11Device* GetD3D11Device() const;
   ID3D11DeviceContext* GetD3D11Context() const;
 
+  void SetWireframeMode(bool enable);
+
   class ShaderConstantBuffers
   {
   public:

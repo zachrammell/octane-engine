@@ -12,8 +12,9 @@
 
 #include <OctaneEngine/Graphics/RenderSys.h>
 
-#include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
+#include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
@@ -21,11 +22,13 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/WindowManager.h>
 
+#include <magic_enum.hpp>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "MeshSys.h"
+#include <OctaneEngine/Graphics/MeshSys.h>
 
 namespace dx = DirectX;
 
@@ -66,32 +69,48 @@ void RenderSys::Update()
   MeshType current_mesh = MeshType::COUNT;
   auto* meshSys = reinterpret_cast<MeshSys*>(engine_.GetSystem(SystemOrder::MeshSys));
   auto& meshes_ = meshSys->Meshes();
-  for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
+  for (auto render_type : magic_enum::enum_values<RenderType>())
   {
-    if (iter->active && iter->HasComponent(ComponentKind::Transform) && iter->HasComponent(ComponentKind::Render))
+    switch (render_type)
     {
-      auto& transform = component_sys->GetTransform(iter->GetComponentHandle(ComponentKind::Transform));
-      auto& render_comp = component_sys->GetRender(iter->GetComponentHandle(ComponentKind::Render));
+    case RenderType::Filled: device_dx11_.SetWireframeMode(false); break;
+    case RenderType::Wireframe: device_dx11_.SetWireframeMode(true); break;
+    default: break;
+    }
 
-      dx::XMMATRIX object_world_matrix = dx::XMMatrixIdentity();
-      dx::XMFLOAT3 scale = transform.scale;
-      object_world_matrix *= dx::XMMatrixScaling(scale.x, scale.y, scale.z);
-      object_world_matrix = object_world_matrix*dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
-      dx::XMFLOAT3 pos = transform.pos;
-      object_world_matrix = object_world_matrix*dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
-
-      if (current_mesh != render_comp.mesh_type)
+    for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
+    {
+      if (iter->active && iter->HasComponent(ComponentKind::Transform) && iter->HasComponent(ComponentKind::Render))
       {
-        current_mesh = render_comp.mesh_type;
-        device_dx11_.UseMesh(meshes_[to_integral(current_mesh)]);
+        auto& transform = component_sys->GetTransform(iter->GetComponentHandle(ComponentKind::Transform));
+        auto& render_comp = component_sys->GetRender(iter->GetComponentHandle(ComponentKind::Render));
+
+        if (render_comp.render_type != render_type)
+        {
+          continue;
+        }
+
+        dx::XMMATRIX object_world_matrix = dx::XMMatrixIdentity();
+        dx::XMFLOAT3 scale = transform.scale;
+        object_world_matrix *= dx::XMMatrixScaling(scale.x, scale.y, scale.z);
+        object_world_matrix
+          = object_world_matrix * dx::XMMatrixRotationQuaternion(dx::XMLoadFloat4(&(transform.rotation)));
+        dx::XMFLOAT3 pos = transform.pos;
+        object_world_matrix = object_world_matrix * dx::XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+        if (current_mesh != render_comp.mesh_type)
+        {
+          current_mesh = render_comp.mesh_type;
+          device_dx11_.UseMesh(meshes_[to_integral(current_mesh)]);
+        }
+        device_dx11_.ShaderConstants()
+          .PerObject()
+          .SetWorldMatrix(object_world_matrix)
+          .SetWorldNormalMatrix(dx::XMMatrixTranspose(dx::XMMatrixInverse(nullptr, object_world_matrix)))
+          .SetColor(render_comp.color);
+        device_dx11_.Upload(device_dx11_.ShaderConstants().PerObject());
+        device_dx11_.DrawMesh();
       }
-      device_dx11_.ShaderConstants()
-        .PerObject()
-        .SetWorldMatrix(object_world_matrix)
-        .SetWorldNormalMatrix(dx::XMMatrixTranspose(dx::XMMatrixInverse(nullptr, object_world_matrix)))
-        .SetColor(render_comp.color);
-      device_dx11_.Upload(device_dx11_.ShaderConstants().PerObject());
-      device_dx11_.DrawMesh();
     }
   }
 

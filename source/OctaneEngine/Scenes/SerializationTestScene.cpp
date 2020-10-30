@@ -66,20 +66,21 @@ void SerializationTestScene::Load()
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.color = color;
     render_component.mesh_type = mesh_type;
+    render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
   };
 
-  //for (int i = 0; i < 2048; ++i)
-  //{
-  //  float scale = 0.25f * (i % 8);
-  //  auto random_pos = []() {
-  //    return 100.0f * (rand() / (float)RAND_MAX - 0.5f);
-  //  };
-  //  create_object(
-  //    {random_pos(), random_pos(), random_pos()},
-  //    {scale, scale, scale},
-  //    Colors::db32[i % 32],
-  //    magic_enum::enum_cast<MeshType>(rand() % to_integral(MeshType::COUNT)).value_or(MeshType::Cube));
-  //}
+  for (int i = 0; i < 100; ++i)
+  {
+    float scale = 0.25f * (i % 8);
+    auto random_pos = []() {
+      return 100.0f * (rand() / (float)RAND_MAX - 0.5f);
+    };
+    create_object(
+      {random_pos(), random_pos(), random_pos()},
+      {scale, scale, scale},
+      Colors::db32[i % 32],
+      magic_enum::enum_cast<MeshType>(rand() % to_integral(MeshType::COUNT)).value_or(MeshType::Cube));
+  }
 }
 
 void SerializationTestScene::Start()
@@ -255,7 +256,14 @@ void SerializationTestScene::Update(float dt)
 
   if (entity_creator_ && ImGui::Begin("Entity Creator", &entity_creator_, ImGuiWindowFlags_AlwaysAutoResize))
   {
-    ImGui::InputText("Name", entity_creator_data_.name.data(), entity_creator_data_.name.capacity());
+    char name_buf[32];
+    memcpy(name_buf, entity_creator_data_.name.data(), 32);
+    ImGui::InputText("Name", name_buf, 32);
+    entity_creator_data_.name = name_buf;
+    if (entity_creator_data_.name == " ")
+    {
+      entity_creator_data_.name.clear();
+    }
     ImGui::DragFloat3("Position", &(entity_creator_data_.position.x), slider_sensitivity);
     ImGui::DragFloat3("Scale", &(entity_creator_data_.scale.x), slider_sensitivity);
     ImGui::DragFloat3("Rotation", &(entity_creator_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
@@ -334,6 +342,24 @@ void SerializationTestScene::Update(float dt)
     ImGui::DragFloat3("Scale", &(entity_editor_data_.scale.x), slider_sensitivity);
     ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_editor_data_.color.r));
+    if (ImGui::BeginCombo("DB32 Color", ""))
+    {
+      for (int i = 0; i < 32; ++i)
+      {
+        Color col = Colors::db32[i];
+        ImVec2 p_min = ImGui::GetCursorScreenPos();
+        ImVec2 p_max = ImVec2(p_min.x + ImGui::GetContentRegionAvailWidth(), p_min.y + ImGui::GetFrameHeight());
+        ImGui::GetWindowDrawList()->AddRectFilled(
+          p_min,
+          p_max,
+          ImGui::ColorConvertFloat4ToU32(ImVec4 {col.r, col.g, col.b, 1.0f}));
+        if (ImGui::Selectable(eastl::to_string(i).c_str()))
+        {
+          entity_editor_data_.color = col;
+        }
+      }
+      ImGui::EndCombo();
+    }
     if (ImGui::BeginCombo("Mesh", magic_enum::enum_name(entity_editor_data_.mesh).data(), ImGuiComboFlags_None))
     {
       for (auto const& mesh : magic_enum::enum_entries<MeshType>())

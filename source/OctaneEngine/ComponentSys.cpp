@@ -79,7 +79,7 @@ MetadataComponent& ComponentSys::GetMetadata(ComponentHandle id)
 
 ComponentHandle ComponentSys::MakeRender()
 {
-  render_comps_.push_back_uninitialized();
+  render_comps_.emplace_back(RenderComponent{});
   return static_cast<ComponentHandle>(render_comps_.size() - 1);
 }
 
@@ -106,4 +106,5 @@ ComponentHandle ComponentSys::MakeMetadata()
   metadata_comps_.emplace_back(MetadataComponent {});
   return static_cast<ComponentHandle>(metadata_comps_.size() - 1);
 }
+
 } // namespace Octane
