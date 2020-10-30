@@ -5,9 +5,11 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/SceneSys.h>
+#include <OctaneEngine/Trace.h>
 
 #include "FramerateController.h"
 #include <SDL_keycode.h>
+#include <iostream>
 
 namespace Octane
 {
@@ -215,7 +217,7 @@ void PlayerMovementControllerSys::Update()
 
         if(i_time <= 0.f)
         {
-            tool_damage = false;
+            took_damage = false;
         }
     }
     else
@@ -233,13 +235,36 @@ void PlayerMovementControllerSys::Update()
                     if(playerHP_.is_dead())
                     {
                         Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+                        return;
                     }
                 }
             }
         }
     }
   */
+  //testing code
+  /*if (took_damage)
+  {
+    i_time -= dt;
 
+    if (i_time <= 0.f)
+    {
+      took_damage = false;
+    }
+  }
+  else if (Get<InputHandler>()->KeyPressed(SDLK_y))
+  {
+    playerHP_.ChangeCurrentHPby(1);
+    Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
+    took_damage = true;
+    i_time = PLAYER_I_TIME;
+
+    if (playerHP_.is_dead())
+    {
+      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+      return;
+    }
+  }*/
 
   if (nextstate != movementstate_)
   {
