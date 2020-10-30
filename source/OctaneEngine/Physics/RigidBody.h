@@ -29,7 +29,9 @@ public:
   void SetOrientation(const DirectX::XMFLOAT4& orientation);
 
   void SetStatic();
+  void SetGhost(bool is_ghost);
   bool IsDynamic() const;
+  bool IsGhost() const;
 
   DirectX::XMFLOAT3 GetPosition() const;
   DirectX::XMFLOAT4 GetOrientation() const;
@@ -56,6 +58,7 @@ private:
   friend class PhysicsSys;
 
   bool is_dynamic_;
+  bool is_ghost_;
   //linear data - positional
   DirectX::XMVECTOR position_;                                                          //vector3 - for transform
   DirectX::XMVECTOR linear_velocity_;                                                   //vector3

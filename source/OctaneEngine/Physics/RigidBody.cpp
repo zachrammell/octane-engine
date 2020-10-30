@@ -132,9 +132,19 @@ void RigidBody::SetStatic()
   is_dynamic_ = false;
 }
 
+void RigidBody::SetGhost(bool is_ghost)
+{
+  is_ghost_ = is_ghost;
+}
+
 bool RigidBody::IsDynamic() const
 {
   return is_dynamic_;
+}
+
+bool RigidBody::IsGhost() const
+{
+  return is_ghost_;
 }
 
 void RigidBody::SyncToPosition(DirectX::XMFLOAT3& position) const

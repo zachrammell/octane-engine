@@ -77,15 +77,15 @@ void TestScene::Load()
     render_component.color = color;
     render_component.mesh_type = mesh_type;
 
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
-    game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(scale.x*2.f, scale.y, scale.z*2.f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
-    physics_comp.rigid_body.SetStatic();
+    //ComponentHandle physics_comp_id = compsys->MakePhysics();
+    //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    //physics_sys->InitializeRigidBody(physics_comp);
+    //physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    //static_cast<Box*>(physics_comp.primitive)->SetBox(scale.x*2.f, scale.y, scale.z*2.f);
+    //physics_comp.rigid_body.SetPosition(trans.pos);
+    //trans.rotation = physics_comp.rigid_body.GetOrientation();
+    //physics_comp.rigid_body.SetStatic();
 
     //ComponentHandle physics_comp_id = compsys->MakePhysics();
     //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
@@ -98,8 +98,8 @@ void TestScene::Load()
     //physics_comp.rigid_body.SetStatic();
   };
   // ground plane
-  create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
-  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
+  /*create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
+  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);*/
   
 
   bear_id = Get<EntitySys>()->MakeEntity();
@@ -225,7 +225,7 @@ void TestScene::Load()
             ComponentHandle trans_id = compsys->MakeTransform();
             obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
             TransformComponent& trans = compsys->GetTransform(trans_id);
-            trans.pos.x = 0.0f;
+            trans.pos.x = 10.0f;
             trans.pos.y = 1.0f;
             trans.pos.z = 5.0f;
             trans.scale = { 2.0f, 2.0f, 2.0f };
@@ -245,6 +245,7 @@ void TestScene::Load()
             static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
             physics_comp.rigid_body.SetPosition(trans.pos);
             physics_comp.rigid_body.SetStatic();
+            physics_comp.rigid_body.SetGhost(true);
             trans.rotation = physics_comp.rigid_body.GetOrientation();
 
             ComponentHandle bhvr_comp_id = compsys->MakeBehavior();
@@ -255,7 +256,6 @@ void TestScene::Load()
         
 #endif
 
-  //wind_tunnel_physics.rigid_body->SetPosition({0.f, 1.f, 5.f});
 }
 
 void TestScene::Start()

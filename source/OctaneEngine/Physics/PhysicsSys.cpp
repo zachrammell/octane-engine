@@ -129,6 +129,7 @@ void PhysicsSys::InitializeRigidBody(PhysicsComponent& compo)
   compo.rigid_body.global_inertia_ = DirectX::XMMatrixIdentity();
   compo.rigid_body.global_inverse_inertia_ = DirectX::XMMatrixIdentity();
   compo.rigid_body.is_dynamic_ = true;
+  compo.rigid_body.is_ghost_ = false;
 }
 
 void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)

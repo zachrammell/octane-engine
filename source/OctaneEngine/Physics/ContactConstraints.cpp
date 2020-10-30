@@ -14,7 +14,9 @@ ContactPoint::ContactPoint()
 {
 }
 
-ContactPoint::~ContactPoint() {}
+ContactPoint::~ContactPoint()
+{
+}
 
 ContactPoint& ContactPoint::operator=(const ContactPoint& rhs)
 {
@@ -83,9 +85,15 @@ ContactPoint ContactPoint::SwappedContactPoint() const
   return result;
 }
 
-ContactManifold::ContactManifold(Primitive* a, Primitive* b) : collider_a(a), collider_b(b) {}
+ContactManifold::ContactManifold(Primitive* a, Primitive* b)
+  : collider_a(a),
+    collider_b(b)
+{
+}
 
-ContactManifold::~ContactManifold() {}
+ContactManifold::~ContactManifold()
+{
+}
 
 ContactManifold::ContactManifold(const ContactManifold& rhs)
 {
@@ -362,9 +370,9 @@ ContactConstraints::ContactConstraints(ContactManifold* input, float restitution
   : m_manifold(input),
     m_velocity_term(),
     m_mass_term(),
-    m_normal {},
-    m_tangent {},
-    m_bitangent {},
+    m_normal{},
+    m_tangent{},
+    m_bitangent{},
     m_restitution(restitution),
     m_friction(friction),
     m_tangent_speed(tangent_speed)
@@ -372,14 +380,24 @@ ContactConstraints::ContactConstraints(ContactManifold* input, float restitution
 {
 }
 
-ContactConstraints::~ContactConstraints() {}
+ContactConstraints::~ContactConstraints()
+{
+}
 
-void ContactConstraints::Release() {}
+void ContactConstraints::Release()
+{
+}
 
 void ContactConstraints::Generate(float dt)
 {
   m_body_a = m_manifold->collider_a->GetRigidBody();
   m_body_b = m_manifold->collider_b->GetRigidBody();
+
+  if (m_body_a->IsGhost() || m_body_b->IsGhost())
+  {
+    return;
+  }
+
   //set mass
   m_mass_term.m_a = m_body_a->Mass();
   m_mass_term.i_a = m_body_a->Inertia();
@@ -409,6 +427,10 @@ void ContactConstraints::Generate(float dt)
 
 void ContactConstraints::Solve(float /*dt*/)
 {
+  if (m_body_a->IsGhost() || m_body_b->IsGhost())
+  {
+    return;
+  }
   for (size_t i = 0; i < m_count; ++i)
   {
     // Solve tangent constraints first because non-penetration is more important than friction.
@@ -421,6 +443,10 @@ void ContactConstraints::Solve(float /*dt*/)
 
 void ContactConstraints::Apply()
 {
+  if (m_body_a->IsGhost() || m_body_b->IsGhost())
+  {
+    return;
+  }
   for (size_t i = 0; i < m_count; ++i)
   {
     m_manifold->contacts[i].tangent_lambda = m_tangent[i].total_lambda;
