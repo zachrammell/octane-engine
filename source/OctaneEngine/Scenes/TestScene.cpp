@@ -229,8 +229,9 @@ void TestScene::Load()
             ComponentHandle render_comp_id = compsys->MakeRender();
             obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
             RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-            render_comp.color = Colors::white;
+            render_comp.color = Colors::red;
             render_comp.mesh_type = MeshType::Cube;
+            render_comp.render_type = RenderType::Wireframe;
 
             ComponentHandle physics_comp_id = compsys->MakePhysics();
             obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;

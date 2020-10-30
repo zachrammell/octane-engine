@@ -43,6 +43,7 @@ void WindTunnelBHV::Initialize()
         {
           //assume this tunnel has a physics component
           phys_handle_ = it->GetComponentHandle(ComponentKind::Physics);
+          trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
           break;
         }
       }
@@ -75,12 +76,14 @@ void WindTunnelBHV::Update(float dt)
 
         if (othbeh.type == BHVRType::PLANE)
         {
-          auto phys_me = Get<ComponentSys>()->GetPhysics(phys_handle_);
+          auto& phys_me = Get<ComponentSys>()->GetPhysics(phys_handle_);
+          auto& trans_me = Get<ComponentSys>()->GetTransform(trans_handle_);
           auto other_hand = it->GetComponentHandle(ComponentKind::Physics);
           auto& phys_other = Get<ComponentSys>()->GetPhysics(other_hand);
+          auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
 
-          if (Get<PhysicsSys>()->HasCollision(phys_me,phys_other) != eCollisionState::None)
+          if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
           {
             //std::cout << "wind tunnel collide " << gol++ << std::endl;
             phys_other.rigid_body.ApplyForceCentroid({100.0f, 10.f,0.f});

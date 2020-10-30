@@ -30,6 +30,8 @@ public:
 
  private:
    ComponentHandle phys_handle_ = INVALID_COMPONENT;
+   ComponentHandle trans_handle_ = INVALID_COMPONENT;
+
 };
 
 }
