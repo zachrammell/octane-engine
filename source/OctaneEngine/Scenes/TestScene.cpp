@@ -276,6 +276,7 @@ void TestScene::Update(float dt)
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
+
   auto create_transform = [=](GameEntity& entity, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale) 
   {
     ComponentHandle trans_id = compsys->MakeTransform();
@@ -325,12 +326,13 @@ void TestScene::Update(float dt)
 
     create_transform(plane, pos, {0.15f, 0.1f, 0.1f});
     TransformComponent& trans = compsys->GetTransform(plane.components[to_integral(ComponentKind::Transform)]);
-
+    
     create_rendercomp(plane, Colors::db32[rand() % 32], MeshType::PaperPlane);
 
     create_physics(plane, trans, ePrimitiveType::Box, {0.25f, 0.25f, 0.25f});
 
     create_behavior(plane, BHVRType::PLANE);
+
   };
 
   auto create_enemy = [=](dx::XMFLOAT3 pos, MeshType mesh)
@@ -489,10 +491,6 @@ void TestScene::Update(float dt)
       create_plane(crossbow_trans.pos);
     }
     
-    bear_spawn_timer += dt;
-    bunny_spawn_timer += dt;
-    duck_spawn_timer += dt;
-
     if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT) && zoom_button == false)
     {
       Get<CameraSys>()->SetFOV(fov - 10.0f);
@@ -503,6 +501,10 @@ void TestScene::Update(float dt)
       Get<CameraSys>()->SetFOV(fov + 10.0f);
       zoom_button = false;
     }
+
+    bear_spawn_timer += dt;
+    bunny_spawn_timer += dt;
+    duck_spawn_timer += dt;
 
     if (bear_spawn_timer >= 10.0f)
     {

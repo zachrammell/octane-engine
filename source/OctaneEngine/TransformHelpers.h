@@ -15,7 +15,8 @@ void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float de
 void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce);
 void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos,float jumpForce);
 void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos);
-//place object relative to another object's position with an offset an rotation
+void FaceDir(Octane::TransformComponent& obj, const dx::XMFLOAT3& dir);
+  //place object relative to another object's position with an offset an rotation
 void PlaceRelativeTo(Octane::TransformComponent& obj, float offset,
   const dx::XMFLOAT3& relPos, const dx::XMVECTOR& invOrientation, const dx::XMVECTOR& direction);
 //reorient so its facing same way as something else

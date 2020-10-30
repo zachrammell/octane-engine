@@ -55,15 +55,37 @@ void PhysicsSys::Update()
   //N^2 Brute Force Broad Phase
   potential_pairs_.clear();
   auto primitive_end = primitives_.end();
-  for (auto it = primitives_.begin(); it != primitive_end; ++it)
-  {
-    auto jt_begin = it;
-    for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
-    {
-      Primitive* collider_a = (*it);
-      Primitive* collider_b = (*jt);
+  auto entsys = Get<EntitySys>();
+  //  for (auto it = primitives_.begin(); it != primitive_end; ++it)
+  //{
+  //  auto jt_begin = it; 
+  //  for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
+  //  {
+  //    Primitive* collider_a = (*it);
+  //    Primitive* collider_b = (*jt);
 
-      potential_pairs_.emplace_back(collider_a, collider_b);
+  //    potential_pairs_.emplace_back(collider_a, collider_b);
+  //  }
+  //}
+
+  const auto end = entsys->EntitiesEnd();
+
+  for (auto it = entsys->EntitiesBegin(); it != end; ++it)
+  {
+    if (it->HasComponent(ComponentKind::Physics))
+    {
+      auto jt_begin = it;
+      for (auto jt = ++jt_begin; jt != end; ++jt)
+      {
+        if (jt->HasComponent(ComponentKind::Physics))
+        {
+
+          Primitive* collider_a = component_sys->GetPhysics(it->components[to_integral(ComponentKind::Physics)]).primitive;
+          Primitive* collider_b = component_sys->GetPhysics(jt->components[to_integral(ComponentKind::Physics)]).primitive;
+
+          potential_pairs_.emplace_back(collider_a, collider_b);
+        }
+      }
     }
   }
 

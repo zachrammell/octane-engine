@@ -31,7 +31,7 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   addMesh(MeshType::Duck, "assets/models/Duck.fbx");
   addMesh(MeshType::Bunny, "assets/models/Bunny.fbx");
   addMesh(MeshType::Crossbow, "assets/models/Crossbow.fbx");
-  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.obj");
+  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.fbx");
   addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
   addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj");
   addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");

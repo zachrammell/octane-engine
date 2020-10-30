@@ -19,23 +19,27 @@ PlaneBehavior::PlaneBehavior(BehaviorSys* parent, ComponentHandle handle, dx::XM
 void PlaneBehavior::Initialize() 
 {
   
+  auto enty = Get<EntitySys>();
+  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  {
+    //check if compared entity is the current plane
+    if (it->HasComponent(ComponentKind::Behavior))
+    {
+      auto other = it->GetComponentHandle(ComponentKind::Behavior);
 
-  //for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
-  //{
-  //  //check if compared entity is the current plane
-  //  if (it->HasComponent(ComponentKind::Behavior))
-  //  {
-  //    auto other = it->GetComponentHandle(ComponentKind::Behavior);
-
-  //    if (other == handle_)
-  //    {
-  //      //assume this plane has a physics component
-  //      phys_handle_ = it->GetComponentHandle(ComponentKind::Physics);
-  //      trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
-  //      break;
-  //    }
-  //  }
-  //}
+      if (other == handle_)
+      {
+        //assume this plane has a physics component
+        auto& trans = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+        auto& physics = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+        dx::XMFLOAT3 facing;
+        dx::XMStoreFloat3(&facing, dir_);
+        FaceDir(trans, facing);
+        physics.rigid_body.SetOrientation(trans.rotation);
+        break;
+      }
+    }
+  }
 
   //auto& cam = Get<CameraSys>()->GetFPSCamera();
   //auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
@@ -49,8 +53,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 {
   auto enty = Get<EntitySys>();
   auto& physics = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
-  auto& trans_me
-    = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
+  auto& trans_me = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
 
 
   float constexpr G = -9.81f;
@@ -64,15 +67,25 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     dx::XMFLOAT3 force;
     dx::XMStoreFloat3(&force, dir_);
     physics.rigid_body.ApplyForceCentroid(force);
+    FaceDir(trans_me, force);
+    physics.rigid_body.SetOrientation(trans_me.rotation);
+
     impulsed = true;
+    return;
   }
   //Todo: free the entity
   lifetime -= dt;
 
-  //if (lifetime <= 0.f)
-  //{
-  //  Get<EntitySys>()->FreeEntity(me->)
-  //}
+  dx::XMFLOAT3 vel;
+  dx::XMStoreFloat3(&vel, dx::XMVector3Normalize( physics.rigid_body.GetLinearVelocity()));
+
+  FaceDir(trans_me, vel);
+  physics.rigid_body.SetOrientation(trans_me.rotation);
+
+  if (lifetime <= 0.f)
+  {
+    Get<EntitySys>()->FreeEntity(myid);
+  }
 }
 void PlaneBehavior::Shutdown()
 {

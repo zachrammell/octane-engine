@@ -82,8 +82,14 @@ void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
 
   dx::XMVECTOR disp = dx::XMVectorSubtract(to, from);
 
-  float pitch = 0.f; /*asin(-disp.m128_f32[1]);*/
-  float yaw = atan2(disp.m128_f32[0], disp.m128_f32[2]);
+  FaceDir(obj, {disp.m128_f32[0],disp.m128_f32[1],disp.m128_f32[2]});
+}
+
+void FaceDir(Octane::TransformComponent& obj, const dx::XMFLOAT3& dir)
+{
+
+  float pitch = /*0.f*/-dir.y;
+  float yaw = atan2(dir.x, dir.z);
   float roll = 0.f;
 
   dx::XMStoreFloat4(&obj.rotation, dx::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
