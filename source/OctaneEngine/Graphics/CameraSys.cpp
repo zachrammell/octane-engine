@@ -11,6 +11,8 @@
 /******************************************************************************/
 
 #include <OctaneEngine/Engine.h>
+#include <OctaneEngine/Entity.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
 #include <OctaneEngine/SystemOrder.h>
@@ -41,7 +43,14 @@ void CameraSys::LevelStart()
   fps_camera_.RotateYawAbsolute(0);
 }
 
-void CameraSys::Update() {}
+void CameraSys::Update() {
+  // set camera position to player, if player exists
+  GameEntity* player = Get<EntitySys>()->GetPlayer();
+  if (player) {
+    DirectX::XMFLOAT3 pos = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform)).pos;
+    GetFPSCamera().SetPosition(DirectX::XMLoadFloat3(&pos));
+  }
+}
 
 void CameraSys::LevelEnd() {}
 

@@ -30,6 +30,10 @@
 
 #include <OctaneEngine/TransformHelpers.h>
 
+
+// define to use actual player entity instead of separate camera movement
+#define USE_PLAYER_ENTITY
+
 namespace dx = DirectX;
 
 namespace
@@ -204,6 +208,31 @@ void TestScene::Load()
     render_comp.mesh_type = MeshType::Crossbow;
   }
 
+#ifdef USE_PLAYER_ENTITY
+  Octane::EntityID player_id = Get<EntitySys>()->MakeEntity();
+
+  {
+    GameEntity& player = Get<EntitySys>()->GetEntity(player_id);
+    ComponentHandle trans_id = compsys->MakeTransform();
+    player.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos = {10.0f, 0.5f, 7.0f};
+    trans.scale = {1.0f, 1.0f, 1.0f};
+    trans.rotation = {};
+
+    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    physics_sys->InitializeRigidBody(physics_comp);
+    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
+    physics_comp.rigid_body.SetPosition(trans.pos);
+    physics_comp.rigid_body.SetStatic(); // should stop other objects from applying physics to player
+    trans.rotation = physics_comp.rigid_body.GetOrientation();
+
+    Get<EntitySys>()->SetPlayerID(player_id);
+  }
+#endif
 
 #if 1
 
@@ -461,20 +490,22 @@ void TestScene::Update(float dt)
   else
   {
     auto* input = Get<InputHandler>();
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
 
+    dx::XMINT2 mouse_vel = input->GetMouseMovement();
+    camera.RotatePitchRelative(-mouse_vel.y);
+    camera.RotateYawRelative(mouse_vel.x);
+
+#ifndef USE_PLAYER_ENTITY
     dx::XMFLOAT3 cam_velocity;
     cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
     cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
     cam_velocity.z = (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
 
     dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
-
-    dx::XMINT2 mouse_vel = input->GetMouseMovement();
-    auto& camera = Get<CameraSys>()->GetFPSCamera();
-    camera.RotatePitchRelative(-mouse_vel.y);
-    camera.RotateYawRelative(mouse_vel.x);
-
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
+
+#endif
 
     auto handle = Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Physics);
 
@@ -484,6 +515,7 @@ void TestScene::Update(float dt)
       Get<EntitySys>()->GetEntity(duck_id).GetComponentHandle(ComponentKind::Physics));
     PhysicsComponent& bunny_physics = Get<ComponentSys>()->GetPhysics(
       Get<EntitySys>()->GetEntity(bunny_id).GetComponentHandle(ComponentKind::Physics));
+
     auto& bear_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(bear_id).GetComponentHandle(ComponentKind::Transform));
 

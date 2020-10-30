@@ -19,19 +19,20 @@
 #include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Registry.h>
 
-#include <OctaneEngine/ImGuiSys.h>
+#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/PlayerMovementControllerSys.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/WindowManager.h>
-#include <OctaneEngine/Graphics/RenderSys.h>
-#include <OctaneEngine/Graphics/MeshSys.h>
-#include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Audio.h>
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
@@ -72,6 +73,7 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::SceneSys {&engine});
   engine.AddSystem(new Octane::RenderSys {&engine});
   engine.AddSystem(new Octane::BehaviorSys {&engine});
+  engine.AddSystem(new Octane::PlayerMovementControllerSys {&engine});
   // depends on WindowSys and RenderSys
   engine.AddSystem(new Octane::ImGuiSys {&engine});
   engine.AddSystem(new Octane::MeshSys {&engine});

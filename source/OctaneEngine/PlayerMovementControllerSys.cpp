@@ -5,6 +5,7 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/SystemOrder.h>
 
+#include "FramerateController.h"
 #include <SDL_keycode.h>
 
 namespace Octane
@@ -20,17 +21,18 @@ const SDL_KeyCode KEY_JUMP = SDLK_SPACE;
 const SDL_KeyCode KEY_CROUCH = SDLK_LSHIFT;
 
 // these should be serialized later
-const float PLAYER_SPEED = 2.5f;
-const float PLAYER_CROUCH_SPEED = 1.0f;
-const float PLAYER_AIRSTRAFE_MAXSPEED = 3.0f;
-const float PLAYER_AIRSTRAFE_ACCEL = 1.5f;
+const float PLAYER_SPEED = 7.0f;
+const float PLAYER_CROUCH_SPEED = 3.0f;
+const float PLAYER_AIRSTRAFE_MAXSPEED = 12.0f;
+const float PLAYER_AIRSTRAFE_ACCEL = 4.5f;
+const float PLAYER_GRAVITY_ACCEL = 9.81f;
 
 // vertical velocity when starting jump
-const float PLAYER_JUMP_VEL = 5.0f;
+const float PLAYER_JUMP_VEL = 9.0f;
 
 const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
-const float HACKY_GROUND_Y_LEVEL = -0.25f;
+const float HACKY_GROUND_Y_LEVEL = 0.5f;
 
 bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics) {
   return player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
@@ -38,9 +40,11 @@ bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics) {
 
 } // namespace
 
-void PlayerMovementControllerSys::Load() {}
+void PlayerMovementControllerSys::Load() {
+  movementstate_ = MoveState::STAND;
+}
 
-PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISystem(engine) {}
+PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISystem(engine), movementstate_(MoveState::STAND) {}
 
 PlayerMovementControllerSys::~PlayerMovementControllerSys() {}
 
@@ -48,20 +52,27 @@ void PlayerMovementControllerSys::LevelStart() {}
 
 void PlayerMovementControllerSys::Update()
 {
-  GameEntity* player = Get<EntitySys>()->GetPlayer();
+  const float dt = Get<FramerateController>()->GetDeltaTime();
+  if (dt == 0) {
+    return;
+  }
+  GameEntity* const player = Get<EntitySys>()->GetPlayer();
   if (!player)
   {
     return; // no player exists, bail out
   }
 
-  ComponentHandle phys_id = player->GetComponentHandle(ComponentKind::Physics);
-  PhysicsComponent player_physics = Get<ComponentSys>()->GetPhysics(phys_id);
 
-  bool jump_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_JUMP);
-  bool crouch_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_CROUCH);
-  DirectX::XMVECTOR move_dir = CalcPlayerMoveDir();
+  const ComponentHandle phys_id = player->GetComponentHandle(ComponentKind::Physics);
+  PhysicsComponent& player_physics = Get<ComponentSys>()->GetPhysics(phys_id);
 
-  bool is_moving = DirectX::XMVector2Equal(move_dir, ZERO_VEC);
+  const bool jump_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_JUMP);
+  const bool crouch_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_CROUCH);
+  const DirectX::XMVECTOR move_dir = CalcPlayerMoveDir();
+
+  const bool is_moving = !DirectX::XMVector3Equal(move_dir, ZERO_VEC);
+
+  const bool on_ground = isPlayerCollidingWithGround(player_physics);
 
   MoveState nextstate = movementstate_;
 
@@ -73,7 +84,10 @@ void PlayerMovementControllerSys::Update()
     // these two use the same logic for now
   case MoveState::CROUCH:
   case MoveState::CROUCHWALK:
-    if (is_moving)
+    if (!on_ground) {
+      nextstate = MoveState::JUMP;
+    }
+    else if (is_moving)
     {
       if (crouch_input)
       {
@@ -102,7 +116,10 @@ void PlayerMovementControllerSys::Update()
     break;
   case MoveState::STAND:
   case MoveState::RUN:
-    if (jump_input)
+    if (!on_ground) {
+      nextstate = MoveState::JUMP;
+    }
+    else if (jump_input)
     {
       new_vel = DirectX::XMVectorAdd(
         DirectX::XMVectorScale(move_dir, PLAYER_SPEED),
@@ -137,7 +154,7 @@ void PlayerMovementControllerSys::Update()
     }
     break;
   case MoveState::JUMP:
-    if (isPlayerCollidingWithGround(player_physics))
+    if (on_ground)
     {
       if (is_moving)
       {
@@ -169,7 +186,8 @@ void PlayerMovementControllerSys::Update()
     else
     {
       auto new_acc = DirectX::XMVectorScale(move_dir, PLAYER_AIRSTRAFE_ACCEL);
-      new_vel = DirectX::XMVectorAdd(new_vel, new_acc);
+      new_acc.m128_f32[1] = -PLAYER_GRAVITY_ACCEL;
+      new_vel = DirectX::XMVectorAdd(new_vel, DirectX::XMVectorScale(new_acc, dt));
 
       // clamp new_vel to max airspeed
       float squarespeed = DirectX::XMVector3LengthSq(new_vel).m128_f32[0];
@@ -188,10 +206,25 @@ void PlayerMovementControllerSys::Update()
     EnterState(nextstate);
   }
 
-  if (!DirectX::XMVector3Equal(new_vel, old_vel))
-  {
-    player_physics.rigid_body.SetLinearVelocity(new_vel);
+  if (on_ground) {
+    // stop downward velocity
+    if (new_vel.m128_f32[1] < 0)
+    {
+      new_vel.m128_f32[1] = 0;
+    }
+
+    // set y to ground level.
+    // HACKY -- remove once real static physics works
+    auto pos = player_physics.rigid_body.GetPosition();
+    pos.y = HACKY_GROUND_Y_LEVEL;
+    player_physics.rigid_body.SetPosition(pos);
+  } else {
+    // maintain y velocity
+    //float y_vel = player_physics.rigid_body.GetLinearVelocity().m128_f32[1];
+    //new_vel.m128_f32[1] = y_vel;
   }
+
+  player_physics.rigid_body.SetLinearVelocity(new_vel);
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
@@ -212,7 +245,7 @@ DirectX::XMVECTOR PlayerMovementControllerSys::CalcPlayerMoveDir()
   bool fwd = input->KeyPressedOrHeld(KEY_FWD);
   bool back = input->KeyPressedOrHeld(KEY_BACK);
 
-  float v_side = (left & !right) ? 1.0f : (right & !left) ? -1.0f : 0.0f;
+  float v_side = (right & !left) ? 1.0f : (left & !right) ? -1.0f : 0.0f;
   float v_fwd = (fwd & !back) ? 1.0f : (back & !fwd) ? -1.0f : 0.0f;
 
   if (v_side == 0 && v_fwd == 0)
@@ -228,7 +261,7 @@ DirectX::XMVECTOR PlayerMovementControllerSys::CalcPlayerMoveDir()
   DirectX::XMVECTOR move_dir
     = DirectX::XMVectorAdd(DirectX::XMVectorScale(left_dir, v_side), DirectX::XMVectorScale(cam_dir, v_fwd));
 
-  move_dir = DirectX::XMVector2Normalize(move_dir);
+  move_dir = DirectX::XMVector3Normalize(move_dir);
 
   return move_dir;
 }
