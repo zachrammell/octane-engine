@@ -11,6 +11,7 @@
 /******************************************************************************/
 
 // Main include
+#include <OctaneEngine/Scenes/TestScene.h>
 
 #include <OctaneEngine/EntitySys.h>
 
@@ -19,11 +20,23 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/InputHandler.h>
-#include <OctaneEngine/Scenes/TestScene.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
+
 #include <imgui.h>
 #include <iostream>
+#include <EASTL/optional.h>
+#include <EASTL/string.h>
+#include <EASTL/string_view.h>
+#define MAGIC_ENUM_USING_ALIAS_OPTIONAL \
+  template<typename T>                  \
+  using optional = eastl::optional<T>;
+#define MAGIC_ENUM_USING_ALIAS_STRING      using string = eastl::string;
+#define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = eastl::string_view;
+#include <magic_enum.hpp>
+
+#include <OctaneEngine/NBTReader.h>
+#include <OctaneEngine/Trace.h>
 
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
@@ -97,10 +110,63 @@ void TestScene::Load()
     //trans.rotation = physics_comp.rigid_body.GetOrientation();
     //physics_comp.rigid_body.SetStatic();
   };
-  // ground plane
-  create_object({0.0f, 0.0f, 0.0f}, {40.0f, 0.25f, 40.0f}, Colors::db32[10]);
-  create_object({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, Colors::db32[25]);
-  
+
+  // Load all entities in level
+  {
+    Trace::Log(DEBUG, "Loading entities.\n");
+    EntitySys& entity_sys = *Get<EntitySys>();
+    ComponentSys& component_sys = *Get<ComponentSys>();
+
+    Trace::Log(DEBUG, "Loading entities.\n");
+    NBTReader nbt_reader {"assets/maps/level1.nbt"};
+
+    // for every object, read it in
+    if (nbt_reader.OpenList("Entities"))
+    {
+      const int entity_list_size = nbt_reader.ListSize();
+      for (int i = 0; i < entity_list_size; ++i)
+      {
+        if (nbt_reader.OpenCompound(""))
+        {
+          EntityID const ent_id = entity_sys.MakeEntity();
+          GameEntity& ent = entity_sys.GetEntity(ent_id);
+
+          for (auto component_type : magic_enum::enum_values<ComponentKind>())
+          {
+            if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
+            {
+              switch (component_type)
+              {
+              case ComponentKind::Render:
+              {
+                ComponentHandle const render_id = component_sys.MakeRender();
+                ent.components[to_integral(ComponentKind::Render)] = render_id;
+                RenderComponent& render_component = component_sys.GetRender(render_id);
+                render_component.color = nbt_reader.Read<Color>("Color");
+                render_component.mesh_type = nbt_reader.Read<MeshType>("Mesh");
+              }
+              break;
+              case ComponentKind::Transform:
+              {
+                ComponentHandle const trans_id = component_sys.MakeTransform();
+                ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+                TransformComponent& trans = component_sys.GetTransform(trans_id);
+                trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
+                trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
+                trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+              }
+              break;
+              default: break;
+              }
+              nbt_reader.CloseCompound();
+            }
+          }
+          nbt_reader.CloseCompound();
+        }
+      }
+      nbt_reader.CloseList();
+    }
+  }
 
   bear_id = Get<EntitySys>()->MakeEntity();
 
