@@ -7,17 +7,17 @@
 #include <stdlib.h>
 
 #include <filesystem>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 
 #include <OctaneEngine/Engine.h>
 
-#include <OctaneEngine/Trace.h>
 #include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Registry.h>
+#include <OctaneEngine/Trace.h>
 
 #include <OctaneEngine/Audio.h>
 #include <OctaneEngine/BehaviorSys.h>
@@ -37,32 +37,10 @@
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
 
-int main(int argc, char* argv[]) noexcept
+namespace
 {
-  // must be the first thing in main, for SDL2 initialization
-  SDL_SetMainReady();
 
-  // create sandbox folder for test files
-  if (!fs::exists("sandbox"))
-  {
-    fs::create_directory("sandbox");
-  }
-
-  std::ofstream logfile("sandbox/latest.txt");
-
-  Octane::Trace::AddLog(&logfile);
-  if (IsDebuggerPresent() || Octane::Registry::GetDword(HKEY_CURRENT_USER, "Console", "VirtualTerminalLevel").value_or(0) == 0x1)
-  {
-    Octane::Trace::AddLogColored(&std::clog);
-  }
-  else
-  {
-    Octane::Trace::AddLog(&std::clog);
-  }
-  
-  Octane::Trace::Log(Octane::INFO) << "[== Project Octane ==]\n";
-
-  Octane::Engine engine;
+void AddSystems(Octane::Engine& engine) {
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
@@ -78,11 +56,49 @@ int main(int argc, char* argv[]) noexcept
   engine.AddSystem(new Octane::ImGuiSys {&engine});
   engine.AddSystem(new Octane::MeshSys {&engine});
   engine.AddSystem(new Octane::Audio {&engine});
+}
+
+void RunGame() {
+  // create sandbox folder for test files
+  if (!fs::exists("sandbox"))
+  {
+    fs::create_directory("sandbox");
+  }
+  std::ofstream logfile("sandbox/latest.txt");
+
+  {
+    Octane::Trace::AddLog(&logfile);
+    if (
+      IsDebuggerPresent()
+      || Octane::Registry::GetDword(HKEY_CURRENT_USER, "Console", "VirtualTerminalLevel").value_or(0) == 0x1)
+    {
+      Octane::Trace::AddLogColored(&std::clog);
+    }
+    else
+    {
+      Octane::Trace::AddLog(&std::clog);
+    }
+
+    Octane::Trace::Log(Octane::INFO) << "[== Project Octane ==]\n";
+  }
+
+  Octane::Engine engine;
+  AddSystems(engine);
 
   while (!engine.ShouldQuit())
   {
-    engine.Update(); 
+    engine.Update();
   }
+}
+
+} // namespace
+
+int main(int argc, char* argv[]) noexcept
+{
+  // must be the first thing in main, for SDL2 initialization
+  SDL_SetMainReady();
+
+  RunGame();
 
   _CrtDumpMemoryLeaks();
   return 0;
