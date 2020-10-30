@@ -201,6 +201,7 @@ void BehaviorSys::Unload()
       if (beh.behavior != nullptr)
       {
         delete beh.behavior;
+        beh.behavior = nullptr;
       }
     }
   }

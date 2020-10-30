@@ -27,7 +27,13 @@ void ComponentSys::FreePhysics(ComponentHandle id) {}
 
 void ComponentSys::FreeRender(ComponentHandle id) {}
 
-void ComponentSys::FreeBehavior(ComponentHandle id) {}
+void ComponentSys::FreeBehavior(ComponentHandle id) {
+  BehaviorComponent& beh = GetBehavior(id);
+  if (beh.behavior != nullptr)
+  {
+    delete beh.behavior;
+  }
+}
 
 void ComponentSys::FreeMetadata(ComponentHandle id) {}
 
