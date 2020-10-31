@@ -41,6 +41,7 @@ void PhysicsSys::Update()
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
       physics_component.primitive->rigid_body_ = &physics_component.rigid_body;
+      physics_component.sys = this;
       //physics_component.rigid_body.SetPosition(transform.pos);
       //physics_component.rigid_body.SetOrientation(transform.rotation);
     }
@@ -56,38 +57,37 @@ void PhysicsSys::Update()
   potential_pairs_.clear();
   auto primitive_end = primitives_.end();
   auto entsys = Get<EntitySys>();
-  //  for (auto it = primitives_.begin(); it != primitive_end; ++it)
-  //{
-  //  auto jt_begin = it; 
-  //  for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
-  //  {
-  //    Primitive* collider_a = (*it);
-  //    Primitive* collider_b = (*jt);
-
-  //    potential_pairs_.emplace_back(collider_a, collider_b);
-  //  }
-  //}
-
-  const auto end = entsys->EntitiesEnd();
-
-  for (auto it = entsys->EntitiesBegin(); it != end; ++it)
+  for (auto it = primitives_.begin(); it != primitive_end; ++it)
   {
-    if (it->HasComponent(ComponentKind::Physics))
+    auto jt_begin = it;
+    for (auto jt = ++jt_begin; jt != primitive_end; ++jt)
     {
-      auto jt_begin = it;
-      for (auto jt = ++jt_begin; jt != end; ++jt)
-      {
-        if (jt->HasComponent(ComponentKind::Physics))
-        {
-
-          Primitive* collider_a = component_sys->GetPhysics(it->components[to_integral(ComponentKind::Physics)]).primitive;
-          Primitive* collider_b = component_sys->GetPhysics(jt->components[to_integral(ComponentKind::Physics)]).primitive;
-
-          potential_pairs_.emplace_back(collider_a, collider_b);
-        }
-      }
+      Primitive* collider_a = (*it);
+      Primitive* collider_b = (*jt);
+      potential_pairs_.emplace_back(collider_a, collider_b);
     }
   }
+
+  //const auto end = entsys->EntitiesEnd();
+
+  //for (auto it = entsys->EntitiesBegin(); it != end; ++it)
+  //{
+  //  if (it->HasComponent(ComponentKind::Physics))
+  //  {
+  //    auto jt_begin = it;
+  //    for (auto jt = ++jt_begin; jt != end; ++jt)
+  //    {
+  //      if (jt->HasComponent(ComponentKind::Physics))
+  //      {
+
+  //        Primitive* collider_a = component_sys->GetPhysics(it->components[to_integral(ComponentKind::Physics)]).primitive;
+  //        Primitive* collider_b = component_sys->GetPhysics(jt->components[to_integral(ComponentKind::Physics)]).primitive;
+
+  //        potential_pairs_.emplace_back(collider_a, collider_b);
+  //      }
+  //    }
+  //  }
+  //}
 
   //[Narrow Phase]
   narrow_phase_.GenerateContact(potential_pairs_, &manifold_table_, &collision_table_);
@@ -157,7 +157,6 @@ void PhysicsSys::InitializeRigidBody(PhysicsComponent& compo)
 void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
 {
   Primitive* primitive = nullptr;
-
   switch (type)
   {
   case ePrimitiveType::Box: primitive = new Box(); break;
@@ -171,6 +170,21 @@ void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
     primitive->rigid_body_ = &compo.rigid_body;
     primitives_.push_back(primitive);
     compo.primitive = primitive;
+    compo.sys = this;
+  }
+}
+
+void PhysicsSys::ErasePrimitive(PhysicsComponent& compo)
+{
+  auto found = eastl::find(primitives_.begin(), primitives_.end(), compo.primitive);
+  if (found != primitives_.end())
+  {
+    primitives_.erase(found);
+  }
+  if (compo.primitive != nullptr)
+  {
+    delete compo.primitive;
+    compo.primitive = nullptr;
   }
 }
 

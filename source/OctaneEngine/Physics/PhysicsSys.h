@@ -32,6 +32,7 @@ public:
 public:
   void InitializeRigidBody(PhysicsComponent& compo);
   void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
+  void ErasePrimitive(PhysicsComponent& compo);
   eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
   bool HasCollision(
     const TransformComponent& transform_a,

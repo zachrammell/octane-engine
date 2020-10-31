@@ -1,21 +1,17 @@
+#include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/ComponentSys.h>
-
-#include <OctaneEngine/SystemOrder.h>
-
-#include <OctaneEngine/behaviors/WindTunnelBhv.h>
-#include <OctaneEngine/behaviors/PlaneBehavior.h>
-#include <OctaneEngine/behaviors/BearBehavior.h>
-#include<OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
-#include <OctaneEngine/BehaviorSys.h>
-
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/EnemySpawner.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 namespace Octane
 {
-void ComponentSys::Load() {
- 
-}
+void ComponentSys::Load() {}
 
 void ComponentSys::LevelStart() {}
 
@@ -23,8 +19,8 @@ void ComponentSys::Update() {}
 
 void ComponentSys::LevelEnd() {}
 
-void ComponentSys::Unload() {
- 
+void ComponentSys::Unload()
+{
   for (auto it = BehaviorBegin(); it != BehaviorEnd(); ++it)
   {
     if (it->behavior != nullptr)
@@ -45,11 +41,16 @@ ComponentSys::ComponentSys(class Engine* parent_engine) : ISystem(parent_engine)
 
 void ComponentSys::FreeTransform(ComponentHandle id) {}
 
-void ComponentSys::FreePhysics(ComponentHandle id) {}
+void ComponentSys::FreePhysics(ComponentHandle id)
+{
+  PhysicsComponent& compo = GetPhysics(id);
+  compo.sys->ErasePrimitive(compo);
+}
 
 void ComponentSys::FreeRender(ComponentHandle id) {}
 
-void ComponentSys::FreeBehavior(ComponentHandle id) {
+void ComponentSys::FreeBehavior(ComponentHandle id)
+{
   BehaviorComponent& beh = GetBehavior(id);
   if (beh.behavior != nullptr)
   {
@@ -102,7 +103,7 @@ MetadataComponent& ComponentSys::GetMetadata(ComponentHandle id)
 
 ComponentHandle ComponentSys::MakeRender()
 {
-  render_comps_.emplace_back(RenderComponent{});
+  render_comps_.emplace_back(RenderComponent {});
   return static_cast<ComponentHandle>(render_comps_.size() - 1);
 }
 
@@ -124,7 +125,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   beh.type = type;
   switch (beh.type)
   {
- // case BHVRType::PLAYER: beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size())); break;
+    // case BHVRType::PLAYER: beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size())); break;
   case BHVRType::WINDTUNNEL:
     beh.behavior = new WindTunnelBHV(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;
@@ -140,11 +141,12 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::BEAR:
   {
     auto entsys = Get<EntitySys>();
-    beh.behavior = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayer());
+    beh.behavior
+      = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayer());
     break;
   }
   case BHVRType::ENEMYSPAWNER:
-    beh.behavior = new EnemySpawner(Get<BehaviorSys>(),static_cast<ComponentHandle>(behavior_comps_.size()));
+    beh.behavior = new EnemySpawner(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
 
   default: break;
   }
@@ -158,5 +160,4 @@ ComponentHandle ComponentSys::MakeMetadata()
   metadata_comps_.emplace_back(MetadataComponent {});
   return static_cast<ComponentHandle>(metadata_comps_.size() - 1);
 }
-
 } // namespace Octane

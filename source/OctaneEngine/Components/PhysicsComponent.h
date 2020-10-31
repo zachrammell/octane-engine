@@ -8,5 +8,6 @@ struct PhysicsComponent
 {
   RigidBody rigid_body;
   Primitive* primitive = nullptr;
+  PhysicsSys* sys = nullptr;
 };
 } // namespace Octane
