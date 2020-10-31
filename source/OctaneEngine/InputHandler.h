@@ -44,7 +44,7 @@ public:
     MIDDLE = SDL_BUTTON_MIDDLE,
     RIGHT = SDL_BUTTON_RIGHT,
 
-    COUNT = 3
+    COUNT = 4
   };
 
   bool MouseButtonPressed(MouseButton button);

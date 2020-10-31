@@ -513,15 +513,13 @@ void TestScene::Update(float dt)
       create_plane(crossbow_trans.pos);
     }
     
-    if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT) && zoom_button == false)
+    if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT))
     {
       Get<CameraSys>()->SetFOV(fov - 10.0f);
-      zoom_button = true;
     }
-    if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT) && zoom_button == true)
+    if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT))
     {
       Get<CameraSys>()->SetFOV(fov + 10.0f);
-      zoom_button = false;
     }
 
     spawnTimer += dt;
