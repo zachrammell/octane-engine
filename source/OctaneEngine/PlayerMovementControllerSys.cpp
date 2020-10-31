@@ -243,7 +243,7 @@ void PlayerMovementControllerSys::Update()
     }
   */
   //testing code
-  /*if (took_damage)
+  if (took_damage)
   {
     i_time -= dt;
 
@@ -264,7 +264,7 @@ void PlayerMovementControllerSys::Update()
       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
       return;
     }
-  }*/
+  }
 
   if (nextstate != movementstate_)
   {

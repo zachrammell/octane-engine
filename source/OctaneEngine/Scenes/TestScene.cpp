@@ -547,6 +547,7 @@ void TestScene::End() {}
 
 void TestScene::Unload()
 {
+  SDL_SetRelativeMouseMode(SDL_FALSE);
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
