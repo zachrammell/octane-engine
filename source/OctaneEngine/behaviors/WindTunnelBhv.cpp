@@ -43,7 +43,7 @@ void WindTunnelBHV::Update(float dt, EntityID myid)
   {
     if (it->HasComponent(ComponentKind::Physics))
     {
-        //check if compared entity is the current wind tunnel
+      //check if compared entity is the current wind tunnel
       if (it->HasComponent(ComponentKind::Behavior))
       {
         auto other = it->GetComponentHandle(ComponentKind::Behavior);
@@ -60,9 +60,9 @@ void WindTunnelBHV::Update(float dt, EntityID myid)
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
+          //Apply force to paper airplane
           if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
           {
-            //std::cout << "wind tunnel collide " << gol++ << std::endl;
             phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
           }
         }
@@ -75,7 +75,7 @@ void WindTunnelBHV::Update(float dt, EntityID myid)
 
 void WindTunnelBHV::Shutdown()
 {
-  //std::cout << "tunnel shutdown" << std::endl;
+
 }
 
 }
