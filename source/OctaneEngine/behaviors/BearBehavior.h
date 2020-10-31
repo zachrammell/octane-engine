@@ -43,7 +43,7 @@ public:
     ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
     GameEntity* target_;
     EnemyDestroyed* destroyed_func_ = nullptr;
-    int health_ = 3;
+    int health_ = 1;
 };
 
 }

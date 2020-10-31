@@ -62,6 +62,9 @@ const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
 
 float spawnDelay = 1.5f;
 float spawnTimer = 0.0f;
+float shootDelay = 1.5f;
+float shootTimer = shootDelay;
+bool can_shoot = true;
 Octane::EnemyDestroyed enemy_destroyed_func;
 
 } // namespace
@@ -159,7 +162,7 @@ void TestScene::Load()
     }
   }
 
-
+  //apparently removing this code will make the ground disappear
   {
     player_id = Get<EntitySys>()->MakeEntity();
     GameEntity& player = Get<EntitySys>()->GetEntity((player_id));
@@ -375,9 +378,7 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text("WASD to walk around");
-  ImGui::Text("Spacebar to jump, Shift to sneak");
-  ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
+  ImGui::Text("WASD and Space/Shift for camera movement");
   ImGui::Text("Alt+Enter for Fullscreen");
 
   if (ImGui::CollapsingHeader("Default"))
@@ -506,8 +507,9 @@ void TestScene::Update(float dt)
     PlaceRelativeTo(crossbow_trans, 0.25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
 
     //shoot paper airplanes
-    if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT))
+    if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
     {
+      can_shoot = false;
       create_plane(crossbow_trans.pos);
     }
     
@@ -523,6 +525,7 @@ void TestScene::Update(float dt)
     }
 
     spawnTimer += dt;
+    shootTimer += dt;
 
     if (spawnTimer >= spawnDelay && enemy_destroyed_func.enemiesSpawned < enemy_destroyed_func.spawnCap)
     {
@@ -540,6 +543,12 @@ void TestScene::Update(float dt)
 
       create_enemy({0.0f, 1.0f, 0.0f}, mesh);
       ++enemy_destroyed_func.enemiesSpawned;
+    }
+
+    if (shootTimer >= shootDelay)
+    {
+      can_shoot = true;
+      shootTimer = 0.0f;
     }
 
   }
