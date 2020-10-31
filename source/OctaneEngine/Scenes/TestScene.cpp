@@ -375,7 +375,9 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text("WASD and Space/Shift for camera movement");
+  ImGui::Text("WASD to walk around");
+  ImGui::Text("Spacebar to jump, Shift to sneak");
+  ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
   ImGui::Text("Alt+Enter for Fullscreen");
 
   if (ImGui::CollapsingHeader("Default"))
