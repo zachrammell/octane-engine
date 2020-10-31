@@ -33,14 +33,10 @@ public:
 
   private:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
-    ComponentHandle trans_handle_ = INVALID_COMPONENT;
-    ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
     void SpawnEnemy();
     int spawnCap = 20;
     int enemiesSpawned = 0;
-
-    GameEntity* target_;
-    float spawnDelay = 0.1f;
+    float spawnDelay = 0.0f;
     float spawnTimer = 0.0f;
 };
 

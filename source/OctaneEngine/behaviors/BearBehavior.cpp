@@ -69,7 +69,8 @@ void BearBehavior::Update(float dt, EntityID myID)
   physics.rigid_body.SetPosition(trans.pos);
   physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
-  
+  if (health_ <= 0 && destroyed_func_)
+    (*destroyed_func_)();
 
 }
 void BearBehavior::Shutdown()
@@ -77,4 +78,14 @@ void BearBehavior::Shutdown()
 
 }
 
+void BearBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
+{
+  destroyed_func_ = &edfunc;
 }
+
+void EnemyDestroyed::operator()()
+{
+  --enemiesSpawned;
+}
+
+} // namespace Octane

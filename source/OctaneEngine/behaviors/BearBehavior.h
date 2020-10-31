@@ -18,6 +18,13 @@ namespace dx = DirectX;
 namespace Octane
 {
 
+struct EnemyDestroyed //functor
+{
+    void operator()();
+    int spawnCap = 20;
+    int enemiesSpawned = 0;
+};
+
 class BearBehavior : public IBehavior
 {
 public:
@@ -28,12 +35,13 @@ public:
   void Initialize() override;
   void Update(float dt, EntityID myID);
   void Shutdown() override;
-
+  void SetDestroyedFunc(EnemyDestroyed& edfunc);
   private:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
     ComponentHandle trans_handle_ = INVALID_COMPONENT;
     ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
     GameEntity* target_;
+    EnemyDestroyed* destroyed_func_ = nullptr;
     float health_ = 100.f;
 };
 
