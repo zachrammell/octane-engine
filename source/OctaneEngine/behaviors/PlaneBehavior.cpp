@@ -5,7 +5,8 @@
 #include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
-#include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/behaviors/BearBehavior.h>
 
 
 namespace Octane
@@ -52,40 +53,75 @@ void PlaneBehavior::Initialize()
 void PlaneBehavior::Update(float dt, EntityID myid)
 {
   auto enty = Get<EntitySys>();
-  auto& physics = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
+  auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
   auto& trans_me = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
-
-
   float constexpr G = -9.81f;
 
-  physics.rigid_body.ApplyForceCentroid({0.f, .25f * G, 0.f});
 
-  if (!impulsed)
   {
-    dir_.m128_f32[1] += .25f;
-    dir_ = dx::XMVectorScale(dir_, 350.f);
-    dx::XMFLOAT3 force;
-    dx::XMStoreFloat3(&force, dir_);
-    physics.rigid_body.ApplyForceCentroid(force);
-    FaceDir(trans_me, force);
-    physics.rigid_body.SetOrientation(trans_me.rotation);
+    phys_me.rigid_body.ApplyForceCentroid({0.f, .25f * G, 0.f});
 
-    impulsed = true;
-    return;
+    if (!impulsed)
+    {
+      dir_.m128_f32[1] += .25f;
+      dir_ = dx::XMVectorScale(dir_, 350.f);
+      dx::XMFLOAT3 force;
+      dx::XMStoreFloat3(&force, dir_);
+      phys_me.rigid_body.ApplyForceCentroid(force);
+      FaceDir(trans_me, force);
+      phys_me.rigid_body.SetOrientation(trans_me.rotation);
+
+      impulsed = true;
+      return;
+    }
+    //Todo: free the entity
+    lifetime -= dt;
+
+    dx::XMFLOAT3 vel;
+    dx::XMStoreFloat3(&vel, dx::XMVector3Normalize(phys_me.rigid_body.GetLinearVelocity()));
+
+    FaceDir(trans_me, vel);
+    phys_me.rigid_body.SetOrientation(trans_me.rotation);
+
+    if (lifetime <= 0.f)
+    {
+      Get<EntitySys>()->FreeEntity(myid);
+    }
   }
-  //Todo: free the entity
-  lifetime -= dt;
 
-  dx::XMFLOAT3 vel;
-  dx::XMStoreFloat3(&vel, dx::XMVector3Normalize( physics.rigid_body.GetLinearVelocity()));
-
-  FaceDir(trans_me, vel);
-  physics.rigid_body.SetOrientation(trans_me.rotation);
-
-  if (lifetime <= 0.f)
   {
-    Get<EntitySys>()->FreeEntity(myid);
+    for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+    {
+      if (it->HasComponent(ComponentKind::Behavior))
+      {
+          auto other = it->GetComponentHandle(ComponentKind::Behavior);
+          const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
+
+          if (othbeh.type == BHVRType::BEAR)
+          {
+            BearBehavior* otherBeh = static_cast<BearBehavior*>( Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).behavior);
+            auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+            auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+
+            if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+            {
+              //std::cout << "wind tunnel collide " << gol++ << std::endl;
+              otherBeh->TakeDamage();
+              Get<EntitySys>()->FreeEntity(myid);
+            }
+        }
+      }
+    }
   }
+
+
+
+
+
+
+
+
+
 }
 void PlaneBehavior::Shutdown()
 {

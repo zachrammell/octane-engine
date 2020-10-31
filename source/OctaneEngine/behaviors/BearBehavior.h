@@ -36,13 +36,14 @@ public:
   void Update(float dt, EntityID myID);
   void Shutdown() override;
   void SetDestroyedFunc(EnemyDestroyed& edfunc);
+  void TakeDamage();
   private:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
     ComponentHandle trans_handle_ = INVALID_COMPONENT;
     ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
     GameEntity* target_;
     EnemyDestroyed* destroyed_func_ = nullptr;
-    float health_ = 100.f;
+    int health_ = 3;
 };
 
 }
