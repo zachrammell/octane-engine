@@ -59,7 +59,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
 
   {
-    phys_me.rigid_body.ApplyForceCentroid({0.f, .25f * G, 0.f});
+    phys_me.rigid_body.ApplyForceCentroid({0.f, .2f * G, 0.f});
 
     if (!impulsed)
     {

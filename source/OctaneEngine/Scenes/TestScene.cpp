@@ -58,7 +58,7 @@ Octane::EntityID player_id;
 Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
-const dx::XMFLOAT3 WINDTUNNELFORCE = {100.f, 30.f, 0.f};
+const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
 
 float spawnDelay = 1.5f;
 float spawnTimer = 0.0f;

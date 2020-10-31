@@ -22,14 +22,25 @@ namespace Octane
 {
 WindowManager::WindowManager(Engine* parent, char const* title, int width, int height) : ISystem(parent)
 {
+  SDL_DisplayMode mode;
+  SDL_GetDisplayMode(0, 0, &mode);
   //Create window
   window_ = SDL_CreateWindow(
     title,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
+    #ifdef _DEBUG
+    mode.w,
+    mode.h,
+    #endif
+    #ifndef _DEBUG
     width,
     height,
+    #endif
     SDL_WINDOW_SHOWN);
+
+
+
   if (window_ == nullptr)
   {
     std::clog << "Window could not be created! SDL_Error:" << SDL_GetError() << "\n";
