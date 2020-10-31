@@ -6,6 +6,7 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Trace.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 
 #include "FramerateController.h"
 #include <SDL_keycode.h>
@@ -210,7 +211,7 @@ void PlayerMovementControllerSys::Update()
   }
 
   //damage stuff
-  /*
+  
     if(took_damage)
     {
         i_time -= dt;
@@ -222,28 +223,40 @@ void PlayerMovementControllerSys::Update()
     }
     else
     {
-        for(all entities)
+      auto enty = Get<EntitySys>();
+      auto& trans_plyr = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
+        for(auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
         {
-            if(entity is enemy)
+            if(it->HasComponent(ComponentKind::Behavior))
             {
-                if(enemy is colliding with player}
+                if (
+                  Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type
+                  == BHVRType::BEAR)
                 {
+                  auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+                  auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+
+                  if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+                  {
                     playerHP_.ChangeCurrentHPby(1);
                     took_damage = true;
                     i_time = PLAYER_I_TIME;
+                    Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
 
-                    if(playerHP_.is_dead())
+                    if (playerHP_.is_dead())
                     {
-                        Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
-                        return;
+                      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+                      return;
                     }
+                    break;
                 }
+              }
             }
         }
     }
-  */
+  
   //testing code
-  if (took_damage)
+  /*if (took_damage)
   {
     i_time -= dt;
 
@@ -264,7 +277,7 @@ void PlayerMovementControllerSys::Update()
       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
       return;
     }
-  }
+  }*/
 
   if (nextstate != movementstate_)
   {
