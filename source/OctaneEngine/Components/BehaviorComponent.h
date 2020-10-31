@@ -12,6 +12,7 @@ enum class BHVRType
   WINDTUNNEL,
   PLANE,
   BEAR,
+  ENEMYSPAWNER,
 
   INVALID
 };

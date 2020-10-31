@@ -173,6 +173,19 @@ void TestScene::Load()
     Get<EntitySys>()->SetPlayerID(player_id);
   }
 
+  {
+    auto spawner_id = Get<EntitySys>()->MakeEntity();
+    GameEntity& enemy_spawner = Get<EntitySys>()->GetEntity((spawner_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    enemy_spawner.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos ={0.f,0.f,0.f};
+    ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::ENEMYSPAWNER);
+    enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
+    BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
+    behavior_comp.type = BHVRType::ENEMYSPAWNER;
+  }
+
   crossbow_id = Get<EntitySys>()->MakeEntity();
   {
     GameEntity& crossbow = Get<EntitySys>()->GetEntity((crossbow_id));
@@ -337,17 +350,17 @@ void TestScene::Update(float dt)
 
   auto create_enemy = [=](dx::XMFLOAT3 pos, MeshType mesh)
   {
-    auto id = Get<EntitySys>()->MakeEntity();
-    GameEntity& bear = Get<EntitySys>()->GetEntity((id));
+    //auto id = Get<EntitySys>()->MakeEntity();
+    //GameEntity& bear = Get<EntitySys>()->GetEntity((id));
 
-    create_transform(bear, pos, {0.25f, 0.25f, 0.25f});
-    TransformComponent& trans = compsys->GetTransform(bear.components[to_integral(ComponentKind::Transform)]);
+    //create_transform(bear, pos, {0.25f, 0.25f, 0.25f});
+    //TransformComponent& trans = compsys->GetTransform(bear.components[to_integral(ComponentKind::Transform)]);
 
-    create_rendercomp(bear, Colors::db32[rand() % 32], mesh);
+    //create_rendercomp(bear, Colors::db32[rand() % 32], mesh);
 
-    create_physics(bear, trans, ePrimitiveType::Box, {0.25f, 0.25f, 0.25f});
+    //create_physics(bear, trans, ePrimitiveType::Box, {0.25f, 0.25f, 0.25f});
 
-    create_behavior(bear, BHVRType::BEAR);
+    //create_behavior(bear, BHVRType::BEAR);
 
   };
 
@@ -506,19 +519,19 @@ void TestScene::Update(float dt)
     bunny_spawn_timer += dt;
     duck_spawn_timer += dt;
 
-    if (bear_spawn_timer >= 10.0f)
+    if (bear_spawn_timer >= 1.0f)
     {
       create_enemy({0.0f,2.0f,0.0f},MeshType::Bear);
       bear_spawn_timer = 0.0f;
     }
 
-    if (bunny_spawn_timer >= 11.0f)
+    if (bunny_spawn_timer >= 1.0f)
     {
       create_enemy({0.0f, 2.0f, 0.0f},MeshType::Bunny);
       bunny_spawn_timer = 0.0f;
     }
 
-    if (duck_spawn_timer >= 12.0f)
+    if (duck_spawn_timer >= 1.0f)
     {
       create_enemy({0.0f, 2.0f, 0.0f},MeshType::Duck);
       duck_spawn_timer = 0.0f;

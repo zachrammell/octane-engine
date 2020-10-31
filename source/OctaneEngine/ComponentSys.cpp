@@ -5,6 +5,7 @@
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
+#include<OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/BehaviorSys.h>
@@ -134,14 +135,16 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
       Get<BehaviorSys>(),
       static_cast<ComponentHandle>(behavior_comps_.size()),
       camera.GetViewDirection());
+    break;
   }
-  break;
   case BHVRType::BEAR:
   {
     auto entsys = Get<EntitySys>();
     beh.behavior = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayer());
     break;
   }
+  case BHVRType::ENEMYSPAWNER:
+    beh.behavior = new EnemySpawner(Get<BehaviorSys>(),static_cast<ComponentHandle>(behavior_comps_.size()));
 
   default: break;
   }
