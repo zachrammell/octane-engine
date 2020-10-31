@@ -515,11 +515,11 @@ void TestScene::Update(float dt)
     
     if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT))
     {
-      Get<CameraSys>()->SetFOV(fov - 10.0f);
+      Get<CameraSys>()->SetFOV(fov - 20.0f);
     }
     if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT))
     {
-      Get<CameraSys>()->SetFOV(fov + 10.0f);
+      Get<CameraSys>()->SetFOV(fov + 20.0f);
     }
 
     spawnTimer += dt;
