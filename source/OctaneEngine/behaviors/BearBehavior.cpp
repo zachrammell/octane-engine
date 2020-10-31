@@ -6,6 +6,7 @@
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Audio.h>
 
 
 namespace Octane
@@ -71,6 +72,7 @@ void BearBehavior::Update(float dt, EntityID myID)
 
   if (health_ <= 0 && destroyed_func_)
   {
+    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
     (*destroyed_func_)();
     Get<EntitySys>()->FreeEntity(myID);
   }

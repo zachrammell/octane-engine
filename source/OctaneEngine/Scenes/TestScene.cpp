@@ -44,6 +44,7 @@
 
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <OctaneEngine/Audio.h>
 
 
 // define to use actual player entity instead of separate camera movement
@@ -369,7 +370,7 @@ void TestScene::Update(float dt)
     BearBehavior* enemybeh = static_cast<BearBehavior*>(beh.behavior);
 
     enemybeh->SetDestroyedFunc(enemy_destroyed_func);
-
+    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
   };
 
   ImGui::Begin(
@@ -457,15 +458,18 @@ void TestScene::Update(float dt)
 
     if (ImGui::Button("Resume"))
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       esc_menu = false;
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
     if (ImGui::Button("Main Menu"))
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
     }
     if (ImGui::Button("Quit"))
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->Quit();
     }
 
@@ -509,6 +513,7 @@ void TestScene::Update(float dt)
     //shoot paper airplanes
     if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
       can_shoot = false;
       create_plane(crossbow_trans.pos);
     }

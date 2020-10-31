@@ -24,6 +24,7 @@
 #include <magic_enum.hpp>
 
 #include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/Audio.h>
 
 
 namespace Octane
@@ -50,10 +51,12 @@ void MenuScene::Update(float dt)
 
     if (ImGui::Button("Play"))
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       parent_manager_.SetNextScene(selected_scene_);
     }
     if (ImGui::Button("Quit") || Get<InputHandler>()->KeyReleased(SDLK_ESCAPE))
     {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       parent_manager_.Quit();
     }
   }

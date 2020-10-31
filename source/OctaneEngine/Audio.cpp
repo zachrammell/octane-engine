@@ -101,9 +101,9 @@ bool Audio::AudioInit()
   main = Load_Bank(AKTEXT("Main.bnk"));
 
   // Register our test objects
+  test_object = 100;
   test_listener = 0;
   test_emitter = 1;
-  test_object = 100;
   Register_Object(test_object, "test");
   Register_Object(test_listener, "Listener");
   Register_Object(test_emitter, "Emitter");
@@ -329,7 +329,7 @@ void Audio::Load()
 void Audio::LevelStart()
 {
   ambience_start();
-  button_sound();
+  //button_sound();
   music_play();
 }
 
@@ -341,7 +341,7 @@ void Audio::Update()
 void Audio::LevelEnd()
 {
   ambience_stop();
-  back_sound();
+  //back_sound();
   music_stop();
 }
 
@@ -397,11 +397,11 @@ void AudioPlayer::Unload_Bank(const char* name)
     Trace::Log(ERROR) << "Bank unload '" << name << "' failed!" << std::endl;
   }
 }
-void AudioPlayer::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
+void AudioPlayer::Play_Event(AkUniqueID UniqueID)
 {
   using FormattedOutput::Set;
   using FormattedOutput::ColorANSI;
-  if (AK::SoundEngine::PostEvent(UniqueID, GameObjectID) == AK_INVALID_PLAYING_ID)
+  if (AK::SoundEngine::PostEvent(UniqueID, 100) == AK_INVALID_PLAYING_ID)
   {
     Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
   }
@@ -409,7 +409,7 @@ void AudioPlayer::Play_Event(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
   {
     Trace::Log(DEBUG) << "Playing audio event #"
       << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
-      << Set(ColorANSI::Lime) << GameObjectID << Set() << std::endl;
+      << Set(ColorANSI::Lime) << 100 << Set() << std::endl;
   }
 }
 AkPlayingID AudioPlayer::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
