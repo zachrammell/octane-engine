@@ -122,6 +122,40 @@ private:
   void Unsuspend();
   void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
 };
+
+static class AudioPlayer
+{
+  // Banks
+  AkBankID Load_Bank(const wchar_t*);
+  void Unload_Bank(const char*);
+
+  // Events
+  void Play_Event(AkUniqueID, AkGameObjectID);
+  AkPlayingID Play_Event_RI(AkUniqueID, AkGameObjectID);
+
+  // Game Objects
+  // Every Game Object must have a AkGameObjectID if sound wants to be associated to the object
+  void Register_Object(AkGameObjectID, const char*);
+  void Unregister_Object(AkGameObjectID);
+  void Unregister_All_Objects();
+
+  // Position
+  // AkSoundPosition needs to be changed to whatever vector format we're using
+  void Set_Position(AkGameObjectID);
+  void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
+
+  // Listeners
+  void Set_Default_Listener(const AkGameObjectID*, AkUInt32);
+  void Set_Listener(AkGameObjectID, const AkGameObjectID*, AkUInt32);
+
+  // I need to change how this is done later
+  // Handle tabbing out
+  // True = Partial on; Partial means to keep processing sound events
+  // False = Completely suspend all sound
+  void Suspend(bool partial);
+  void Unsuspend();
+  void Restart_Render(); // This is called shortly after Unsuspend, may not be necessary since it's normally called every frame
+};
 }
 
 
