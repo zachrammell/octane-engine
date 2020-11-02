@@ -61,11 +61,13 @@ Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
 
-float spawnDelay = 1.5f;
-float spawnTimer = 0.0f;
+float spawnDelay = 15.0f;
+float spawnTimer = spawnDelay;
 float shootDelay = 1.5f;
 float shootTimer = shootDelay;
 bool can_shoot = true;
+bool spawning = true;
+bool prevSpawning = false;
 Octane::EnemyDestroyed enemy_destroyed_func;
 
 } // namespace
@@ -77,6 +79,10 @@ TestScene::TestScene(SceneSys* parent) : IScene(parent) {}
 
 void TestScene::Load()
 {
+  spawnTimer = spawnDelay;
+  spawning = true;
+  prevSpawning = false;
+  enemy_destroyed_func.enemiesSpawned = 0;
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
@@ -370,7 +376,10 @@ void TestScene::Update(float dt)
     BearBehavior* enemybeh = static_cast<BearBehavior*>(beh.behavior);
 
     enemybeh->SetDestroyedFunc(enemy_destroyed_func);
-    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
+    if (!prevSpawning)
+    {
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
+    }
   };
 
   ImGui::Begin(
@@ -527,12 +536,16 @@ void TestScene::Update(float dt)
       Get<CameraSys>()->SetFOV(fov + 20.0f);
     }
 
-    spawnTimer += dt;
+    spawning = spawnTimer >= spawnDelay && enemy_destroyed_func.enemiesSpawned < enemy_destroyed_func.spawnCap;
+
+    if (!spawning)
+    {
+      spawnTimer += dt;
+    }
     shootTimer += dt;
 
-    if (spawnTimer >= spawnDelay && enemy_destroyed_func.enemiesSpawned < enemy_destroyed_func.spawnCap)
+    if (spawning)
     {
-      spawnTimer = 0.0f;
       MeshType mesh = MeshType::INVALID;
       const int enemyType = rand() % 3;
 
@@ -546,6 +559,8 @@ void TestScene::Update(float dt)
 
       create_enemy({0.0f, 1.0f, 0.0f}, mesh);
       ++enemy_destroyed_func.enemiesSpawned;
+      if (enemy_destroyed_func.enemiesSpawned >= enemy_destroyed_func.spawnCap)
+        spawnTimer = 0.0f;
     }
 
     if (shootTimer >= shootDelay)
@@ -553,7 +568,7 @@ void TestScene::Update(float dt)
       can_shoot = true;
       shootTimer = 0.0f;
     }
-
+    prevSpawning = spawning;
   }
 }
 

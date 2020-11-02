@@ -32,6 +32,7 @@ public:
     dx::XMVECTOR dir_;
     float lifetime = 10.0f;
     bool impulsed = false;
+    bool gettingfreed = false;
 };
 
 }

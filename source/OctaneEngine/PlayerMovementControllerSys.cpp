@@ -7,7 +7,7 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-
+#include <OctaneEngine/Audio.h>
 #include "FramerateController.h"
 #include <SDL_keycode.h>
 #include <iostream>
@@ -242,12 +242,13 @@ void PlayerMovementControllerSys::Update()
                     took_damage = true;
                     i_time = PLAYER_I_TIME;
                     Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
-
                     if (playerHP_.is_dead())
                     {
+                      AudioPlayer::Play_Event(AK::EVENTS::PLAYER_DEATH);
                       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
                       return;
                     }
+                    AudioPlayer::Play_Event(AK::EVENTS::PLAYER_HURT);
                     break;
                 }
               }

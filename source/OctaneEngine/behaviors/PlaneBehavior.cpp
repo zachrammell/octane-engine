@@ -81,9 +81,12 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     phys_me.rigid_body.SetOrientation(trans_me.rotation);
 
     lifetime -= dt;
-    if (lifetime <= 0.f)
+
+
+    if (lifetime <= 0.f && !gettingfreed)
     {
       Get<EntitySys>()->FreeEntity(myid);
+      gettingfreed = true;
     }
   }
 
@@ -105,7 +108,11 @@ void PlaneBehavior::Update(float dt, EntityID myid)
           if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
             otherBeh->TakeDamage();
-            Get<EntitySys>()->FreeEntity(myid);
+            if (!gettingfreed)
+            {
+              Get<EntitySys>()->FreeEntity(myid);
+              gettingfreed = true;
+            }
           }
         }
       }
