@@ -29,11 +29,11 @@ WindowManager::WindowManager(Engine* parent, char const* title, int width, int h
     title,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
-    #ifdef _DEBUG
+    #ifndef _DEBUG
     mode.w,
     mode.h,
     #endif
-    #ifndef _DEBUG
+    #ifdef _DEBUG
     width,
     height,
     #endif
