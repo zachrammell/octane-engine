@@ -32,6 +32,7 @@ public:
   void Unload() override;
 
   static SystemOrder GetOrder();
+  Health& GetHealth() { return playerHP_; }
 
 private:
   DirectX::XMVECTOR CalcPlayerMoveDir();

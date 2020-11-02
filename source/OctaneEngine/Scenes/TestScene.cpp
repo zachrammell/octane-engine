@@ -21,14 +21,14 @@
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/WindowManager.h>
-#include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
 
-#include <imgui.h>
-#include <iostream>
 #include <EASTL/optional.h>
 #include <EASTL/string.h>
 #include <EASTL/string_view.h>
+#include <imgui.h>
+#include <iostream>
 #define MAGIC_ENUM_USING_ALIAS_OPTIONAL \
   template<typename T>                  \
   using optional = eastl::optional<T>;
@@ -42,10 +42,10 @@
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 
+#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/PlayerMovementControllerSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
-#include <OctaneEngine/Audio.h>
-
 
 // define to use actual player entity instead of separate camera movement
 #define USE_PLAYER_ENTITY
@@ -246,46 +246,44 @@ void TestScene::Load()
 
 #if 1
 
-        wind_tunnel_id = Get<EntitySys>()->MakeEntity();
+  wind_tunnel_id = Get<EntitySys>()->MakeEntity();
 
-        {
-            GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
-            ComponentHandle trans_id = compsys->MakeTransform();
-            obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
-            TransformComponent& trans = compsys->GetTransform(trans_id);
-            trans.pos.x = 10.0f;
-            trans.pos.y = 1.0f;
-            trans.pos.z = 5.0f;
-            trans.scale = { 2.0f, 2.0f, 2.0f };
-            trans.rotation = {};
+  {
+    GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos.x = 10.0f;
+    trans.pos.y = 1.0f;
+    trans.pos.z = 5.0f;
+    trans.scale = {2.0f, 2.0f, 2.0f};
+    trans.rotation = {};
 
-            ComponentHandle render_comp_id = compsys->MakeRender();
-            obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
-            RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-            render_comp.color = Colors::red;
-            render_comp.mesh_type = MeshType::Cube;
-            render_comp.render_type = RenderType::Wireframe;
+    ComponentHandle render_comp_id = compsys->MakeRender();
+    obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+    render_comp.color = Colors::red;
+    render_comp.mesh_type = MeshType::Cube;
+    render_comp.render_type = RenderType::Wireframe;
 
-            ComponentHandle physics_comp_id = compsys->MakePhysics();
-            obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-            PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-            physics_sys->InitializeRigidBody(physics_comp);
-            physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-            static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-            physics_comp.rigid_body.SetPosition(trans.pos);
-            physics_comp.rigid_body.SetStatic();
-            //physics_comp.rigid_body.SetGhost(true);
-            trans.rotation = physics_comp.rigid_body.GetOrientation();
+    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    physics_sys->InitializeRigidBody(physics_comp);
+    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
+    physics_comp.rigid_body.SetPosition(trans.pos);
+    physics_comp.rigid_body.SetStatic();
+    //physics_comp.rigid_body.SetGhost(true);
+    trans.rotation = physics_comp.rigid_body.GetOrientation();
 
-            ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
-            obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
-            BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
-            beh_comp.force = WINDTUNNELFORCE;
-        }
-        
+    ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
+    obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
+    BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
+    beh_comp.force = WINDTUNNELFORCE;
+  }
+
 #endif
-
-
 }
 
 void TestScene::Start()
@@ -303,19 +301,16 @@ void TestScene::Update(float dt)
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_transform = [=](GameEntity& entity, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale) 
-  {
+  auto create_transform = [=](GameEntity& entity, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale) {
     ComponentHandle trans_id = compsys->MakeTransform();
     entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos = pos;
     trans.scale = scale;
     trans.rotation = {};
-
   };
 
-  auto create_rendercomp = [=](GameEntity& entity, Octane::Color color, MeshType mesh)
-  {
+  auto create_rendercomp = [=](GameEntity& entity, Octane::Color color, MeshType mesh) {
     ComponentHandle render_comp_id = compsys->MakeRender();
     entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
@@ -323,36 +318,32 @@ void TestScene::Update(float dt)
     render_comp.mesh_type = mesh;
   };
 
-  auto create_physics = [=](GameEntity& entity, TransformComponent& trans, ePrimitiveType primitive, dx::XMFLOAT3 colScale)
-  {
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
-    entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-    PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x,colScale.y,colScale.z);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
+  auto create_physics
+    = [=](GameEntity& entity, TransformComponent& trans, ePrimitiveType primitive, dx::XMFLOAT3 colScale) {
+        ComponentHandle physics_comp_id = compsys->MakePhysics();
+        entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+        PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+        physics_sys->InitializeRigidBody(physics_comp);
+        physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+        static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
+        physics_comp.rigid_body.SetPosition(trans.pos);
+        trans.rotation = physics_comp.rigid_body.GetOrientation();
+      };
 
-  };
-
-  auto create_behavior = [=](GameEntity& entity, BHVRType behavior)
-  {
+  auto create_behavior = [=](GameEntity& entity, BHVRType behavior) {
     ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
     entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
     BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
     behavior_comp.type = behavior;
-
   };
 
-  auto create_plane = [=](dx::XMFLOAT3 pos)
-  {
+  auto create_plane = [=](dx::XMFLOAT3 pos) {
     auto id = Get<EntitySys>()->MakeEntity();
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
 
     create_transform(plane, pos, {0.05f, 0.05f, 0.05f});
     TransformComponent& trans = compsys->GetTransform(plane.components[to_integral(ComponentKind::Transform)]);
-    
+
     create_rendercomp(plane, Colors::db32[rand() % 32], MeshType::PaperPlane);
 
     create_physics(plane, trans, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
@@ -360,8 +351,7 @@ void TestScene::Update(float dt)
     create_behavior(plane, BHVRType::PLANE);
   };
 
-  auto create_enemy = [=](dx::XMFLOAT3 pos, MeshType mesh)
-  {
+  auto create_enemy = [=](dx::XMFLOAT3 pos, MeshType mesh) {
     auto id = Get<EntitySys>()->MakeEntity();
     GameEntity& bear = Get<EntitySys>()->GetEntity((id));
 
@@ -389,19 +379,28 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text("WASD and Space/Shift for camera movement");
+
+  ImGui::Text("WASD to walk around");
+  ImGui::Text("Spacebar to jump, Shift to sneak");
+  ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
+  ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
   ImGui::Text("Alt+Enter for Fullscreen");
 
-  if (ImGui::CollapsingHeader("Default"))
-  {
-    if (ImGui::TreeNode("Objects"))
-    {
-      auto* physics_sys = Get<PhysicsSys>();
-      ImGui::TreePop();
-    }
-  }
-
   ImGui::End();
+
+  ImGui::SetWindowPos("Instructions Window", {0.0f, ImGui::GetWindowSize().y * 0.5f});
+
+  Health& player_HP = Get<PlayerMovementControllerSys>()->GetHealth();
+  for (int i = 0; i < player_HP.GetMaxHP(); ++i)
+  {
+    ImVec2 hp_size = {90.0f, 90.0f};
+    ImVec2 hp_spacing = {10.0f, 20.0f};
+    Color fill = (i < player_HP.GetCurrentHP()) ? Colors::db32[27] : Colors::db32[25];
+    ImGui::GetOverlayDrawList()->AddRectFilled(
+      {hp_spacing.x + (hp_spacing.x + hp_size.x) * i, hp_spacing.y},
+      {(hp_spacing.x + hp_size.x) * (i+1), hp_spacing.y + hp_size.y},
+      ImGui::GetColorU32({fill.r, fill.g, fill.b, 1.0f}));
+  }
 
   //If press the esc, make menu come out
   if (Get<InputHandler>()->KeyReleased(SDLK_ESCAPE))
@@ -505,13 +504,76 @@ void TestScene::Update(float dt)
 
 #endif
 
+    {
+      GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
+      ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);
+      BehaviorComponent& beh_comp = compsys->GetBehavior(wind_behavior);
+      ComponentHandle wind_transform = wind_tunnel_entity.GetComponentHandle(ComponentKind::Transform);
+      TransformComponent& wind_transform_comp = compsys->GetTransform(wind_transform);
+
+      float closest_dist = FLT_MAX;
+
+      dx::XMVECTOR wind_pos = dx::XMLoadFloat3(&wind_transform_comp.pos);
+      dx::XMVECTOR closest_plane = wind_pos;
+      for (auto it = entsys->EntitiesBegin(); it != entsys->EntitiesEnd(); ++it)
+      {
+        if (it->HasComponent(ComponentKind::Behavior))
+        {
+          auto other = it->GetComponentHandle(ComponentKind::Behavior);
+          const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
+
+          if (othbeh.type == BHVRType::PLANE)
+          {
+            ComponentHandle plane_transform = it->GetComponentHandle(ComponentKind::Transform);
+            TransformComponent& plane_transform_comp = compsys->GetTransform(plane_transform);
+            dx::XMVECTOR plane_pos = dx::XMLoadFloat3(&plane_transform_comp.pos);
+            dx::XMVECTOR wind_to_plane = dx::XMVectorSubtract(plane_pos, wind_pos);
+            float const distance = dx::XMVector3LengthSq(wind_to_plane).m128_f32[0];
+            if (distance < closest_dist)
+            {
+              closest_plane = plane_pos;
+              closest_dist = distance;
+            }
+          }
+        }
+      }
+
+      dx::XMFLOAT3 wind_dir = WINDTUNNELFORCE;
+      closest_dist = FLT_MAX;
+
+      for (auto it = entsys->EntitiesBegin(); it != entsys->EntitiesEnd(); ++it)
+      {
+        if (it->HasComponent(ComponentKind::Behavior))
+        {
+          auto other = it->GetComponentHandle(ComponentKind::Behavior);
+          const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
+
+          if (othbeh.type == BHVRType::BEAR)
+          {
+            ComponentHandle enemy_transform = it->GetComponentHandle(ComponentKind::Transform);
+            TransformComponent& enemy_transform_comp = compsys->GetTransform(enemy_transform);
+            dx::XMVECTOR plane_to_enemy
+              = dx::XMVectorSubtract(dx::XMLoadFloat3(&enemy_transform_comp.pos), closest_plane);
+            float const distance = dx::XMVector3LengthSq(plane_to_enemy).m128_f32[0];
+            if (distance < closest_dist)
+            {
+              float wind_strength = 20.0f;
+              dx::XMVECTOR plane_flight = dx::XMVectorScale(dx::XMVector3Normalize(plane_to_enemy), wind_strength);
+              dx::XMStoreFloat3(&wind_dir, dx::XMVectorAdd(plane_flight, {0, 9.81f * 2.0f / (wind_strength), 0}));
+              closest_dist = distance;
+            }
+          }
+        }
+      }
+      beh_comp.force = wind_dir;
+    }
+
     //camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
 
     auto& player_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(player_id).GetComponentHandle(ComponentKind::Transform));
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
-
 
     player_trans.pos = camera.GetPosition();
 
@@ -527,7 +589,7 @@ void TestScene::Update(float dt)
       can_shoot = false;
       create_plane(crossbow_trans.pos);
     }
-    
+
     if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT))
     {
       Get<CameraSys>()->SetFOV(fov - 20.0f);
