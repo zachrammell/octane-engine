@@ -384,7 +384,10 @@ void TestScene::Update(float dt)
   ImGui::Text("Spacebar to jump, Shift to sneak");
   ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
   ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
-  ImGui::Text("Alt+Enter for Fullscreen");
+  ImGui::Text("Alt+Enter for Fullscreen\n");
+
+  ImGui::Text("Score: %d", enemy_destroyed_func.score);
+  ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
 
   ImGui::End();
 
