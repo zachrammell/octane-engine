@@ -96,6 +96,9 @@ void BearBehavior::TakeDamage()
 void EnemyDestroyed::operator()()
 {
   --enemiesSpawned;
+  score += 10;
+  if (score > highScore)
+    highScore = score;
 }
 
 } // namespace Octane

@@ -83,6 +83,7 @@ void TestScene::Load()
   spawning = true;
   prevSpawning = false;
   enemy_destroyed_func.enemiesSpawned = 0;
+  enemy_destroyed_func.score = 0;
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();

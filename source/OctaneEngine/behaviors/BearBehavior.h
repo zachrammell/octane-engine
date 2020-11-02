@@ -23,6 +23,8 @@ struct EnemyDestroyed //functor
     void operator()();
     int spawnCap = 20;
     int enemiesSpawned = 0;
+    int score = 0;
+    int highScore = 0;
 };
 
 class BearBehavior : public IBehavior
