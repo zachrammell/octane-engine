@@ -22,8 +22,6 @@ namespace Octane
   static class AudioPlayer
   {
   public:
-    
-
     // Banks
     static AkBankID Load_Bank(const wchar_t*);
     static void Unload_Bank(const char*);
