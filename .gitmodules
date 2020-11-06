@@ -16,3 +16,6 @@
 [submodule "libraries/magic_enum"]
 	path = libraries/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "libraries/bullet"]
+	path = libraries/bullet
+	url = https://github.com/bulletphysics/bullet3.git
