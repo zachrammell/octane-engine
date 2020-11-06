@@ -449,6 +449,8 @@ void TestScene::Update(float dt)
     ImGui::ShowDemoWindow(&demo_window_open);
   }
 
+  auto* pmhandler = Get<PlayerMovementControllerSys>();
+
   if (esc_menu)
   {
     Get<FramerateController>()->Pause();
@@ -467,6 +469,18 @@ void TestScene::Update(float dt)
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       esc_menu = false;
       SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
+    if (ImGui::CollapsingHeader("Option"))
+    {
+      if (ImGui::Button("+ Mouse Sensitivity"))
+      {
+        pmhandler->IncreaseMouseSense();
+      }
+      if (ImGui::Button("- Mouse Sensitivity"))
+      {
+        pmhandler->DecreaseMouseSense();
+      }
+
     }
     if (ImGui::Button("Main Menu"))
     {

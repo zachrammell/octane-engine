@@ -36,8 +36,6 @@ const int PLAYER_MAX_HP = 5;
 const float NORMAL_FOV = 70.0f;
 const float AIM_FOV = 50.0f;
 
-const float MOUSE_SENS = 1.0f;
-
 // vertical velocity when starting jump
 const float PLAYER_JUMP_VEL = 9.0f;
 

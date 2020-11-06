@@ -33,6 +33,8 @@ public:
 
   static SystemOrder GetOrder();
   Health& GetHealth() { return playerHP_; }
+  inline void IncreaseMouseSense() { MOUSE_SENS += 0.1f; }
+  inline void DecreaseMouseSense() { MOUSE_SENS -= 0.1f; }
 
 private:
   DirectX::XMVECTOR CalcPlayerMoveDir();
@@ -57,6 +59,7 @@ private:
   Health playerHP_ = Health(5);
   float remaining_invuln_time_ = 0.0f;
   bool is_invuln_ = false;
+  float MOUSE_SENS = 1.0f;
 };
 
 } // namespace Octane
