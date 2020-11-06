@@ -12,6 +12,7 @@
 #include <EASTL/vector.h>
 
 #include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 
 namespace Octane
@@ -54,11 +55,11 @@ private:
   NarrowPhase narrow_phase_;
   ResolutionPhase resolution_phase_;
 
-  void* bt_broad_phase_ = nullptr;
-  void* bt_collision_config_ = nullptr;
-  void* bt_narrow_phase_ = nullptr;
-  void* bt_resolution_phase_ = nullptr;
-  void* bt_world_ = nullptr;
+  btBroadphaseInterface* bt_broad_phase_ = nullptr;
+  btDefaultCollisionConfiguration* bt_collision_config_ = nullptr;
+  btCollisionDispatcher* bt_narrow_phase_ = nullptr;
+  btSequentialImpulseConstraintSolver* bt_resolution_phase_ = nullptr;
+  btDiscreteDynamicsWorld* bt_world_ = nullptr;
 
 };
 } // namespace Octane

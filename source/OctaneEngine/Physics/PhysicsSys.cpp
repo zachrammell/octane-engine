@@ -17,8 +17,7 @@
 
 #include <OctaneEngine/Trace.h>
 
-#include <btBulletCollisionCommon.h>
-#include <btBulletDynamicsCommon.h>
+
 
 namespace Octane
 {
@@ -36,17 +35,17 @@ void PhysicsSys::LevelStart()
   bt_broad_phase_ = new btDbvtBroadphase();
   bt_collision_config_ = new btDefaultCollisionConfiguration();
 
-  bt_narrow_phase_ = new btCollisionDispatcher((btDefaultCollisionConfiguration*)bt_collision_config_);
+  bt_narrow_phase_ = new btCollisionDispatcher(bt_collision_config_);
 
   //3
   bt_resolution_phase_ = new btSequentialImpulseConstraintSolver();
 
   //4
   bt_world_ = new btDiscreteDynamicsWorld(
-    (btCollisionDispatcher*)bt_narrow_phase_,
-    (btBroadphaseInterface*)bt_broad_phase_,
-    (btSequentialImpulseConstraintSolver*)bt_resolution_phase_,
-    (btDefaultCollisionConfiguration*)bt_collision_config_);
+    bt_narrow_phase_,
+    bt_broad_phase_,
+    bt_resolution_phase_,
+    bt_collision_config_);
 }
 
 void PhysicsSys::Update()
@@ -147,11 +146,11 @@ void PhysicsSys::LevelEnd()
   }
   primitives_.clear();
 
-  delete (btDiscreteDynamicsWorld*)bt_world_;
-  delete (btSequentialImpulseConstraintSolver*)bt_resolution_phase_;
-  delete (btDefaultCollisionConfiguration*)bt_collision_config_;
-  delete (btCollisionDispatcher*)bt_narrow_phase_;
-  delete (btBroadphaseInterface*)bt_broad_phase_;
+  delete bt_world_;
+  delete bt_resolution_phase_;
+  delete bt_collision_config_;
+  delete bt_narrow_phase_;
+  delete bt_broad_phase_;
 }
 
 SystemOrder PhysicsSys::GetOrder()
