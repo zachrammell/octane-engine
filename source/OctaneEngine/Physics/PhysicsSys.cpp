@@ -32,7 +32,7 @@ void PhysicsSys::Update()
   float dt = Get<FramerateController>()->GetDeltaTime(); //1.0f / 60.0f;
 
   auto* component_sys = Get<ComponentSys>();
-  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
     if (
       entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
@@ -98,7 +98,7 @@ void PhysicsSys::Update()
   resolution_phase_.Solve(&manifold_table_, physics_begin, physics_end, dt);
 
   //copy physics calculation to transform
-  for (GameEntity* entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
     if (
       entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))

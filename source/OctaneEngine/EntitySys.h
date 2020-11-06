@@ -11,12 +11,14 @@ namespace Octane
 using EntityID = uint32_t;
 static const EntityID INVALID_ENTITY = eastl::numeric_limits<EntityID>::max();
 
+class EntityIter;
+
 class EntitySys : public ISystem
 {
 public:
   explicit EntitySys(class Engine* parent_engine);
 
-  typedef GameEntity* Iterator;
+  typedef EntityIter Iterator;
 
   void Load() override;
   void LevelStart() override;
@@ -51,6 +53,30 @@ private:
 
   EntityID player_entity_id_ = INVALID_ENTITY;
   size_t entity_count_ = 0;
+};
+
+class EntityIter {
+public:
+  friend class EntitySys;
+
+  EntityIter(EntityIter const& rhs);
+  EntityIter& operator++();
+
+  bool operator==(EntityIter& rhs);
+  bool operator!=(EntityIter& rhs);
+
+  GameEntity& operator*();
+  GameEntity* operator->();
+  GameEntity* Get();
+
+  EntityID ID() const;
+
+private:
+  explicit EntityIter(EntityID id, EntitySys& sys);
+
+  EntityID id_;
+  EntitySys& sys_;
+
 };
 
 } // namespace Octane

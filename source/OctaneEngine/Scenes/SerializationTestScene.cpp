@@ -6,7 +6,7 @@
   \date       2020/10/21
   \brief      scene to test serialization
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -314,11 +314,11 @@ void SerializationTestScene::Update(float dt)
   {
     if (ImGui::BeginCombo("Entity", eastl::to_string(entity_editor_data_.id).c_str(), ImGuiComboFlags_None))
     {
-      for (GameEntity* iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
+      for (auto iter = Get<EntitySys>()->EntitiesBegin(); iter != Get<EntitySys>()->EntitiesEnd(); ++iter)
       {
         if (iter->active && iter->HasComponent(ComponentKind::Transform) && iter->HasComponent(ComponentKind::Render))
         {
-          auto id = iter - Get<EntitySys>()->EntitiesBegin();
+          auto id = iter.ID();
           eastl::string display = eastl::to_string(id);
           if (iter->HasComponent(ComponentKind::Metadata))
           {
@@ -414,7 +414,7 @@ void SerializationTestScene::Update(float dt)
     if (nbt_writer.BeginList("Entities"))
     {
       // for every object, write it out
-      for (GameEntity* entity = entity_sys.EntitiesBegin(); entity != entity_sys.EntitiesEnd(); ++entity)
+      for (auto entity = entity_sys.EntitiesBegin(); entity != entity_sys.EntitiesEnd(); ++entity)
       {
         if (entity->active)
         {

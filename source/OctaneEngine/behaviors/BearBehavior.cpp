@@ -39,7 +39,7 @@ void BearBehavior::Initialize()
           break;
       }
     }
-    if (it == target_)
+    if (it.Get() == target_)
     {
       target_trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
       if (phys_handle_!=INVALID_COMPONENT && trans_handle_!=INVALID_COMPONENT)

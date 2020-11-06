@@ -71,11 +71,11 @@ GameEntity& EntitySys::GetEntity(EntityID which)
 }
 EntitySys::Iterator EntitySys::EntitiesBegin()
 {
-  return entities_.begin();
+  return EntityIter(0, *this);
 }
 EntitySys::Iterator EntitySys::EntitiesEnd()
 {
-  return entities_.end();
+  return EntityIter(entities_.size(), *this);
 }
 void EntitySys::SetPlayerID(EntityID id)
 {
@@ -94,5 +94,41 @@ GameEntity* EntitySys::GetPlayer()
     return &GetEntity(player_entity_id_);
   }
 }
+
+EntityIter::EntityIter(const EntityIter& rhs) : id_(rhs.id_), sys_(rhs.sys_) {}
+
+EntityIter& EntityIter::operator++()
+{
+  ++id_;
+  return *this;
+}
+
+bool EntityIter::operator==(EntityIter& rhs)
+{
+  return id_ == rhs.id_;
+}
+bool EntityIter::operator!=(EntityIter& rhs)
+{
+  return id_ != rhs.id_;
+}
+GameEntity& EntityIter::operator*()
+{
+  return sys_.GetEntity(id_);
+}
+GameEntity* EntityIter::operator->()
+{
+  return &operator*();
+}
+GameEntity* EntityIter::Get()
+{
+  return &operator*();
+}
+
+EntityID EntityIter::ID() const
+{
+  return id_;
+}
+EntityIter::EntityIter(EntityID id, EntitySys& sys) :id_(id), sys_(sys) {}
+
 
 } // namespace Octane

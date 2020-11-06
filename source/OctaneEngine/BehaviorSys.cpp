@@ -42,7 +42,7 @@ void BehaviorSys::LevelStart()
 {
   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
-    if (it->HasComponent(ComponentKind::Behavior))
+    if (it->active && it->HasComponent(ComponentKind::Behavior))
     {
       auto handle = it->GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
@@ -64,7 +64,7 @@ void BehaviorSys::Update()
   float dt = engine_.GetSystem<FramerateController>()->GetDeltaTime();
   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
-    if (it->HasComponent(ComponentKind::Behavior))
+    if (it->active && it->HasComponent(ComponentKind::Behavior))
     {
       auto handle = it->GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
@@ -83,9 +83,8 @@ void BehaviorSys::Update()
 
       if (beh.type != BHVRType::INVALID && beh.behavior != nullptr)
       {
-        EntityID id = static_cast<EntityID>(it - entsys_->EntitiesBegin());
+        EntityID id = it.ID();
         beh.behavior->Update(dt, id);
-        
       }
     }
   }
@@ -99,7 +98,7 @@ void BehaviorSys::LevelEnd()
   }
   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
-    if (it->HasComponent(ComponentKind::Behavior))
+    if (it->active && it->HasComponent(ComponentKind::Behavior))
     {
       auto handle = it->GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh = engine_.GetSystem<ComponentSys>()->GetBehavior(handle);
