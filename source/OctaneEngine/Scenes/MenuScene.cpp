@@ -24,7 +24,7 @@
 #include <magic_enum.hpp>
 
 #include <OctaneEngine/Graphics/RenderSys.h>
-#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/AudioPlayer.h>
 
 
 namespace Octane

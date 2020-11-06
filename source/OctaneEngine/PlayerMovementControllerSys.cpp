@@ -7,7 +7,7 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/Trace.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/AudioPlayer.h>
 #include "FramerateController.h"
 #include <SDL_keycode.h>
 #include <iostream>

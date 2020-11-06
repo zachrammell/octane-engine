@@ -42,7 +42,7 @@
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 
-#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/PlayerMovementControllerSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>

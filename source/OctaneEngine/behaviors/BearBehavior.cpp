@@ -6,7 +6,7 @@
 #include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
-#include <OctaneEngine/Audio.h>
+#include <OctaneEngine/AudioPlayer.h>
 
 
 namespace Octane
