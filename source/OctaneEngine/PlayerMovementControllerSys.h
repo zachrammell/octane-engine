@@ -35,6 +35,7 @@ public:
   Health& GetHealth() { return playerHP_; }
   inline void IncreaseMouseSense() { MOUSE_SENS += 0.1f; }
   inline void DecreaseMouseSense() { MOUSE_SENS -= 0.1f; }
+  inline float ShowMouseSense() { return MOUSE_SENS; }
 
 private:
   DirectX::XMVECTOR CalcPlayerMoveDir();

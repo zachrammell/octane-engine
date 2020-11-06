@@ -472,6 +472,7 @@ void TestScene::Update(float dt)
     }
     if (ImGui::CollapsingHeader("Option"))
     {
+      //ImGui::Text("Mouse Sensitivity: %d", pmhandler->ShowMouseSense());
       if (ImGui::Button("+ Mouse Sensitivity"))
       {
         pmhandler->IncreaseMouseSense();
