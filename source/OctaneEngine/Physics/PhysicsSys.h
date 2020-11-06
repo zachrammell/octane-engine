@@ -11,6 +11,8 @@
 #include <EASTL/vector.h>
 #include <EASTL/hash_map.h>
 
+#include <btBulletCollisionCommon.h>
+
 namespace Octane
 {
 
