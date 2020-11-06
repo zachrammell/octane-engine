@@ -53,8 +53,8 @@ private:
   bool CheckForEnemyCollision();
 
   Health playerHP_ = Health(5);
-  float i_time_ = 1.0f;
-  bool took_damage_ = false;
+  float remaining_invuln_time_ = 0.0f;
+  bool is_invuln_ = false;
 };
 
 } // namespace Octane

@@ -64,7 +64,7 @@ void PlayerMovementControllerSys::LevelStart()
 {
   playerHP_.set_maxHP(PLAYER_MAX_HP);
   playerHP_.setCurrentHP(PLAYER_MAX_HP);
-  took_damage_ = false;
+  is_invuln_ = false;
 }
 
 void PlayerMovementControllerSys::Update()
@@ -294,20 +294,20 @@ void PlayerMovementControllerSys::EnterState(PlayerMovementControllerSys::MoveSt
 void PlayerMovementControllerSys::UpdateDamage()
 {
   const float dt = Get<FramerateController>()->GetDeltaTime();
-  if (took_damage_)
+  if (is_invuln_)
   {
-    i_time_ -= dt;
+    remaining_invuln_time_ -= dt;
 
-    if (i_time_ <= 0.f)
+    if (remaining_invuln_time_ <= 0.f)
     {
-      took_damage_ = false;
+      is_invuln_ = false;
     }
   }
   else if (CheckForEnemyCollision())
   {
     playerHP_.ChangeCurrentHPby(1);
-    took_damage_ = true;
-    i_time_ = PLAYER_I_TIME;
+    is_invuln_ = true;
+    remaining_invuln_time_ = PLAYER_I_TIME;
     Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
     if (playerHP_.is_dead())
     {
