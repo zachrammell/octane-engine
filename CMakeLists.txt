@@ -30,7 +30,7 @@ target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 add_subdirectory("libraries/bullet")
 add_library(BULLET "source/dummy.cpp")
 target_link_libraries(BULLET BulletDynamics BulletCollision LinearMath)
-target_include_directories(BULLET INTERFACE "libraries/bullet/src")
+target_include_directories(BULLET PUBLIC "libraries/bullet/src")
 
 # Build IMGUI
 set(IMGUI_DIR "libraries/imgui")
@@ -98,6 +98,7 @@ add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
+  "libraries/bullet/src"
 )
 
 target_link_libraries(${OCTANE_LIB} PRIVATE

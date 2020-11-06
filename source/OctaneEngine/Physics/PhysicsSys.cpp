@@ -17,6 +17,8 @@
 
 #include <OctaneEngine/Trace.h>
 
+#include <btBulletCollisionCommon.h>
+
 namespace Octane
 {
 PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
