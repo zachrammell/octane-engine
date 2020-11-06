@@ -55,7 +55,6 @@ namespace dx = DirectX;
 namespace
 {
 
-Octane::EntityID player_id;
 Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
@@ -170,21 +169,6 @@ void TestScene::Load()
     }
   }
 
-  //apparently removing this code will make the ground disappear
-  {
-    player_id = Get<EntitySys>()->MakeEntity();
-    GameEntity& player = Get<EntitySys>()->GetEntity((player_id));
-    ComponentHandle trans_id = compsys->MakeTransform();
-    player.components[to_integral(ComponentKind::Transform)] = trans_id;
-    TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 2.0f;
-    trans.pos.y = 5.0f;
-    trans.pos.z = 0.0f;
-    trans.scale = {1.f, 1.f, 1.f};
-    trans.rotation = {};
-
-    Get<EntitySys>()->SetPlayerID(player_id);
-  }
   //Todo: fix undefined behavior caused by spawning entites from a behavior
   //{
   //  auto spawner_id = Get<EntitySys>()->MakeEntity();
@@ -571,14 +555,8 @@ void TestScene::Update(float dt)
       beh_comp.force = wind_dir;
     }
 
-    //camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
-
-    auto& player_trans = Get<ComponentSys>()->GetTransform(
-      Get<EntitySys>()->GetEntity(player_id).GetComponentHandle(ComponentKind::Transform));
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
-
-    player_trans.pos = camera.GetPosition();
 
     auto cam_pos = camera.GetPosition();
 
