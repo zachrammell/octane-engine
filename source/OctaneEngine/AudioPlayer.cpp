@@ -89,17 +89,19 @@ namespace Octane
   void AudioPlayer::Set_Position(AkGameObjectID object)
   {
     AkSoundPosition position;
-    // These things don't work? Need to figure out how new version works
-    /*
-    position.Position.X = position_.Position.X;
-    position.Position.Y = position_.Position.Y;
-    position.Position.Z = position_.Position.Z;
-    position.OrientationFront = -1; // Not sure if this is correct yet, requires testing!
-    position.OrientationTop = 0;
-    */
-
-    // Set location ontop of origin
     position.SetPosition(0, 0, 0);
+    position.SetOrientation(0, 0, -1, 0, 1, 0);
+
+    if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
+    {
+      Trace::Log(ERROR) << "Position setting failed!" << std::endl;
+    }
+  }
+
+  void AudioPlayer::Set_Position(AkGameObjectID object, float x, float y, float z)
+  {
+    AkSoundPosition position;
+    position.SetPosition(x, y, z);
     position.SetOrientation(0, 0, -1, 0, 1, 0);
 
     if (AK::SoundEngine::SetPosition(object, position) != AK_Success)

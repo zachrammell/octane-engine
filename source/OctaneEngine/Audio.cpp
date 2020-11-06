@@ -258,14 +258,6 @@ void Audio::Unregister_All_Objects()
 void Audio::Set_Position(AkGameObjectID object)
 {
   AkSoundPosition position;
-  // These things don't work? Need to figure out how new version works
-  /*
-  position.Position.X = position_.Position.X;
-  position.Position.Y = position_.Position.Y;
-  position.Position.Z = position_.Position.Z;
-  position.OrientationFront = -1; // Not sure if this is correct yet, requires testing!
-  position.OrientationTop = 0;
-  */
 
   // Set location ontop of origin
   position.SetPosition(0, 0, 0);
@@ -329,7 +321,6 @@ void Audio::Load()
 void Audio::LevelStart()
 {
   ambience_start();
-  //button_sound();
   music_play();
 }
 
@@ -341,12 +332,12 @@ void Audio::Update()
 void Audio::LevelEnd()
 {
   ambience_stop();
-  //back_sound();
   music_stop();
 }
 
 void Audio::Unload()
 {
+  // Should I unregister all objects here?
 }
 
 SystemOrder Audio::GetOrder()
@@ -354,15 +345,6 @@ SystemOrder Audio::GetOrder()
   return SystemOrder::Audio;
 }
 
-void Audio::button_sound()
-{
-  Play_Event(AK::EVENTS::PLAY_BUTTONSELECT, test_object);
-}
-
-void Audio::back_sound()
-{
-  Play_Event(AK::EVENTS::PLAY_BUTTONBACK, test_object);
-}
 void Audio::music_play()
 {
   Play_Event(AK::EVENTS::TESTMUSIC, test_object);

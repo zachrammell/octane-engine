@@ -37,7 +37,10 @@ namespace Octane
     // Position
     // AkSoundPosition needs to be changed to whatever vector format we're using
     static void Set_Position(AkGameObjectID);
+    static void Set_Position(AkGameObjectID, float x, float y, float z);
     static void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
+
+
 
     // Listeners
     static void Set_Default_Listener(const AkGameObjectID*, AkUInt32);

@@ -51,8 +51,6 @@ public:
 
   static SystemOrder GetOrder();
 
-  void button_sound();
-  void back_sound();
   void music_play();
   void music_stop();
   void ambience_start();
@@ -113,7 +111,6 @@ private:
 
   // Listeners
   void Set_Default_Listener(const AkGameObjectID*, AkUInt32);
-  void Set_Listener(AkGameObjectID, const AkGameObjectID*, AkUInt32);
 
   // Handle tabbing out
   // True = Partial on; Partial means to keep processing sound events
