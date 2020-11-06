@@ -1,14 +1,14 @@
 #include <OctaneEngine/PlayerMovementControllerSys.h>
 
+#include "FramerateController.h"
+#include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
-#include <OctaneEngine/SystemOrder.h>
-#include <OctaneEngine/SceneSys.h>
-#include <OctaneEngine/Trace.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/AudioPlayer.h>
-#include "FramerateController.h"
+#include <OctaneEngine/SceneSys.h>
+#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/Trace.h>
 #include <SDL_keycode.h>
 #include <iostream>
 
@@ -40,21 +40,27 @@ const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
 const float HACKY_GROUND_Y_LEVEL = 0.5f;
 
-bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics) {
+bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
+{
   return player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
 }
 
 } // namespace
 
-void PlayerMovementControllerSys::Load() {
+void PlayerMovementControllerSys::Load()
+{
   movementstate_ = MoveState::STAND;
 }
 
-PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine) : ISystem(engine), movementstate_(MoveState::STAND) {}
+PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine)
+  : ISystem(engine),
+    movementstate_(MoveState::STAND)
+{
+}
 
 PlayerMovementControllerSys::~PlayerMovementControllerSys() {}
 
-void PlayerMovementControllerSys::LevelStart() 
+void PlayerMovementControllerSys::LevelStart()
 {
   playerHP_.set_maxHP(PLAYER_MAX_HP);
   playerHP_.setCurrentHP(PLAYER_MAX_HP);
@@ -64,7 +70,8 @@ void PlayerMovementControllerSys::LevelStart()
 void PlayerMovementControllerSys::Update()
 {
   const float dt = Get<FramerateController>()->GetDeltaTime();
-  if (dt == 0) {
+  if (dt == 0)
+  {
     return;
   }
   GameEntity* const player = Get<EntitySys>()->GetPlayer();
@@ -72,7 +79,6 @@ void PlayerMovementControllerSys::Update()
   {
     return; // no player exists, bail out
   }
-
 
   const ComponentHandle phys_id = player->GetComponentHandle(ComponentKind::Physics);
   PhysicsComponent& player_physics = Get<ComponentSys>()->GetPhysics(phys_id);
@@ -95,7 +101,8 @@ void PlayerMovementControllerSys::Update()
     // these two use the same logic for now
   case MoveState::CROUCH:
   case MoveState::CROUCHWALK:
-    if (!on_ground) {
+    if (!on_ground)
+    {
       nextstate = MoveState::JUMP;
     }
     else if (is_moving)
@@ -127,7 +134,8 @@ void PlayerMovementControllerSys::Update()
     break;
   case MoveState::STAND:
   case MoveState::RUN:
-    if (!on_ground) {
+    if (!on_ground)
+    {
       nextstate = MoveState::JUMP;
     }
     else if (jump_input)
@@ -211,51 +219,49 @@ void PlayerMovementControllerSys::Update()
   }
 
   //damage stuff
-  
-    if(took_damage)
-    {
-        i_time -= dt;
 
-        if(i_time <= 0.f)
-        {
-            took_damage = false;
-        }
-    }
-    else
+  if (took_damage)
+  {
+    i_time -= dt;
+
+    if (i_time <= 0.f)
     {
-      auto enty = Get<EntitySys>();
-      auto& trans_plyr = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
-        for(auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+      took_damage = false;
+    }
+  }
+  else
+  {
+    auto enty = Get<EntitySys>();
+    auto& trans_plyr = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
+    for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+    {
+      if (it->HasComponent(ComponentKind::Behavior))
+      {
+        if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::BEAR)
         {
-            if(it->HasComponent(ComponentKind::Behavior))
+          auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+          auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+
+          if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+          {
+            playerHP_.ChangeCurrentHPby(1);
+            took_damage = true;
+            i_time = PLAYER_I_TIME;
+            Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
+            if (playerHP_.is_dead())
             {
-                if (
-                  Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type
-                  == BHVRType::BEAR)
-                {
-                  auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-                  auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
-
-                  if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-                  {
-                    playerHP_.ChangeCurrentHPby(1);
-                    took_damage = true;
-                    i_time = PLAYER_I_TIME;
-                    Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
-                    if (playerHP_.is_dead())
-                    {
-                      AudioPlayer::Play_Event(AK::EVENTS::PLAYER_DEATH);
-                      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
-                      return;
-                    }
-                    AudioPlayer::Play_Event(AK::EVENTS::PLAYER_HURT);
-                    break;
-                }
-              }
+              AudioPlayer::Play_Event(AK::EVENTS::PLAYER_DEATH);
+              Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+              return;
             }
+            AudioPlayer::Play_Event(AK::EVENTS::PLAYER_HURT);
+            break;
+          }
         }
+      }
     }
-  
+  }
+
   //testing code
   /*if (took_damage)
   {
@@ -287,7 +293,8 @@ void PlayerMovementControllerSys::Update()
     EnterState(nextstate);
   }
 
-  if (on_ground) {
+  if (on_ground)
+  {
     // stop downward velocity
     if (new_vel.m128_f32[1] < 0)
     {
@@ -299,7 +306,9 @@ void PlayerMovementControllerSys::Update()
     auto pos = player_physics.rigid_body.GetPosition();
     pos.y = HACKY_GROUND_Y_LEVEL;
     player_physics.rigid_body.SetPosition(pos);
-  } else {
+  }
+  else
+  {
     // maintain y velocity
     //float y_vel = player_physics.rigid_body.GetLinearVelocity().m128_f32[1];
     //new_vel.m128_f32[1] = y_vel;
