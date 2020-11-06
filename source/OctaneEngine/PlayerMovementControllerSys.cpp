@@ -206,6 +206,8 @@ void PlayerMovementControllerSys::Update()
     {
       auto new_acc = DirectX::XMVectorScale(move_dir, PLAYER_AIRSTRAFE_ACCEL);
       new_acc.m128_f32[1] = -PLAYER_GRAVITY_ACCEL;
+
+      // make sure to add to new_vel here rather than assigning so we maintain air velocity (esp. y velocity)
       new_vel = DirectX::XMVectorAdd(new_vel, DirectX::XMVectorScale(new_acc, dt));
 
       // clamp new_vel to max airspeed
@@ -262,30 +264,6 @@ void PlayerMovementControllerSys::Update()
     }
   }
 
-  //testing code
-  /*if (took_damage)
-  {
-    i_time -= dt;
-
-    if (i_time <= 0.f)
-    {
-      took_damage = false;
-    }
-  }
-  else if (Get<InputHandler>()->KeyPressed(SDLK_y))
-  {
-    playerHP_.ChangeCurrentHPby(1);
-    Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
-    took_damage = true;
-    i_time = PLAYER_I_TIME;
-
-    if (playerHP_.is_dead())
-    {
-      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
-      return;
-    }
-  }*/
-
   if (nextstate != movementstate_)
   {
     ExitState(movementstate_);
@@ -306,12 +284,6 @@ void PlayerMovementControllerSys::Update()
     auto pos = player_physics.rigid_body.GetPosition();
     pos.y = HACKY_GROUND_Y_LEVEL;
     player_physics.rigid_body.SetPosition(pos);
-  }
-  else
-  {
-    // maintain y velocity
-    //float y_vel = player_physics.rigid_body.GetLinearVelocity().m128_f32[1];
-    //new_vel.m128_f32[1] = y_vel;
   }
 
   player_physics.rigid_body.SetLinearVelocity(new_vel);
