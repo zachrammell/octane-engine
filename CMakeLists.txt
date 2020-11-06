@@ -27,10 +27,11 @@ set(BUILD_SHARED_LIBS OFF)
 add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 
+set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
 add_subdirectory("libraries/bullet")
 add_library(BULLET "source/dummy.cpp")
-target_link_libraries(BULLET BulletDynamics BulletCollision LinearMath)
-target_include_directories(BULLET PUBLIC "libraries/bullet/src")
+target_link_libraries(BULLET PUBLIC BulletCollision BulletDynamics BulletInverseDynamics LinearMath)
+target_include_directories(BULLET PUBLIC ${BULLET_INCLUDE_DIRS})
 
 # Build IMGUI
 set(IMGUI_DIR "libraries/imgui")
