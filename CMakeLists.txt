@@ -31,7 +31,7 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
 add_subdirectory("libraries/bullet")
 add_library(BULLET "source/dummy.cpp")
 target_link_libraries(BULLET PUBLIC BulletCollision BulletDynamics BulletInverseDynamics LinearMath)
-target_include_directories(BULLET PUBLIC ${BULLET_INCLUDE_DIRS})
+target_include_directories(BULLET PUBLIC "libraries/bullet/src")
 
 # Build IMGUI
 set(IMGUI_DIR "libraries/imgui")
@@ -99,10 +99,9 @@ add_library(${OCTANE_LIB} ${OCTANE_LIB_SOURCE})
 
 target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
-  "libraries/bullet/src"
 )
 
-target_link_libraries(${OCTANE_LIB} PRIVATE
+target_link_libraries(${OCTANE_LIB} PUBLIC
 # system libraries
   user32
   d3d11
