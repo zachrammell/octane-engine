@@ -28,6 +28,9 @@ add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 
 add_subdirectory("libraries/bullet")
+add_library(BULLET "source/dummy.cpp")
+target_link_libraries(BULLET BulletDynamics BulletCollision LinearMath)
+target_include_directories(BULLET INTERFACE "libraries/bullet/src")
 
 # Build IMGUI
 set(IMGUI_DIR "libraries/imgui")
@@ -110,9 +113,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   WWISE
   assimp
   magic_enum
-  BulletDynamics
-  BulletCollision
-  LinearMath
+  BULLET
 )
 
 file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS
