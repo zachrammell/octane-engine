@@ -30,14 +30,20 @@ const float PLAYER_CROUCH_SPEED = 3.0f;
 const float PLAYER_AIRSTRAFE_MAXSPEED = 12.0f;
 const float PLAYER_AIRSTRAFE_ACCEL = 4.5f;
 const float PLAYER_GRAVITY_ACCEL = 9.81f;
-const float PLAYER_I_TIME = 1.0f;
+const float PLAYER_I_TIME = 1.0f; // invuln after getting hit
 const int PLAYER_MAX_HP = 5;
+
+const float NORMAL_FOV = 70.0f;
+const float AIM_FOV = 50.0f;
+
+const float MOUSE_SENS = 1.0f;
 
 // vertical velocity when starting jump
 const float PLAYER_JUMP_VEL = 9.0f;
 
 const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
+// should be removed once we have usable collision stuff
 const float HACKY_GROUND_Y_LEVEL = 0.5f;
 
 bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
@@ -246,6 +252,7 @@ void PlayerMovementControllerSys::Update()
   }
 
   player_physics.rigid_body.SetLinearVelocity(new_vel);
+  UpdateLookDir();
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
@@ -347,6 +354,24 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
     }
   }
   return false; // no collisions
+}
+void PlayerMovementControllerSys::UpdateLookDir()
+{
+  auto* input = Get<InputHandler>();
+  auto& camera = Get<CameraSys>()->GetFPSCamera();
+
+  DirectX::XMINT2 mouse_vel = input->GetMouseMovement();
+  camera.RotatePitchRelative(-mouse_vel.y * MOUSE_SENS);
+  camera.RotateYawRelative(mouse_vel.x * MOUSE_SENS);
+
+  if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT))
+  {
+    Get<CameraSys>()->SetFOV(AIM_FOV);
+  }
+  if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT))
+  {
+    Get<CameraSys>()->SetFOV(NORMAL_FOV);
+  }
 }
 
 } // namespace Octane

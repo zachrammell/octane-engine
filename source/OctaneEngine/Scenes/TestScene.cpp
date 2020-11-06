@@ -366,7 +366,6 @@ void TestScene::Update(float dt)
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
       | ImGuiWindowFlags_NoNav);
 
-
   ImGui::Text("WASD to walk around");
   ImGui::Text("Spacebar to jump, Shift to sneak");
   ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
@@ -388,7 +387,7 @@ void TestScene::Update(float dt)
     Color fill = (i < player_HP.GetCurrentHP()) ? Colors::db32[27] : Colors::db32[25];
     ImGui::GetOverlayDrawList()->AddRectFilled(
       {hp_spacing.x + (hp_spacing.x + hp_size.x) * i, hp_spacing.y},
-      {(hp_spacing.x + hp_size.x) * (i+1), hp_spacing.y + hp_size.y},
+      {(hp_spacing.x + hp_size.x) * (i + 1), hp_spacing.y + hp_size.y},
       ImGui::GetColorU32({fill.r, fill.g, fill.b, 1.0f}));
   }
 
@@ -476,23 +475,6 @@ void TestScene::Update(float dt)
   }
   else
   {
-    auto* input = Get<InputHandler>();
-    auto& camera = Get<CameraSys>()->GetFPSCamera();
-
-    dx::XMINT2 mouse_vel = input->GetMouseMovement();
-    camera.RotatePitchRelative(-mouse_vel.y);
-    camera.RotateYawRelative(mouse_vel.x);
-
-#ifndef USE_PLAYER_ENTITY
-    dx::XMFLOAT3 cam_velocity;
-    cam_velocity.x = (input->KeyHeld(SDLK_a) - input->KeyHeld(SDLK_d));
-    cam_velocity.y = (input->KeyHeld(SDLK_SPACE) - input->KeyHeld(SDLK_LSHIFT));
-    cam_velocity.z = (input->KeyHeld(SDLK_w) - input->KeyHeld(SDLK_s));
-
-    dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
-    camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
-
-#endif
 
     {
       GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
@@ -558,6 +540,9 @@ void TestScene::Update(float dt)
       beh_comp.force = wind_dir;
     }
 
+    auto* input = Get<InputHandler>();
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
+
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
 
@@ -572,15 +557,6 @@ void TestScene::Update(float dt)
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
       can_shoot = false;
       create_plane(crossbow_trans.pos);
-    }
-
-    if (input->MouseButtonPressed(InputHandler::MouseButton::RIGHT))
-    {
-      Get<CameraSys>()->SetFOV(fov - 20.0f);
-    }
-    if (input->MouseButtonReleased(InputHandler::MouseButton::RIGHT))
-    {
-      Get<CameraSys>()->SetFOV(fov + 20.0f);
     }
 
     spawning = spawnTimer >= spawnDelay && enemy_destroyed_func.enemiesSpawned < enemy_destroyed_func.spawnCap;

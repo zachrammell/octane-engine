@@ -49,6 +49,8 @@ private:
   void ExitState(MoveState);
   void EnterState(MoveState);
 
+  void UpdateLookDir();
+
   void UpdateDamage();
   bool CheckForEnemyCollision();
 
