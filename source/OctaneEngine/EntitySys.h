@@ -35,6 +35,7 @@ public:
   GameEntity& GetEntity(EntityID which);
 
   void SetPlayerID(EntityID id);
+  EntityID GetPlayerID();
   // returns null if no player id is set
   GameEntity* GetPlayer();
 

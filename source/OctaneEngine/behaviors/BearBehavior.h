@@ -30,7 +30,7 @@ struct EnemyDestroyed //functor
 class BearBehavior : public IBehavior
 {
 public:
-  explicit BearBehavior(BehaviorSys* parent, ComponentHandle handle, GameEntity* target);
+  explicit BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID target);
 
   virtual ~BearBehavior() = default;
 
@@ -43,7 +43,7 @@ public:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
     ComponentHandle trans_handle_ = INVALID_COMPONENT;
     ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
-    GameEntity* target_;
+    EntityID target_;
     EnemyDestroyed* destroyed_func_ = nullptr;
     int health_ = 1;
 };

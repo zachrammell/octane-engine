@@ -11,17 +11,19 @@
 
 namespace Octane
 {
-BearBehavior::BearBehavior(BehaviorSys* parent, ComponentHandle handle, GameEntity* target)
-  : IBehavior(parent, handle),target_(target)
+BearBehavior::BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID targetID)
+  : IBehavior(parent, handle),target_(targetID)
 {
 }
 
 void BearBehavior::Initialize() 
 {
   auto enty = Get<EntitySys>();
+  GameEntity& target = enty->GetEntity(target_);
+  target_trans_handle_ = target.GetComponentHandle(ComponentKind::Transform);
 
-  if (!target_)
-    target_ = enty->GetPlayer();
+  if (target_ == INVALID_ENTITY)
+    target_ = enty->GetPlayerID();
 
   for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
   {
@@ -39,7 +41,7 @@ void BearBehavior::Initialize()
           break;
       }
     }
-    if (it.Get() == target_)
+    if (it.Get() == &target)
     {
       target_trans_handle_ = it->GetComponentHandle(ComponentKind::Transform);
       if (phys_handle_!=INVALID_COMPONENT && trans_handle_!=INVALID_COMPONENT)

@@ -142,7 +142,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   {
     auto entsys = Get<EntitySys>();
     beh.behavior
-      = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayer());
+      = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayerID());
     break;
   }
   case BHVRType::ENEMYSPAWNER:

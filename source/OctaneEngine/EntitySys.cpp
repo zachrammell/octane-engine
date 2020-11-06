@@ -82,6 +82,11 @@ void EntitySys::SetPlayerID(EntityID id)
   player_entity_id_ = id;
 }
 
+EntityID EntitySys::GetPlayerID()
+{
+  return player_entity_id_;
+}
+
 // Gets the entity set as player, or nullptr if no such entity exists
 GameEntity* EntitySys::GetPlayer()
 {
