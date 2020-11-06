@@ -52,6 +52,9 @@
 
 namespace dx = DirectX;
 
+// static for testing
+AkGameObjectID spawner;
+
 namespace
 {
 
@@ -167,6 +170,9 @@ void TestScene::Load()
       }
       nbt_reader.CloseList();
     }
+
+    spawner = 2;
+    AudioPlayer::Register_Object(spawner, "spawner");
   }
 
 // this WAS commented-out because of behavior sys bugs
@@ -356,7 +362,8 @@ void TestScene::Update(float dt)
     enemybeh->SetDestroyedFunc(enemy_destroyed_func);
     if (!prevSpawning)
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
+      AudioPlayer::Set_Position(spawner, pos);
+      AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN, spawner);
     }
   };
 
@@ -611,6 +618,7 @@ void TestScene::Unload()
   //delete blue_bear_physics.primitive;
   //delete red_bear_physics.rigid_body;
   //delete red_bear_physics.primitive;
+  AudioPlayer::Unregister_Object(spawner);
 }
 
 SceneE TestScene::GetEnum() const

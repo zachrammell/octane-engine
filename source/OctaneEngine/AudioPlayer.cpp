@@ -1,3 +1,4 @@
+#include "AudioPlayer.h"
 /******************************************************************************/
 /*!
   \par        Project Octane
@@ -51,6 +52,21 @@ namespace Octane
       Trace::Log(DEBUG) << "Playing audio event #"
         << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
         << Set(ColorANSI::Lime) << 100 << Set() << std::endl;
+    }
+  }
+  void AudioPlayer::Play_Event(AkUniqueID UniqueID, AkGameObjectID object)
+  {
+    using FormattedOutput::Set;
+    using FormattedOutput::ColorANSI;
+    if (AK::SoundEngine::PostEvent(UniqueID, object) == AK_INVALID_PLAYING_ID)
+    {
+      Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
+    }
+    else
+    {
+      Trace::Log(DEBUG) << "Playing audio event #"
+        << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
+        << Set(ColorANSI::Lime) << object << Set() << std::endl;
     }
   }
   AkPlayingID AudioPlayer::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
@@ -110,6 +126,20 @@ namespace Octane
     }
   }
 
+  void AudioPlayer::Set_Position(AkGameObjectID object, DirectX::XMFLOAT3 pos)
+  {
+    AkSoundPosition position;
+
+    // Set location ontop of origin
+    position.SetPosition(pos.x, pos.y, pos.z);
+    position.SetOrientation(0, 0, -1, 0, 1, 0);
+
+    if (AK::SoundEngine::SetPosition(object, position) != AK_Success)
+    {
+      Trace::Log(ERROR) << "Position setting failed!" << std::endl;
+    }
+  }
+
   void AudioPlayer::Set_Multiple_Positions(AkGameObjectID object, const AkSoundPosition* position_, int NumPositions)
   {
     if (AK::SoundEngine::SetMultiplePositions(object, position_, NumPositions) != AK_Success)
@@ -144,5 +174,22 @@ namespace Octane
   void AudioPlayer::Restart_Render()
   {
     AK::SoundEngine::RenderAudio();
+  }
+
+  void AudioPlayer::Load_Player()
+  {
+    Register_Object(Player, "Player");
+    Set_Default_Listener(&Player, 1);
+    Set_Position(Player);
+  }
+
+  void AudioPlayer::Unload_Player()
+  {
+    Unregister_Object(Player);
+  }
+
+  void AudioPlayer::Update_Player(DirectX::XMFLOAT3 pos)
+  {
+    Set_Position(Player, pos);
   }
 }

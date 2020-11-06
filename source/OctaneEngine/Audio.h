@@ -24,6 +24,7 @@
 #include "Wwise_IDs.h"
 
 
+
 // Defines
 //#define AK_OPTIMIZED
 
@@ -74,7 +75,7 @@ private:
   AkBankID main;
 
   // Test object
-  AkGameObjectID test_object;
+  AkGameObjectID Player;
   AkGameObjectID test_emitter;
   AkGameObjectID test_listener;
 
@@ -107,6 +108,7 @@ private:
   // Position
   // AkSoundPosition needs to be changed to whatever vector format we're using
   void Set_Position(AkGameObjectID);
+  
   void Set_Multiple_Positions(AkGameObjectID, const AkSoundPosition*, int);
 
   // Listeners

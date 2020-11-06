@@ -18,6 +18,7 @@
 #include <cassert>
 #include <iostream>
 
+
 // Wwise's default implementation
 CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 
@@ -101,18 +102,18 @@ bool Audio::AudioInit()
   main = Load_Bank(AKTEXT("Main.bnk"));
 
   // Register our test objects
-  test_object = 100;
+  Player = 100;
   test_listener = 0;
   test_emitter = 1;
-  Register_Object(test_object, "test");
+  //Register_Object(Player, "player");
   Register_Object(test_listener, "Listener");
   Register_Object(test_emitter, "Emitter");
 
   // Set listener and emitter
-  Set_Default_Listener(&test_listener, 1);
+  // Set_Default_Listener(&Player, 1);
 
   Set_Position(test_listener);
-  Set_Position(test_object);
+  //Set_Position(Player);
 
   return true;
 }
@@ -269,6 +270,8 @@ void Audio::Set_Position(AkGameObjectID object)
   }
 }
 
+
+
 void Audio::Set_Multiple_Positions(AkGameObjectID object, const AkSoundPosition* position_, int NumPositions)
 {
   if (AK::SoundEngine::SetMultiplePositions(object, position_, NumPositions) != AK_Success)
@@ -347,19 +350,19 @@ SystemOrder Audio::GetOrder()
 
 void Audio::music_play()
 {
-  Play_Event(AK::EVENTS::TESTMUSIC, test_object);
+  Play_Event(AK::EVENTS::TESTMUSIC, Player);
 }
 void Audio::music_stop()
 {
-  Play_Event(AK::EVENTS::STOP_TESTMUSIC, test_object);
+  Play_Event(AK::EVENTS::STOP_TESTMUSIC, Player);
 }
 void Audio::ambience_start()
 {
-  Play_Event(AK::EVENTS::PLAY_AMBIENCE, test_object);
+  Play_Event(AK::EVENTS::PLAY_AMBIENCE, Player);
 }
 void Audio::ambience_stop()
 {
-  Play_Event(AK::EVENTS::STOP_AMBIENCE, test_object);
+  Play_Event(AK::EVENTS::STOP_AMBIENCE, Player);
 }
 
 

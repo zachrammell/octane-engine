@@ -56,6 +56,9 @@ bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
 void PlayerMovementControllerSys::Load()
 {
   movementstate_ = MoveState::STAND;
+
+  // Load Player Audio stuff
+  AudioPlayer::Load_Player();
 }
 
 PlayerMovementControllerSys::PlayerMovementControllerSys(Engine* engine)
@@ -253,11 +256,16 @@ void PlayerMovementControllerSys::Update()
 
   player_physics.rigid_body.SetLinearVelocity(new_vel);
   UpdateLookDir();
+  AudioPlayer::Update_Player(player_physics.rigid_body.GetPosition());
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
 
-void PlayerMovementControllerSys::Unload() {}
+void PlayerMovementControllerSys::Unload() 
+{
+  // Unload player stuff
+  AudioPlayer::Unload_Player();
+}
 
 SystemOrder PlayerMovementControllerSys::GetOrder()
 {
