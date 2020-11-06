@@ -13,9 +13,9 @@
 // Main include
 #include <OctaneEngine/Scenes/TestScene.h>
 
-#include <OctaneEngine/EntitySys.h>
-
 #include <OctaneEngine/Engine.h>
+#include <OctaneEngine/EntitySys.h>
+#include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/ImGuiSys.h>
@@ -444,6 +444,7 @@ void TestScene::Update(float dt)
 
   if (esc_menu)
   {
+    Get<FramerateController>()->Pause();
     SDL_SetRelativeMouseMode(SDL_FALSE);
 
     ImGui::Begin(
@@ -475,6 +476,7 @@ void TestScene::Update(float dt)
   }
   else
   {
+    Get<FramerateController>()->Unpause();
 
     {
       GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);

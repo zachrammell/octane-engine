@@ -26,9 +26,18 @@ public:
 public:
   float GetDeltaTime();
 
+  // pausing will set deltatime to 0
+  void Pause();
+  void Unpause();
+  bool isPaused() const;
+
+  // returns the actual delta time even if game is paused
+  float GetDeltaTimeIgnoringPause();
+
 private:
   uint64_t current_time_;
   float delta_time_;
+  bool paused_;
 };
 
 } // namespace Octane

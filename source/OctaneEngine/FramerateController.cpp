@@ -6,7 +6,7 @@
 
 namespace Octane
 {
-FramerateController::FramerateController(Engine* Engine) : ISystem(Engine) {}
+FramerateController::FramerateController(Engine* Engine) : ISystem(Engine), paused_(false) {}
 
 void FramerateController::LevelStart()
 {
@@ -39,6 +39,29 @@ SystemOrder FramerateController::GetOrder()
 }
 
 float FramerateController::GetDeltaTime()
+{
+  if (isPaused())
+  {
+    return 0;
+  }
+  else
+  {
+    return delta_time_;
+  }
+}
+void FramerateController::Pause()
+{
+  paused_ = true;
+}
+void FramerateController::Unpause()
+{
+  paused_ = false;
+}
+bool FramerateController::isPaused() const
+{
+  return paused_;
+}
+float FramerateController::GetDeltaTimeIgnoringPause()
 {
   return delta_time_;
 }
