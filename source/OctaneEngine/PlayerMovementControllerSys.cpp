@@ -64,7 +64,7 @@ void PlayerMovementControllerSys::LevelStart()
 {
   playerHP_.set_maxHP(PLAYER_MAX_HP);
   playerHP_.setCurrentHP(PLAYER_MAX_HP);
-  took_damage = false;
+  took_damage_ = false;
 }
 
 void PlayerMovementControllerSys::Update()
@@ -221,48 +221,7 @@ void PlayerMovementControllerSys::Update()
   }
 
   //damage stuff
-
-  if (took_damage)
-  {
-    i_time -= dt;
-
-    if (i_time <= 0.f)
-    {
-      took_damage = false;
-    }
-  }
-  else
-  {
-    auto enty = Get<EntitySys>();
-    auto& trans_plyr = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
-    for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
-    {
-      if (it->HasComponent(ComponentKind::Behavior))
-      {
-        if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::BEAR)
-        {
-          auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-          auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
-
-          if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-          {
-            playerHP_.ChangeCurrentHPby(1);
-            took_damage = true;
-            i_time = PLAYER_I_TIME;
-            Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
-            if (playerHP_.is_dead())
-            {
-              AudioPlayer::Play_Event(AK::EVENTS::PLAYER_DEATH);
-              Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
-              return;
-            }
-            AudioPlayer::Play_Event(AK::EVENTS::PLAYER_HURT);
-            break;
-          }
-        }
-      }
-    }
-  }
+  UpdateDamage();
 
   if (nextstate != movementstate_)
   {
@@ -331,5 +290,63 @@ DirectX::XMVECTOR PlayerMovementControllerSys::CalcPlayerMoveDir()
 // just no-ops, but can handle animation stuff later
 void PlayerMovementControllerSys::ExitState(PlayerMovementControllerSys::MoveState) {}
 void PlayerMovementControllerSys::EnterState(PlayerMovementControllerSys::MoveState) {}
+
+void PlayerMovementControllerSys::UpdateDamage()
+{
+  const float dt = Get<FramerateController>()->GetDeltaTime();
+  if (took_damage_)
+  {
+    i_time_ -= dt;
+
+    if (i_time_ <= 0.f)
+    {
+      took_damage_ = false;
+    }
+  }
+  else if (CheckForEnemyCollision())
+  {
+    playerHP_.ChangeCurrentHPby(1);
+    took_damage_ = true;
+    i_time_ = PLAYER_I_TIME;
+    Trace::Log(DEBUG) << "player hp:" << playerHP_.GetCurrentHP() << std::endl;
+    if (playerHP_.is_dead())
+    {
+      AudioPlayer::Play_Event(AK::EVENTS::PLAYER_DEATH);
+      Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
+    }
+    else
+    {
+      AudioPlayer::Play_Event(AK::EVENTS::PLAYER_HURT);
+    }
+  }
+}
+bool PlayerMovementControllerSys::CheckForEnemyCollision()
+{
+  auto enty = Get<EntitySys>();
+  GameEntity* player = enty->GetPlayer();
+  PhysicsComponent const& player_physics
+    = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
+
+  TransformComponent const& trans_plyr
+    = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
+
+  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  {
+    if (it->active && it->HasComponent(ComponentKind::Behavior))
+    {
+      if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::BEAR)
+      {
+        auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+        auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+
+        if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+        {
+          return true; // found a collision with enemy
+        }
+      }
+    }
+  }
+  return false; // no collisions
+}
 
 } // namespace Octane

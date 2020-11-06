@@ -13,8 +13,8 @@
 
 // Includes
 #include <OctaneEngine/EntitySys.h>
-#include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Heath.h>
+#include <OctaneEngine/ISystem.h>
 
 namespace Octane
 {
@@ -37,7 +37,8 @@ public:
 private:
   DirectX::XMVECTOR CalcPlayerMoveDir();
 
-  enum class MoveState {
+  enum class MoveState
+  {
     STAND,
     RUN,
     CROUCH,
@@ -48,9 +49,12 @@ private:
   void ExitState(MoveState);
   void EnterState(MoveState);
 
+  void UpdateDamage();
+  bool CheckForEnemyCollision();
+
   Health playerHP_ = Health(5);
-  float i_time = 1.0f;
-  bool took_damage = false;
+  float i_time_ = 1.0f;
+  bool took_damage_ = false;
 };
 
 } // namespace Octane
