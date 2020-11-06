@@ -18,15 +18,35 @@
 #include <OctaneEngine/Trace.h>
 
 #include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 namespace Octane
 {
-PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
+
+PhysicsSys::PhysicsSys(Engine* engine)
+  : ISystem(engine)
+{
+}
 
 void PhysicsSys::LevelStart()
 {
   //resolution_phase_.AddForce(new GlobalGravityForce({0.0f, -9.81f, 0.0f}));
   resolution_phase_.AddForce(new DragForce(0.15f, 0.15f));
+
+  bt_broad_phase_ = new btDbvtBroadphase();
+  bt_collision_config_ = new btDefaultCollisionConfiguration();
+
+  bt_narrow_phase_ = new btCollisionDispatcher((btDefaultCollisionConfiguration*)bt_collision_config_);
+
+  //3
+  bt_resolution_phase_ = new btSequentialImpulseConstraintSolver();
+
+  //4
+  bt_world_ = new btDiscreteDynamicsWorld(
+    (btCollisionDispatcher*)bt_narrow_phase_,
+    (btBroadphaseInterface*)bt_broad_phase_,
+    (btSequentialImpulseConstraintSolver*)bt_resolution_phase_,
+    (btDefaultCollisionConfiguration*)bt_collision_config_);
 }
 
 void PhysicsSys::Update()
@@ -126,6 +146,12 @@ void PhysicsSys::LevelEnd()
     primitive = nullptr;
   }
   primitives_.clear();
+
+  delete (btDiscreteDynamicsWorld*)bt_world_;
+  delete (btSequentialImpulseConstraintSolver*)bt_resolution_phase_;
+  delete (btDefaultCollisionConfiguration*)bt_collision_config_;
+  delete (btCollisionDispatcher*)bt_narrow_phase_;
+  delete (btBroadphaseInterface*)bt_broad_phase_;
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -162,10 +188,14 @@ void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
   Primitive* primitive = nullptr;
   switch (type)
   {
-  case ePrimitiveType::Box: primitive = new Box(); break;
-  case ePrimitiveType::Capsule: primitive = new Capsule(); break;
-  case ePrimitiveType::Ellipsoid: primitive = new Ellipsoid(); break;
-  case ePrimitiveType::Truncated: primitive = new Truncated(); break;
+  case ePrimitiveType::Box: primitive = new Box();
+    break;
+  case ePrimitiveType::Capsule: primitive = new Capsule();
+    break;
+  case ePrimitiveType::Ellipsoid: primitive = new Ellipsoid();
+    break;
+  case ePrimitiveType::Truncated: primitive = new Truncated();
+    break;
   }
 
   if (primitive != nullptr)
