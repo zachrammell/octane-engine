@@ -63,7 +63,7 @@ const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
 
 float spawnDelay = 15.0f;
 float spawnTimer = spawnDelay;
-float shootDelay = 1.5f;
+float shootDelay = 0.01f;
 float shootTimer = shootDelay;
 bool can_shoot = true;
 bool spawning = true;
