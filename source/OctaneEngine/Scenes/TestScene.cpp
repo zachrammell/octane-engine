@@ -169,19 +169,22 @@ void TestScene::Load()
     }
   }
 
-  //Todo: fix undefined behavior caused by spawning entites from a behavior
-  //{
-  //  auto spawner_id = Get<EntitySys>()->MakeEntity();
-  //  GameEntity& enemy_spawner = Get<EntitySys>()->GetEntity((spawner_id));
-  //  ComponentHandle trans_id = compsys->MakeTransform();
-  //  enemy_spawner.components[to_integral(ComponentKind::Transform)] = trans_id;
-  //  TransformComponent& trans = compsys->GetTransform(trans_id);
-  //  trans.pos ={0.f,0.f,0.f};
-  //  ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::ENEMYSPAWNER);
-  //  enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
-  //  BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
-  //  behavior_comp.type = BHVRType::ENEMYSPAWNER;
-  //}
+// this WAS commented-out because of behavior sys bugs
+// now it works but it causes enormous lag due to constant spawns, so it says gone
+#if 0
+  {
+    auto spawner_id = Get<EntitySys>()->MakeEntity();
+    GameEntity& enemy_spawner = Get<EntitySys>()->GetEntity((spawner_id));
+    ComponentHandle trans_id = compsys->MakeTransform();
+    enemy_spawner.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = compsys->GetTransform(trans_id);
+    trans.pos ={0.f,0.f,0.f};
+    ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::ENEMYSPAWNER);
+    enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
+    BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
+    behavior_comp.type = BHVRType::ENEMYSPAWNER;
+  }
+#endif
 
   crossbow_id = Get<EntitySys>()->MakeEntity();
   {
