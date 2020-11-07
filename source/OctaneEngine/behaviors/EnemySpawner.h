@@ -12,6 +12,7 @@
 
 #pragma once
 #include <OctaneEngine/behaviors/IBehavior.h>
+#include <OctaneEngine/behaviors/BearBehavior.h>
 #include <OctaneEngine/EntitySys.h>
 #include <DirectXMath.h>
 namespace dx = DirectX;
@@ -30,14 +31,18 @@ public:
   void Shutdown() override;
 
   void EnemyDefeated();
+  void EnemySpawner::SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc);
 
   private:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
     void SpawnEnemy();
     int spawnCap = 20;
     int enemiesSpawned = 0;
-    float spawnDelay = 0.0f;
-    float spawnTimer = 0.0f;
+    float spawnDelay = 15.0f;
+    float spawnTimer = spawnDelay;
+    EnemyDestroyed* enemy_destroyed_func = nullptr;
+    bool spawning = true;
+    bool prevSpawning = false;
 };
 
 }

@@ -1,10 +1,9 @@
 #pragma once
 
 #include <OctaneEngine/Entity.h>
-#include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <EASTL/vector.h>
-
+#include <OctaneEngine/Physics/Primitive.h>
 namespace Octane
 {
 
@@ -46,6 +45,12 @@ public:
 
   Iterator EntitiesBegin();
   Iterator EntitiesEnd();
+
+  //allocates new components and initializes them
+  EntityID CreateEntity(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rotation);
+  void AddRenderComp(EntityID id, Octane::Color color, MeshType mesh);
+  void AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale);
+  void AddBehavior(EntityID id, BHVRType behavior);
 
 private:
   static const SystemOrder ORDER = SystemOrder::EntitySys;

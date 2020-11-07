@@ -6,6 +6,7 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/TransformHelpers.h>
+#include <OctaneEngine/AudioPlayer.h>
 
 namespace Octane
 {
@@ -21,13 +22,31 @@ void EnemySpawner::Initialize()
 
 void EnemySpawner::Update(float dt, EntityID myID)
 {
-  spawnTimer += dt;
-
-  if (spawnTimer >= spawnDelay && enemiesSpawned < spawnCap)
+  auto entsys = Get<EntitySys>();
+  auto& me = entsys->GetEntity(myID);
+  auto& trans = Get<ComponentSys>()->GetTransform(me.GetComponentHandle(ComponentKind::Transform));
+  if (!enemy_destroyed_func)
   {
-    spawnTimer = 0.0f;
-    SpawnEnemy();
+    return;
   }
+  spawning = spawnTimer >= spawnDelay && enemy_destroyed_func->enemiesSpawned < enemy_destroyed_func->spawnCap;
+
+  if (!spawning)
+  {
+    spawnTimer += dt;
+  }
+  enemy_destroyed_func->spawnedWave = false;
+  if (spawning)
+  {
+    SpawnEnemy();
+    if (!prevSpawning)
+    {
+      enemy_destroyed_func->spawnedWave = true;
+      //Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
+    }
+
+  }
+  prevSpawning = spawning;
 }
 void EnemySpawner::Shutdown()
 {
@@ -39,70 +58,40 @@ void EnemySpawner::EnemyDefeated()
   --enemiesSpawned;
 }
 
+void EnemySpawner::SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc)
+{
+  enemy_destroyed_func = &enemydestroyedfunc;
+}
+
 void EnemySpawner::SpawnEnemy()
 {
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_transform = [=](GameEntity& entity, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale) {
-    ComponentHandle trans_id = compsys->MakeTransform();
-    entity.components[to_integral(ComponentKind::Transform)] = trans_id;
-    TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos = pos;
-    trans.scale = scale;
-    trans.rotation = {};
-  };
-
-  auto create_rendercomp = [=](GameEntity& entity, Octane::Color color, MeshType mesh) {
-    ComponentHandle render_comp_id = compsys->MakeRender();
-    entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
-    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-    render_comp.color = color;
-    render_comp.mesh_type = mesh;
-  };
-
-  auto create_physics
-    = [=](GameEntity& entity, TransformComponent& trans, ePrimitiveType primitive, dx::XMFLOAT3 colScale) {
-        ComponentHandle physics_comp_id = compsys->MakePhysics();
-        entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-        PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-        physics_sys->InitializeRigidBody(physics_comp);
-        physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-        static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
-        physics_comp.rigid_body.SetPosition(trans.pos);
-        trans.rotation = physics_comp.rigid_body.GetOrientation();
-      };
-
-  auto create_behavior = [=](GameEntity& entity, BHVRType behavior) {
-    ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
-    entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
-    BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
-    behavior_comp.type = behavior;
-  };
-
   MeshType mesh = MeshType::INVALID;
   const int enemyType = rand() % 3;
 
   switch (enemyType)
   {
-    case 0: mesh = MeshType::Bear; break;
-    case 1: mesh = MeshType::Duck; break;
-    case 2: mesh = MeshType::Bunny; break;
-    default: break;
+  case 0: mesh = MeshType::Bear; break;
+  case 1: mesh = MeshType::Duck; break;
+  case 2: mesh = MeshType::Bunny; break;
+  default: break;
   }
 
-  auto id = Get<EntitySys>()->MakeEntity();
-  GameEntity& enemy = Get<EntitySys>()->GetEntity((id));
+  auto id = entsys->CreateEntity({0.0f, 1.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {});
+  auto& entity = entsys->GetEntity(id);
+  entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
+  entsys->AddRenderComp(id, Colors::db32[rand() % 32], mesh);
+  entsys->AddBehavior(id, BHVRType::BEAR);
+  auto& beh = Get<ComponentSys>()->GetBehavior(entity.GetComponentHandle(ComponentKind::Behavior));
+  BearBehavior* enemybeh = static_cast<BearBehavior*>(beh.behavior);
+  enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
 
-  create_transform(enemy, {0.0f,1.0f,0.0f}, {0.25f, 0.25f, 0.25f});
-  TransformComponent& trans = compsys->GetTransform(enemy.components[to_integral(ComponentKind::Transform)]);
-
-  create_rendercomp(enemy, Colors::db32[rand() % 32], mesh);
-
-  create_physics(enemy, trans, ePrimitiveType::Box, {0.25f, 0.25f, 0.25f});
-
-  create_behavior(enemy, BHVRType::BEAR);
+  ++enemy_destroyed_func->enemiesSpawned;
+  if (enemy_destroyed_func->enemiesSpawned >= enemy_destroyed_func->spawnCap)
+    spawnTimer = 0.0f;
 }
 
 }

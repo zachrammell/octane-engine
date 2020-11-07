@@ -1,10 +1,12 @@
 #include <OctaneEngine/EntitySys.h>
-
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/Physics/Box.h>
+#include <OctaneEngine/Engine.h>
 #include <iostream> // error logging
 
 namespace Octane
 {
-
+namespace dx = DirectX;
 namespace
 {
 void ResetEntity(GameEntity& ent)
@@ -77,6 +79,62 @@ EntitySys::Iterator EntitySys::EntitiesEnd()
 {
   return EntityIter(entities_.size(), *this);
 }
+
+EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLOAT4 rotation)
+{
+  auto* compsys = Get<ComponentSys>();
+  auto id = MakeEntity();
+  auto& entity = GetEntity(id);
+
+  ComponentHandle trans_id = compsys->MakeTransform();
+  entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+  TransformComponent& trans = compsys->GetTransform(trans_id);
+  trans.pos = pos;
+  trans.scale = scale;
+  trans.rotation = rotation;
+
+  return id;
+}
+void EntitySys::AddRenderComp(EntityID id, Octane::Color color, MeshType mesh)
+{
+  auto* compsys = Get<ComponentSys>();
+  auto& entity = GetEntity(id);
+
+  ComponentHandle render_comp_id = compsys->MakeRender();
+  entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
+  RenderComponent& render_comp = compsys->GetRender(render_comp_id);
+  render_comp.color = color;
+  render_comp.mesh_type = mesh;
+}
+void EntitySys::AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale)
+{
+  auto compsys = Get<ComponentSys>();
+  auto physics_sys = Get<PhysicsSys>(); 
+  auto& entity = GetEntity(id);
+  auto& trans = compsys->GetTransform( entity.GetComponentHandle(ComponentKind::Transform));
+  ComponentHandle physics_comp_id = compsys->MakePhysics();
+  entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+  PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+  physics_sys->InitializeRigidBody(physics_comp);
+  physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
+  static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
+  physics_comp.rigid_body.SetPosition(trans.pos);
+  physics_comp.rigid_body.SetOrientation(trans.rotation);
+}
+void EntitySys::AddBehavior(EntityID id, BHVRType behavior) 
+{
+  auto compsys = Get<ComponentSys>();
+  auto& entity = GetEntity(id);
+
+
+  ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
+  entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
+  BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
+  behavior_comp.type = behavior;
+}
+
+
+
 void EntitySys::SetPlayerID(EntityID id)
 {
   player_entity_id_ = id;

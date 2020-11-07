@@ -23,6 +23,7 @@
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/behaviors/EnemySpawner.h>
 
 #include <EASTL/optional.h>
 #include <EASTL/string.h>
@@ -58,20 +59,15 @@ AkGameObjectID spawner;
 namespace
 {
 
+Octane::EntityID spawner_id;
 Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
-
-float spawnDelay = 15.0f;
-float spawnTimer = spawnDelay;
+Octane::EnemyDestroyed enemy_destroyed_func;
 float shootDelay = 0.01f;
 float shootTimer = shootDelay;
 bool can_shoot = true;
-bool spawning = true;
-bool prevSpawning = false;
-Octane::EnemyDestroyed enemy_destroyed_func;
-
 } // namespace
 
 namespace Octane
@@ -81,9 +77,6 @@ TestScene::TestScene(SceneSys* parent) : IScene(parent) {}
 
 void TestScene::Load()
 {
-  spawnTimer = spawnDelay;
-  spawning = true;
-  prevSpawning = false;
   enemy_destroyed_func.enemiesSpawned = 0;
   enemy_destroyed_func.score = 0;
   auto* entsys = Get<EntitySys>();
@@ -175,6 +168,7 @@ void TestScene::Load()
     AudioPlayer::Register_Object(spawner, "spawner");
   }
 
+   
 // this WAS commented-out because of behavior sys bugs
 // now it works but it causes enormous lag due to constant spawns, so it says gone
 #if 0
@@ -189,6 +183,7 @@ void TestScene::Load()
     enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
     BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
     behavior_comp.type = BHVRType::ENEMYSPAWNER;
+    static_cast<EnemySpawner*>(behavior_comp.behavior)->SetEnemyDestroyedFunc(enemy_destroyed_func);
   }
 #endif
 
@@ -294,77 +289,14 @@ void TestScene::Update(float dt)
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_transform = [=](GameEntity& entity, dx::XMFLOAT3 pos, dx::XMFLOAT3 scale) {
-    ComponentHandle trans_id = compsys->MakeTransform();
-    entity.components[to_integral(ComponentKind::Transform)] = trans_id;
-    TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos = pos;
-    trans.scale = scale;
-    trans.rotation = {};
-  };
 
-  auto create_rendercomp = [=](GameEntity& entity, Octane::Color color, MeshType mesh) {
-    ComponentHandle render_comp_id = compsys->MakeRender();
-    entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
-    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-    render_comp.color = color;
-    render_comp.mesh_type = mesh;
-  };
-
-  auto create_physics
-    = [=](GameEntity& entity, TransformComponent& trans, ePrimitiveType primitive, dx::XMFLOAT3 colScale) {
-        ComponentHandle physics_comp_id = compsys->MakePhysics();
-        entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-        PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-        physics_sys->InitializeRigidBody(physics_comp);
-        physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-        static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
-        physics_comp.rigid_body.SetPosition(trans.pos);
-        trans.rotation = physics_comp.rigid_body.GetOrientation();
-      };
-
-  auto create_behavior = [=](GameEntity& entity, BHVRType behavior) {
-    ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
-    entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
-    BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
-    behavior_comp.type = behavior;
-  };
-
-  auto create_plane = [=](dx::XMFLOAT3 pos) {
-    auto id = Get<EntitySys>()->MakeEntity();
+  auto create_plane = [=](dx::XMFLOAT3 pos)
+  {
+    auto id = entsys->CreateEntity(pos, {.05f, .05f, .05f}, {});
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
-
-    create_transform(plane, pos, {0.05f, 0.05f, 0.05f});
-    TransformComponent& trans = compsys->GetTransform(plane.components[to_integral(ComponentKind::Transform)]);
-
-    create_rendercomp(plane, Colors::db32[rand() % 32], MeshType::PaperPlane);
-
-    create_physics(plane, trans, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
-
-    create_behavior(plane, BHVRType::PLANE);
-  };
-
-  auto create_enemy = [=](dx::XMFLOAT3 pos, MeshType mesh) {
-    auto id = Get<EntitySys>()->MakeEntity();
-    GameEntity& bear = Get<EntitySys>()->GetEntity((id));
-
-    create_transform(bear, pos, {0.25f, 0.25f, 0.25f});
-    TransformComponent& trans = compsys->GetTransform(bear.components[to_integral(ComponentKind::Transform)]);
-
-    create_rendercomp(bear, Colors::db32[rand() % 32], mesh);
-
-    create_physics(bear, trans, ePrimitiveType::Box, {0.25f, 0.25f, 0.25f});
-
-    create_behavior(bear, BHVRType::BEAR);
-    auto& beh = Get<ComponentSys>()->GetBehavior(bear.GetComponentHandle(ComponentKind::Behavior));
-    BearBehavior* enemybeh = static_cast<BearBehavior*>(beh.behavior);
-
-    enemybeh->SetDestroyedFunc(enemy_destroyed_func);
-    if (!prevSpawning)
-    {
-      AudioPlayer::Set_Position(spawner, pos);
-      AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN, spawner);
-    }
+    entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
+    entsys->AddRenderComp(id, Colors::db32[rand() % 32], MeshType::PaperPlane);
+    entsys->AddBehavior(id, BHVRType::PLANE);
   };
 
   ImGui::Begin(
@@ -583,39 +515,18 @@ void TestScene::Update(float dt)
       create_plane(crossbow_trans.pos);
     }
 
-    spawning = spawnTimer >= spawnDelay && enemy_destroyed_func.enemiesSpawned < enemy_destroyed_func.spawnCap;
-
-    if (!spawning)
+    if (enemy_destroyed_func.spawnedWave)
     {
-      spawnTimer += dt;
+      AudioPlayer::Set_Position(spawner, {0.f,1.f,0.f});
+      AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN, spawner);
     }
+
     shootTimer += dt;
-
-    if (spawning)
-    {
-      MeshType mesh = MeshType::INVALID;
-      const int enemyType = rand() % 3;
-
-      switch (enemyType)
-      {
-      case 0: mesh = MeshType::Bear; break;
-      case 1: mesh = MeshType::Duck; break;
-      case 2: mesh = MeshType::Bunny; break;
-      default: break;
-      }
-
-      create_enemy({0.0f, 1.0f, 0.0f}, mesh);
-      ++enemy_destroyed_func.enemiesSpawned;
-      if (enemy_destroyed_func.enemiesSpawned >= enemy_destroyed_func.spawnCap)
-        spawnTimer = 0.0f;
-    }
-
     if (shootTimer >= shootDelay)
     {
       can_shoot = true;
       shootTimer = 0.0f;
     }
-    prevSpawning = spawning;
   }
 }
 

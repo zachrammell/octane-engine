@@ -25,6 +25,7 @@ struct EnemyDestroyed //functor
     int enemiesSpawned = 0;
     int score = 0;
     int highScore = 0;
+    bool spawnedWave = false;
 };
 
 class BearBehavior : public IBehavior

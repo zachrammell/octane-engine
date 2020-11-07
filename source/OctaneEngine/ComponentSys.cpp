@@ -147,8 +147,9 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   }
   case BHVRType::ENEMYSPAWNER:
     beh.behavior = new EnemySpawner(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
-
-  default: break;
+    break;
+  default:
+    break;
   }
 
   behavior_comps_.emplace_back(beh);
