@@ -17,15 +17,9 @@
 
 #include <OctaneEngine/Trace.h>
 
-
-
 namespace Octane
 {
-
-PhysicsSys::PhysicsSys(Engine* engine)
-  : ISystem(engine)
-{
-}
+PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
 
 void PhysicsSys::LevelStart()
 {
@@ -41,16 +35,19 @@ void PhysicsSys::LevelStart()
   bt_resolution_phase_ = new btSequentialImpulseConstraintSolver();
 
   //4
-  bt_world_ = new btDiscreteDynamicsWorld(
-    bt_narrow_phase_,
-    bt_broad_phase_,
-    bt_resolution_phase_,
-    bt_collision_config_);
+  bt_world_
+    = new btDiscreteDynamicsWorld(bt_narrow_phase_, bt_broad_phase_, bt_resolution_phase_, bt_collision_config_);
+  bt_world_->setGravity(btVector3(0, -10, 0));
 }
 
 void PhysicsSys::Update()
 {
   float dt = Get<FramerateController>()->GetDeltaTime(); //1.0f / 60.0f;
+
+  if (bt_world_)
+  {
+    bt_world_->stepSimulation(dt);
+  }
 
   auto* component_sys = Get<ComponentSys>();
   for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
@@ -146,11 +143,44 @@ void PhysicsSys::LevelEnd()
   }
   primitives_.clear();
 
+  //delete remain physics stuff
+  if (bt_world_ != nullptr)
+  {
+    int i;
+    for (i = bt_world_->getNumConstraints() - 1; i >= 0; i--)
+    {
+      bt_world_->removeConstraint(bt_world_->getConstraint(i));
+    }
+    for (i = bt_world_->getNumCollisionObjects() - 1; i >= 0; i--)
+    {
+      btCollisionObject* obj = bt_world_->getCollisionObjectArray()[i];
+      btRigidBody* body = btRigidBody::upcast(obj);
+      if (body && body->getMotionState())
+      {
+        delete body->getMotionState();
+      }
+      bt_world_->removeCollisionObject(obj);
+      delete obj;
+    }
+  }
+  //delete collision shapes
+  for (int j = 0; j < collision_shapes_.size(); j++)
+  {
+    btCollisionShape* shape = collision_shapes_[j];
+    delete shape;
+  }
+  collision_shapes_.clear();
+
   delete bt_world_;
+  bt_world_ = nullptr;
   delete bt_resolution_phase_;
-  delete bt_collision_config_;
-  delete bt_narrow_phase_;
+  bt_resolution_phase_ = nullptr;
   delete bt_broad_phase_;
+  bt_broad_phase_ = nullptr;
+  delete bt_narrow_phase_;
+  bt_narrow_phase_ = nullptr;
+  delete bt_collision_config_;
+  bt_collision_config_ = nullptr;
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -187,14 +217,10 @@ void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
   Primitive* primitive = nullptr;
   switch (type)
   {
-  case ePrimitiveType::Box: primitive = new Box();
-    break;
-  case ePrimitiveType::Capsule: primitive = new Capsule();
-    break;
-  case ePrimitiveType::Ellipsoid: primitive = new Ellipsoid();
-    break;
-  case ePrimitiveType::Truncated: primitive = new Truncated();
-    break;
+  case ePrimitiveType::Box: primitive = new Box(); break;
+  case ePrimitiveType::Capsule: primitive = new Capsule(); break;
+  case ePrimitiveType::Ellipsoid: primitive = new Ellipsoid(); break;
+  case ePrimitiveType::Truncated: primitive = new Truncated(); break;
   }
 
   if (primitive != nullptr)

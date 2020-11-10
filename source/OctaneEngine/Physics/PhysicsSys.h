@@ -60,6 +60,6 @@ private:
   btCollisionDispatcher* bt_narrow_phase_ = nullptr;
   btSequentialImpulseConstraintSolver* bt_resolution_phase_ = nullptr;
   btDiscreteDynamicsWorld* bt_world_ = nullptr;
-
+  btAlignedObjectArray<btCollisionShape*> collision_shapes_;
 };
 } // namespace Octane
