@@ -170,8 +170,8 @@ void TestScene::Load()
 
    
 // this WAS commented-out because of behavior sys bugs
-// now it works but it causes enormous lag due to constant spawns, so it says gone
-#if 0
+// now it works flawlessly and it is the enemy spawner
+#if 1
   {
     auto spawner_id = Get<EntitySys>()->MakeEntity();
     GameEntity& enemy_spawner = Get<EntitySys>()->GetEntity((spawner_id));
