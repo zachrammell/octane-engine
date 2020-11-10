@@ -32,12 +32,13 @@ void WindTunnelBHV::Initialize()
   
 }
 
-void WindTunnelBHV::Update(float dt, EntityID myid) 
+void WindTunnelBHV::Update(float dt, EntityID myid)
 {
- // std::cout << "tunnel update" << std::endl;
+  // std::cout << "tunnel update" << std::endl;
   auto enty = Get<EntitySys>();
   auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
-  auto& trans_me = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
+  auto& trans_me
+    = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
 
   for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
   {
@@ -61,14 +62,12 @@ void WindTunnelBHV::Update(float dt, EntityID myid)
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
           //Apply force to paper airplane
-          if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
+          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
             phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
           }
         }
       }
-       
-      
     }
   }
 }

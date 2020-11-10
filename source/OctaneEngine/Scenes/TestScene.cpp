@@ -243,7 +243,7 @@ void TestScene::Load()
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos.x = 10.0f;
     trans.pos.y = 1.0f;
-    trans.pos.z = 5.0f;
+    trans.pos.z = 3.0f;
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
 

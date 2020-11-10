@@ -56,6 +56,7 @@ private:
 
   void UpdateDamage();
   bool CheckForEnemyCollision();
+  DirectX::XMFLOAT3 GetWindTunnelForce();
 
   Health playerHP_ = Health(5);
   float remaining_invuln_time_ = 0.0f;

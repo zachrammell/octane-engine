@@ -49,6 +49,7 @@ bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
   return player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
 }
 
+
 } // namespace
 
 void PlayerMovementControllerSys::Load()
@@ -251,6 +252,17 @@ void PlayerMovementControllerSys::Update()
     pos.y = HACKY_GROUND_Y_LEVEL;
     player_physics.rigid_body.SetPosition(pos);
   }
+  else
+  {
+    DirectX::XMFLOAT3 wind_force = GetWindTunnelForce();
+    wind_force.x *= dt;
+    wind_force.y *= dt;
+    wind_force.z *= dt;
+    
+    new_vel.m128_f32[0] += wind_force.x;
+    new_vel.m128_f32[1] += wind_force.y;
+    new_vel.m128_f32[2] += wind_force.z;
+  }
 
   player_physics.rigid_body.SetLinearVelocity(new_vel);
   UpdateLookDir();
@@ -357,6 +369,7 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
           return true; // found a collision with enemy
         }
       }
+      
     }
   }
   return false; // no collisions
@@ -380,4 +393,33 @@ void PlayerMovementControllerSys::UpdateLookDir()
   }
 }
 
+DirectX::XMFLOAT3 PlayerMovementControllerSys::GetWindTunnelForce()
+{
+  auto enty = Get<EntitySys>();
+  GameEntity* player = enty->GetPlayer();
+  PhysicsComponent const& player_physics
+    = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
+
+  TransformComponent const& trans_plyr
+    = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
+
+  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  {
+    if (it->active && it->HasComponent(ComponentKind::Behavior))
+    {
+      if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::WINDTUNNEL)
+      {
+        auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+        auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+
+        if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+        {
+          return Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).force;
+        }
+      }
+    }
+  }
+
+  return {0, 0, 0};
+}
 } // namespace Octane
