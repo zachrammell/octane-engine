@@ -30,6 +30,7 @@ const float PLAYER_CROUCH_SPEED = 3.0f;
 const float PLAYER_AIRSTRAFE_MAXSPEED = 12.0f;
 const float PLAYER_AIRSTRAFE_ACCEL = 4.5f;
 const float PLAYER_GRAVITY_ACCEL = 9.81f;
+const float PLAYER_HOVER_ACCEL = PLAYER_GRAVITY_ACCEL/2.0f;
 const float PLAYER_I_TIME = 1.0f; // invuln after getting hit
 const int PLAYER_MAX_HP = 5;
 
@@ -213,8 +214,15 @@ void PlayerMovementControllerSys::Update()
     else
     {
       auto new_acc = DirectX::XMVectorScale(move_dir, PLAYER_AIRSTRAFE_ACCEL);
-      new_acc.m128_f32[1] = -PLAYER_GRAVITY_ACCEL;
 
+      if (new_vel.m128_f32[1] < 0 && jump_input) //hover logic
+      {
+        new_acc.m128_f32[1] = -PLAYER_HOVER_ACCEL;
+      }
+      else
+      {
+        new_acc.m128_f32[1] = -PLAYER_GRAVITY_ACCEL;
+      }
       // make sure to add to new_vel here rather than assigning so we maintain air velocity (esp. y velocity)
       new_vel = DirectX::XMVectorAdd(new_vel, DirectX::XMVectorScale(new_acc, dt));
 
