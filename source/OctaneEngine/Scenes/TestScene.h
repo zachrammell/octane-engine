@@ -35,5 +35,6 @@ private:
   bool demo_window_open = false;
   bool zoom_button = false;
   float fov = 0.0f;
+  int mouse_sens = 30;
 };
 }
