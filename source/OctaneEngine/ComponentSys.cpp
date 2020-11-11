@@ -5,6 +5,8 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
+#include <OctaneEngine/behaviors/BunnyBehavior.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
@@ -143,6 +145,22 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
     auto entsys = Get<EntitySys>();
     beh.behavior
       = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayerID());
+    break;
+  }
+  case BHVRType::DUCK:
+  {
+    auto entsys = Get<EntitySys>();
+    beh.behavior = new DuckBehavior(
+      Get<BehaviorSys>(),
+      static_cast<ComponentHandle>(behavior_comps_.size()),
+      entsys->GetPlayerID());
+    break;
+  }
+  case BHVRType::BUNNY:
+  {
+    auto entsys = Get<EntitySys>();
+    beh.behavior
+      = new BunnyBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayerID());
     break;
   }
   case BHVRType::ENEMYSPAWNER:

@@ -4,7 +4,7 @@
   \file       BearBehavior.h
   \author     Brayan Lopez
   \date       2020/10/28
-  \brief      behavior for Bears
+  \brief      behavior for Bunny
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
@@ -19,12 +19,12 @@ namespace dx = DirectX;
 namespace Octane
 {
 
-class BearBehavior : public IBehavior
+class BunnyBehavior : public IBehavior
 {
 public:
-  explicit BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID target);
+  explicit BunnyBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID target);
 
-  virtual ~BearBehavior() = default;
+  virtual ~BunnyBehavior() = default;
 
   void Initialize() override;
   void Update(float dt, EntityID myID);

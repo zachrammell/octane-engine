@@ -6,7 +6,10 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
+#include <OctaneEngine/behaviors/BunnyBehavior.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
+
 
 namespace Octane
 {
@@ -98,16 +101,42 @@ void PlaneBehavior::Update(float dt, EntityID myid)
         auto other = it->GetComponentHandle(ComponentKind::Behavior);
         const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
 
-        if (othbeh.type == BHVRType::BEAR)
+        if (othbeh.type == BHVRType::BEAR || othbeh.type == BHVRType::DUCK || othbeh.type == BHVRType::BUNNY)
         {
-          BearBehavior* otherBeh = static_cast<BearBehavior*>(
-            Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).behavior);
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
           if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
-            otherBeh->TakeDamage();
+            switch (othbeh.type)
+            {
+            case BHVRType::BEAR:
+            {
+              BearBehavior* otherBeh = static_cast<BearBehavior*>(
+                Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).behavior);
+              otherBeh->TakeDamage();
+
+              break;
+            }
+            case BHVRType::DUCK:
+            {
+              DuckBehavior* otherBeh = static_cast<DuckBehavior*>(
+                Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).behavior);
+              otherBeh->TakeDamage();
+
+              break;
+            }
+            case BHVRType::BUNNY:
+            {
+              BunnyBehavior* otherBeh = static_cast<BunnyBehavior*>(
+                Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).behavior);
+              otherBeh->TakeDamage();
+
+              break;
+            }
+            default: 
+              break;
+            }
             if (!gettingfreed)
             {
               Get<EntitySys>()->FreeEntity(myid);

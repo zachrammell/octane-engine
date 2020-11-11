@@ -130,7 +130,6 @@ void EntitySys::AddBehavior(EntityID id, BHVRType behavior)
   ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
   entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
   BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
-  behavior_comp.type = behavior;
 }
 
 

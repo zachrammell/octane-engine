@@ -4,7 +4,7 @@
   \file       BearBehavior.h
   \author     Brayan Lopez
   \date       2020/10/28
-  \brief      behavior for Bears
+  \brief      behavior for Duck
 
   Copyright © 2020 DigiPen, All rights reserved.
 */
@@ -16,15 +16,15 @@
 #include <OctaneEngine/behaviors/EnemyBehaviorCommon.h>
 #include <DirectXMath.h>
 namespace dx = DirectX;
+
 namespace Octane
 {
-
-class BearBehavior : public IBehavior
+class DuckBehavior : public IBehavior
 {
 public:
-  explicit BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID target);
+  explicit DuckBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID target);
 
-  virtual ~BearBehavior() = default;
+  virtual ~DuckBehavior() = default;
 
   void Initialize() override;
   void Update(float dt, EntityID myID);

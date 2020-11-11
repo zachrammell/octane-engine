@@ -1,4 +1,4 @@
-#include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
@@ -11,12 +11,12 @@
 
 namespace Octane
 {
-BearBehavior::BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID targetID)
+DuckBehavior::DuckBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID targetID)
   : IBehavior(parent, handle),target_(targetID)
 {
 }
 
-void BearBehavior::Initialize() 
+void DuckBehavior::Initialize()
 {
   auto enty = Get<EntitySys>();
   GameEntity& target = enty->GetEntity(target_);
@@ -50,7 +50,7 @@ void BearBehavior::Initialize()
   }
 }
 
-void BearBehavior::Update(float dt, EntityID myID)
+void DuckBehavior::Update(float dt, EntityID myID)
 {
   float constexpr G = -9.81f;
   if (phys_handle_ == INVALID_COMPONENT ||
@@ -67,6 +67,7 @@ void BearBehavior::Update(float dt, EntityID myID)
   //move and face target
   SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
   FacePos(trans, target.pos);
+  RandomJump(physics.rigid_body, trans.pos, 0.05f, 20.f * -G);
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);
   physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
@@ -79,17 +80,17 @@ void BearBehavior::Update(float dt, EntityID myID)
   }
 
 }
-void BearBehavior::Shutdown()
+void DuckBehavior::Shutdown()
 {
 
 }
 
-void BearBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
+void DuckBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
 {
   destroyed_func_ = &edfunc;
 }
 
-void BearBehavior::TakeDamage()
+void DuckBehavior::TakeDamage()
 {
   --health_;
 }

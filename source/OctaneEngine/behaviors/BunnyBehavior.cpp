@@ -1,4 +1,4 @@
-#include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/BunnyBehavior.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
@@ -11,12 +11,12 @@
 
 namespace Octane
 {
-BearBehavior::BearBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID targetID)
+BunnyBehavior::BunnyBehavior(BehaviorSys* parent, ComponentHandle handle, EntityID targetID)
   : IBehavior(parent, handle),target_(targetID)
 {
 }
 
-void BearBehavior::Initialize() 
+void BunnyBehavior::Initialize()
 {
   auto enty = Get<EntitySys>();
   GameEntity& target = enty->GetEntity(target_);
@@ -50,7 +50,7 @@ void BearBehavior::Initialize()
   }
 }
 
-void BearBehavior::Update(float dt, EntityID myID)
+void BunnyBehavior::Update(float dt, EntityID myID)
 {
   float constexpr G = -9.81f;
   if (phys_handle_ == INVALID_COMPONENT ||
@@ -67,6 +67,7 @@ void BearBehavior::Update(float dt, EntityID myID)
   //move and face target
   SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
   FacePos(trans, target.pos);
+  BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);
   physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
@@ -79,17 +80,16 @@ void BearBehavior::Update(float dt, EntityID myID)
   }
 
 }
-void BearBehavior::Shutdown()
-{
+void BunnyBehavior::Shutdown() {
 
 }
 
-void BearBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
+void BunnyBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
 {
   destroyed_func_ = &edfunc;
 }
 
-void BearBehavior::TakeDamage()
+void BunnyBehavior::TakeDamage()
 {
   --health_;
 }

@@ -13,6 +13,8 @@
 #pragma once
 #include <OctaneEngine/behaviors/IBehavior.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
+#include <OctaneEngine/behaviors/BunnyBehavior.h>
 #include <OctaneEngine/EntitySys.h>
 #include <DirectXMath.h>
 namespace dx = DirectX;

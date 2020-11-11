@@ -12,6 +12,8 @@ enum class BHVRType
   WINDTUNNEL,
   PLANE,
   BEAR,
+  DUCK,
+  BUNNY,
   ENEMYSPAWNER,
 
   INVALID
