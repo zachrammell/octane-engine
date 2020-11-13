@@ -176,11 +176,11 @@ void PhysicsSys::AddPrimitive(PhysicsComponent& compo, ePrimitiveType type)
 
 void PhysicsSys::ErasePrimitive(PhysicsComponent& compo)
 {
-  auto found = eastl::find(primitives_.begin(), primitives_.end(), compo.primitive);
-  if (found != primitives_.end())
-  {
-    primitives_.erase(found);
-  }
+  // this helper function actually calls remove & erase, so the entire vector won't have to be shifted
+  // (it just swaps the target element to the end)
+  // but order is not preserved
+  eastl::erase(primitives_, compo.primitive);
+
   if (compo.primitive != nullptr)
   {
     delete compo.primitive;
