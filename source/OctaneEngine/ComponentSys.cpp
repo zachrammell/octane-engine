@@ -47,19 +47,25 @@ void ComponentSys::FreeTransform(ComponentHandle id) {}
 
 void ComponentSys::FreePhysics(ComponentHandle id)
 {
-  PhysicsComponent& compo = GetPhysics(id);
-  compo.sys->ErasePrimitive(compo);
+  if (id != INVALID_COMPONENT)
+  {
+    PhysicsComponent& compo = GetPhysics(id);
+    compo.sys->ErasePrimitive(compo);
+  }
 }
 
 void ComponentSys::FreeRender(ComponentHandle id) {}
 
 void ComponentSys::FreeBehavior(ComponentHandle id)
 {
-  BehaviorComponent& beh = GetBehavior(id);
-  if (beh.behavior != nullptr)
+  if (id != INVALID_COMPONENT)
   {
-    delete beh.behavior;
-    beh.behavior = nullptr;
+    BehaviorComponent& beh = GetBehavior(id);
+    if (beh.behavior != nullptr)
+    {
+      delete beh.behavior;
+      beh.behavior = nullptr;
+    }
   }
 }
 
