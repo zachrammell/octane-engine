@@ -72,7 +72,7 @@ void EnemySpawner::SpawnEnemy()
   MeshType mesh = MeshType::INVALID;
   const int enemyType = rand() % 3;
 
-  auto id = entsys->CreateEntity({0.0f, 1.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {});
+  auto id = entsys->CreateEntity({rand()%8-4.f, 1.0f, rand()%8-4.f}, {0.25f, 0.25f, 0.25f}, {});
   auto& entity = entsys->GetEntity(id);
   entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
   BHVRType behavior = BHVRType::INVALID;
