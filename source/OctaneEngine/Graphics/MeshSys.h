@@ -17,18 +17,19 @@ namespace Octane
 class MeshSys : public ISystem
 {
 public:
-  enum Models
-  {
-    MFirst,
-    MBear = MFirst,
-    MDuck,
-    MCrossbow,
-    MPaperPlane,
-    MShuriken,
-    MPaperStack,
+  //enum Models
+  //{
+  //  MFirst,
+  //  MBear = MFirst,
+  //  MDuck,
+  //  MCrossbow,
+  //  MPaperPlane,
+  //  MShuriken,
+  //  MPaperStack,
+  //  MSlingshot,
 
-    MCount
-  };
+  //  MCount
+  //};
   explicit MeshSys(class Engine* parent_engine);
   ~MeshSys();
   //MeshSys(ID3D11Device* device, ID3D11DeviceContext* context);

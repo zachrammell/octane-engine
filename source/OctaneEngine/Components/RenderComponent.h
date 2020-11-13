@@ -15,6 +15,7 @@ enum class MeshType : int32_t
   Duck,
   Bunny,
   Crossbow,
+  Slingshot,
   PaperPlane,
   Shuriken,
   PaperStack,

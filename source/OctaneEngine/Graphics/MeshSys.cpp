@@ -35,6 +35,7 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
   addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj");
   addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
+  addMesh(MeshType::Slingshot, "assets/models/Slingshot.fbx");
 }
 
 MeshSys::~MeshSys() {}

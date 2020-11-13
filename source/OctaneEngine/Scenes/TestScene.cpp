@@ -312,6 +312,7 @@ void TestScene::Update(float dt)
   ImGui::Text("E to spawn a wind tunnel that go to where the plsyer is facing");
   ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
   ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
+  ImGui::Text("F to switch weapons.");
   ImGui::Text("Alt+Enter for Fullscreen\n");
 
   ImGui::Text("Score: %d", enemy_destroyed_func.score);
@@ -518,6 +519,22 @@ void TestScene::Update(float dt)
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
       can_shoot = false;
       create_plane(crossbow_trans.pos);
+    }
+    
+    if (input->KeyPressed(SDLK_f))
+    {
+      auto& weapon = entsys->GetEntity(crossbow_id);
+      auto& weapon_render = compsys->GetRender(weapon.GetComponentHandle(ComponentKind::Render));
+
+      switch (weapon_render.mesh_type)
+      {
+      case MeshType::Crossbow:
+        weapon_render.mesh_type = MeshType::Slingshot;
+        break;
+      case MeshType::Slingshot:
+        weapon_render.mesh_type = MeshType::Crossbow;
+        break;
+      }
     }
 
     if (enemy_destroyed_func.spawnedWave)
