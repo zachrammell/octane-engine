@@ -142,6 +142,24 @@ void NBTReader::CloseList()
   Trace::Error("NBTReader : List Close Mismatch - Attempted to close a list when a list was not open.");
 }
 
+int8_t NBTReader::ReadByte(string_view name)
+{
+  HandleNesting(name, TAG::Byte);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Byte);
+  return found->second.byte_;
+}
+
+int16_t NBTReader::ReadShort(string_view name)
+{
+  HandleNesting(name, TAG::Short);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Short);
+  return found->second.short_;
+}
+
 int32_t NBTReader::ReadInt(string_view name)
 {
   HandleNesting(name, TAG::Int);
@@ -149,6 +167,15 @@ int32_t NBTReader::ReadInt(string_view name)
   PopLatestName();
   assert(found->second.type_ == TAG::Int);
   return found->second.int_;
+}
+
+int64_t NBTReader::ReadLong(string_view name)
+{
+  HandleNesting(name, TAG::Long);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Long);
+  return found->second.long_;
 }
 
 float NBTReader::ReadFloat(string_view name)
@@ -160,6 +187,25 @@ float NBTReader::ReadFloat(string_view name)
   return found->second.float_;
 }
 
+double NBTReader::ReadDouble(string_view name)
+{
+  HandleNesting(name, TAG::Double);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Double);
+  return found->second.double_;
+}
+
+eastl::vector<int8_t> NBTReader::ReadByteArray(string_view name)
+{
+  HandleNesting(name, TAG::Byte_Array);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  assert(found->second.type_ == TAG::Byte_Array);
+  eastl::vector<int8_t> ret {byte_array_pool_.begin() + found->second.byte_array_pool_index, byte_array_pool_.begin() + found->second.byte_array_length_};
+  return ret;
+}
+
 string_view NBTReader::ReadString(string_view name)
 {
   HandleNesting(name, TAG::String);
@@ -169,6 +215,32 @@ string_view NBTReader::ReadString(string_view name)
   return string_view {
     string_pool_.begin() + found->second.string_pool_index,
     static_cast<size_t>(found->second.string_length_)};
+}
+
+eastl::optional<int8_t> NBTReader::MaybeReadByte(string_view name)
+{
+  HandleNesting(name, TAG::Byte);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Byte);
+    return eastl::make_optional(found->second.byte_);
+  }
+  return eastl::nullopt;
+}
+
+eastl::optional<int16_t> NBTReader::MaybeReadShort(string_view name)
+{
+  HandleNesting(name, TAG::Short);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Short);
+    return eastl::make_optional(found->second.short_);
+  }
+  return eastl::nullopt;
 }
 
 eastl::optional<int32_t> NBTReader::MaybeReadInt(string_view name)
@@ -184,6 +256,19 @@ eastl::optional<int32_t> NBTReader::MaybeReadInt(string_view name)
   return eastl::nullopt;
 }
 
+eastl::optional<int64_t> NBTReader::MaybeReadLong(string_view name)
+{
+  HandleNesting(name, TAG::Long);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Long);
+    return eastl::make_optional(found->second.long_);
+  }
+  return eastl::nullopt;
+}
+
 eastl::optional<float> NBTReader::MaybeReadFloat(string_view name)
 {
   HandleNesting(name, TAG::Float);
@@ -193,6 +278,35 @@ eastl::optional<float> NBTReader::MaybeReadFloat(string_view name)
   {
     assert(found->second.type_ == TAG::Float);
     return eastl::make_optional(found->second.float_);
+  }
+  return eastl::nullopt;
+}
+
+eastl::optional<double> NBTReader::MaybeReadDouble(string_view name)
+{
+  HandleNesting(name, TAG::Double);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Double);
+    return eastl::make_optional(found->second.double_);
+  }
+  return eastl::nullopt;
+}
+
+eastl::optional<eastl::vector<int8_t>> NBTReader::MaybeReadByteArray(string_view name)
+{
+  HandleNesting(name, TAG::Byte_Array);
+  auto const found = named_tags_.find(current_name_.c_str());
+  PopLatestName();
+  if (found != named_tags_.end())
+  {
+    assert(found->second.type_ == TAG::Byte_Array);
+    eastl::vector<int8_t> ret {
+      byte_array_pool_.begin() + found->second.byte_array_pool_index,
+      byte_array_pool_.begin() + found->second.byte_array_length_};
+    return eastl::make_optional(ret);
   }
   return eastl::nullopt;
 }
@@ -212,6 +326,78 @@ eastl::optional<string_view> NBTReader::MaybeReadString(string_view name)
   return eastl::nullopt;
 }
 
+template<>
+int8_t NBTReader::Read(string_view name)
+{
+  return ReadByte(name);
+}
+template<>
+int16_t NBTReader::Read(string_view name)
+{
+  return ReadShort(name);
+}
+template<>
+int32_t NBTReader::Read(string_view name)
+{
+  return ReadInt(name);
+}
+template<>
+int64_t NBTReader::Read(string_view name)
+{
+  return ReadLong(name);
+}
+template<>
+float NBTReader::Read(string_view name)
+{
+  return ReadFloat(name);
+}
+template<>
+double NBTReader::Read(string_view name)
+{
+  return ReadDouble(name);
+}
+template<>
+eastl::vector<int8_t> NBTReader::Read(string_view name)
+{
+  return ReadByteArray(name);
+}
+template<>
+eastl::string_view NBTReader::Read(string_view name)
+{
+  return ReadString(name);
+}
+
+template<>
+eastl::optional<int8_t> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadByte(name);
+}
+template<>
+eastl::optional<int16_t> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadShort(name);
+}
+template<>
+eastl::optional<int32_t> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadInt(name);
+}
+template<>
+eastl::optional<int64_t> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadLong(name);
+}
+template<>
+eastl::optional<float> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadFloat(name);
+}
+template<>
+eastl::optional<double> NBTReader::MaybeRead(string_view name)
+{
+  return MaybeReadDouble(name);
+}
+
 bool NBTReader::HandleNesting(string_view name, TAG t)
 {
   NestingInfo& nesting = nesting_info_.top();
@@ -220,7 +406,7 @@ bool NBTReader::HandleNesting(string_view name, TAG t)
   {
     if (!name.empty())
     {
-      // problems
+      // problems, lists cannot have named tags
       assert(0);
     }
     if (nesting.data_type != t)
@@ -247,7 +433,7 @@ bool NBTReader::HandleNesting(string_view name, TAG t)
   {
     if (name.empty())
     {
-      // bad
+      // bad, compound tags must have names
       assert(0);
     }
     AddToCurrentName(name);
