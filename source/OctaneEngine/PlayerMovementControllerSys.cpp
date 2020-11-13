@@ -501,7 +501,10 @@ DirectX::XMFLOAT3 PlayerMovementControllerSys::GetWindTunnelForce()
   {
     if (it->active && it->HasComponent(ComponentKind::Behavior))
     {
-      if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::WINDTUNNEL)
+      if (
+        Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::WINDTUNNEL
+        || Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type
+             == BHVRType::ABILITYTUNNEL)
       {
         auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
         auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
