@@ -178,6 +178,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
       DirectX::XMVector3Normalize(player_dir),
       20.0f); //using a magic number from ability homing (bad) fix later
     DirectX::XMStoreFloat3(&beh.force, tunel_force);
+    beh.force.y = 0;
     break;
   }
   case BHVRType::ABILITYHOMMING: 
