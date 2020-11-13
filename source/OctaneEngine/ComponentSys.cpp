@@ -10,6 +10,8 @@
 #include <OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <OctaneEngine/behaviors/AbilityHomingBhv.h>
+#include <OctaneEngine/behaviors/AbilityTunnelBhv.h>
 
 namespace Octane
 {
@@ -165,6 +167,21 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   }
   case BHVRType::ENEMYSPAWNER:
     beh.behavior = new EnemySpawner(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
+    break;
+  case BHVRType::ABILITYTUNNEL: 
+  {
+
+    beh.behavior = new AbilityTunnelBhv(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
+    auto& camera = Get<CameraSys>()->GetFPSCamera();
+    DirectX::XMVECTOR player_dir = camera.GetViewDirection();
+    DirectX::XMVECTOR tunel_force = DirectX::XMVectorScale(
+      DirectX::XMVector3Normalize(player_dir),
+      20.0f); //using a magic number from ability homing (bad) fix later
+    DirectX::XMStoreFloat3(&beh.force, tunel_force);
+    break;
+  }
+  case BHVRType::ABILITYHOMMING: 
+    beh.behavior = new AbilityHomingBhv(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;
   default:
     break;

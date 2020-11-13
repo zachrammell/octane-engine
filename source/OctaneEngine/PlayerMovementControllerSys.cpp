@@ -6,9 +6,11 @@
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
+#include <OctaneEngine/Physics/Box.h>
 #include <SDL_keycode.h>
 #include <iostream>
 
@@ -23,6 +25,7 @@ const SDL_KeyCode KEY_FWD = SDLK_w;
 const SDL_KeyCode KEY_BACK = SDLK_s;
 const SDL_KeyCode KEY_JUMP = SDLK_SPACE;
 const SDL_KeyCode KEY_CROUCH = SDLK_LSHIFT;
+const SDL_KeyCode KEY_ABILITY1 = SDLK_e; //spawn tunnel
 
 // these should be serialized later
 const float PLAYER_SPEED = 7.0f;
@@ -274,6 +277,46 @@ void PlayerMovementControllerSys::Update()
 
   player_physics.rigid_body.SetLinearVelocity(new_vel);
   UpdateLookDir();
+
+  //player abilities 
+  if (Get<InputHandler>()->KeyReleased(KEY_ABILITY1))
+  {
+   // EntityID tunnel = Get<EntitySys>()->MakeEntity();
+
+     GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((Get<EntitySys>()->MakeEntity()));
+    ComponentHandle trans_id = Get<ComponentSys>()->MakeTransform();
+    obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
+    TransformComponent& trans = Get<ComponentSys>()->GetTransform(trans_id);
+    //spawn offset
+    DirectX::XMVECTOR cam_dir = Get<CameraSys>()->GetFPSCamera().GetViewDirection();
+    DirectX::XMVECTOR offset = DirectX::XMVectorScale(DirectX::XMVector3Normalize(cam_dir), 10.0f);
+    DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
+    DirectX::XMStoreFloat3(&trans.pos, DirectX::XMVectorAdd(offset,playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
+    trans.pos.y = 1.0f; //make sure it is on the ground
+    trans.scale = {2.0f, 2.0f, 2.0f};
+    trans.rotation = {};
+
+    ComponentHandle render_comp_id = Get<ComponentSys>()->MakeRender();
+    obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
+    RenderComponent& render_comp = Get<ComponentSys>()->GetRender(render_comp_id);
+    render_comp.color = Colors::red;
+    render_comp.mesh_type = MeshType::Cube;
+    render_comp.render_type = RenderType::Wireframe;
+
+    ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
+    obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
+    PhysicsComponent& physics_comp = Get<ComponentSys>()->GetPhysics(physics_comp_id);
+    Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
+    Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
+    physics_comp.rigid_body.SetPosition(trans.pos);
+    physics_comp.rigid_body.SetStatic();
+    //physics_comp.rigid_body.SetGhost(true);
+    trans.rotation = physics_comp.rigid_body.GetOrientation();
+
+    obj102_entity.components[to_integral(ComponentKind::Behavior)]
+      = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYTUNNEL);
+  }
   AudioPlayer::Update_Player(player_physics.rigid_body.GetPosition());
 }
 
