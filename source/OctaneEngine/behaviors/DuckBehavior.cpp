@@ -65,12 +65,25 @@ void DuckBehavior::Update(float dt, EntityID myID)
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
+  if (!dx::XMScalarNearEqual(trans.pos.y, 0.0f, 0.250000f))
+    SimpleMove(physics.rigid_body, trans.pos, target.pos, 2.75f);
+  else
+  {
+    SimpleMove(physics.rigid_body, trans.pos, target.pos, 0.45f);
+    flyRetry += dt;
+  }
   FacePos(trans, target.pos);
-  RandomJump(physics.rigid_body, trans.pos, 0.05f, 20.f * -G);
+  if (flyRetry >= 5.0f)
+  {
+    if (RandomJump(physics.rigid_body, trans.pos, 0.0f, 20.f * -G))
+    {
+      flyRetry = rand()%6*1.f;
+    }
+  }
+
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);
-  physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
+  physics.rigid_body.ApplyForceCentroid({0.f, .05f*G, 0.f});
 
   if (health_ <= 0 && destroyed_func_)
   {

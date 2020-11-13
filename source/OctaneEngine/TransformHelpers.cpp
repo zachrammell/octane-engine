@@ -56,18 +56,20 @@ void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float de
   pos.y = std::clamp(pos.y, targetPos.y - depth, std::numeric_limits<float>::max());
 }
 
-void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
+bool RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
 {
   float jumpChance = rand() % 11;
   if (!dx::XMScalarNearEqual(pos.y, 0.0f, 0.250000f))
-    return;
+    return false;
   if (chance >= jumpChance)
   {
     rb.ApplyForceCentroid(
       {0.f,
        jumpForce,
        0.f});
+    return true;
   }
+  return false;
 }
 
 void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float jumpForce)

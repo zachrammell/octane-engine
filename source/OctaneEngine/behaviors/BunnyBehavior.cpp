@@ -65,7 +65,7 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
+  SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.55f);
   FacePos(trans, target.pos);
   BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component

@@ -12,7 +12,7 @@ void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, dx::XMFLOAT3& 
   //will go no lower than depth relative to target pos
 void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float depth);
 //chance between 0 and 10, 0 being 0%, 10 being 100%
-void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce);
+bool RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce);
 void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos,float jumpForce);
 void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos);
 void FaceDir(Octane::TransformComponent& obj, const dx::XMFLOAT3& dir);
