@@ -513,6 +513,9 @@ void TestScene::Update(float dt)
     //crossbow placement and rotation
     PlaceRelativeTo(crossbow_trans, 0.25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
 
+
+//Input area
+#if 1
     //shoot paper airplanes
     if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
     {
@@ -536,6 +539,8 @@ void TestScene::Update(float dt)
         break;
       }
     }
+#endif
+
 
     if (enemy_destroyed_func.spawnedWave)
     {
