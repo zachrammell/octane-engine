@@ -32,11 +32,20 @@ enum class RenderType : int32_t
   COUNT
 };
 
+enum class ShaderType : int32_t
+{
+  Phong,
+  UI,
+
+  COUNT
+};
+
 struct RenderComponent
 {
   Color color {};
   MeshType mesh_type = MeshType::INVALID;
   RenderType render_type = RenderType::Filled;
+  ShaderType shader_type = ShaderType::Phong;
 };
 
 } // namespace Octane
