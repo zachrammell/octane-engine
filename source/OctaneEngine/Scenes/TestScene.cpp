@@ -314,7 +314,7 @@ void TestScene::Update(float dt)
   ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
   ImGui::Text("F to switch weapons.");
   ImGui::Text("Alt+Enter for Fullscreen\n");
-
+  ImGui::Text("");
   ImGui::Text("Score: %d", enemy_destroyed_func.score);
   ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
 
@@ -420,6 +420,10 @@ void TestScene::Update(float dt)
         mouse_sens -= 5;
       }
 
+      /*if (ImGui::Button("light controller"))
+      {
+      
+      }*/
     }
     if (ImGui::Button("Main Menu"))
     {
@@ -516,6 +520,7 @@ void TestScene::Update(float dt)
 
 //Input area
 #if 1
+
     //shoot paper airplanes
     if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
     {
@@ -540,7 +545,6 @@ void TestScene::Update(float dt)
       }
     }
 #endif
-
 
     if (enemy_destroyed_func.spawnedWave)
     {
@@ -567,10 +571,6 @@ void TestScene::Unload()
 
   entsys->FreeAllEntities();
 
-  //delete blue_bear_physics.rigid_body;
-  //delete blue_bear_physics.primitive;
-  //delete red_bear_physics.rigid_body;
-  //delete red_bear_physics.primitive;
   AudioPlayer::Unregister_Object(spawner);
 }
 

@@ -10,7 +10,6 @@ namespace Octane
 struct GameEntity
 {
   // no constructor here -- this is simply a struct, the EntityManager will initialize it
-
   bool active;
   eastl::array<ComponentHandle, to_integral(ComponentKind::COUNT)> components;
 
