@@ -25,36 +25,16 @@ public:
   ~PhysicsSys() = default;
 
   void Load() override {};
-
   void LevelStart() override;
   void Update() override;
   void LevelEnd() override;
-
   void Unload() override {};
-
   static SystemOrder GetOrder();
 
 public:
-  void InitializeRigidBody(PhysicsComponent& compo);
-  void AddPrimitive(PhysicsComponent& compo, ePrimitiveType type);
-  void ErasePrimitive(PhysicsComponent& compo);
-  eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
-  bool HasCollision(
-    const TransformComponent& transform_a,
-    Primitive* primitive_a,
-    const TransformComponent& transform_b,
-    Primitive* primitive_b,
-    size_t exit_count = 100);
+  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
-  eastl::vector<Primitive*> primitives_;
-  eastl::vector<PrimitivePair> potential_pairs_;
-  eastl::hash_map<size_t, ContactManifold> manifold_table_;
-  eastl::hash_map<size_t, eCollisionState> collision_table_;
-
-  NarrowPhase narrow_phase_;
-  ResolutionPhase resolution_phase_;
-
   btBroadphaseInterface* bt_broad_phase_ = nullptr;
   btDefaultCollisionConfiguration* bt_collision_config_ = nullptr;
   btCollisionDispatcher* bt_narrow_phase_ = nullptr;

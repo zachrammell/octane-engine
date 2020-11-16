@@ -1,13 +1,14 @@
 #pragma once
-#include <OctaneEngine/Physics/Primitive.h>
-#include <OctaneEngine/Physics/RigidBody.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 
 namespace Octane
 {
+class PhysicsSys;
+
 struct PhysicsComponent
 {
-  RigidBody rigid_body;
-  Primitive* primitive = nullptr;
-  PhysicsSys* sys = nullptr;
+
+
+  PhysicsSys* system = nullptr;
 };
 } // namespace Octane
