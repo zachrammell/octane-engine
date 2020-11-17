@@ -193,9 +193,7 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     crossbow.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos.x = 0.0f;
-    trans.pos.y = 0.0f;
-    trans.pos.z = 0.0f;
+    trans.pos = {0.0f, 0.0f, 0.0f};
     trans.scale = {0.1f, 0.1f, 0.1f};
     trans.rotation = {};
 
@@ -515,7 +513,12 @@ void TestScene::Update(float dt)
     auto cam_pos = camera.GetPosition();
 
     //crossbow placement and rotation
-    PlaceRelativeTo(crossbow_trans, 0.25f, cam_pos, camera.GetInverseOrientation(), camera.GetViewDirection());
+    PlaceRelativeTo(
+      crossbow_trans,
+      0.25f,
+      {cam_pos.x, cam_pos.y - 0.05f, cam_pos.z}, //Crossbow placement follows campos and adjust a little bit not to bother front sight
+      camera.GetInverseOrientation(),
+      camera.GetViewDirection());
 
 
 //Input area
