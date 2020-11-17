@@ -53,6 +53,7 @@ void BunnyBehavior::Initialize()
 void BunnyBehavior::Update(float dt, EntityID myID)
 {
   float constexpr G = -9.81f;
+  switch_dir_timer += dt;
   if (phys_handle_ == INVALID_COMPONENT ||
       trans_handle_ == INVALID_COMPONENT ||
       target_trans_handle_ == INVALID_COMPONENT)
@@ -60,13 +61,30 @@ void BunnyBehavior::Update(float dt, EntityID myID)
 
   auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
   auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
-  auto& target = Get<ComponentSys>()->GetTransform(target_trans_handle_);
+  auto& targetTrans = Get<ComponentSys>()->GetTransform(target_trans_handle_);
+  
+  if (switch_dir_timer >= 5.0f)
+  {
+    switch_dir_timer = rand() % 6 * 1.f;
+    dx::XMVECTOR diff {
+      targetTrans.pos.x - trans.pos.x,
+      targetTrans.pos.y - trans.pos.y,
+      targetTrans.pos.z - trans.pos.z};
+    dx::XMVECTOR offset = dx::XMVector3Cross(diff, {0.f, 1.f, 0.f});
+    offset = dx::XMVector3Normalize(offset);
+    float dist = clamp(dx::XMVector3Length(diff).m128_f32[0],1.0f,10000.0f);
+    
+    offset = dx::XMVectorScale(offset, rand() % static_cast<int>(dist) - dist);
+    target.x = offset.m128_f32[0] + targetTrans.pos.x;
+    target.y = targetTrans.pos.y;
+    target.z = offset.m128_f32[2] + targetTrans.pos.z;
+  }
 
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.55f);
-  FacePos(trans, target.pos);
+  SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
+  FacePos(trans, target);
   BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);

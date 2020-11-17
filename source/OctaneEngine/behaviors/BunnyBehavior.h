@@ -37,6 +37,8 @@ public:
     ComponentHandle target_trans_handle_ = INVALID_COMPONENT;
     EntityID target_;
     EnemyDestroyed* destroyed_func_ = nullptr;
+    dx::XMFLOAT3 target {};
+    float switch_dir_timer = 0.0f;
     int health_ = 1;
 };
 
