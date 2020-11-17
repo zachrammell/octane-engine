@@ -64,7 +64,8 @@ void PhysicsSys::Update()
     {
       Primitive* collider_a = (*it);
       Primitive* collider_b = (*jt);
-      potential_pairs_.emplace_back(collider_a, collider_b);
+      if (collider_a != nullptr && collider_b != nullptr)
+        potential_pairs_.emplace_back(collider_a, collider_b);
     }
   }
 

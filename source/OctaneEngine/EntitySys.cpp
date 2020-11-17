@@ -12,10 +12,10 @@ namespace
 void ResetEntity(GameEntity& ent)
 {
   ent.active = false;
-  for (auto& comp : ent.components)
+  /*for (auto& comp : ent.components)
   {
     comp = INVALID_COMPONENT;
-  }
+  }*/
 }
 } // namespace
 
@@ -31,6 +31,7 @@ EntityID EntitySys::MakeEntity()
 {
   GameEntity ent;
   ent.active = true;
+  ent.cleared = false;
   for (auto& comp : ent.components)
   {
     comp = INVALID_COMPONENT;
@@ -62,7 +63,23 @@ void EntitySys::FreeAllEntities()
 
 void EntitySys::Load() {}
 void EntitySys::LevelStart() {}
-void EntitySys::Update() {}
+void EntitySys::Update() 
+{
+  for (auto& ent : entities_)
+  {
+    if (!ent.active && !ent.cleared)//if entity has been marked for deletion but has not been cleared yet
+    {
+      ent.cleared = true;
+      Get<ComponentSys>()->FreePhysics(ent.components[to_integral(ComponentKind::Physics)]);
+      Get<ComponentSys>()->FreeBehavior(ent.components[to_integral(ComponentKind::Behavior)]);
+
+      for (auto& comp : ent.components)
+      {
+        comp = INVALID_COMPONENT;
+      }
+    }
+  }
+}
 void EntitySys::LevelEnd() {}
 
 void EntitySys::Unload()
