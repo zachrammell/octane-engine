@@ -6,7 +6,7 @@
   \date       YYYY/MM/DD
   \brief      <WHAT DOES IT DO>
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -22,24 +22,34 @@ namespace Octane
 {
 WindowManager::WindowManager(Engine* parent, char const* title, int width, int height) : ISystem(parent)
 {
+  int targetwidth = width;
+  int targetheight = height;
+
+#ifndef _DEBUG
   SDL_DisplayMode mode;
-  SDL_GetDisplayMode(0, 0, &mode);
+  int err = SDL_GetDisplayMode(0, 0, &mode);
+  if (!err)
+  {
+    targetwidth = mode.w;
+    targetheight = mode.h;
+  }
+  else
+  {
+    std::clog << "SDL_GetDisplayMode failed: " << SDL_GetError() << "\n";
+    std::clog << "Falling back to default width/height\n";
+
+    // leave targetwidth and targetheight as the defaults set above
+  }
+#endif
+
   //Create window
   window_ = SDL_CreateWindow(
     title,
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
-    #ifndef _DEBUG
-    mode.w,
-    mode.h,
-    #endif
-    #ifdef _DEBUG
-    width,
-    height,
-    #endif
+    targetwidth,
+    targetheight,
     SDL_WINDOW_SHOWN);
-
-
 
   if (window_ == nullptr)
   {
