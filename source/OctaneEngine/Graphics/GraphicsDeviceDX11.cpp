@@ -373,7 +373,7 @@ Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
   int input_element_count = 0;
   for (int i = 0; i < Shader::InputLayout_COUNT; ++i)
   {
-    if (input_layout & i)
+    if (input_layout & 1 << i)
     {
       ++input_element_count;
     }
