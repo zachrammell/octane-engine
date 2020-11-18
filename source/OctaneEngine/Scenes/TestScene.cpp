@@ -270,6 +270,17 @@ void TestScene::Load()
   }
 
 #endif
+
+  #if 0
+  //to test if UI shader works, it seems to kind of work
+  {
+    auto testui
+      = entsys->CreateEntity({0.f, 0.f, 1.f}, {0.001f, 0.001f, 0.001f}, {0.f,0.f,0.f,0.f});
+    entsys->AddRenderComp(testui, Colors::black, MeshType::Quad);
+    auto& render_comp = compsys->GetRender(entsys->GetEntity(testui).GetComponentHandle(ComponentKind::Render));
+    render_comp.shader_type = ShaderType::UI;
+  }
+  #endif
 }
 
 void TestScene::Start()
