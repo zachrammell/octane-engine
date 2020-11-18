@@ -2,17 +2,12 @@
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
 #include <OctaneEngine/ISystem.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
-#include <OctaneEngine/Physics/Primitive.h>
-#include <OctaneEngine/Physics/PrimitivePair.h>
-#include <OctaneEngine/Physics/ResolutionPhase.h>
-#include <OctaneEngine/Physics/RigidBody.h>
-
 #include <EASTL/hash_map.h>
 #include <EASTL/vector.h>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#include <OctaneEngine/Physics/Shape.h>
 
 
 namespace Octane
@@ -32,7 +27,11 @@ public:
   static SystemOrder GetOrder();
 
 public:
+
+    void InitializePhysics(PhysicsComponent* physics_compo);
+
   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
+  
 
 private:
   btBroadphaseInterface* bt_broad_phase_ = nullptr;
