@@ -9,6 +9,7 @@ enum class MeshType : int32_t
 {
   INVALID = -1,
   Cube,
+  Quad,
   Sphere,
   Cube_Rounded,
   Bear,

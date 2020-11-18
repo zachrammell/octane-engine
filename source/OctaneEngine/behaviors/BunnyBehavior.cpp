@@ -68,7 +68,7 @@ void BunnyBehavior::Update(float dt, EntityID myID)
     switch_dir_timer = rand() % 6 * 1.f;
     dx::XMVECTOR diff {
       targetTrans.pos.x - trans.pos.x,
-      targetTrans.pos.y - trans.pos.y,
+      0.0f,
       targetTrans.pos.z - trans.pos.z};
     dx::XMVECTOR offset = dx::XMVector3Cross(diff, {0.f, 1.f, 0.f});
     offset = dx::XMVector3Normalize(offset);

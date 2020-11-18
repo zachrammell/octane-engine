@@ -17,19 +17,7 @@ namespace Octane
 class MeshSys : public ISystem
 {
 public:
-  //enum Models
-  //{
-  //  MFirst,
-  //  MBear = MFirst,
-  //  MDuck,
-  //  MCrossbow,
-  //  MPaperPlane,
-  //  MShuriken,
-  //  MPaperStack,
-  //  MSlingshot,
 
-  //  MCount
-  //};
   explicit MeshSys(class Engine* parent_engine);
   ~MeshSys();
   //MeshSys(ID3D11Device* device, ID3D11DeviceContext* context);
@@ -44,10 +32,6 @@ public:
   eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& Meshes();
 
 private:
-  //Model* LoadModel(const char* path);
-  //void ProcessNode(const aiScene* scene, aiNode* node, eastl::vector<MeshDX11>& meshes);
-  //MeshDX11 ProcessMesh(const aiScene* scene, aiMesh* mesh);
-  //eastl::map<Models, Model*> models;
   eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
