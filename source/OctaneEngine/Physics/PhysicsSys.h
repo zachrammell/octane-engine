@@ -1,14 +1,15 @@
 #pragma once
+#include <EASTL/hash_map.h>
+#include <EASTL/vector.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
 #include <OctaneEngine/ISystem.h>
-#include <EASTL/hash_map.h>
-#include <EASTL/vector.h>
 
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-#include <OctaneEngine/Physics/Shape.h>
 
+#include <OctaneEngine/Physics/Shape.h>
 
 namespace Octane
 {
@@ -27,11 +28,19 @@ public:
   static SystemOrder GetOrder();
 
 public:
+  void InitializePhysicsBox(
+    PhysicsComponent* physics_compo,
+    const DirectX::XMFLOAT3& box_half_size,
+    const DirectX::XMFLOAT3& position,
+    const DirectX::XMFLOAT4& rotation,
 
-    void InitializePhysics(PhysicsComponent* physics_compo);
+    bool is_dynamic,
+    bool is_sensor = false);
 
+private:
+  btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
+  btGhostObject* CreateSensor(const btTransform& transform, btCollisionShape* shape) const;
   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
-  
 
 private:
   btBroadphaseInterface* bt_broad_phase_ = nullptr;

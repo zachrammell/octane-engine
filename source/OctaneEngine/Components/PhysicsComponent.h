@@ -3,12 +3,10 @@
 
 namespace Octane
 {
-class PhysicsSys;
-
-struct PhysicsComponent
+class PhysicsComponent
 {
-  btRigidBody* rigid_body = nullptr;
-  btCollisionShape* shape = nullptr;
+  friend class PhysicsSys;
+  btCollisionObject* collision_object = nullptr;
   PhysicsSys* system = nullptr;
 };
 } // namespace Octane
