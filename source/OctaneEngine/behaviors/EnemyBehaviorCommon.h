@@ -14,13 +14,14 @@
 
 namespace Octane
 {
-struct EnemyDestroyed //functor
-{
-    void operator()();
-    int spawnCap = 20;
-    int enemiesSpawned = 0;
-    int score = 0;
-    int highScore = 0;
-    bool spawnedWave = false;
-};
+  struct EnemyDestroyed //functor
+  {
+      void operator()();
+      //int spawnCap = 20;
+      int enemiesSpawned = 0;
+      int score = 0;
+      int highScore = 0;
+      int wave = 1;
+      bool spawnedWave = false;
+  };
 }

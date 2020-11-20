@@ -32,15 +32,18 @@ public:
   void Update(float dt, EntityID myID);
   void Shutdown() override;
 
-  void EnemyDefeated();
-  void EnemySpawner::SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc);
+  void SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc);
 
   private:
     ComponentHandle phys_handle_ = INVALID_COMPONENT;
     void SpawnEnemy();
     int spawnCap = 20;
-    int enemiesSpawned = 0;
-    float spawnDelay = 15.0f;
+    int waveSpawnCap = 30;
+    int totalSpawnedCurrrentWave = 0;
+    //int enemiesSpawned = 0;
+    float spawnDelay = 1.5f;
+    float waveDelay = 15.f; //time between waves
+    float waveTimer = 0.f;
     float spawnTimer = spawnDelay;
     EnemyDestroyed* enemy_destroyed_func = nullptr;
     bool spawning = true;

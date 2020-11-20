@@ -29,21 +29,37 @@ void EnemySpawner::Update(float dt, EntityID myID)
   {
     return;
   }
-  spawning = spawnTimer >= spawnDelay && enemy_destroyed_func->enemiesSpawned < enemy_destroyed_func->spawnCap;
+  spawning = spawnTimer >= spawnDelay && enemy_destroyed_func->enemiesSpawned < spawnCap
+             && totalSpawnedCurrrentWave < waveSpawnCap;
+
+  enemy_destroyed_func->spawnedWave = false;
+
+
+  if (totalSpawnedCurrrentWave == waveSpawnCap && !enemy_destroyed_func->enemiesSpawned)
+  {
+    waveTimer += dt;
+    if (waveTimer >= waveDelay)
+    {
+      waveTimer = 0.f;
+      totalSpawnedCurrrentWave = 0;
+      ++enemy_destroyed_func->wave;
+      enemy_destroyed_func->spawnedWave = true;
+    }
+  }
 
   if (!spawning)
   {
     spawnTimer += dt;
   }
-  enemy_destroyed_func->spawnedWave = false;
   if (spawning)
   {
     SpawnEnemy();
-    if (!prevSpawning)
-    {
-      enemy_destroyed_func->spawnedWave = true;
-      //Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
-    }
+    //if (!prevSpawning)
+    //{
+    //  
+    //  enemy_destroyed_func->spawnedWave = true;
+    //  //Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
+    //}
 
   }
   prevSpawning = spawning;
@@ -51,11 +67,6 @@ void EnemySpawner::Update(float dt, EntityID myID)
 void EnemySpawner::Shutdown()
 {
 
-}
-
-void EnemySpawner::EnemyDefeated()
-{
-  --enemiesSpawned;
 }
 
 void EnemySpawner::SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc)
@@ -68,11 +79,15 @@ void EnemySpawner::SpawnEnemy()
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
-
+  auto player = entsys->GetPlayer();
+  auto& player_trans = compsys->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
   MeshType mesh = MeshType::INVALID;
   const int enemyType = rand() % 3;
 
-  auto id = entsys->CreateEntity({rand()%8-4.f, 1.0f, rand()%8-4.f}, {0.25f, 0.25f, 0.25f}, {});
+  auto id = entsys->CreateEntity(
+    {player_trans.pos.x + rand() % 64 - 32.f, 0.0f, player_trans.pos.z + rand() % 64 - 32.f},
+    {0.25f, 0.25f, 0.25f},
+    {});
   auto& entity = entsys->GetEntity(id);
   entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
   BHVRType behavior = BHVRType::INVALID;
@@ -99,30 +114,29 @@ void EnemySpawner::SpawnEnemy()
 
   switch (behavior)
   {
-  case BHVRType::BEAR: 
-  {
-    auto enemybeh = static_cast<BearBehavior*>(beh.behavior);
-    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-    break;
-  }
-  case BHVRType::DUCK: 
-  {
-    auto enemybeh = static_cast<DuckBehavior*>(beh.behavior);
-    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-    break;
-  }
-  case BHVRType::BUNNY: 
-  {
-    auto enemybeh = static_cast<BunnyBehavior*>(beh.behavior);
-    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-    break;
+    case BHVRType::BEAR: 
+    {
+      auto enemybeh = static_cast<BearBehavior*>(beh.behavior);
+      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+      break;
+    }
+    case BHVRType::DUCK: 
+    {
+      auto enemybeh = static_cast<DuckBehavior*>(beh.behavior);
+      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+      break;
+    }
+    case BHVRType::BUNNY: 
+    {
+      auto enemybeh = static_cast<BunnyBehavior*>(beh.behavior);
+      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+      break;
+    }
   }
 
-  }
-
-
+  ++totalSpawnedCurrrentWave;
   ++enemy_destroyed_func->enemiesSpawned;
-  if (enemy_destroyed_func->enemiesSpawned >= enemy_destroyed_func->spawnCap)
+  if (enemy_destroyed_func->enemiesSpawned >= spawnCap)
     spawnTimer = 0.0f;
 }
 
