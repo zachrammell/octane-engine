@@ -308,6 +308,16 @@ void TestScene::Update(float dt)
     entsys->AddBehavior(id, BHVRType::PLANE);
   };
 
+  // For playing hover
+  if (ImGui::IsAnyItemHovered())
+  {
+    AudioPlayer::Play_Once(AK::EVENTS::PLAY_BUTTONHOVER);
+  }
+  else
+  {
+    AudioPlayer::Reset_Hover();
+  }
+
   ImGui::Begin(
     "Instructions Window",
     NULL,
@@ -417,14 +427,17 @@ void TestScene::Update(float dt)
     }
     if (ImGui::CollapsingHeader("Option"))
     {
-      ImGui::Text("Mouse Sensitivity: %d", mouse_sens);
+      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      //ImGui::Text("Mouse Sensitivity: %d", pmhandler->ShowMouseSense());
       if (ImGui::Button("+ Mouse Sensitivity"))
       {
+        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->IncreaseMouseSense();
         mouse_sens += 5;
       }
       if (ImGui::Button("- Mouse Sensitivity"))
       {
+        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->DecreaseMouseSense();
         mouse_sens -= 5;
       }

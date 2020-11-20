@@ -49,6 +49,16 @@ void MenuScene::Update(float dt)
 
     ImGui::SetWindowPos(ImVec2(0.5f * w, 0.5f * h), ImGuiCond_Always);
 
+    // For playing hover
+    if (ImGui::IsAnyItemHovered())
+    {
+      AudioPlayer::Play_Once(AK::EVENTS::PLAY_BUTTONHOVER);
+    }
+    else
+    {
+      AudioPlayer::Reset_Hover();
+    }
+
     if (ImGui::Button("Play"))
     {
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);

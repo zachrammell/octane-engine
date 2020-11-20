@@ -13,6 +13,7 @@
 #include <OctaneEngine/Physics/Box.h>
 #include <SDL_keycode.h>
 #include <iostream>
+#include "AudioPlayer.h"
 
 namespace Octane
 {
@@ -48,6 +49,9 @@ const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
 // should be removed once we have usable collision stuff
 const float HACKY_GROUND_Y_LEVEL = 0.5f;
+
+// temporary(?) walk timer
+static float walk_timer = 0;
 
 bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
 {
@@ -153,6 +157,7 @@ void PlayerMovementControllerSys::Update()
     }
     else if (jump_input)
     {
+      AudioPlayer::Play_Event(AK::EVENTS::PLAYER_JUMP);
       new_vel = DirectX::XMVectorAdd(
         DirectX::XMVectorScale(move_dir, PLAYER_SPEED),
         DirectX::XMVECTOR {0, PLAYER_JUMP_VEL, 0, 0});
@@ -160,6 +165,16 @@ void PlayerMovementControllerSys::Update()
     }
     else if (is_moving)
     {
+      // Handle walking sound
+      if (walk_timer >= 100.0f/PLAYER_SPEED)
+      {
+        AudioPlayer::Play_Event(AK::EVENTS::PLAYER_FOOTSTEP);
+        walk_timer = 0;
+      }
+      else
+      {
+        ++walk_timer;
+      }
       if (crouch_input)
       {
         new_vel = DirectX::XMVectorScale(move_dir, PLAYER_CROUCH_SPEED);

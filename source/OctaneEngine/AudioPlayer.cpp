@@ -1,4 +1,3 @@
-#include "AudioPlayer.h"
 /******************************************************************************/
 /*!
   \par        Project Octane
@@ -19,8 +18,12 @@
 #include <cassert>
 #include <iostream>
 
+
+
 namespace Octane
 {
+  bool AudioPlayer::Hover_Bool = true;
+
   AkBankID AudioPlayer::Load_Bank(const wchar_t* name)
   {
     AkBankID bankID;
@@ -49,9 +52,11 @@ namespace Octane
     }
     else
     {
+      // Playing works. Disabling this debug for now as to not clog the output
+      /*
       Trace::Log(DEBUG) << "Playing audio event #"
         << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
-        << Set(ColorANSI::Lime) << 100 << Set() << std::endl;
+        << Set(ColorANSI::Lime) << 100 << Set() << std::endl;*/
     }
   }
   void AudioPlayer::Play_Event(AkUniqueID UniqueID, AkGameObjectID object)
@@ -64,9 +69,10 @@ namespace Octane
     }
     else
     {
+      /*
       Trace::Log(DEBUG) << "Playing audio event #"
         << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
-        << Set(ColorANSI::Lime) << object << Set() << std::endl;
+        << Set(ColorANSI::Lime) << object << Set() << std::endl; */
     }
   }
   AkPlayingID AudioPlayer::Play_Event_RI(AkUniqueID UniqueID, AkGameObjectID GameObjectID)
@@ -80,6 +86,31 @@ namespace Octane
     }
 
     return PlayingID;
+  }
+  void AudioPlayer::Play_Once(AkUniqueID UniqueID)
+  {
+    if (Hover_Bool)
+    {
+      using FormattedOutput::Set;
+      using FormattedOutput::ColorANSI;
+      if (AK::SoundEngine::PostEvent(UniqueID, 100) == AK_INVALID_PLAYING_ID)
+      {
+        Trace::Log(ERROR) << "Event posting '" << UniqueID << "' failed!" << std::endl;
+      }
+      else
+      {
+        // Playing works. Disabling this debug for now as to not clog the output
+        /*
+        Trace::Log(DEBUG) << "Playing audio event #"
+          << Set(ColorANSI::Yellow) << UniqueID << Set() << " at object ID #"
+          << Set(ColorANSI::Lime) << 100 << Set() << std::endl;*/
+      }
+      Hover_Bool = false;
+    }
+  }
+  void AudioPlayer::Reset_Hover()
+  {
+    Hover_Bool = true;
   }
   void AudioPlayer::Register_Object(AkGameObjectID id, const char* name)
   {
@@ -129,8 +160,6 @@ namespace Octane
   void AudioPlayer::Set_Position(AkGameObjectID object, DirectX::XMFLOAT3 pos)
   {
     AkSoundPosition position;
-
-    // Set location ontop of origin
     position.SetPosition(pos.x, pos.y, pos.z);
     position.SetOrientation(0, 0, -1, 0, 1, 0);
 
@@ -156,9 +185,28 @@ namespace Octane
     }
   }
 
-  void AudioPlayer::Set_Listener(AkGameObjectID, const AkGameObjectID*, AkUInt32)
+  void AudioPlayer::Set_Listener(AkGameObjectID emitter, const AkGameObjectID* listeners, AkUInt32 count)
   {
+    if (AK::SoundEngine::SetListeners(emitter, listeners, count))
+    {
+      Trace::Log(ERROR) << "Listener " << *listeners << " setting failed with emitter: " << emitter << std::endl;
+    }
+  }
 
+  void AudioPlayer::Set_Value(AkRtpcID RTCP, AkRtpcValue value, AkGameObjectID object = AK_INVALID_GAME_OBJECT)
+  {
+    if (AK::SoundEngine::SetRTPCValue(RTCP, value, object))
+    {
+      Trace::Log(ERROR) << "Setting " << RTCP << " to " << value << "failed!" << std::endl;
+    }
+  }
+
+  void AudioPlayer::Set_Value(const char* name, AkRtpcValue value, AkGameObjectID object = AK_INVALID_GAME_OBJECT)
+  {
+    if (AK::SoundEngine::SetRTPCValue(name, value, object))
+    {
+      Trace::Log(ERROR) << "Setting " << name << " to " << value << "failed!" << std::endl;
+    }
   }
 
   void AudioPlayer::Suspend(bool partial)

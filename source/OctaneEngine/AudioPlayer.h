@@ -30,6 +30,9 @@ namespace Octane
     static void Play_Event(AkUniqueID);
     static void Play_Event(AkUniqueID, AkGameObjectID);
     static AkPlayingID Play_Event_RI(AkUniqueID, AkGameObjectID);
+    static void Play_Once(AkUniqueID);
+
+    static void Reset_Hover();
 
   // Game Objects
   // Every Game Object must have a AkGameObjectID if sound wants to be associated to the object
@@ -49,6 +52,10 @@ namespace Octane
     static void Set_Default_Listener(const AkGameObjectID*, AkUInt32);
     static void Set_Listener(AkGameObjectID, const AkGameObjectID*, AkUInt32);
 
+    // RTCP functions for later use
+    static void Set_Value(AkRtpcID, AkRtpcValue, AkGameObjectID);
+    static void Set_Value(const char*, AkRtpcValue, AkGameObjectID);
+
     // I need to change how this is done later
     // Handle tabbing out
     // True = Partial on; Partial means to keep processing sound events
@@ -61,8 +68,15 @@ namespace Octane
     static void Load_Player();
     static void Unload_Player();
     static void Update_Player(DirectX::XMFLOAT3);
+
+    // Audio Setting
+    static void Set_Music();
+    static void Set_SFX();
+
+    static bool Hover_Bool;
   private:
     static const AkGameObjectID Player = 100;
+    
   };
 }
 
