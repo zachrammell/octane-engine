@@ -32,7 +32,7 @@ public:
   void Present();
   void ResizeFramebuffer(SDL_Window* window);
 
-  void SetFullscreen(bool is_fullscreen);
+  void changeResolution(bool increase);
 
   [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);

@@ -43,7 +43,7 @@ namespace
 void AddSystems(Octane::Engine& engine) {
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
-  engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720});
+  engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720}); //Can do 1280x1024
   engine.AddSystem(new Octane::CameraSys {&engine});
   engine.AddSystem(new Octane::PhysicsSys {&engine});
   engine.AddSystem(new Octane::EntitySys {&engine});

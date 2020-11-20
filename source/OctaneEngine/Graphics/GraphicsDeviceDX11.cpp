@@ -162,6 +162,21 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     assert(SUCCEEDED(hr));
   }
 
+  ////Screen Modes
+  //DXGI_FORMAT desiredColorFormat;       //the desired color format
+  //unsigned int numberOfSupportedModes;  //The number of supported screen
+  //DXGI_MODE_DESC* supportedModes;       //list of all supported screen
+  //DXGI_MODE_DESC currentModeDescription; //description of the current mode
+  //unsigned int currentModeIndex;         // the index of the current mode in the list of all supported screen modes
+  //bool startInFullscreen;                // true iff the game should start in fullscreen mode
+  //BOOL currentlyInFullscreen;            // true iff the game is currently in fullscreen mode
+  //bool changeMode;                       // true iff the screen resolution should be changed this frame
+
+  //// functions to change screen resolutions
+  //void changeResolution(
+  //  bool
+  //    increase); // changes the screen resolution, if increase is true, a higher resolution is chosen, else the resolution is lowered; returns true iff the screen resolution should be changed
+
   // set up the default viewport to match the window
   RECT window_rect;
   GetClientRect(window_handle, &window_rect);
@@ -178,6 +193,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 GraphicsDeviceDX11::~GraphicsDeviceDX11()
 {
   swap_chain_->Release();
+  swap_chain_->SetFullscreenState(false, nullptr);
   device_->Release();
   device_context_->Release();
 }
@@ -279,6 +295,41 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
       1.0f};
     device_context_->RSSetViewports(1, &viewport);
   }
+}
+
+void GraphicsDeviceDX11::changeResolution(bool increase) 
+{
+  //if (increase)
+  //{
+  //  // if increase is true, choose a higher resolution, if possible
+  //  if (currentModeIndex < numberOfSupportedModes - 1)
+  //  {
+  //    currentModeIndex++;
+  //    changeMode = true;
+  //  }
+  //  else
+  //    changeMode = false;
+  //}
+  //else
+  //{
+  //  // else choose a smaller resolution, but only if possible
+  //  if (currentModeIndex > 0)
+  //  {
+  //    currentModeIndex--;
+  //    changeMode = true;
+  //  }
+  //  else
+  //    changeMode = false;
+  //}
+
+  //if (changeMode)
+  //{
+  //  // change mode
+  //  currentModeDescription = supportedModes[currentModeIndex];
+
+  //  // resize everything
+  //  onResize();
+  //}
 }
 
 Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
