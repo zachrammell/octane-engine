@@ -21,6 +21,7 @@ enum class MeshType : int32_t
   TestFBX,
   PaperStack,
   Quad,
+  Sword,
   COUNT
 };
 
