@@ -22,6 +22,9 @@ enum class MeshType : int32_t
   PaperStack,
   Quad,
   Sword,
+  Sniper1,
+  Semiauto1,
+
   COUNT
 };
 

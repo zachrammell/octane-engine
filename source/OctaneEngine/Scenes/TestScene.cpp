@@ -201,7 +201,7 @@ void TestScene::Load()
     crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::cerulean;
-    render_comp.mesh_type = MeshType::Crossbow;
+    render_comp.mesh_type = MeshType::Sniper1;
   }
 
 #ifdef USE_PLAYER_ENTITY
@@ -563,11 +563,20 @@ void TestScene::Update(float dt)
 
       switch (weapon_render.mesh_type)
       {
+      case MeshType::Sniper1:
+        weapon_render.mesh_type = MeshType::Semiauto1;
+        break;
+      case MeshType::Semiauto1:
+        weapon_render.mesh_type = MeshType::Crossbow;
+        break;
       case MeshType::Crossbow:
         weapon_render.mesh_type = MeshType::Slingshot;
         break;
       case MeshType::Slingshot:
-        weapon_render.mesh_type = MeshType::Crossbow;
+        weapon_render.mesh_type = MeshType::Sword;
+        break;
+      case MeshType::Sword:
+        weapon_render.mesh_type = MeshType::Sniper1;
         break;
       }
     }
