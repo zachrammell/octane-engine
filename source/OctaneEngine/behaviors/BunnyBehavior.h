@@ -40,6 +40,7 @@ public:
     dx::XMFLOAT3 target {};
     float switch_dir_timer = 0.0f;
     int health_ = 1;
+    bool gettingFreed = false;
 };
 
 }

@@ -39,6 +39,7 @@ public:
     EnemyDestroyed* destroyed_func_ = nullptr;
     int health_ = 1;
     float flyRetry = 0.0f;
+    bool gettingFreed = false;
 };
 
 }

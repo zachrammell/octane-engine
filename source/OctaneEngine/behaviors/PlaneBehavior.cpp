@@ -61,7 +61,6 @@ void PlaneBehavior::Update(float dt, EntityID myid)
   float constexpr G = -9.81f;
 
   {
-
     if (!impulsed)
     {
       auto player = enty->GetPlayer();
@@ -94,9 +93,16 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
     if (lifetime <= 0.f && !gettingfreed)
     {
-      Get<EntitySys>()->FreeEntity(myid);
+      //Get<EntitySys>()->FreeEntity(myid);
       gettingfreed = true;
     }
+  }
+  if (gettingfreed)
+  {
+    Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
+      = RenderType::Invisible;
+    phys_me.rigid_body.SetStatic();
+    return;
   }
 
   {
@@ -145,7 +151,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
             }
             if (!gettingfreed)
             {
-              Get<EntitySys>()->FreeEntity(myid);
+              //Get<EntitySys>()->FreeEntity(myid);
               gettingfreed = true;
             }
           }

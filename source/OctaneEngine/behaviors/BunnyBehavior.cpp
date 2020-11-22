@@ -52,6 +52,8 @@ void BunnyBehavior::Initialize()
 
 void BunnyBehavior::Update(float dt, EntityID myID)
 {
+  if (gettingFreed)
+    return;
   float constexpr G = -9.81f;
   switch_dir_timer += dt;
   if (phys_handle_ == INVALID_COMPONENT ||
@@ -62,7 +64,20 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
   auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
   auto& targetTrans = Get<ComponentSys>()->GetTransform(target_trans_handle_);
-  
+  auto enty = Get<EntitySys>();
+
+  if (health_ <= 0 && destroyed_func_)
+  {
+    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
+    (*destroyed_func_)();
+    Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
+      = RenderType::Invisible;
+    physics.rigid_body.SetStatic();
+    gettingFreed = true;
+    return;
+    //Get<EntitySys>()->FreeEntity(myID);
+  }
+
   if (switch_dir_timer >= 5.0f)
   {
     switch_dir_timer = rand() % 6 * 1.f;
@@ -89,13 +104,6 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);
   physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
-
-  if (health_ <= 0 && destroyed_func_)
-  {
-    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
-    (*destroyed_func_)();
-    Get<EntitySys>()->FreeEntity(myID);
-  }
 
 }
 void BunnyBehavior::Shutdown() {

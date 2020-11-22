@@ -52,6 +52,8 @@ void DuckBehavior::Initialize()
 
 void DuckBehavior::Update(float dt, EntityID myID)
 {
+  if (gettingFreed)
+    return;
   float constexpr G = -9.81f;
   if (phys_handle_ == INVALID_COMPONENT ||
       trans_handle_ == INVALID_COMPONENT ||
@@ -61,6 +63,19 @@ void DuckBehavior::Update(float dt, EntityID myID)
   auto& trans = Get<ComponentSys>()->GetTransform(trans_handle_);
   auto& physics = Get<ComponentSys>()->GetPhysics(phys_handle_);
   auto& target = Get<ComponentSys>()->GetTransform(target_trans_handle_);
+  auto enty = Get<EntitySys>();
+
+  if (health_ <= 0 && destroyed_func_)
+  {
+    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
+    (*destroyed_func_)();
+    Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
+      = RenderType::Invisible;
+    physics.rigid_body.SetStatic();
+    gettingFreed = true;
+    return;
+    //Get<EntitySys>()->FreeEntity(myID);
+  }
 
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
@@ -84,14 +99,6 @@ void DuckBehavior::Update(float dt, EntityID myID)
   //update position in physics component
   physics.rigid_body.SetPosition(trans.pos);
   physics.rigid_body.ApplyForceCentroid({0.f, .05f*G, 0.f});
-
-  if (health_ <= 0 && destroyed_func_)
-  {
-    Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
-    (*destroyed_func_)();
-    Get<EntitySys>()->FreeEntity(myID);
-  }
-
 }
 void DuckBehavior::Shutdown()
 {

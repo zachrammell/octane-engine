@@ -32,7 +32,7 @@ enum class RenderType : int32_t
 {
   Filled,
   Wireframe,
-
+  Invisible,
   COUNT
 };
 

@@ -91,6 +91,7 @@ void RenderSys::Update()
       {
       case RenderType::Filled: device_dx11_.SetWireframeMode(false); break;
       case RenderType::Wireframe: device_dx11_.SetWireframeMode(true); break;
+      case RenderType::Invisible: continue;
       default: break;
       }
 

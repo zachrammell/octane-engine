@@ -38,6 +38,7 @@ public:
     EntityID target_;
     EnemyDestroyed* destroyed_func_ = nullptr;
     int health_ = 1;
+    bool gettingFreed = false;
 };
 
 }
