@@ -499,18 +499,20 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
   GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
 }
 
-MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh) const
+//MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh) const
+//{
+//  MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
+//
+//  EmplaceMesh(&mesh_dx11, mesh);
+//
+//  return mesh_dx11;
+//}
+
+void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
 {
-  MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
-
-  EmplaceMesh(&mesh_dx11, mesh);
-
-  return mesh_dx11;
-}
-
-void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh) const
-{
-  new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
+  meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
+  auto& newMesh = meshes.find(placement)->second;
+  //new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
 
   {
@@ -523,7 +525,7 @@ void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh) cons
       0};
     D3D11_SUBRESOURCE_DATA subresource_data {mesh.vertex_buffer.data(), 0, 0};
 
-    hr = GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, placement->vertex_buffer_.put());
+    hr = GetD3D11Device()->CreateBuffer(&vertex_buffer_descriptor, &subresource_data, newMesh->vertex_buffer_.put());
     assert(SUCCEEDED(hr));
   }
 
@@ -537,7 +539,7 @@ void GraphicsDeviceDX11::EmplaceMesh(MeshDX11* placement, Mesh const& mesh) cons
       0};
     D3D11_SUBRESOURCE_DATA subresource_data {mesh.index_buffer.data(), 0, 0};
 
-    hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, placement->index_buffer_.put());
+    hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, newMesh->index_buffer_.put());
     assert(SUCCEEDED(hr));
   }
 }

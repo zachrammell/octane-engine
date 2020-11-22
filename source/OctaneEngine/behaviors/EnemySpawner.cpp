@@ -81,7 +81,7 @@ void EnemySpawner::SpawnEnemy()
   auto* physics_sys = Get<PhysicsSys>();
   auto player = entsys->GetPlayer();
   auto& player_trans = compsys->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
-  MeshType mesh = MeshType::INVALID;
+  Mesh_Key mesh;
   const int enemyType = rand() % 3;
 
   auto id = entsys->CreateEntity(
@@ -94,15 +94,15 @@ void EnemySpawner::SpawnEnemy()
   switch (enemyType)
   {
   case 0:
-    mesh = MeshType::Bear;
+    mesh = "Bear";
     behavior = BHVRType::BEAR;
     break;
   case 1:
-    mesh = MeshType::Duck;
+    mesh = "Duck";
     behavior = BHVRType::DUCK;
     break;
   case 2:
-    mesh = MeshType::Bunny; 
+    mesh = "Bunny"; 
     behavior = BHVRType::BUNNY;
     break;
   default: break;

@@ -83,7 +83,8 @@ void TestScene::Load()
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, MeshType mesh_type = MeshType::Cube) {
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key{"Cube"})
+{
     // todo: custom entity_id / component_id types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& game_entity = entsys->GetEntity((ent_id));
@@ -140,7 +141,7 @@ void TestScene::Load()
                 ent.components[to_integral(ComponentKind::Render)] = render_id;
                 RenderComponent& render_component = component_sys.GetRender(render_id);
                 render_component.color = nbt_reader.Read<Color>("Color");
-                render_component.mesh_type = nbt_reader.Read<MeshType>("Mesh");
+                render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
               }
               break;
               case ComponentKind::Transform:
@@ -201,7 +202,7 @@ void TestScene::Load()
     crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::cerulean;
-    render_comp.mesh_type = MeshType::Sniper1;
+    render_comp.mesh_type = Mesh_Key{"Sniper1"};
   }
 
 #ifdef USE_PLAYER_ENTITY
@@ -233,7 +234,6 @@ void TestScene::Load()
 #if 1
 
   wind_tunnel_id = Get<EntitySys>()->MakeEntity();
-
   {
     GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
     ComponentHandle trans_id = compsys->MakeTransform();
@@ -249,7 +249,7 @@ void TestScene::Load()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = MeshType::Cube;
+    render_comp.mesh_type = Mesh_Key{"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
     ComponentHandle physics_comp_id = compsys->MakePhysics();
@@ -276,7 +276,7 @@ void TestScene::Load()
   {
     auto testui
       = entsys->CreateEntity({0.f, 0.f, 1.f}, {0.001f, 0.001f, 0.001f}, {0.f,0.f,0.f,0.f});
-    entsys->AddRenderComp(testui, Colors::black, MeshType::Quad);
+    entsys->AddRenderComp(testui, Colors::black, Mesh_Key{"Quad"});
     auto& render_comp = compsys->GetRender(entsys->GetEntity(testui).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
   }
@@ -304,7 +304,7 @@ void TestScene::Update(float dt)
     auto id = entsys->CreateEntity(pos, {.05f, .05f, .05f}, {});
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
     entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
-    entsys->AddRenderComp(id, Colors::db32[rand() % 32], MeshType::PaperPlane);
+    entsys->AddRenderComp(id, Colors::db32[rand() % 32], "PaperPlane");
     entsys->AddBehavior(id, BHVRType::PLANE);
   };
 
@@ -561,23 +561,25 @@ void TestScene::Update(float dt)
       auto& weapon = entsys->GetEntity(crossbow_id);
       auto& weapon_render = compsys->GetRender(weapon.GetComponentHandle(ComponentKind::Render));
 
-      switch (weapon_render.mesh_type)
+      if (weapon_render.mesh_type == Mesh_Key {"Sniper1"})
       {
-      case MeshType::Sniper1:
-        weapon_render.mesh_type = MeshType::Semiauto1;
-        break;
-      case MeshType::Semiauto1:
-        weapon_render.mesh_type = MeshType::Crossbow;
-        break;
-      case MeshType::Crossbow:
-        weapon_render.mesh_type = MeshType::Slingshot;
-        break;
-      case MeshType::Slingshot:
-        weapon_render.mesh_type = MeshType::Sword;
-        break;
-      case MeshType::Sword:
-        weapon_render.mesh_type = MeshType::Sniper1;
-        break;
+        weapon_render.mesh_type = Mesh_Key {"Semiauto1"};
+      }
+      else if (weapon_render.mesh_type == Mesh_Key {"Semiauto1"})
+      {
+        weapon_render.mesh_type = Mesh_Key {"Crossbow"};
+      }
+      else if (weapon_render.mesh_type == Mesh_Key {"Crossbow"})
+      {
+        weapon_render.mesh_type = Mesh_Key {"Slingshot"};
+      }
+      else if (weapon_render.mesh_type == Mesh_Key {"Slingshot"})
+      {
+        weapon_render.mesh_type = Mesh_Key {"Sword"};
+      }
+      else if (weapon_render.mesh_type == Mesh_Key {"Sword"})
+      {
+        weapon_render.mesh_type = Mesh_Key {"Sniper1"};
       }
     }
 #endif

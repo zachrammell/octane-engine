@@ -115,7 +115,7 @@ EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLO
 
   return id;
 }
-void EntitySys::AddRenderComp(EntityID id, Octane::Color color, MeshType mesh)
+void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
 {
   auto* compsys = Get<ComponentSys>();
   auto& entity = GetEntity(id);

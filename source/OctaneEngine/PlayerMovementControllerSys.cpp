@@ -316,7 +316,7 @@ void PlayerMovementControllerSys::Update()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = Get<ComponentSys>()->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = MeshType::Cube;
+    render_comp.mesh_type = Mesh_Key{"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
     ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
@@ -358,7 +358,7 @@ void PlayerMovementControllerSys::Update()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = Get<ComponentSys>()->GetRender(render_comp_id);
     render_comp.color = Colors::blue;
-    render_comp.mesh_type = MeshType::Cube;
+    render_comp.mesh_type = Mesh_Key {"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
     ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();

@@ -12,6 +12,7 @@
 
 #include <OctaneEngine/Graphics/RenderSys.h>
 
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/RenderComponent.h>
@@ -28,8 +29,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include <OctaneEngine/Graphics/MeshSys.h>
-
+//#pragma comment(lib, "EASTL.lib")
 namespace dx = DirectX;
 
 namespace
@@ -67,7 +67,7 @@ void RenderSys::Update()
 
   // Render all objects
   auto* component_sys = Get<ComponentSys>();
-  MeshType current_mesh = MeshType::COUNT;
+  Mesh_Key current_mesh;
   auto* meshSys = reinterpret_cast<MeshSys*>(engine_.GetSystem(SystemOrder::MeshSys));
   auto& meshes_ = meshSys->Meshes();
   for (auto shader_type : magic_enum::enum_values<ShaderType>())
@@ -117,7 +117,9 @@ void RenderSys::Update()
           if (current_mesh != render_comp.mesh_type)
           {
             current_mesh = render_comp.mesh_type;
-            device_dx11_.UseMesh(meshes_[to_integral(current_mesh)]);
+            auto mesh = meshes_.find(current_mesh.data());
+            
+            device_dx11_.UseMesh(*mesh->second);
           }
           device_dx11_.ShaderConstants()
             .PerObject()

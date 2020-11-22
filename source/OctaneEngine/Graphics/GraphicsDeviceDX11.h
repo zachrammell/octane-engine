@@ -13,6 +13,7 @@
 
 #include <OctaneEngine/Graphics/Colors.h>
 #include <OctaneEngine/Graphics/Mesh.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/Graphics/Shader.h>
 
 namespace Octane
@@ -37,8 +38,8 @@ public:
   [[nodiscard]] Shader CreateShader(LPCWSTR shader_path, int input_layout);
   void UseShader(Shader& shader);
 
-  [[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh) const;
-  void EmplaceMesh(MeshDX11* placement, Mesh const& mesh) const;
+  //[[nodiscard]] MeshDX11 CreateMesh(Mesh const& mesh) const;
+  void EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh) const;
   void UseMesh(MeshDX11 const& mesh);
   void DrawMesh();
 

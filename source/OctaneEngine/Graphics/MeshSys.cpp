@@ -15,6 +15,7 @@ namespace Octane
 {
 MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
 {
+#ifndef NEW_MESH_IMPLEMENTATION
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
 
   meshes_.resize(to_integral(MeshType::COUNT));
@@ -23,7 +24,6 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   {
     device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
   };
-
   addMesh(MeshType::Cube, "assets/models/cube.obj");
   addMesh(MeshType::Sphere, "assets/models/sphere.obj");
   addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
@@ -40,6 +40,7 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   addMesh(MeshType::Sword, "assets/models/Sword.fbx");
   addMesh(MeshType::Sniper1, "assets/models/Sniper1.fbx");
   addMesh(MeshType::Semiauto1, "assets/models/Semiauto1.fbx");
+  #endif
 }
 
 MeshSys::~MeshSys() {}
@@ -48,12 +49,13 @@ SystemOrder MeshSys::GetOrder()
 {
   return SystemOrder::MeshSys;
 }
+#ifndef NEW_MESH_IMPLEMENTATION
 
 eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& MeshSys::Meshes()
 {
   return meshes_;
 }
-
+#endif
 Mesh MeshSys::LoadMesh(const char* path)
 {
   aiPropertyStore* props = aiCreatePropertyStore();
