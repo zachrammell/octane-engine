@@ -23,6 +23,14 @@
 			<IncludedEvents>
 				<Event Id="1205999388" Name="Enemy_Death" ObjectPath="\Events\Default Work Unit\Enemy_Death">
 					<IncludedMemoryFiles>
+						<File Id="260272001" Language="SFX">
+							<ShortName>enemy_death2.wav</ShortName>
+							<Path>SFX\enemy_death2_10C4C929.wem</Path>
+						</File>
+						<File Id="672269170" Language="SFX">
+							<ShortName>enemy_death3.wav</ShortName>
+							<Path>SFX\enemy_death3_10C4C929.wem</Path>
+						</File>
 						<File Id="987537408" Language="SFX">
 							<ShortName>enemy_death.wav</ShortName>
 							<Path>SFX\enemy_death_10C4C929.wem</Path>
@@ -133,6 +141,14 @@
 						</File>
 					</IncludedMemoryFiles>
 				</Event>
+				<Event Id="2872770759" Name="Play_TestMusic" ObjectPath="\Events\Default Work Unit\Play_TestMusic">
+					<IncludedMemoryFiles>
+						<File Id="282925926" Language="SFX">
+							<ShortName>gameplay_music.wav</ShortName>
+							<Path>SFX\gameplay_music_D79FB2B7.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
 				<Event Id="3083087645" Name="Player_Death" ObjectPath="\Events\Default Work Unit\Player_Death">
 					<IncludedMemoryFiles>
 						<File Id="866153004" Language="SFX">
@@ -191,14 +207,6 @@
 				</Event>
 				<Event Id="2477713992" Name="Stop_Ambience" ObjectPath="\Events\Default Work Unit\Stop_Ambience"/>
 				<Event Id="3991482221" Name="Stop_TestMusic" ObjectPath="\Events\Default Work Unit\Stop_TestMusic"/>
-				<Event Id="1324413170" Name="TestMusic" ObjectPath="\Events\Default Work Unit\TestMusic">
-					<IncludedMemoryFiles>
-						<File Id="890613456" Language="SFX">
-							<ShortName>synth_track.wav</ShortName>
-							<Path>SFX\synth_track_D79FB2B7.wem</Path>
-						</File>
-					</IncludedMemoryFiles>
-				</Event>
 			</IncludedEvents>
 		</SoundBank>
 	</SoundBanks>

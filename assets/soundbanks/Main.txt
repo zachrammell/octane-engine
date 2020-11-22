@@ -5,11 +5,11 @@ Event	ID	Name			Wwise Object Path	Notes
 	1068092414	Player_Hurt			\Default Work Unit\Player_Hurt	
 	1205999388	Enemy_Death			\Default Work Unit\Enemy_Death	
 	1305133589	Player_Jump			\Default Work Unit\Player_Jump	
-	1324413170	TestMusic			\Default Work Unit\TestMusic	
 	1526102535	Enemy_Spawn			\Default Work Unit\Enemy_Spawn	
 	2453392179	Player_Footstep			\Default Work Unit\Player_Footstep	
 	2477713992	Stop_Ambience			\Default Work Unit\Stop_Ambience	
 	2574533045	Play_CrossbowReload			\Default Work Unit\Play_CrossbowReload	
+	2872770759	Play_TestMusic			\Default Work Unit\Play_TestMusic	
 	2971505500	Play_AirplaneLauncher			\Default Work Unit\Play_AirplaneLauncher	
 	3083087645	Player_Death			\Default Work Unit\Player_Death	
 	3092211194	Explosion_Laser			\Default Work Unit\Explosion_Laser	
@@ -23,6 +23,8 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	181233759	footstep_4	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Footsteps, Dirt, Walking SND17386 4_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerMovement\PlayerFootstep\footstep_4		70540
 	237714643	enemy_spawn	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\enemy_spawn_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemySpawn\paper_sounds\enemy_spawn		489252
 	256810444	Laser1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser1		590224
+	260272001	enemy_death2	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\enemy_death2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemyDeath\enemy_death2		489252
+	282925926	gameplay_music	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\gameplay_music_D79FB2B7.wem		\Actor-Mixer Hierarchy\Default Work Unit\Music\TestMusic\gameplay_music		3210652
 	288782756	hurt_2	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerHurt\hurt_2		78548
 	293984751	footstep_2	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Footsteps, Dirt, Walking SND17386 5_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerMovement\PlayerFootstep\footstep_2		43436
 	304532532	hurt_1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Cartoon, Voice, High Pitched, Says Ouch 3 SND15458 1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerHurt\hurt_1		79584
@@ -34,16 +36,16 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	633933615	player_jump	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Paper, Crumbled And Tossed On Floor, Heavy SND4136 2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerMovement\PlayerJump\player_jump		42158
 	638271342	footstep_1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Footsteps, Dirt, Walking SND17386 1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerMovement\PlayerFootstep\footstep_1		65664
 	658847440	Explosion1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Explosion1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Booms\Explosion1		648308
+	672269170	enemy_death3	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\enemy_death3_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemyDeath\enemy_death3		489252
 	678537110	wind_gust	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\wind_gust_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerAttacks\AirplaneLauncher\wind_gust		158352
 	702624185	footstep_3	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Footsteps, Dirt, Walking SND17386 3_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerMovement\PlayerFootstep\footstep_3		70540
 	778792044	pop	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\airplane_launcher_fire_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerAttacks\AirplaneLauncher\pop		82076
 	825500729	Ambience	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\ambience_D79FB2B7.wem		\Actor-Mixer Hierarchy\Default Work Unit\Ambience		6236284
 	866153004	PlayerDeath	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\player_death_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerDeath\PlayerDeath		489252
-	890613456	synth_track	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\synth_track_D79FB2B7.wem		\Actor-Mixer Hierarchy\Default Work Unit\Music\TestMusic\synth_track		2822488
 	905657606	Laser3	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser3_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser3		531084
 	927845912	crossbow_fire_4	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\crossbow_fire_4_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerAttacks\Crossbow\crossbow_fire_4		271612
 	939112826	ButtonHover	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\ButtonHover_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\UISFX\ButtonHover		10992
-	987537408	enemy_death	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\enemy_death_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemyDeath\enemy_death		489252
+	987537408	enemy_death1	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\enemy_death_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemyDeath\enemy_death1		489252
 	991570323	Laser2	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Laser2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\TestSounds\Explosion Sound\Lasers\Laser2		383344
 	1015557116	hurt_3	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Cartoon, Voice, High Pitched, Says Ouch 1 SND15460_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerHurt\hurt_3		73528
 	1048363072	hurt_4	D:\DigiPen\F20\MUS370L\SkeletonProject\.cache\Windows\SFX\Cartoon, Voice, High Pitched, Says Ouch 2 SND15459_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\PlayerHurt\hurt_4		87368
