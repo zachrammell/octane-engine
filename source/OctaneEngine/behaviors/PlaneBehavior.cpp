@@ -58,8 +58,20 @@ void PlaneBehavior::Update(float dt, EntityID myid)
   auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
   auto& trans_me
     = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
+  if (gettingfreed)
+  {
+    Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
+      = RenderType::Invisible;
+    phys_me.rigid_body.SetStatic();
+    return;
+  }
   float constexpr G = -9.81f;
 
+  if (lifetime <= 0.f && !gettingfreed)
+  {
+    //Get<EntitySys>()->FreeEntity(myid);
+    gettingfreed = true;
+  }
   {
     if (!impulsed)
     {
@@ -91,20 +103,10 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     lifetime -= dt;
 
 
-    if (lifetime <= 0.f && !gettingfreed)
-    {
-      //Get<EntitySys>()->FreeEntity(myid);
-      gettingfreed = true;
-    }
-  }
-  if (gettingfreed)
-  {
-    Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
-      = RenderType::Invisible;
-    phys_me.rigid_body.SetStatic();
-    return;
+
   }
 
+  if (!gettingfreed)
   {
     for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
     {
