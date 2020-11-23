@@ -144,6 +144,31 @@ void PhysicsSys::InitializePhysicsBox(
   }
 }
 
+void PhysicsSys::SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position)
+{
+  btTransform transform = compo->collision_object->getWorldTransform();
+  transform.setOrigin(btVector3(position.x, position.y, position.z));
+  compo->collision_object->setWorldTransform(transform);
+}
+
+void PhysicsSys::ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const
+{
+  btRigidBody* body = btRigidBody::upcast(compo->collision_object);
+  if (body && body->getMotionState())
+  {
+    body->applyCentralForce(btVector3(force.x, force.y, force.z));
+  }
+}
+
+void PhysicsSys::ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const
+{
+  btRigidBody* body = btRigidBody::upcast(compo->collision_object);
+  if (body && body->getMotionState())
+  {
+    body->applyTorque(btVector3(torque.x, torque.y, torque.z));
+  }
+}
+
 btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const
 {
   btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
