@@ -19,7 +19,9 @@
 
 #include <cassert>
 
+#include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Trace.h>
+using namespace Octane::FormattedOutput;
 
 namespace Octane
 {
@@ -50,9 +52,14 @@ file_open:
 #endif
     // TODO: actual error handling
   }
+
+  Trace::Log(SERIALIZATION, "Loading NBT file %s%s%s.\n", Set(Yellow).c_str(), filepath.data(), Set().c_str());
+
   _freea(w_filepath);
 
   ParseDataTree();
+
+  Trace::Log(SERIALIZATION, "Parsed NBT file %s%s%s.\n", Set(Yellow).c_str(), filepath.data(), Set().c_str());
 
   EnterRoot();
 }

@@ -115,7 +115,8 @@ int Log(Severity level, char const* format, ...)
   std::va_list args;
   eastl::string formatted;
   va_start(args, format);
-  Log(level) << formatted.sprintf_va_list(format, args);
+  formatted.append_sprintf_va_list(format, args);
+  Log(level) << formatted;
   va_end(args);
   return formatted.length();
 }
