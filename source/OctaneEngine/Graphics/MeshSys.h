@@ -9,6 +9,7 @@
 #include <EASTL/hash_map.h>
 #include <EASTL/shared_ptr.h>
 #include <EASTL/vector.h>
+#include <EASTL/string.h>
 struct aiScene;
 struct aiNode;
 struct aiMesh;
@@ -40,8 +41,8 @@ public:
 
 private:
   eastl::hash_map<Mesh_Key, MeshPtr> meshes_;
-  eastl::string_view datapath_{"meshes.dat"}; //path to meshes NBT
-  eastl::string_view path_; //path to models
+  eastl::string_view datapath_{"assets/meshes.nbt"}; //path to meshes NBT
+  eastl::string path_; //path to models
   eastl::vector<eastl::string_view> meshnames_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);

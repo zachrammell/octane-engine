@@ -4,6 +4,7 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/NBTReader.h>
+#include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Trace.h>
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
@@ -19,26 +20,42 @@ namespace Octane
 {
 MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
 {
+  //NBTWriter write("assets/meshes.nbt");
+  //write.WriteString("PathPrefix", "assets/models");
+  
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
   NBTReader read(datapath_);
   
-  if(read.OpenCompound("Data"))
-  {
-    if(read.OpenCompound("Path"))
-    {
-      path_ = read.ReadString("path");
-    }
-  }
-  else
+  path_ = read.ReadString("PathPrefix");
+  if(path_.empty())
   {
     Trace::Log(Severity::ERROR, "MeshSys::MeshSys, failed to read path to meshes from meshes NBT\n");
   }
+
+  if(read.OpenList("Data"))
+  {
+    const int meshListSize = read.ListSize();
+    meshnames_.resize(meshListSize);
+    for(int i = 0; i < meshListSize; ++i)
+    {
+      if(read.OpenCompound(""))
+      {
+        meshnames_[i] = read.ReadString("name");
+        read.CloseCompound();
+      }
+    }
+    read.CloseList();
+  }
+
+
+
   //meshes_.resize(to_integral(MeshType::COUNT));
   //// TODO: use wide strings for path
   //auto addMesh = [=](MeshType m, char const* filepath) 
   //{
   //  device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
   //};
+
   //addMesh(MeshType::Cube, "assets/models/cube.obj");
   //addMesh(MeshType::Sphere, "assets/models/sphere.obj");
   //addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
@@ -71,32 +88,50 @@ const eastl::vector<eastl::string_view>& MeshSys::MeshNames() const
 
 const MeshDX11* MeshSys::Get(Mesh_Key key)
 {
-  MeshDX11* mesh = &*meshes_.find(key)->second;
+  MeshPtr mesh = meshes_[key];
 
   if (mesh)
   {
     //has to be done this way to deref the shared_ptr
-    return mesh;
+    return &*mesh;
   }
   
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
   NBTReader read(datapath_);
   eastl::string path(path_);
-  if(read.OpenCompound(key))
+
+  if(read.OpenList("Data"))
   {
-    path.append(eastl::string{read.ReadString("path")});
-    device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
-    mesh = &*meshes_.find(key)->second;
-    if(mesh)
+    const int listSize = meshnames_.size();
+
+    for(int i = 0; i < listSize; ++i)
     {
-      meshnames_[meshnames_.size()] = key;
+      if(read.OpenCompound(""))
+      {
+        if(read.ReadString("name") == key)
+        {
+          path.append(eastl::string {read.ReadString("path")});
+          device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
+          mesh = meshes_.find(key)->second;
+        }
+        read.CloseCompound();
+      }
     }
+    read.CloseList();
   }
   else
   {
-    Trace::Log(Severity::WARNING,"MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s",path,datapath_);
+    Trace::Log(Severity::WARNING, "MeshSys::Get, Failed to open list: Data");
   }
-  return mesh;
+
+  if(mesh)
+  {
+    return &*mesh;  
+  }
+
+  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", path, datapath_);
+
+  return nullptr;
 }
 
 Mesh MeshSys::LoadMesh(const char* path)

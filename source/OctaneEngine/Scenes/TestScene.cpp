@@ -119,51 +119,51 @@ void TestScene::Load()
     Trace::Log(DEBUG, "Loading entities.\n");
     NBTReader nbt_reader {"assets/maps/level1.nbt"};
     // for every object, read it in
-    if (nbt_reader.OpenList("Entities"))
-    {
-      const int entity_list_size = nbt_reader.ListSize();
-      for (int i = 0; i < entity_list_size; ++i)
-      {
-        if (nbt_reader.OpenCompound(""))
-        {
-          EntityID const ent_id = entity_sys.MakeEntity();
-          GameEntity& ent = entity_sys.GetEntity(ent_id);
+    //if (nbt_reader.OpenList("Entities"))
+    //{
+    //  const int entity_list_size = nbt_reader.ListSize();
+    //  for (int i = 0; i < entity_list_size; ++i)
+    //  {
+    //    if (nbt_reader.OpenCompound(""))
+    //    {
+    //      EntityID const ent_id = entity_sys.MakeEntity();
+    //      GameEntity& ent = entity_sys.GetEntity(ent_id);
 
-          for (auto component_type : magic_enum::enum_values<ComponentKind>())
-          {
-            if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
-            {
-              switch (component_type)
-              {
-              case ComponentKind::Render:
-              {
-                ComponentHandle const render_id = component_sys.MakeRender();
-                ent.components[to_integral(ComponentKind::Render)] = render_id;
-                RenderComponent& render_component = component_sys.GetRender(render_id);
-                render_component.color = nbt_reader.Read<Color>("Color");
-                render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
-              }
-              break;
-              case ComponentKind::Transform:
-              {
-                ComponentHandle const trans_id = component_sys.MakeTransform();
-                ent.components[to_integral(ComponentKind::Transform)] = trans_id;
-                TransformComponent& trans = component_sys.GetTransform(trans_id);
-                trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
-                trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
-                trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
-              }
-              break;
-              default: break;
-              }
-              nbt_reader.CloseCompound();
-            }
-          }
-          nbt_reader.CloseCompound();
-        }
-      }
-      nbt_reader.CloseList();
-    }
+    //      for (auto component_type : magic_enum::enum_values<ComponentKind>())
+    //      {
+    //        if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
+    //        {
+    //          switch (component_type)
+    //          {
+    //          case ComponentKind::Render:
+    //          {
+    //            ComponentHandle const render_id = component_sys.MakeRender();
+    //            ent.components[to_integral(ComponentKind::Render)] = render_id;
+    //            RenderComponent& render_component = component_sys.GetRender(render_id);
+    //            render_component.color = nbt_reader.Read<Color>("Color");
+    //            render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
+    //          }
+    //          break;
+    //          case ComponentKind::Transform:
+    //          {
+    //            ComponentHandle const trans_id = component_sys.MakeTransform();
+    //            ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+    //            TransformComponent& trans = component_sys.GetTransform(trans_id);
+    //            trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
+    //            trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
+    //            trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+    //          }
+    //          break;
+    //          default: break;
+    //          }
+    //          nbt_reader.CloseCompound();
+    //        }
+    //      }
+    //      nbt_reader.CloseCompound();
+    //    }
+    //  }
+    //  nbt_reader.CloseList();
+    //}
 
     spawner = 2;
     AudioPlayer::Register_Object(spawner, "spawner");
