@@ -10,6 +10,16 @@
 
 namespace Octane
 {
+DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
+{
+  return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
+}
+
+btVector3 ToBtVector3(const DirectX::XMFLOAT3& data)
+{
+  return btVector3(data.x, data.y, data.z);
+}
+
 PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
 
 void PhysicsSys::LevelStart()
@@ -20,7 +30,12 @@ void PhysicsSys::LevelStart()
   bt_resolution_phase_ = new btSequentialImpulseConstraintSolver();
   bt_world_
     = new btDiscreteDynamicsWorld(bt_narrow_phase_, bt_broad_phase_, bt_resolution_phase_, bt_collision_config_);
-  bt_world_->setGravity(btVector3(0, -10, 0));
+  //bt_world_->setGravity(btVector3(0, -10, 0));
+
+  //Add a debug draw
+  // bt_world_->setDebugDrawer();
+  bt_world_->setInternalTickCallback(BulletCallback);
+  bt_world_->setWorldUserInfo(this);
 }
 
 void PhysicsSys::Update()
@@ -51,7 +66,7 @@ void PhysicsSys::Update()
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
-      btTransform world_transform = physics_component.collision_object->getWorldTransform();
+      btTransform world_transform = physics_component.rigid_body->getWorldTransform();
       auto pos = world_transform.getOrigin();
       auto rot = world_transform.getRotation();
       transform.pos = {pos.x(), pos.y(), pos.z()};
@@ -134,26 +149,25 @@ void PhysicsSys::InitializePhysicsBox(
 
   if (is_sensor)
   {
-    //ghost object
-    physics_compo->collision_object = CreateSensor(transform, box_shape);
+    physics_compo->rigid_body = CreateSensor(mass, transform, box_shape);
   }
   else
   {
     //rigid body
-    physics_compo->collision_object = CreateRigidBody(mass, transform, box_shape);
+    physics_compo->rigid_body = CreateRigidBody(mass, transform, box_shape);
   }
 }
 
 void PhysicsSys::SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position)
 {
-  btTransform transform = compo->collision_object->getWorldTransform();
+  btTransform transform = compo->rigid_body->getWorldTransform();
   transform.setOrigin(btVector3(position.x, position.y, position.z));
-  compo->collision_object->setWorldTransform(transform);
+  compo->rigid_body->setWorldTransform(transform);
 }
 
 void PhysicsSys::ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const
 {
-  btRigidBody* body = btRigidBody::upcast(compo->collision_object);
+  btRigidBody* body = compo->rigid_body;
   if (body && body->getMotionState())
   {
     body->applyCentralForce(btVector3(force.x, force.y, force.z));
@@ -162,7 +176,7 @@ void PhysicsSys::ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& fo
 
 void PhysicsSys::ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const
 {
-  btRigidBody* body = btRigidBody::upcast(compo->collision_object);
+  btRigidBody* body = compo->rigid_body;
   if (body && body->getMotionState())
   {
     body->applyTorque(btVector3(torque.x, torque.y, torque.z));
@@ -177,12 +191,12 @@ btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transfor
   {
     bool is_dynamic = (mass != 0.f);
 
-    btVector3 localInertia(0, 0, 0);
+    btVector3 local_inertia(0, 0, 0);
     if (is_dynamic)
-      shape->calculateLocalInertia(mass, localInertia);
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
-    btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-    btRigidBody* body = new btRigidBody(cInfo);
+      shape->calculateLocalInertia(mass, local_inertia);
+    btDefaultMotionState* motion_state = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo construction_info(mass, motion_state, shape, local_inertia);
+    btRigidBody* body = new btRigidBody(construction_info);
     bt_world_->addRigidBody(body);
     return body;
   }
@@ -190,13 +204,39 @@ btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transfor
   return nullptr;
 }
 
-btGhostObject* PhysicsSys::CreateSensor(const btTransform& transform, btCollisionShape* shape) const
+btRigidBody* PhysicsSys::CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const
 {
   btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
-  btGhostObject* sensor = new btGhostObject();
-  sensor->setCollisionShape(shape);
-  sensor->setWorldTransform(transform);
-  bt_world_->addCollisionObject(sensor);
-  return sensor;
+
+  if (shape != nullptr)
+  {
+    bool is_dynamic = (mass != 0.f);
+
+    btVector3 local_inertia(0, 0, 0);
+    if (is_dynamic)
+      shape->calculateLocalInertia(mass, local_inertia);
+
+    btDefaultMotionState* motion_state = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo construction_info(mass, motion_state, shape, local_inertia);
+    btRigidBody* body = new btRigidBody(construction_info);
+    bt_world_->addRigidBody(body);
+    body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
+    return body;
+  }
+
+  return nullptr;
 }
+
+void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar time_step)
+{
+  if (world == nullptr)
+    return;
+
+  if (world->getWorldUserInfo() == nullptr)
+    return;
+
+  PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
+  //write collision pair callback.
+
+ }
 } // namespace Octane

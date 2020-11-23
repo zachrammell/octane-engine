@@ -5,11 +5,10 @@
 #include <OctaneEngine/Components/TransformComponent.h>
 #include <OctaneEngine/ISystem.h>
 
-#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <OctaneEngine/Physics/Shape.h>
+#include <OctaneEngine/Physics/PhysicsDef.h>
 
 namespace Octane
 {
@@ -25,6 +24,7 @@ public:
   void Update() override;
   void LevelEnd() override;
   void Unload() override {};
+
   static SystemOrder GetOrder();
 
 public:
@@ -41,14 +41,14 @@ public:
   void ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
 
-
-   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
-  
+  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
-  btGhostObject* CreateSensor(const btTransform& transform, btCollisionShape* shape) const;
- 
+  btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
+
+  static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
+
 private:
   btBroadphaseInterface* bt_broad_phase_ = nullptr;
   btDefaultCollisionConfiguration* bt_collision_config_ = nullptr;

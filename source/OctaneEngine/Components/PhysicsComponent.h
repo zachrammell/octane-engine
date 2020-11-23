@@ -6,7 +6,7 @@ namespace Octane
 class PhysicsComponent
 {
   friend class PhysicsSys;
-  btCollisionObject* collision_object = nullptr;
+  btRigidBody* rigid_body = nullptr;
   PhysicsSys* system = nullptr;
 };
 } // namespace Octane
