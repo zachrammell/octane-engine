@@ -280,14 +280,14 @@ void SerializationTestScene::Update(float dt)
     ImGui::DragFloat3("Scale", &(entity_creator_data_.scale.x), slider_sensitivity);
     ImGui::DragFloat3("Rotation", &(entity_creator_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_creator_data_.color.r));
-    auto& meshes = Get<MeshSys>()->Meshes();
+    auto& meshNames = Get<MeshSys>()->MeshNames();
     if (ImGui::BeginCombo("Mesh", entity_creator_data_.mesh.data(), ImGuiComboFlags_None))
     {
-      for (auto const& mesh : meshes)//magic_enum::enum_entries<MeshType>())
+      for (auto const& mesh : meshNames)//magic_enum::enum_entries<MeshType>())
       {
-        if (ImGui::Selectable(mesh.first.data()))
+        if (ImGui::Selectable(mesh.data()))
         {
-          entity_creator_data_.mesh = mesh.first;
+          entity_creator_data_.mesh = mesh.data();
         }
       }
       ImGui::EndCombo();
@@ -375,13 +375,13 @@ void SerializationTestScene::Update(float dt)
     }
     if (ImGui::BeginCombo("Mesh", entity_editor_data_.mesh.data(), ImGuiComboFlags_None))
     {
-      auto& meshes = Get<MeshSys>()->Meshes();
+      auto& meshes = Get<MeshSys>()->MeshNames();
       for (auto const& mesh : meshes)
       {
 
-        if (ImGui::Selectable(mesh.first.data()))
+        if (ImGui::Selectable(mesh.data()))
         {
-          entity_editor_data_.mesh = mesh.first;
+          entity_editor_data_.mesh = mesh.data();
         }
       }
       ImGui::EndCombo();

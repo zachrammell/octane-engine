@@ -69,7 +69,7 @@ void RenderSys::Update()
   auto* component_sys = Get<ComponentSys>();
   Mesh_Key current_mesh;
   auto* meshSys = reinterpret_cast<MeshSys*>(engine_.GetSystem(SystemOrder::MeshSys));
-  auto& meshes_ = meshSys->Meshes();
+
   for (auto shader_type : magic_enum::enum_values<ShaderType>())
   {
     Shader* shader = nullptr;
@@ -117,9 +117,11 @@ void RenderSys::Update()
           if (current_mesh != render_comp.mesh_type)
           {
             current_mesh = render_comp.mesh_type;
-            auto mesh = meshes_.find(current_mesh.data());
-            
-            device_dx11_.UseMesh(*mesh->second);
+            auto mesh = meshSys->Get(current_mesh.data());
+            if(mesh)
+            {
+              device_dx11_.UseMesh(*mesh);
+            }
           }
           device_dx11_.ShaderConstants()
             .PerObject()

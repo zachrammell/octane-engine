@@ -8,12 +8,11 @@
 //#include <EASTL/fixed_vector.h>
 #include <EASTL/hash_map.h>
 #include <EASTL/shared_ptr.h>
-
+#include <EASTL/vector.h>
 struct aiScene;
 struct aiNode;
 struct aiMesh;
 
-#define NEW_MESH_IMPLEMENTATION //super temporary to test old vs new implementation
 
 namespace Octane
 {
@@ -35,21 +34,15 @@ public:
   virtual void Unload() {};
 
   static SystemOrder GetOrder();
-
-  
-#ifndef NEW_MESH_IMPLEMENTATION
-  eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& Meshes();
-
-private:
-  eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false> meshes_;
-#endif
-#ifdef NEW_MESH_IMPLEMENTATION
-  eastl::hash_map<Mesh_Key, MeshPtr>& Meshes();
+ 
+  const eastl::vector<eastl::string_view>& MeshNames() const;
+  const MeshDX11* Get(Mesh_Key key);
 
 private:
-  eastl::hash_map<Mesh_Key, MeshPtr> meshes;
-#endif
-
+  eastl::hash_map<Mesh_Key, MeshPtr> meshes_;
+  eastl::string_view datapath_{"meshes.dat"}; //path to meshes NBT
+  eastl::string_view path_; //path to models
+  eastl::vector<eastl::string_view> meshnames_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
   void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);
