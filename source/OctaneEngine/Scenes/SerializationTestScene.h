@@ -48,7 +48,7 @@ private:
     DirectX::XMFLOAT3 scale{1,1,1};
     DirectX::XMFLOAT3 rotation {};
     Color color{};
-    MeshType mesh {MeshType::Cube};
+    Mesh_Key mesh = Mesh_Key{"Cube"};
     eastl::string name {32 ,'\0'};
   } entity_creator_data_, entity_editor_data_;
 };

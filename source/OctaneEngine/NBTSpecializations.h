@@ -30,8 +30,9 @@ template<>
 DirectX::XMFLOAT3 NBTReader::Read(string_view name);
 template<>
 DirectX::XMFLOAT4 NBTReader::Read(string_view name);
-template<>
-MeshType NBTReader::Read(string_view name);
+//Todo: fix the multiple initialization error from this function calling NBTReader::ReadString()
+//template<>
+//Mesh_Key NBTReader::Read(string_view name);
 template<>
 ComponentKind NBTReader::Read(string_view name);
 

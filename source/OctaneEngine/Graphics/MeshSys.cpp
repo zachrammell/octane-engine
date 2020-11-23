@@ -3,11 +3,16 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/NBTReader.h>
+#include <OctaneEngine/NBTWriter.h>
+#include <OctaneEngine/Trace.h>
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
+#include <iostream>
+#include <fstream>
 
 namespace dx = DirectX;
 
@@ -15,32 +20,32 @@ namespace Octane
 {
 MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
 {
+  //NBTWriter write("assets/meshes.nbt");
+  //write.WriteString("PathPrefix", "assets/models");
+  
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
-
-  meshes_.resize(to_integral(MeshType::COUNT));
-  // TODO: use wide strings for path
-  auto addMesh = [=](MeshType m, char const* filepath) 
+  NBTReader read(datapath_);
+  
+  path_ = read.ReadString("PathPrefix");
+  if(path_.empty())
   {
-    device.EmplaceMesh(meshes_.data() + to_integral(m), LoadMesh(filepath));
-  };
+    Trace::Log(Severity::ERROR, "MeshSys::MeshSys, failed to read path to meshes from meshes NBT\n");
+  }
 
-  addMesh(MeshType::Cube, "assets/models/cube.obj");
-  addMesh(MeshType::Sphere, "assets/models/sphere.obj");
-  addMesh(MeshType::Cube_Rounded, "assets/models/cube_rounded.obj");
-  addMesh(MeshType::Bear, "assets/models/Bear.fbx");
-  addMesh(MeshType::Duck, "assets/models/Duck.fbx");
-  addMesh(MeshType::Bunny, "assets/models/Bunny.fbx");
-  addMesh(MeshType::Crossbow, "assets/models/Crossbow.fbx");
-  addMesh(MeshType::PaperPlane, "assets/models/PaperPlane.fbx");
-  addMesh(MeshType::Shuriken, "assets/models/Shuriken.obj");
-  addMesh(MeshType::PaperStack, "assets/models/PaperStack.obj");
-  addMesh(MeshType::TestFBX, "assets/models/testfbx.fbx");
-  addMesh(MeshType::Slingshot, "assets/models/Slingshot.fbx");
-  addMesh(MeshType::Quad, "assets/models/quad.obj");
-  addMesh(MeshType::Sword, "assets/models/Sword.fbx");
-  addMesh(MeshType::Sniper1, "assets/models/Sniper1.fbx");
-  addMesh(MeshType::Semiauto1, "assets/models/Semiauto1.fbx");
-  addMesh(MeshType::Reticle, "assets/models/Reticle1.fbx");
+  if(read.OpenList("Data"))
+  {
+    const int meshListSize = read.ListSize();
+    meshnames_.resize(meshListSize);
+    for(int i = 0; i < meshListSize; ++i)
+    {
+      if(read.OpenCompound(""))
+      {
+        meshnames_[i] = read.ReadString("name");
+        read.CloseCompound();
+      }
+    }
+    read.CloseList();
+  }
 }
 
 MeshSys::~MeshSys() {}
@@ -50,9 +55,57 @@ SystemOrder MeshSys::GetOrder()
   return SystemOrder::MeshSys;
 }
 
-eastl::fixed_vector<MeshDX11, to_integral(MeshType::COUNT), false>& MeshSys::Meshes()
+const eastl::vector<eastl::string_view>& MeshSys::MeshNames() const
 {
-  return meshes_;
+  return meshnames_;
+}
+
+const MeshDX11* MeshSys::Get(Mesh_Key key)
+{
+  MeshPtr mesh = meshes_[key];
+
+  if (mesh)
+  {
+    //has to be done this way to deref the shared_ptr
+    return &*mesh;
+  }
+  
+  auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
+  NBTReader read(datapath_);
+  eastl::string path(path_);
+
+  if(read.OpenList("Data"))
+  {
+    const int listSize = meshnames_.size();
+
+    for(int i = 0; i < listSize; ++i)
+    {
+      if(read.OpenCompound(""))
+      {
+        if(read.ReadString("name") == key)
+        {
+          path.append(eastl::string {read.ReadString("path")});
+          device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
+          mesh = meshes_.find(key)->second;
+        }
+        read.CloseCompound();
+      }
+    }
+    read.CloseList();
+  }
+  else
+  {
+    Trace::Log(Severity::WARNING, "MeshSys::Get, Failed to open list: Data");
+  }
+
+  if(mesh)
+  {
+    return &*mesh;  
+  }
+
+  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", path, datapath_);
+
+  return nullptr;
 }
 
 Mesh MeshSys::LoadMesh(const char* path)

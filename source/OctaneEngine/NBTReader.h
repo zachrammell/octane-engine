@@ -35,7 +35,7 @@ public:
 
   /*!
    * \brief Opens a compound for reading. This means that all reads until CloseCompound() is called will be read from this compound.
-   * Compounds are analogous to structs and contain named tags of any type.
+   * Compounds are analogous to dictionaries/structs and contain named tags of any type.
    * Tags inside a compound have the following requirements: they must be named.
    *
    * Usage:
@@ -196,6 +196,7 @@ private:
   };
 
   eastl::string_hash_map<DataTag> named_tags_;
+  eastl::string root_name;
   eastl::string current_name_ = "";
   eastl::vector<char> string_pool_;
   eastl::vector<uint8_t> byte_array_pool_;
@@ -232,6 +233,7 @@ private:
   eastl::string ReadName();
 
   void AddToCurrentName(string_view name);
+  void AddIndexToCurrentName(int32_t index);
   void PopLatestName();
 
   int16_t ReadStrLen();

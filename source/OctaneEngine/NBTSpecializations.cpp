@@ -41,7 +41,7 @@ void NBTWriter::Write(string_view name, RenderComponent render_component)
 {
   if (BeginCompound(name))
   {
-    Write("Mesh", to_integral(render_component.mesh_type));
+    Write("Mesh", render_component.mesh_type);
     Write("Color", render_component.color);
     EndCompound();
   }
@@ -95,12 +95,12 @@ DirectX::XMFLOAT4 NBTReader::Read(string_view name)
     return vec;
   }
 }
-
-template<>
-MeshType NBTReader::Read(string_view name)
-{
-  return magic_enum::enum_cast<MeshType>(ReadInt(name)).value_or(MeshType::INVALID);
-}
+//Fix this
+//template<>
+//Mesh_Key NBTReader::Read(string_view name)
+//{
+//  return ReadString(name); //magic_enum::enum_cast<MeshType>(ReadInt(name)).value_or(MeshType::INVALID);
+//}
 
 template<>
 ComponentKind NBTReader::Read(string_view name)
