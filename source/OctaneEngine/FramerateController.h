@@ -9,8 +9,7 @@ namespace Octane
 
 class FramerateController : public ISystem
 {
-  // ISystem implementation
-public:
+public: // ISystem implementation
   FramerateController(Engine* Engine);
   ~FramerateController() = default;
 
@@ -22,17 +21,16 @@ public:
 
   static SystemOrder GetOrder();
 
-  // FramerateController API
-public:
-  float GetDeltaTime();
+public: // FramerateController API
+  float GetDeltaTime() const;
 
   // pausing will set deltatime to 0
   void Pause();
   void Unpause();
-  bool isPaused() const;
+  bool IsPaused() const;
 
   // returns the actual delta time even if game is paused
-  float GetDeltaTimeIgnoringPause();
+  float GetDeltaTimeIgnoringPause() const;
 
 private:
   uint64_t current_time_;

@@ -11,7 +11,7 @@ enum class SceneE : unsigned int
 {
   MenuScene,
   TestScene,
-  SerializationTestScene,
+  Editor,
 
   COUNT
 };

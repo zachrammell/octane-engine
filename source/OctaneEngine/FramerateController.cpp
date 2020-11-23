@@ -6,7 +6,13 @@
 
 namespace Octane
 {
-FramerateController::FramerateController(Engine* Engine) : ISystem(Engine), paused_(false) {}
+FramerateController::FramerateController(Engine* Engine)
+  : ISystem(Engine),
+    current_time_ {0},
+    delta_time_ {0},
+    paused_ {false}
+{
+}
 
 void FramerateController::LevelStart()
 {
@@ -18,18 +24,16 @@ void FramerateController::LevelStart()
 
 void FramerateController::Update()
 {
-  {
-    uint64_t const previous_time = current_time_;
-    current_time_ = SDL_GetPerformanceCounter();
-    delta_time_ = static_cast<float>(current_time_ - previous_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+  uint64_t const previous_time = current_time_;
+  current_time_ = SDL_GetPerformanceCounter();
+  delta_time_ = static_cast<float>(current_time_ - previous_time) / static_cast<float>(SDL_GetPerformanceFrequency());
 
-    /* Prevents dt from reaching unreasonable values and causing things to freak out
-     * 1 frame after dragging the window or after step-through debugging, for instance. */
-    if (delta_time_ > .25f)
-    {
-      // 1/60 of a second is a reasonable time for one frame. ;)
-      delta_time_ = (1.0f / 60.0f);
-    }
+  /* Prevents dt from reaching unreasonable values and causing things to freak out
+   * 1 frame after dragging the window or after step-through debugging, for instance. */
+  if (delta_time_ > .25f)
+  {
+    // 1/60 of a second is a reasonable time for one frame. ;)
+    delta_time_ = (1.0f / 60.0f);
   }
 }
 
@@ -38,9 +42,9 @@ SystemOrder FramerateController::GetOrder()
   return SystemOrder::FramerateController;
 }
 
-float FramerateController::GetDeltaTime()
+float FramerateController::GetDeltaTime() const
 {
-  if (isPaused())
+  if (IsPaused())
   {
     return 0;
   }
@@ -57,11 +61,11 @@ void FramerateController::Unpause()
 {
   paused_ = false;
 }
-bool FramerateController::isPaused() const
+bool FramerateController::IsPaused() const
 {
   return paused_;
 }
-float FramerateController::GetDeltaTimeIgnoringPause()
+float FramerateController::GetDeltaTimeIgnoringPause() const
 {
   return delta_time_;
 }

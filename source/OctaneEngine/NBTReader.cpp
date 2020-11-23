@@ -43,7 +43,8 @@ file_open:
   {
 #ifdef _DEBUG
     // the file is open, close it and continue debugging.
-    eastl::wstring file_open_msg {L"File already open in another program: %S\nClose it and press OK."};
+    eastl::wstring file_open_msg;
+    file_open_msg.append_sprintf(L"File already open in another program: %s\nClose it and press OK.", w_filepath);
     MessageBoxW(nullptr, file_open_msg.c_str(), L"File already open", MB_OK);
     goto file_open;
 #endif
@@ -64,7 +65,7 @@ NBTReader::~NBTReader()
 
 void NBTReader::EnterRoot()
 {
-  AddToCurrentName("root");
+  AddToCurrentName(root_name);
   auto const found = named_tags_.find(current_name_.c_str());
   if (found != named_tags_.end())
   {
@@ -202,7 +203,9 @@ eastl::vector<int8_t> NBTReader::ReadByteArray(string_view name)
   auto const found = named_tags_.find(current_name_.c_str());
   PopLatestName();
   assert(found->second.type_ == TAG::Byte_Array);
-  eastl::vector<int8_t> ret {byte_array_pool_.begin() + found->second.byte_array_pool_index, byte_array_pool_.begin() + found->second.byte_array_length_};
+  eastl::vector<int8_t> ret {
+    byte_array_pool_.begin() + found->second.byte_array_pool_index,
+    byte_array_pool_.begin() + found->second.byte_array_length_};
   return ret;
 }
 
@@ -425,7 +428,7 @@ bool NBTReader::HandleNesting(string_view name, TAG t)
         // read too many from list
         return false;
       }
-      AddToCurrentName(eastl::to_string(nesting.list_index));
+      AddIndexToCurrentName(nesting.list_index);
       ++(nesting.list_index);
     }
   }
@@ -443,19 +446,25 @@ bool NBTReader::HandleNesting(string_view name, TAG t)
 
 void NBTReader::ParseDataTree()
 {
-  do
-  {
-    ParseDataTag();
-  } while (parsing_nesting_depth_ > 0);
+  // parse root tag
+  TAG const type = ReadTag();
+  Trace::Assert(type == TAG::Compound, SERIALIZATION, "root compound tag exists.");
+  root_name = "root:" + ReadName();
+
+  AddToCurrentName(root_name);
+
+  ParseDataTagUnnamed(type);
+
+  PopLatestName();
 
   current_name_.clear();
 }
 
 NBTReader::DataTag& NBTReader::ParseDataTag()
 {
-  eastl::string name = "";
+  eastl::string name;
 
-  TAG type = ReadTag();
+  TAG const type = ReadTag();
   if (type != TAG::End)
   {
     name = ReadName();
@@ -480,7 +489,7 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     // read len unnamed elements
     for (int i = 0; i < data_tag.list_length_; ++i)
     {
-      AddToCurrentName(eastl::to_string(i));
+      AddIndexToCurrentName(i);
       named_tags_.insert(current_name_.c_str(), ParseDataTagUnnamed(data_tag.list_type_));
       PopLatestName();
     }
@@ -500,6 +509,20 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     --parsing_nesting_depth_;
   }
   break;
+  case TAG::Byte:
+  {
+    int8_t val;
+    fread_s(&val, sizeof(val), sizeof(val), 1, infile_);
+    data_tag.byte_ = val;
+  }
+  break;
+  case TAG::Short:
+  {
+    int16_t val;
+    fread_s(&val, sizeof(val), sizeof(val), 1, infile_);
+    data_tag.short_ = htons(val);
+  }
+  break;
   case TAG::Int:
   {
     int32_t val;
@@ -507,11 +530,25 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     data_tag.int_ = htonl(val);
   }
   break;
+  case TAG::Long:
+  {
+    int64_t val;
+    fread_s(&val, sizeof(val), sizeof(val), 1, infile_);
+    data_tag.long_ = htonll(val);
+  }
+  break;
   case TAG::Float:
   {
     float val;
     fread_s(&val, sizeof(val), sizeof(val), 1, infile_);
     data_tag.float_ = htonf(val);
+  }
+  break;
+  case TAG::Double:
+  {
+    double val;
+    fread_s(&val, sizeof(val), sizeof(val), 1, infile_);
+    data_tag.double_ = htond(val);
   }
   break;
   case TAG::String:
@@ -522,6 +559,16 @@ NBTReader::DataTag& NBTReader::ParseDataTagUnnamed(TAG type)
     fread_s(string_pool_.data() + insertion_point, length, sizeof(char), length, infile_);
     data_tag.string_pool_index = insertion_point;
     data_tag.string_length_ = length;
+  }
+  break;
+  case TAG::Byte_Array:
+  {
+    int32_t const length = ReadArrayLen();
+    size_t const insertion_point = byte_array_pool_.size();
+    byte_array_pool_.resize(insertion_point + length + 1, 0);
+    fread_s(byte_array_pool_.data() + insertion_point, length, sizeof(char), length, infile_);
+    data_tag.byte_array_pool_index = insertion_point;
+    data_tag.byte_array_length_ = length;
   }
   break;
   default:
@@ -544,9 +591,13 @@ NBTReader::TAG NBTReader::ReadTag()
 eastl::string NBTReader::ReadName()
 {
   int16_t const length = ReadStrLen();
-  eastl::string name(static_cast<size_t>(length) + 1, '\0');
-  fread_s(name.data(), length, sizeof(eastl::string::value_type), length, infile_);
-  return name;
+  if (length != 0)
+  {
+    eastl::string name(static_cast<size_t>(length) + 1, '\0');
+    fread_s(name.data(), length, sizeof(eastl::string::value_type), length, infile_);
+    return name;
+  }
+  return "";
 }
 
 void NBTReader::AddToCurrentName(string_view name)
@@ -556,6 +607,13 @@ void NBTReader::AddToCurrentName(string_view name)
     current_name_ += '.';
   }
   current_name_ += name.data();
+}
+
+void NBTReader::AddIndexToCurrentName(int32_t index)
+{
+  eastl::string indexed;
+  indexed.append_sprintf("[%d]", index);
+  AddToCurrentName(indexed);
 }
 
 void NBTReader::PopLatestName()
