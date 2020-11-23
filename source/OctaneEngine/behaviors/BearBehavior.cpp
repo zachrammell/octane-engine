@@ -3,7 +3,6 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/AudioPlayer.h>
@@ -83,11 +82,11 @@ void BearBehavior::Update(float dt, EntityID myID)
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
+  //SimpleMove(physics.rigid_body, trans.pos, target.pos, 1.05f);
   FacePos(trans, target.pos);
   //update position in physics component
-  physics.rigid_body.SetPosition(trans.pos);
-  physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
+  //physics.rigid_body.SetPosition(trans.pos);
+  //physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
 
 

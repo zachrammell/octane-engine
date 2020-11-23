@@ -47,11 +47,8 @@ void ComponentSys::FreeTransform(ComponentHandle id) {}
 
 void ComponentSys::FreePhysics(ComponentHandle id)
 {
-  if (id != INVALID_COMPONENT)
-  {
-    PhysicsComponent& compo = GetPhysics(id);
-    compo.sys->ErasePrimitive(compo);
-  }
+  PhysicsComponent& compo = GetPhysics(id);
+  //compo.sys->ErasePrimitive(compo);
 }
 
 void ComponentSys::FreeRender(ComponentHandle id) {}

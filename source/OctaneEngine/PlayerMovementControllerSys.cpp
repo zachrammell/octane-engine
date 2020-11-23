@@ -110,7 +110,7 @@ void PlayerMovementControllerSys::Update()
 
   MoveState nextstate = movementstate_;
 
-  const DirectX::XMVECTOR old_vel = player_physics.rigid_body.GetLinearVelocity();
+  /*const DirectX::XMVECTOR old_vel = player_physics.rigid_body.GetLinearVelocity();
   DirectX::XMVECTOR new_vel = old_vel;
 
   switch (movementstate_)
@@ -253,7 +253,7 @@ void PlayerMovementControllerSys::Update()
       }
     }
     break;
-  }
+  }*/
 
   //damage stuff
   UpdateDamage();
@@ -272,7 +272,7 @@ void PlayerMovementControllerSys::Update()
     {
       new_vel.m128_f32[1] = 0;
     }
-
+    
     // set y to ground level.
     // HACKY -- remove once real static physics works
     auto pos = player_physics.rigid_body.GetPosition();

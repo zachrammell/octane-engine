@@ -2,7 +2,7 @@
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
+//#include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
@@ -38,8 +38,8 @@ void PlaneBehavior::Initialize()
         dx::XMFLOAT3 facing;
         dx::XMStoreFloat3(&facing, dir_);
         FaceDir(trans, facing);
-        physics.rigid_body.SetOrientation(trans.rotation);
-        physics.rigid_body.SetGhost(true);
+        //physics.rigid_body.SetOrientation(trans.rotation);
+        //physics.rigid_body.SetGhost(true);
         break;
       }
     }
@@ -87,7 +87,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       dir_ = dx::XMVector3Normalize(dir_);
       dx::XMStoreFloat3(&force, dir_);
       FaceDir(trans_me, force);
-      phys_me.rigid_body.SetOrientation(trans_me.rotation);
+      //phys_me.rigid_body.SetOrientation(trans_me.rotation);
 
       impulsed = true;
       return;
@@ -98,7 +98,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_me.rigid_body.GetLinearVelocity()));
 
     FaceDir(trans_me, vel);
-    phys_me.rigid_body.SetOrientation(trans_me.rotation);
+    //phys_me.rigid_body.SetOrientation(trans_me.rotation);
 
     lifetime -= dt;
 
@@ -120,7 +120,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
-          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+          /*if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
             switch (othbeh.type)
             {
@@ -156,7 +156,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
               //Get<EntitySys>()->FreeEntity(myid);
               gettingfreed = true;
             }
-          }
+          }*/
         }
       }
     }

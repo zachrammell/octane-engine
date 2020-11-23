@@ -40,7 +40,6 @@
 #include <OctaneEngine/NBTReader.h>
 #include <OctaneEngine/Trace.h>
 
-#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 
 #include <OctaneEngine/AudioPlayer.h>
@@ -220,12 +219,13 @@ void TestScene::Load()
     ComponentHandle physics_comp_id = compsys->MakePhysics();
     player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    /*
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
     static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
     physics_comp.rigid_body.SetPosition(trans.pos);
     physics_comp.rigid_body.SetStatic(); // should stop other objects from applying physics to player
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
+    trans.rotation = physics_comp.rigid_body.GetOrientation();*/
 
     Get<EntitySys>()->SetPlayerID(player_id);
   }
@@ -255,6 +255,7 @@ void TestScene::Load()
     ComponentHandle physics_comp_id = compsys->MakePhysics();
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
+    /*
     physics_sys->InitializeRigidBody(physics_comp);
     physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
     static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
@@ -262,6 +263,7 @@ void TestScene::Load()
     physics_comp.rigid_body.SetStatic();
     //physics_comp.rigid_body.SetGhost(true);
     trans.rotation = physics_comp.rigid_body.GetOrientation();
+    */
 
     ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
     obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;

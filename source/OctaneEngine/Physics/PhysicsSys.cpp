@@ -10,53 +10,43 @@
 
 namespace Octane
 {
+PhysicsSys::PhysicsSys(Engine* engine)
+  : ISystem(engine),
+    broad_phase_ {new btDbvtBroadphase()},
+    collision_config_ {new btDefaultCollisionConfiguration()},
+    narrow_phase_ {new btCollisionDispatcher(collision_config_)},
+    resolution_phase_ {new btSequentialImpulseConstraintSolver()},
+    dynamics_world_ {new btDiscreteDynamicsWorld(narrow_phase_, broad_phase_, resolution_phase_, collision_config_)}
+{
+  dynamics_world_->setGravity(btVector3(0, -10, 0));
+}
 DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
 {
   return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
 }
-
 btVector3 ToBtVector3(const DirectX::XMFLOAT3& data)
 {
   return btVector3(data.x, data.y, data.z);
 }
 
-PhysicsSys::PhysicsSys(Engine* engine) : ISystem(engine) {}
-
-void PhysicsSys::LevelStart()
+PhysicsSys::~PhysicsSys()
 {
-  bt_broad_phase_ = new btDbvtBroadphase();
-  bt_collision_config_ = new btDefaultCollisionConfiguration();
-  bt_narrow_phase_ = new btCollisionDispatcher(bt_collision_config_);
-  bt_resolution_phase_ = new btSequentialImpulseConstraintSolver();
-  bt_world_
-    = new btDiscreteDynamicsWorld(bt_narrow_phase_, bt_broad_phase_, bt_resolution_phase_, bt_collision_config_);
-  //bt_world_->setGravity(btVector3(0, -10, 0));
-
-  //Add a debug draw
-  // bt_world_->setDebugDrawer();
-  bt_world_->setInternalTickCallback(BulletCallback);
-  bt_world_->setWorldUserInfo(this);
+  delete dynamics_world_;
+  delete resolution_phase_;
+  delete narrow_phase_;
+  delete collision_config_;
+  delete broad_phase_;
 }
+
+void PhysicsSys::LevelStart() {}
 
 void PhysicsSys::Update()
 {
   float dt = Get<FramerateController>()->GetDeltaTime();
 
+  dynamics_world_->stepSimulation(dt);
+
   auto* component_sys = Get<ComponentSys>();
-  for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
-  {
-    if (entity->active && entity->HasComponent(ComponentKind::Physics))
-    {
-      auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
-      physics_component.system = this;
-    }
-  }
-
-  if (bt_world_)
-  {
-    bt_world_->stepSimulation(dt);
-  }
-
   //copy physics calculation to transform
   for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
@@ -78,45 +68,25 @@ void PhysicsSys::Update()
 void PhysicsSys::LevelEnd()
 {
   //delete remain physics stuff
-  if (bt_world_ != nullptr)
+  for (int i = dynamics_world_->getNumConstraints() - 1; i >= 0; --i)
   {
-    int i;
-    for (i = bt_world_->getNumConstraints() - 1; i >= 0; i--)
-    {
-      bt_world_->removeConstraint(bt_world_->getConstraint(i));
-    }
-    for (i = bt_world_->getNumCollisionObjects() - 1; i >= 0; i--)
-    {
-      btCollisionObject* obj = bt_world_->getCollisionObjectArray()[i];
-
-      btRigidBody* body = btRigidBody::upcast(obj);
-      if (body && body->getMotionState())
-      {
-        delete body->getMotionState();
-      }
-
-      bt_world_->removeCollisionObject(obj);
-      delete obj;
-    }
+    dynamics_world_->removeConstraint(dynamics_world_->getConstraint(i));
   }
-  //delete collision shapes
-  for (int j = 0; j < collision_shapes_.size(); j++)
+  for (int i = dynamics_world_->getNumCollisionObjects() - 1; i >= 0; --i)
   {
-    btCollisionShape* shape = collision_shapes_[j];
-    delete shape;
+    btCollisionObject* obj = dynamics_world_->getCollisionObjectArray()[i];
+
+    btRigidBody* body = btRigidBody::upcast(obj);
+    if (body && body->getMotionState())
+    {
+      delete body->getMotionState();
+    }
+
+    dynamics_world_->removeCollisionObject(obj);
+    delete obj;
   }
+
   collision_shapes_.clear();
-
-  delete bt_world_;
-  bt_world_ = nullptr;
-  delete bt_resolution_phase_;
-  bt_resolution_phase_ = nullptr;
-  delete bt_broad_phase_;
-  bt_broad_phase_ = nullptr;
-  delete bt_narrow_phase_;
-  bt_narrow_phase_ = nullptr;
-  delete bt_collision_config_;
-  bt_collision_config_ = nullptr;
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -197,7 +167,7 @@ btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transfor
     btDefaultMotionState* motion_state = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo construction_info(mass, motion_state, shape, local_inertia);
     btRigidBody* body = new btRigidBody(construction_info);
-    bt_world_->addRigidBody(body);
+    dynamics_world_->addRigidBody(body);
     return body;
   }
 
@@ -219,7 +189,7 @@ btRigidBody* PhysicsSys::CreateSensor(float mass, const btTransform& transform, 
     btDefaultMotionState* motion_state = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo construction_info(mass, motion_state, shape, local_inertia);
     btRigidBody* body = new btRigidBody(construction_info);
-    bt_world_->addRigidBody(body);
+    dynamics_world_->addRigidBody(body);
     body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
     return body;
   }

@@ -17,7 +17,7 @@ class PhysicsSys final : public ISystem
   // ISystem implementation
 public:
   explicit PhysicsSys(Engine* engine);
-  ~PhysicsSys() = default;
+  ~PhysicsSys();
 
   void Load() override {};
   void LevelStart() override;
@@ -50,11 +50,11 @@ private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
 
 private:
-  btBroadphaseInterface* bt_broad_phase_ = nullptr;
-  btDefaultCollisionConfiguration* bt_collision_config_ = nullptr;
-  btCollisionDispatcher* bt_narrow_phase_ = nullptr;
-  btSequentialImpulseConstraintSolver* bt_resolution_phase_ = nullptr;
-  btDiscreteDynamicsWorld* bt_world_ = nullptr;
+  btBroadphaseInterface* broad_phase_;
+  btDefaultCollisionConfiguration* collision_config_;
+  btCollisionDispatcher* narrow_phase_;
+  btSequentialImpulseConstraintSolver* resolution_phase_;
+  btDiscreteDynamicsWorld* dynamics_world_;
   btAlignedObjectArray<btCollisionShape*> collision_shapes_;
 };
 } // namespace Octane

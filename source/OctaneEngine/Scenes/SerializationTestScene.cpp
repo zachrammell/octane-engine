@@ -17,6 +17,7 @@
 #include <OctaneEngine/Engine.h>
 
 #include <OctaneEngine/EntitySys.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Trace.h>
@@ -69,6 +70,7 @@ void SerializationTestScene::Load()
     render_component.color = color;
     render_component.mesh_type = mesh_type;
     render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
+    return ent_id;
   };
 
   /*for (int i = 0; i < 100; ++i)
@@ -83,6 +85,15 @@ void SerializationTestScene::Load()
       Colors::db32[i % 32],
       magic_enum::enum_cast<MeshType>(rand() % to_integral(MeshType::COUNT)).value_or(MeshType::Cube));
   }*/
+
+  auto ground_plane = create_object({}, {5, 1, 5}, Colors::db32[14], MeshType::Cube);
+  GameEntity& ent = entsys->GetEntity(ground_plane);
+  ComponentHandle const physics_id = compsys->MakePhysics();
+  ent.components[to_integral(ComponentKind::Physics)] = physics_id;
+  PhysicsComponent& physics_component = compsys->GetPhysics(physics_id);
+  //btBoxShape box {};
+  //physics_component.collision_object->setCollisionShape()
+  
 }
 
 void SerializationTestScene::Start()

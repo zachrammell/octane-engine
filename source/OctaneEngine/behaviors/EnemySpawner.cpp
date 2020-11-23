@@ -4,7 +4,7 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Physics/Box.h>
+//#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/AudioPlayer.h>
 
