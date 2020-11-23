@@ -31,30 +31,63 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
 
-  DXGI_MODE_DESC buffer_description {
-    static_cast<UINT>(w),
-    static_cast<UINT>(h),
-    // TODO: get monitor refresh rate
-    {60, 1},
-    DXGI_FORMAT_R8G8B8A8_UNORM,
-    DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-    DXGI_MODE_SCALING_UNSPECIFIED};
+  //DXGI_MODE_DESC buffer_description {
+  //  static_cast<UINT>(w),
+  //  static_cast<UINT>(h),
+  //  // TODO: get monitor refresh rate
+  //  {60, 1},
+  //  DXGI_FORMAT_R8G8B8A8_UNORM,
+  //  DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+  //  DXGI_MODE_SCALING_UNSPECIFIED};
 
-  supported_mode_ = &buffer_description;
+  //supported_mode_ = &buffer_description;
 
   SDL_SysWMinfo system_info;
   SDL_VERSION(&system_info.version);
   SDL_GetWindowWMInfo(window, &system_info);
   HWND window_handle = system_info.info.win.window;
-  DXGI_SWAP_CHAIN_DESC swap_chain_descriptor {
-    buffer_description,
-    DXGI_SAMPLE_DESC {1, 0},
-    DXGI_USAGE_RENDER_TARGET_OUTPUT,
-    1,
-    window_handle,
-    true,
-    DXGI_SWAP_EFFECT_DISCARD,
-    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH};
+
+
+  //DXGI_SWAP_CHAIN_DESC swap_chain_descriptor 
+  //{
+  //  buffer_description,
+  //  DXGI_SAMPLE_DESC {1, 0},
+  //  DXGI_USAGE_RENDER_TARGET_OUTPUT,
+  //  1,
+  //  window_handle,
+  //  true,
+  //  DXGI_SWAP_EFFECT_DISCARD,
+  //  DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+  //};
+
+  #define SCAST(x, type) static_cast<type>(x)
+
+  DXGI_SWAP_CHAIN_DESC swap_chain_descriptor;
+  ZeroMemory(&swap_chain_descriptor, sizeof(DXGI_SWAP_CHAIN_DESC));
+  swap_chain_descriptor.BufferDesc.Width = SCAST(w, UINT);
+  swap_chain_descriptor.BufferDesc.Height = SCAST(h, UINT);
+  swap_chain_descriptor.OutputWindow = window_handle;
+  //8 bits per channel, 4 channels
+  swap_chain_descriptor.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  //60hz max refresh rate for fullscreen mode
+  swap_chain_descriptor.BufferDesc.RefreshRate.Numerator = 60;
+  swap_chain_descriptor.BufferDesc.RefreshRate.Denominator = 1;
+  //number of multisamples per pixel
+  swap_chain_descriptor.SampleDesc.Count = 1;
+  //antialias quality
+  swap_chain_descriptor.SampleDesc.Quality = 0;
+  swap_chain_descriptor.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+  //set windowed
+  swap_chain_descriptor.Windowed = TRUE;
+  //enable double buffering
+  swap_chain_descriptor.BufferCount = 1;
+  //use as render target
+  swap_chain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+  swap_chain_descriptor.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+  swap_chain_descriptor.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+  //allows switching between fullscreen and windowed mode
+  swap_chain_descriptor.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
 
   if (swap_chain_descriptor.Windowed == false)
   {
@@ -65,17 +98,22 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     currently_in_fullscreen_ = false;
 
   hr = D3D11CreateDeviceAndSwapChain(
-    nullptr,
-    D3D_DRIVER_TYPE_HARDWARE,
-    nullptr,
+    nullptr, //let DX11 choose adapter
+    D3D_DRIVER_TYPE_HARDWARE, //driver which implements d3d in hardware
+    nullptr, //software driver
+#ifdef _DEBUG
+    D3D11_CREATE_DEVICE_DEBUG, //runtime debug layers
+#endif
+#ifndef _DEBUG
     0,
-    nullptr,
-    0,
-    D3D11_SDK_VERSION,
-    &swap_chain_descriptor,
+#endif
+    nullptr,//feature levels
+    0,//length of feature levels array
+    D3D11_SDK_VERSION,//DirectX11 SDK
+    &swap_chain_descriptor,//swap chain info
     swap_chain_.put(),
     device_.put(),
-    nullptr,
+    nullptr,//supported feature levels
     device_context_.put());
   assert(SUCCEEDED(hr));
 

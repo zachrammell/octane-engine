@@ -4,6 +4,8 @@
 #include <OctaneEngine/Physics/RigidBody.h>
 #include <OctaneEngine/Components/TransformComponent.h>
 
+#define RAD(x) DirectX::XMConvertToRadians(x)
+
 namespace dx = DirectX;
 
 void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed);

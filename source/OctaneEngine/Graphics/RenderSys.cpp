@@ -37,6 +37,7 @@ namespace
 
 Octane::Shader phong;
 Octane::Shader ui;
+Octane::Shader phongui;
 }
 
 namespace Octane
@@ -47,6 +48,7 @@ RenderSys::RenderSys(Engine* parent_engine)
 {
   phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
   ui = device_dx11_.CreateShader(L"assets/shaders/UI.hlsl", Shader::InputLayout_POS);
+  phongui = device_dx11_.CreateShader(L"assets/shaders/phongUI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
   device_dx11_.UseShader(phong);
   device_dx11_.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -72,6 +74,7 @@ void RenderSys::Update()
   auto& meshes_ = meshSys->Meshes();
   for (auto shader_type : magic_enum::enum_values<ShaderType>())
   {
+
     Shader* shader = nullptr;
     switch (shader_type)
     {
@@ -79,12 +82,15 @@ void RenderSys::Update()
       shader = &phong; break;
     case Octane::ShaderType::UI:
       shader = &ui; break;
+    case Octane::ShaderType::PhongUI:
+      shader = &phongui; break;
     case Octane::ShaderType::COUNT:
       continue;
     default:
       continue;
     }
     device_dx11_.UseShader(*shader);
+
     for (auto render_type : magic_enum::enum_values<RenderType>())
     {
       switch (render_type)

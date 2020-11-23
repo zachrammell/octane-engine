@@ -193,15 +193,15 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     crossbow.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos = {0.0f, 0.0f, 0.0f};
-    trans.scale = {0.1f, 0.1f, 0.1f};
-    trans.rotation = {};
-
+    trans.pos = {0.5f, -0.9f, -1.0f};
+    trans.scale = {1.63f, 1.63f, 1.63f};
+    trans.rotation = {-0.0605163462f, -0.753363013f, -0.113361359f, -0.644904613f};
     ComponentHandle render_comp_id = compsys->MakeRender();
     crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::cerulean;
     render_comp.mesh_type = MeshType::Sniper1;
+    render_comp.shader_type = ShaderType::PhongUI;
   }
 
 #ifdef USE_PLAYER_ENTITY
@@ -271,16 +271,16 @@ void TestScene::Load()
 
 #endif
 
-  #if 0
-  //to test if UI shader works, it seems to kind of work
+
+  //Gun Reticle
   {
     auto testui
-      = entsys->CreateEntity({0.f, 0.f, 1.f}, {0.001f, 0.001f, 0.001f}, {0.f,0.f,0.f,0.f});
-    entsys->AddRenderComp(testui, Colors::black, MeshType::Quad);
+      = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
+    entsys->AddRenderComp(testui, Colors::red, MeshType::Reticle);
     auto& render_comp = compsys->GetRender(entsys->GetEntity(testui).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
   }
-  #endif
+
 }
 
 void TestScene::Start()
@@ -533,17 +533,76 @@ void TestScene::Update(float dt)
 
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
+    //enable this to be able to move and rotate the weapon 
+    #if 0
+    dx::XMVECTOR newRot {};
+    dx::XMVECTOR currRot = dx::XMLoadFloat4(&crossbow_trans.rotation);
 
-    auto cam_pos = camera.GetPosition();
-
-    //crossbow placement and rotation
-    PlaceRelativeTo(
-      crossbow_trans,
-      0.25f,
-      {cam_pos.x, cam_pos.y - 0.05f, cam_pos.z}, //Crossbow placement follows campos and adjust a little bit not to bother front sight
-      camera.GetInverseOrientation(),
-      camera.GetViewDirection());
-
+    if (input->KeyPressedOrHeld(SDLK_KP_4))
+    {
+      newRot.m128_f32[0] += RAD(1.f);
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_5))
+    {
+      newRot.m128_f32[1] += RAD(1.f);
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_6))
+    {
+      newRot.m128_f32[2] += RAD(1.f);
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_7))
+    {
+      newRot.m128_f32[0] -= RAD(1.f);
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_8))
+    {
+      newRot.m128_f32[1] -= RAD(1.f);
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_9))
+    {
+      newRot.m128_f32[2] -= RAD(1.f);
+    }
+    currRot = dx::XMQuaternionMultiply(
+      dx::XMQuaternionRotationRollPitchYaw(newRot.m128_f32[1], newRot.m128_f32[2], newRot.m128_f32[0]),
+      currRot);
+    dx::XMStoreFloat4(&crossbow_trans.rotation, currRot);
+    if (input->KeyPressedOrHeld(SDLK_KP_1))
+    {
+      crossbow_trans.pos.x += 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_2))
+    {
+      crossbow_trans.pos.y += 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_3))
+    {
+      crossbow_trans.pos.z += 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_MINUS))
+    {
+      crossbow_trans.pos.x -= 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_PLUS))
+    {
+      crossbow_trans.pos.y -= 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_KP_ENTER))
+    {
+      crossbow_trans.pos.z -= 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_p))
+    {
+      crossbow_trans.scale.x += 0.01f;
+      crossbow_trans.scale.y += 0.01f;
+      crossbow_trans.scale.z += 0.01f;
+    }
+    if (input->KeyPressedOrHeld(SDLK_o))
+    {
+      crossbow_trans.scale.x -= 0.01f;
+      crossbow_trans.scale.y -= 0.01f;
+      crossbow_trans.scale.z -= 0.01f;
+    }
+    #endif
 
 //Input area
 #if 1
@@ -553,7 +612,13 @@ void TestScene::Update(float dt)
     {
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
       can_shoot = false;
-      create_plane(crossbow_trans.pos);
+      auto& pos = compsys->GetTransform(entsys->GetPlayer()->GetComponentHandle(ComponentKind::Transform)).pos;
+      float offsetFactor = 0.2f;
+      auto offsetdir = camera.GetViewDirection();
+      dx::XMFLOAT3 dir;
+      dx::XMStoreFloat3(&dir, dx::XMVectorScale(offsetdir, offsetFactor));
+
+      create_plane({pos.x+dir.x,pos.y+dir.y,pos.z+dir.z});
     }
     
     if (input->KeyPressed(SDLK_f))

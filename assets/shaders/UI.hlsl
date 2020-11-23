@@ -22,7 +22,7 @@ vs_out vs_main(vs_in input)
 {
   vs_out output;
   
-  output.position_ndc = mul(NDC, float4(input.position_ndc.xy,0.f, input.position_ndc.z));
+  output.position_ndc = mul(NDC, float4(input.position_ndc.xyz, 1.f));
   return output;
 }
 

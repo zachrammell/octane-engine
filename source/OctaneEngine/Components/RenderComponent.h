@@ -24,7 +24,7 @@ enum class MeshType : int32_t
   Sword,
   Sniper1,
   Semiauto1,
-
+  Reticle,
   COUNT
 };
 
@@ -40,7 +40,7 @@ enum class ShaderType : int32_t
 {
   Phong,
   UI,
-
+  PhongUI,
   COUNT
 };
 

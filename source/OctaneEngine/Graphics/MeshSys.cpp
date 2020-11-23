@@ -40,6 +40,7 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
   addMesh(MeshType::Sword, "assets/models/Sword.fbx");
   addMesh(MeshType::Sniper1, "assets/models/Sniper1.fbx");
   addMesh(MeshType::Semiauto1, "assets/models/Semiauto1.fbx");
+  addMesh(MeshType::Reticle, "assets/models/Reticle1.fbx");
 }
 
 MeshSys::~MeshSys() {}
