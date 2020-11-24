@@ -89,7 +89,7 @@ void EnemySpawner::SpawnEnemy()
     {0.25f, 0.25f, 0.25f},
     {});
   auto& entity = entsys->GetEntity(id);
-  entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
+  //entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
   BHVRType behavior = BHVRType::INVALID;
   switch (enemyType)
   {

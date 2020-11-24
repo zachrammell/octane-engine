@@ -3,7 +3,6 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/AudioPlayer.h>
@@ -72,7 +71,7 @@ void BunnyBehavior::Update(float dt, EntityID myID)
     (*destroyed_func_)();
     Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
       = RenderType::Invisible;
-    physics.rigid_body.SetStatic();
+    //physics.rigid_body.SetStatic();
     gettingFreed = true;
     return;
     //Get<EntitySys>()->FreeEntity(myID);
@@ -98,12 +97,12 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
+  //SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
   FacePos(trans, target);
-  BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
+  //BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
-  physics.rigid_body.SetPosition(trans.pos);
-  physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
+  //physics.rigid_body.SetPosition(trans.pos);
+  //physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
 }
 void BunnyBehavior::Shutdown() {

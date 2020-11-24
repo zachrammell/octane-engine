@@ -305,7 +305,7 @@ void TestScene::Update(float dt)
   {
     auto id = entsys->CreateEntity(pos, {.05f, .05f, .05f}, {});
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
-    entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
+    //entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
     entsys->AddRenderComp(id, Colors::db32[rand() % 32], "PaperPlane");
     entsys->AddBehavior(id, BHVRType::PLANE);
   };

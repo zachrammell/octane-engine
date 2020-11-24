@@ -62,7 +62,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
   {
     Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
       = RenderType::Invisible;
-    phys_me.rigid_body.SetStatic();
+    //phys_me.rigid_body.SetStatic();
     return;
   }
   float constexpr G = -9.81f;
@@ -79,11 +79,11 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       dir_.m128_f32[1] += .005f;
       dir_ = dx::XMVectorScale(dir_, 12.f/dt);
       auto& playerPhys = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
-      auto playerVel = playerPhys.rigid_body.GetLinearVelocity();
-      dir_ = dx::XMVectorAdd(dir_, playerVel);
+      //auto playerVel = playerPhys.rigid_body.GetLinearVelocity();
+      //dir_ = dx::XMVectorAdd(dir_, playerVel);
       dx::XMFLOAT3 force;
       dx::XMStoreFloat3(&force, dir_);
-      phys_me.rigid_body.ApplyForceCentroid(force);
+      //phys_me.rigid_body.ApplyForceCentroid(force);
       dir_ = dx::XMVector3Normalize(dir_);
       dx::XMStoreFloat3(&force, dir_);
       FaceDir(trans_me, force);
@@ -92,10 +92,10 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       impulsed = true;
       return;
     }
-    phys_me.rigid_body.ApplyForceCentroid({0.f, .15f * G, 0.f});
+    //phys_me.rigid_body.ApplyForceCentroid({0.f, .15f * G, 0.f});
 
     dx::XMFLOAT3 vel;
-    dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_me.rigid_body.GetLinearVelocity()));
+    //dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_me.rigid_body.GetLinearVelocity()));
 
     FaceDir(trans_me, vel);
     //phys_me.rigid_body.SetOrientation(trans_me.rotation);

@@ -1,6 +1,5 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Engine.h>
 #include <iostream> // error logging
 
@@ -126,21 +125,7 @@ void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
   render_comp.color = color;
   render_comp.mesh_type = mesh;
 }
-void EntitySys::AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale)
-{
-  auto compsys = Get<ComponentSys>();
-  auto physics_sys = Get<PhysicsSys>(); 
-  auto& entity = GetEntity(id);
-  auto& trans = compsys->GetTransform( entity.GetComponentHandle(ComponentKind::Transform));
-  ComponentHandle physics_comp_id = compsys->MakePhysics();
-  entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-  PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-  physics_sys->InitializeRigidBody(physics_comp);
-  physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-  static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
-  physics_comp.rigid_body.SetPosition(trans.pos);
-  physics_comp.rigid_body.SetOrientation(trans.rotation);
-}
+
 void EntitySys::AddBehavior(EntityID id, BHVRType behavior) 
 {
   auto compsys = Get<ComponentSys>();

@@ -73,7 +73,7 @@ void BearBehavior::Update(float dt, EntityID myID)
     (*destroyed_func_)();
     Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
       = RenderType::Invisible;
-    physics.rigid_body.SetStatic();
+    //physics.rigid_body.SetStatic();
     gettingFreed = true;
     return;
     //Get<EntitySys>()->FreeEntity(myID);

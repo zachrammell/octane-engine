@@ -10,7 +10,6 @@
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
-#include <OctaneEngine/Physics/Box.h>
 #include <SDL_keycode.h>
 #include <iostream>
 #include "AudioPlayer.h"
@@ -55,7 +54,7 @@ static float walk_timer = 0;
 
 bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
 {
-  return player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
+  return true; //player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
 }
 
 
@@ -268,16 +267,16 @@ void PlayerMovementControllerSys::Update()
   if (on_ground)
   {
     // stop downward velocity
-    if (new_vel.m128_f32[1] < 0)
-    {
-      new_vel.m128_f32[1] = 0;
-    }
+    //if (new_vel.m128_f32[1] < 0)
+    //{
+    //  new_vel.m128_f32[1] = 0;
+    //}
     
     // set y to ground level.
     // HACKY -- remove once real static physics works
-    auto pos = player_physics.rigid_body.GetPosition();
-    pos.y = HACKY_GROUND_Y_LEVEL;
-    player_physics.rigid_body.SetPosition(pos);
+    //auto pos = player_physics.rigid_body.GetPosition();
+    //pos.y = HACKY_GROUND_Y_LEVEL;
+    //player_physics.rigid_body.SetPosition(pos);
   }
   else
   {
@@ -286,12 +285,12 @@ void PlayerMovementControllerSys::Update()
     wind_force.y *= dt;
     wind_force.z *= dt;
     
-    new_vel.m128_f32[0] += wind_force.x;
-    new_vel.m128_f32[1] += wind_force.y;
-    new_vel.m128_f32[2] += wind_force.z;
+    //new_vel.m128_f32[0] += wind_force.x;
+    //new_vel.m128_f32[1] += wind_force.y;
+    //new_vel.m128_f32[2] += wind_force.z;
   }
 
-  player_physics.rigid_body.SetLinearVelocity(new_vel);
+  //player_physics.rigid_body.SetLinearVelocity(new_vel);
   UpdateLookDir();
 
   //player abilities 
@@ -306,8 +305,8 @@ void PlayerMovementControllerSys::Update()
     //spawn offset
     DirectX::XMVECTOR cam_dir = Get<CameraSys>()->GetFPSCamera().GetViewDirection();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(DirectX::XMVector3Normalize(cam_dir), 5.0f);
-    DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
-    DirectX::XMStoreFloat3(&trans.pos, DirectX::XMVectorAdd(offset,playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
+    //DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
+    //DirectX::XMStoreFloat3(&trans.pos, DirectX::XMVectorAdd(offset,playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = 1.0f; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
@@ -322,13 +321,13 @@ void PlayerMovementControllerSys::Update()
     ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = Get<ComponentSys>()->GetPhysics(physics_comp_id);
-    Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
-    Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic();
+    //Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
+    //Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
+    //static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
+    //physics_comp.rigid_body.SetPosition(trans.pos);
+    //physics_comp.rigid_body.SetStatic();
     //physics_comp.rigid_body.SetGhost(true);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
+    //trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     obj102_entity.components[to_integral(ComponentKind::Behavior)]
       = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYTUNNEL);
@@ -344,12 +343,12 @@ void PlayerMovementControllerSys::Update()
     //spawn offset
     DirectX::XMVECTOR cam_dir = Get<CameraSys>()->GetFPSCamera().GetViewDirection();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(DirectX::XMVector3Normalize(cam_dir), 5.0f);
-    DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
-    DirectX::XMStoreFloat3(
-      &trans.pos,
-      DirectX::XMVectorAdd(
-        offset,
-        playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
+    //DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
+    //DirectX::XMStoreFloat3(
+    //  &trans.pos,
+    //  DirectX::XMVectorAdd(
+    //    offset,
+    //    playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = 1.0f; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
@@ -364,18 +363,18 @@ void PlayerMovementControllerSys::Update()
     ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = Get<ComponentSys>()->GetPhysics(physics_comp_id);
-    Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
+    /*Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
     Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
     static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
     physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic();
+    physics_comp.rigid_body.SetStatic();*/
     //physics_comp.rigid_body.SetGhost(true);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
+    //trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     obj102_entity.components[to_integral(ComponentKind::Behavior)]
       = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYHOMMING);
   }
-  AudioPlayer::Update_Player(player_physics.rigid_body.GetPosition());
+  //AudioPlayer::Update_Player(player_physics.rigid_body.GetPosition());
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
@@ -473,10 +472,10 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
         auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
         auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
 
-        if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-        {
-          return true; // found a collision with enemy
-        }
+        //if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+        //{
+        //  return true; // found a collision with enemy
+        //}
       }
       
     }
@@ -524,10 +523,10 @@ DirectX::XMFLOAT3 PlayerMovementControllerSys::GetWindTunnelForce()
         auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
         auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
 
-        if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-        {
-          return Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).force;
-        }
+        //if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
+        //{
+        //  return Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).force;
+        //}
       }
     }
   }
