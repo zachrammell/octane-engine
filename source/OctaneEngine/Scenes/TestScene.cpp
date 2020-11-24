@@ -633,14 +633,21 @@ void TestScene::Update(float dt)
       else if (weapon_render.mesh_type == Mesh_Key {"Semiauto1"})
       {
         weapon_render.mesh_type = Mesh_Key {"Crossbow"};
+        crossbow_trans.pos = {0.5f, -0.9f, .0f};
+        crossbow_trans.scale = {1.f, 1.f, 1.f};
       }
       else if (weapon_render.mesh_type == Mesh_Key {"Crossbow"})
       {
         weapon_render.mesh_type = Mesh_Key {"Slingshot"};
+        crossbow_trans.pos = {0.7f, -0.9f, .0f};
+        crossbow_trans.scale = {0.6f, 0.6f, 0.6f};
+        crossbow_trans.rotation = {-0.0605163462f, -0.753363013f, -0.113361359f, -0.644904613f};
       }
       else if (weapon_render.mesh_type == Mesh_Key {"Slingshot"})
       {
         weapon_render.mesh_type = Mesh_Key {"Sword"};
+        crossbow_trans.pos = {0.5f, -0.9f, .0f};
+        crossbow_trans.scale = {1.63f, 1.63f, 1.63f};
       }
       else if (weapon_render.mesh_type == Mesh_Key {"Sword"})
       {
