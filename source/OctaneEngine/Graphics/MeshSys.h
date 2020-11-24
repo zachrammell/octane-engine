@@ -41,6 +41,7 @@ public:
 
 private:
   eastl::hash_map<Mesh_Key, MeshPtr> meshes_;
+  eastl::hash_map<eastl::string, eastl::string> meshToPath_; //maps mesh names to paths
   eastl::string_view datapath_{"assets/meshes.nbt"}; //path to meshes NBT
   eastl::string path_; //path to models
   eastl::vector<eastl::string> meshnames_;

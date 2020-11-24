@@ -40,7 +40,9 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
     {
       if(read.OpenCompound(""))
       {
-        meshnames_[i] = read.ReadString("name");
+        const eastl::string name{read.ReadString("name")};
+        meshnames_[i] = name;
+        meshToPath_[name] = read.ReadString("path");
         read.CloseCompound();
       }
     }
@@ -71,39 +73,44 @@ const MeshDX11* MeshSys::Get(Mesh_Key key)
   }
   
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
-  NBTReader read(datapath_);
-  eastl::string path(path_);
 
-  if(read.OpenList("Data"))
-  {
-    const int listSize = meshnames_.size();
+  device.EmplaceMesh(meshes_, key, LoadMesh(eastl::string_view{path_ + meshToPath_[eastl::string{key}].data()}.data()));
+  mesh = meshes_.find(key)->second;
 
-    for(int i = 0; i < listSize; ++i)
-    {
-      if(read.OpenCompound(""))
-      {
-        if(read.ReadString("name") == key)
-        {
-          path.append(eastl::string {read.ReadString("path")});
-          device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
-          mesh = meshes_.find(key)->second;
-        }
-        read.CloseCompound();
-      }
-    }
-    read.CloseList();
-  }
-  else
-  {
-    Trace::Log(Severity::WARNING, "MeshSys::Get, Failed to open list: Data");
-  }
+
+  //NBTReader read(datapath_);
+  //eastl::string path(path_);
+
+  //if(read.OpenList("Data"))
+  //{
+  //  const int listSize = meshnames_.size();
+
+  //  for(int i = 0; i < listSize; ++i)
+  //  {
+  //    if(read.OpenCompound(""))
+  //    {
+  //      if(read.ReadString("name") == key)
+  //      {
+  //        path.append(eastl::string {read.ReadString("path")});
+  //        device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
+  //        mesh = meshes_.find(key)->second;
+  //      }
+  //      read.CloseCompound();
+  //    }
+  //  }
+  //  read.CloseList();
+  //}
+  //else
+  //{
+  //  Trace::Log(Severity::WARNING, "MeshSys::Get, Failed to open list: Data");
+  //}
 
   if(mesh)
   {
     return &*mesh;  
   }
 
-  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", path, datapath_);
+  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", key, datapath_);
 
   return nullptr;
 }
