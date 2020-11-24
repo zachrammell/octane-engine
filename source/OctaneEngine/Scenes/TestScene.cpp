@@ -533,7 +533,7 @@ void TestScene::Update(float dt)
 
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
-    //enable this to be able to move and rotate the weapon 
+    //enable this to be able to move and rotate the weapon, and scale the weapon
     #if 0
     dx::XMVECTOR newRot {};
     dx::XMVECTOR currRot = dx::XMLoadFloat4(&crossbow_trans.rotation);

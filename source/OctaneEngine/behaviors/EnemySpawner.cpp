@@ -54,6 +54,7 @@ void EnemySpawner::Update(float dt, EntityID myID)
   if (spawning)
   {
     SpawnEnemy();
+    spawnTimer = 0.f;
     //if (!prevSpawning)
     //{
     //  
