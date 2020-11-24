@@ -1,14 +1,12 @@
 #pragma once
 #include <EASTL/hash_map.h>
-#include <EASTL/vector.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/ISystem.h>
-
+#include <OctaneEngine/Physics/PhysicsDef.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-
-#include <OctaneEngine/Physics/PhysicsDef.h>
 
 namespace Octane
 {
@@ -48,8 +46,13 @@ private:
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
 
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
+  static void BulletCollisionCallback(
+    btBroadphasePair& collisionPair,
+    btCollisionDispatcher& dispatcher,
+    const btDispatcherInfo& dispatchInfo);
 
 private:
+  eastl::hash_multimap<EntityID, EntityID> entity_collisions_;
   btBroadphaseInterface* broad_phase_;
   btDefaultCollisionConfiguration* collision_config_;
   btCollisionDispatcher* narrow_phase_;
