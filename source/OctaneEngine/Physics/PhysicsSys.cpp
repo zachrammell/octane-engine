@@ -10,6 +10,27 @@
 
 namespace Octane
 {
+
+namespace
+{
+void OurNearCallback(
+  btBroadphasePair& collisionPair,
+  btCollisionDispatcher& dispatcher,
+  const btDispatcherInfo& dispatchInfo)
+{
+  void* obj0 = collisionPair.m_pProxy0->m_clientObject;
+  void* obj1 = collisionPair.m_pProxy1->m_clientObject;
+
+  // later these will be entity IDs, for now they are probably just nullptr
+  void* id0 = reinterpret_cast<btCollisionObject*>(obj0)->getUserPointer();
+  void* id1 = reinterpret_cast<btCollisionObject*>(obj1)->getUserPointer();
+
+  // fall back to default physics behavior
+  dispatcher.defaultNearCallback(collisionPair, dispatcher, dispatchInfo);
+}
+
+} // namespace
+
 PhysicsSys::PhysicsSys(Engine* engine)
   : ISystem(engine),
     broad_phase_ {new btDbvtBroadphase()},
@@ -19,7 +40,9 @@ PhysicsSys::PhysicsSys(Engine* engine)
     dynamics_world_ {new btDiscreteDynamicsWorld(narrow_phase_, broad_phase_, resolution_phase_, collision_config_)}
 {
   dynamics_world_->setGravity(btVector3(0, -10, 0));
+  narrow_phase_->setNearCallback(OurNearCallback);
 }
+
 DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
 {
   return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
@@ -207,6 +230,5 @@ void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar time_step)
 
   PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
   //write collision pair callback.
-
- }
+}
 } // namespace Octane
