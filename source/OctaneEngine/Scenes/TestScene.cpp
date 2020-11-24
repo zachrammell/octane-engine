@@ -508,7 +508,7 @@ void TestScene::Update(float dt)
           auto other = it->GetComponentHandle(ComponentKind::Behavior);
           const auto& othbeh = Get<ComponentSys>()->GetBehavior(other);
 
-          if (othbeh.type == BHVRType::BEAR)
+          if (othbeh.type == BHVRType::BEAR || othbeh.type == BHVRType::DUCK || othbeh.type == BHVRType::BUNNY)
           {
             ComponentHandle enemy_transform = it->GetComponentHandle(ComponentKind::Transform);
             TransformComponent& enemy_transform_comp = compsys->GetTransform(enemy_transform);

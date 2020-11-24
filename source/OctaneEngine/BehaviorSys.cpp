@@ -62,6 +62,12 @@ void BehaviorSys::LevelStart()
 void BehaviorSys::Update()
 {
   float dt = engine_.GetSystem<FramerateController>()->GetDeltaTime();
+
+  if (dt<= 0)
+  {
+    return;
+  }
+
   for (auto it = entsys_->EntitiesBegin(); it != entsys_->EntitiesEnd(); ++it)
   {
     if (it->active && it->HasComponent(ComponentKind::Behavior))

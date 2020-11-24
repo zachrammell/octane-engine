@@ -72,6 +72,7 @@ void DuckBehavior::Update(float dt, EntityID myID)
     Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
       = RenderType::Invisible;
     physics.rigid_body.SetStatic();
+    physics.rigid_body.SetPosition({0.f, 100.f, 0.f});
     gettingFreed = true;
     return;
     //Get<EntitySys>()->FreeEntity(myID);
