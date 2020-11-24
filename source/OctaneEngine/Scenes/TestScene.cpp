@@ -326,7 +326,7 @@ void TestScene::Update(float dt)
 
   ImGui::Text("WASD to walk around");
   ImGui::Text("Spacebar to jump, Shift to sneak");
-  ImGui::Text("Hold space to hover in the air");
+  //ImGui::Text("Hold space to hover in the air");
   ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
   ImGui::Text("E to spawn a wind tunnel that go to where the player is facing");
   ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
