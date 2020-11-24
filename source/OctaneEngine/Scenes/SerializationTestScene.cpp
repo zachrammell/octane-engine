@@ -179,7 +179,7 @@ void SerializationTestScene::Update(float dt)
                        dx::XMFLOAT3& scale,
                        dx::XMFLOAT3& rotation,
                        Color& color,
-                       Mesh_Key mesh_type,
+                       Mesh_Key& mesh_type,
                        eastl::string& name) {
     GameEntity& ent = entsys->GetEntity(id);
     ComponentHandle const trans_id = ent.GetComponentHandle(ComponentKind::Transform);
@@ -378,7 +378,6 @@ void SerializationTestScene::Update(float dt)
       auto& meshes = Get<MeshSys>()->MeshNames();
       for (auto const& mesh : meshes)
       {
-
         if (ImGui::Selectable(mesh.data()))
         {
           entity_editor_data_.mesh = mesh.data();
