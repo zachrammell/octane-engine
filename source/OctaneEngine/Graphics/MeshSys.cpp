@@ -19,10 +19,7 @@ namespace dx = DirectX;
 namespace Octane
 {
 MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
-{
-  //NBTWriter write("assets/meshes.nbt");
-  //write.WriteString("PathPrefix", "assets/models");
-  
+{  
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
   NBTReader read(datapath_);
   
@@ -42,7 +39,7 @@ MeshSys::MeshSys(class Engine* parent_engine) : ISystem(parent_engine)
       {
         const eastl::string name{read.ReadString("name")};
         meshnames_[i] = name;
-        meshToPath_[name] = read.ReadString("path");
+        meshToPath_[name] = path_ + eastl::string(read.ReadString("path"));
         read.CloseCompound();
       }
     }
@@ -74,36 +71,8 @@ const MeshDX11* MeshSys::Get(Mesh_Key key)
   
   auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
 
-  device.EmplaceMesh(meshes_, key, LoadMesh(eastl::string_view{path_ + meshToPath_[eastl::string{key}].data()}.data()));
+  device.EmplaceMesh(meshes_, key, LoadMesh(meshToPath_[eastl::string{key}].data()));
   mesh = meshes_.find(key)->second;
-
-
-  //NBTReader read(datapath_);
-  //eastl::string path(path_);
-
-  //if(read.OpenList("Data"))
-  //{
-  //  const int listSize = meshnames_.size();
-
-  //  for(int i = 0; i < listSize; ++i)
-  //  {
-  //    if(read.OpenCompound(""))
-  //    {
-  //      if(read.ReadString("name") == key)
-  //      {
-  //        path.append(eastl::string {read.ReadString("path")});
-  //        device.EmplaceMesh(meshes_, key, LoadMesh(path.data()));
-  //        mesh = meshes_.find(key)->second;
-  //      }
-  //      read.CloseCompound();
-  //    }
-  //  }
-  //  read.CloseList();
-  //}
-  //else
-  //{
-  //  Trace::Log(Severity::WARNING, "MeshSys::Get, Failed to open list: Data");
-  //}
 
   if(mesh)
   {
@@ -127,8 +96,6 @@ Mesh MeshSys::LoadMesh(const char* path)
     props);
   aiReleasePropertyStore(props);
 
-  //Assimp::Importer importer;
-  //const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_OptimizeMeshes);
   Mesh new_mesh;
   if (scene)
   {
