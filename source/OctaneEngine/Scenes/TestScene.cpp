@@ -194,7 +194,7 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     crossbow.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos = {0.5f, -0.9f, -1.0f};
+    trans.pos = {0.5f, -0.9f, .0f};
     trans.scale = {1.63f, 1.63f, 1.63f};
     trans.rotation = {-0.0605163462f, -0.753363013f, -0.113361359f, -0.644904613f};
     ComponentHandle render_comp_id = compsys->MakeRender();
@@ -202,6 +202,7 @@ void TestScene::Load()
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::cerulean;
     render_comp.mesh_type = Mesh_Key{"Sniper1"};
+    render_comp.shader_type = ShaderType::PhongUI;
   }
 
 #ifdef USE_PLAYER_ENTITY
@@ -271,12 +272,12 @@ void TestScene::Load()
 #endif
 
 
-  //Gun Reticle
+  //Gun Crosshair
   {
-    auto testui
-      = entsys->CreateEntity({0.f, 0.f, 1.f}, {0.001f, 0.001f, 0.001f}, {0.f,0.f,0.f,0.f});
-    entsys->AddRenderComp(testui, Colors::black, Mesh_Key{"Quad"});
-    auto& render_comp = compsys->GetRender(entsys->GetEntity(testui).GetComponentHandle(ComponentKind::Render));
+    auto crosshair
+         = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
+    entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
+    auto& render_comp = compsys->GetRender(entsys->GetEntity(crosshair).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
   }
 
