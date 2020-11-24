@@ -36,14 +36,14 @@ public:
 
   static SystemOrder GetOrder();
  
-  const eastl::vector<eastl::string_view>& MeshNames() const;
+  const eastl::vector<eastl::string>& MeshNames() const;
   const MeshDX11* Get(Mesh_Key key);
 
 private:
   eastl::hash_map<Mesh_Key, MeshPtr> meshes_;
   eastl::string_view datapath_{"assets/meshes.nbt"}; //path to meshes NBT
   eastl::string path_; //path to models
-  eastl::vector<eastl::string_view> meshnames_;
+  eastl::vector<eastl::string> meshnames_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
   void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);

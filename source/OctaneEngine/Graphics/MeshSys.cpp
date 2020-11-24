@@ -55,7 +55,7 @@ SystemOrder MeshSys::GetOrder()
   return SystemOrder::MeshSys;
 }
 
-const eastl::vector<eastl::string_view>& MeshSys::MeshNames() const
+const eastl::vector<eastl::string>& MeshSys::MeshNames() const
 {
   return meshnames_;
 }
