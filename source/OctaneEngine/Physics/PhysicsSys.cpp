@@ -99,39 +99,6 @@ SystemOrder PhysicsSys::GetOrder()
   return SystemOrder::PhysicsSys;
 }
 
-void PhysicsSys::InitializePhysicsBox(
-  PhysicsComponent* physics_compo,
-  const DirectX::XMFLOAT3& box_half_size,
-  const DirectX::XMFLOAT3& position,
-  const DirectX::XMFLOAT4& rotation,
-
-  bool is_dynamic,
-  bool is_sensor)
-{
-  btBoxShape* box_shape = new btBoxShape(btVector3(box_half_size.x, box_half_size.y, box_half_size.z));
-
-  /// Create Dynamic Objects
-  btTransform transform = btTransform(
-    btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w),
-    btVector3(position.x, position.y, position.z));
-  transform.setIdentity();
-
-  btScalar mass = is_dynamic ? 1.f : 0.0f;
-  btVector3 localInertia(0, 0, 0);
-  if (is_dynamic)
-    box_shape->calculateLocalInertia(mass, localInertia);
-
-  if (is_sensor)
-  {
-    physics_compo->rigid_body = CreateSensor(mass, transform, box_shape);
-  }
-  else
-  {
-    //rigid body
-    physics_compo->rigid_body = CreateRigidBody(mass, transform, box_shape);
-  }
-}
-
 void PhysicsSys::SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position)
 {
   btTransform transform = compo->rigid_body->getWorldTransform();

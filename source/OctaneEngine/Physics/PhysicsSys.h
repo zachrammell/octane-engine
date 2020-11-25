@@ -37,21 +37,13 @@ public:
   bool HasCollisions(ComponentHandle phys_component);
 
 public:
-  void InitializePhysicsBox(
-    PhysicsComponent* physics_compo,
-    const DirectX::XMFLOAT3& box_half_size,
-    const DirectX::XMFLOAT3& position,
-    const DirectX::XMFLOAT4& rotation,
-
-    bool is_dynamic,
-    bool is_sensor = false);
-
   void SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position);
   void ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
 
   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
+  // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Components/BehaviorComponent.h>
+#include <OctaneEngine/Components/MetadataComponent.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
-#include <OctaneEngine/Components/MetadataComponent.h>
+#include <OctaneEngine/ISystem.h>
 
 #include <EASTL/numeric_limits.h>
 #include <EASTL/vector.h>
@@ -48,6 +48,12 @@ public:
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
   ComponentHandle MakePhysics();
+  // pass mass=0 to create an immovable non-dynamic object
+  ComponentHandle MakePhysicsBox(
+    TransformComponent const& trans,
+    const DirectX::XMFLOAT3& box_half_size,
+    float mass,
+    bool sensor = false);
   ComponentHandle MakeBehavior(BHVRType type);
   ComponentHandle MakeMetadata();
 
@@ -80,7 +86,6 @@ public:
   const_iter<MetadataComponent> MetadataEnd() const { return metadata_comps_.cend(); }
   iter<BehaviorComponent> BehaviorBegin() { return behavior_comps_.begin(); }
   iter<BehaviorComponent> BehaviorEnd() { return behavior_comps_.end(); }
-
 
 private:
   eastl::vector<RenderComponent> render_comps_;
