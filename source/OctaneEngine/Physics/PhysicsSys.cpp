@@ -92,8 +92,6 @@ void PhysicsSys::LevelEnd()
     dynamics_world_->removeCollisionObject(obj);
     delete obj;
   }
-
-  collision_shapes_.clear();
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -111,7 +109,6 @@ void PhysicsSys::InitializePhysicsBox(
   bool is_sensor)
 {
   btBoxShape* box_shape = new btBoxShape(btVector3(box_half_size.x, box_half_size.y, box_half_size.z));
-  collision_shapes_.push_back(box_shape);
 
   /// Create Dynamic Objects
   btTransform transform = btTransform(

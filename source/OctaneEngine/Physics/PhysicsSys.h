@@ -52,23 +52,21 @@ public:
 
   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
-private:
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
 
+private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
   static void BulletCollisionCallback(
     btBroadphasePair& collisionPair,
     btCollisionDispatcher& dispatcher,
     const btDispatcherInfo& dispatchInfo);
 
-private:
   eastl::multimap<ComponentHandle, ComponentHandle> entity_collisions_;
   btBroadphaseInterface* broad_phase_;
   btDefaultCollisionConfiguration* collision_config_;
   btCollisionDispatcher* narrow_phase_;
   btSequentialImpulseConstraintSolver* resolution_phase_;
   btDiscreteDynamicsWorld* dynamics_world_;
-  btAlignedObjectArray<btCollisionShape*> collision_shapes_;
 };
 } // namespace Octane
