@@ -19,6 +19,7 @@ enum class SystemOrder : uint32_t
   ComponentSys,
   RenderSys,
   MeshSys,
+  TextureSys,
   Audio,
   // must be last, do not add anything after it.
   COUNT

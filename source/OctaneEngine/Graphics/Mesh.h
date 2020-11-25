@@ -40,8 +40,8 @@ struct Mesh
     DirectX::XMFLOAT3 position = {};
     //! Normal vector of the vertex.
     DirectX::XMFLOAT3 normal = {};
-    //! Texture coordinate of the vertex. TODO: implement texture coordinates
-    //DirectX::XMFLOAT2 uv = {};
+    //! Texture coordinate of the vertex.
+    DirectX::XMFLOAT2 uv = {0.f,0.f};
   };
   using Index = uint32_t;
 
@@ -98,6 +98,7 @@ private:
 };
 /*!
  * \brief A model to hold several meshes loaded by assimp in aiScenes
+ *        currently unused
  */
 struct Model
 {

@@ -152,7 +152,8 @@ private:
   winrt::com_ptr<ID3D11DeviceContext> device_context_;
   winrt::com_ptr<ID3D11RenderTargetView> render_target_view_;
   winrt::com_ptr<ID3D11DepthStencilView> depth_stencil_view_;
-
+  winrt::com_ptr<ID3D11SamplerState> sampler_state_;
+  winrt::com_ptr<ID3D11ShaderResourceView> shader_resource_view_;
   winrt::com_ptr<ID3D11DepthStencilState> depth_stencil_state_;
   winrt::com_ptr<ID3D11RasterizerState> rasterizer_state_;
 
@@ -170,6 +171,7 @@ private:
   ShaderConstantBuffers shader_constants_;
 
   void ClearBuffers();
+  void CreateSamplerState();
 };
 
 } // namespace Octane

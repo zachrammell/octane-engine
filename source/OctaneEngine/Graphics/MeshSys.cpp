@@ -4,15 +4,12 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/NBTReader.h>
-#include <OctaneEngine/NBTWriter.h>
 #include <OctaneEngine/Trace.h>
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
-#include <iostream>
-#include <fstream>
 
 namespace dx = DirectX;
 
@@ -79,7 +76,7 @@ const MeshDX11* MeshSys::Get(Mesh_Key key)
     return &*mesh;  
   }
 
-  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", key, datapath_);
+  Trace::Log(Severity::WARNING, "MeshSys::Get, Tried to load mesh: %s which doesn't exist in %s", key, path_);
 
   return nullptr;
 }
@@ -135,12 +132,11 @@ void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
       norm = {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
     }
     Mesh::Vertex vert {{mVert.x, mVert.y, mVert.z}, norm};
-    // TODO: implement texture coordinates
-#if 0
-        if (mesh->mTextureCoords && mesh->mTextureCoords[0])
+#if 1
+    if (mesh->HasTextureCoords(0))
     {
-          vert.uv.x = mesh->mTextureCoords[0][i].x;
-          vert.uv.y = mesh->mTextureCoords[0][i].y;
+      vert.uv.x = mesh->mTextureCoords[0][i].x;
+      vert.uv.y = mesh->mTextureCoords[0][i].y;
     }
 #endif
     new_mesh.vertex_buffer.push_back(vert);

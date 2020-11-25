@@ -226,6 +226,8 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     0.0f,
     1.0f};
   device_context_->RSSetViewports(1, &viewport);
+
+  CreateSamplerState();
 }
 
 GraphicsDeviceDX11::~GraphicsDeviceDX11()
@@ -634,6 +636,24 @@ void GraphicsDeviceDX11::ClearBuffers()
   DirectX::XMFLOAT4 clear_color {clear_color_.r, clear_color_.g, clear_color_.b, 1.0};
   device_context_->ClearRenderTargetView(render_target_view_.get(), &(clear_color.x));
   device_context_->ClearDepthStencilView(depth_stencil_view_.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void GraphicsDeviceDX11::CreateSamplerState() 
+{
+  D3D11_SAMPLER_DESC samplerdesc;
+  ZeroMemory(&samplerdesc, sizeof(D3D11_SAMPLER_DESC));
+  samplerdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samplerdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  samplerdesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+  samplerdesc.MinLOD = 0;
+  samplerdesc.MaxLOD = D3D11_FLOAT32_MAX;
+  HRESULT hr = device_->CreateSamplerState(&samplerdesc, sampler_state_.put());
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::ERROR,"failed to create a sampler state");
+  }
 }
 
 } // namespace Octane
