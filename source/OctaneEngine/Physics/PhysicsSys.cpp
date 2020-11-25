@@ -225,9 +225,9 @@ void PhysicsSys::BulletCollisionCallback(
   btCollisionObject* obj0 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy0->m_clientObject);
   btCollisionObject* obj1 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy1->m_clientObject);
 
-  // getUserPointer also returns void* but we want it as a 32-bit ComponentHandle instead
-  ComponentHandle id0 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj0->getUserPointer());
-  ComponentHandle id1 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj1->getUserPointer());
+  // getUserIndex returns an arbitrary user-defined value that we set earlier when the component was created
+  ComponentHandle id0 = obj0->getUserIndex();
+  ComponentHandle id1 = obj1->getUserIndex();
 
   // now we insert the collisions into the list
   PhysicsSys* phys = GetEngine()->GetSystem<PhysicsSys>();
