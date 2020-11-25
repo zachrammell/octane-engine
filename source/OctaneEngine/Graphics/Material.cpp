@@ -16,11 +16,11 @@ namespace Octane
 
 Material::Material(
   dx::XMFLOAT3* color,
-  int diffuse_texture = INVALID_SAMPLER,
-  dx::XMFLOAT3 spec = {0.5f, 0.5f, 0.5f},
-  int spec_texture = INVALID_SAMPLER,
-  float spec_exp = 64.f,
-  bool tint_texture_with_color = true)
+  int diffuse_texture,
+  dx::XMFLOAT3 spec,
+  int spec_texture,
+  float spec_exp,
+  bool tint_texture_with_color)
   : diffuse(color),
     diffuse_sampler(diffuse_texture),
     specular(spec),
