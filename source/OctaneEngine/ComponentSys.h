@@ -54,6 +54,7 @@ public:
     const DirectX::XMFLOAT3& box_half_size,
     float mass,
     bool sensor = false);
+  ComponentHandle MakePhysicsSphere(TransformComponent const& trans, float radius, float mass, bool sensor = false);
   ComponentHandle MakeBehavior(BHVRType type);
   ComponentHandle MakeMetadata();
 
@@ -88,6 +89,9 @@ public:
   iter<BehaviorComponent> BehaviorEnd() { return behavior_comps_.end(); }
 
 private:
+  ComponentHandle
+    MakePhysicsWithShape(TransformComponent const& trans, btCollisionShape* shape, float mass, bool sensor = false);
+
   eastl::vector<RenderComponent> render_comps_;
   eastl::vector<TransformComponent> transform_comps_;
   eastl::vector<PhysicsComponent> physics_comps_;

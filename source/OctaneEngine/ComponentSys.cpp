@@ -131,13 +131,9 @@ ComponentHandle ComponentSys::MakePhysics()
   return static_cast<ComponentHandle>(physics_comps_.size() - 1);
 }
 
-ComponentHandle ComponentSys::MakePhysicsBox(
-  const TransformComponent& trans,
-  const DirectX::XMFLOAT3& box_half_size,
-  float mass,
-  bool sensor)
+ComponentHandle
+  ComponentSys::MakePhysicsWithShape(const TransformComponent& trans, btCollisionShape* shape, float mass, bool sensor)
 {
-  btBoxShape* box_shape = new btBoxShape(btVector3(box_half_size.x, box_half_size.y, box_half_size.z));
 
   /// Create Dynamic Objects
   btTransform transform = btTransform(
@@ -148,17 +144,17 @@ ComponentHandle ComponentSys::MakePhysicsBox(
   btVector3 localInertia(0, 0, 0);
   if (mass != 0)
   {
-    box_shape->calculateLocalInertia(mass, localInertia);
+    shape->calculateLocalInertia(mass, localInertia);
   }
 
   PhysicsComponent phys_compo;
   if (sensor)
   {
-    phys_compo.rigid_body = Get<PhysicsSys>()->CreateSensor(mass, transform, box_shape);
+    phys_compo.rigid_body = Get<PhysicsSys>()->CreateSensor(mass, transform, shape);
   }
   else
   {
-    phys_compo.rigid_body = Get<PhysicsSys>()->CreateRigidBody(mass, transform, box_shape);
+    phys_compo.rigid_body = Get<PhysicsSys>()->CreateRigidBody(mass, transform, shape);
   }
 
   physics_comps_.push_back(phys_compo);
@@ -168,6 +164,22 @@ ComponentHandle ComponentSys::MakePhysicsBox(
   phys_compo.rigid_body->setUserIndex(comp_handle);
 
   return comp_handle;
+}
+
+ComponentHandle ComponentSys::MakePhysicsBox(
+  const TransformComponent& trans,
+  const DirectX::XMFLOAT3& box_half_size,
+  float mass,
+  bool sensor)
+{
+  btBoxShape* box_shape = new btBoxShape(btVector3(box_half_size.x, box_half_size.y, box_half_size.z));
+  return MakePhysicsWithShape(trans, box_shape, mass, sensor);
+}
+
+ComponentHandle ComponentSys::MakePhysicsSphere(const TransformComponent& trans, float radius, float mass, bool sensor)
+{
+  btSphereShape* sphere_shape = new btSphereShape(radius);
+  return MakePhysicsWithShape(trans, sphere_shape, mass, sensor);
 }
 
 ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
