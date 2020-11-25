@@ -46,24 +46,42 @@ void PhysicsSys::LevelStart() {}
 void PhysicsSys::Update()
 {
   float dt = Get<FramerateController>()->GetDeltaTime();
+  auto* component_sys = Get<ComponentSys>();
+
+  // set all object pos/rot based on transform
+  for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
+  {
+    if (
+      entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
+    {
+      auto const& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
+      auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+
+      btTransform& world_transform = physics_component.rigid_body->getWorldTransform();
+      auto const& pos = transform.pos;
+      auto const& rot = transform.rotation;
+
+      world_transform.setOrigin({pos.x, pos.y, pos.z});
+      world_transform.setRotation({rot.x, rot.y, rot.z, rot.w});
+    }
+  }
 
   entity_collisions_.clear(); // this list is populated in stepSimulation
   dynamics_world_->stepSimulation(dt);
 
-  auto* component_sys = Get<ComponentSys>();
-  //copy physics calculation to transform
+  //now update all transforms to match physics pos/rot
   for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
     if (
       entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
     {
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
-      auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+      auto const& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
       if (physics_component.rigid_body)
       {
-        btTransform world_transform = physics_component.rigid_body->getWorldTransform();
-        auto pos = world_transform.getOrigin();
+        btTransform& world_transform = physics_component.rigid_body->getWorldTransform();
+        auto const& pos = world_transform.getOrigin();
         auto rot = world_transform.getRotation();
         transform.pos = {pos.x(), pos.y(), pos.z()};
         transform.rotation = {pos.x(), pos.y(), pos.z(), rot.w()};
