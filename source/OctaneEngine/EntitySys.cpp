@@ -1,6 +1,6 @@
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Engine.h>
 #include <iostream> // error logging
 
 namespace Octane
@@ -62,11 +62,11 @@ void EntitySys::FreeAllEntities()
 
 void EntitySys::Load() {}
 void EntitySys::LevelStart() {}
-void EntitySys::Update() 
+void EntitySys::Update()
 {
   for (auto& ent : entities_)
   {
-    if (!ent.active && !ent.cleared)//if entity has been marked for deletion but has not been cleared yet
+    if (!ent.active && !ent.cleared) //if entity has been marked for deletion but has not been cleared yet
     {
       ent.cleared = true;
       Get<ComponentSys>()->FreePhysics(ent.components[to_integral(ComponentKind::Physics)]);
@@ -96,7 +96,7 @@ EntitySys::Iterator EntitySys::EntitiesBegin()
 }
 EntitySys::Iterator EntitySys::EntitiesEnd()
 {
-  return EntityIter(entities_.size(), *this);
+  return EntityIter(static_cast<EntityID>(entities_.size()), *this);
 }
 
 EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLOAT4 rotation)
@@ -126,18 +126,15 @@ void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
   render_comp.mesh_type = mesh;
 }
 
-void EntitySys::AddBehavior(EntityID id, BHVRType behavior) 
+void EntitySys::AddBehavior(EntityID id, BHVRType behavior)
 {
   auto compsys = Get<ComponentSys>();
   auto& entity = GetEntity(id);
-
 
   ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
   entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
   BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
 }
-
-
 
 void EntitySys::SetPlayerID(EntityID id)
 {
@@ -195,7 +192,6 @@ EntityID EntityIter::ID() const
 {
   return id_;
 }
-EntityIter::EntityIter(EntityID id, EntitySys& sys) :id_(id), sys_(sys) {}
-
+EntityIter::EntityIter(EntityID id, EntitySys& sys) : id_(id), sys_(sys) {}
 
 } // namespace Octane
