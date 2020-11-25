@@ -1,4 +1,7 @@
 #pragma once
+#include <EASTL/hash_map.h>
+#include <EASTL/vector.h>
+#include <EASTL/set.h>
 #include <EASTL/map.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
@@ -10,6 +13,12 @@
 
 namespace Octane
 {
+
+//using CollisionPair = eastl::pair<const btRigidBody*, const btRigidBody*>;
+using CollisionPairs = eastl::set<RigidBodyPair>;
+using CollisionKeyTable = eastl::hash_multimap<btRigidBody*, btRigidBody*>;
+using CollisionDataTable = eastl::map<RigidBodyPair, CollisionData>;
+
 class PhysicsSys final : public ISystem
 {
   // ISystem implementation
@@ -34,7 +43,7 @@ public:
   // if the two iterators are equal there are no collisions
   CollisionsResult GetCollisions(ComponentHandle phys_component);
   // returns true if there were any collisions with that component this frame
-  bool HasCollisions(ComponentHandle phys_component);
+  bool HasCollisions(ComponentHandle phys_component) const;
   bool HasCollision(ComponentHandle lhs, ComponentHandle rhs);
 
 public:
@@ -42,7 +51,7 @@ public:
   void ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
 
-  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
+  eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
   // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
@@ -61,5 +70,9 @@ private:
   btCollisionDispatcher* narrow_phase_;
   btSequentialImpulseConstraintSolver* resolution_phase_;
   btDiscreteDynamicsWorld* dynamics_world_;
+  btAlignedObjectArray<btCollisionShape*> collision_shapes_;
+  CollisionPairs last_collision_pair_;
+  CollisionKeyTable collision_key_table_;
+  CollisionDataTable collision_data_table_;
 };
 } // namespace Octane

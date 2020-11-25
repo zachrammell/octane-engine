@@ -10,6 +10,15 @@
 
 namespace Octane
 {
+DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
+{
+  return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
+}
+
+btVector3 ToBtVector3(const DirectX::XMFLOAT3& data)
+{
+  return btVector3(data.x, data.y, data.z);
+}
 
 PhysicsSys::PhysicsSys(Engine* engine)
   : ISystem(engine),
@@ -21,15 +30,8 @@ PhysicsSys::PhysicsSys(Engine* engine)
 {
   dynamics_world_->setGravity(btVector3(0, -10, 0));
   narrow_phase_->setNearCallback(BulletCollisionCallback);
-}
-
-DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
-{
-  return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
-}
-btVector3 ToBtVector3(const DirectX::XMFLOAT3& data)
-{
-  return btVector3(data.x, data.y, data.z);
+  dynamics_world_->setInternalTickCallback(BulletCallback);
+  dynamics_world_->setWorldUserInfo(this);
 }
 
 PhysicsSys::~PhysicsSys()
@@ -51,8 +53,7 @@ void PhysicsSys::Update()
   // set all object pos/rot based on transform
   for (auto entity = Get<EntitySys>()->EntitiesBegin(); entity != Get<EntitySys>()->EntitiesEnd(); ++entity)
   {
-    if (
-      entity->active && entity->HasComponent(ComponentKind::Transform) && entity->HasComponent(ComponentKind::Physics))
+    if (entity->active && entity->HasComponent(ComponentKind::Physics))
     {
       auto const& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
@@ -186,18 +187,6 @@ btRigidBody* PhysicsSys::CreateSensor(float mass, const btTransform& transform, 
   return nullptr;
 }
 
-void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar time_step)
-{
-  if (world == nullptr)
-    return;
-
-  if (world->getWorldUserInfo() == nullptr)
-    return;
-
-  PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
-  //write collision pair callback.
-}
-
 void PhysicsSys::BulletCollisionCallback(
   btBroadphasePair& collisionPair,
   btCollisionDispatcher& dispatcher,
@@ -226,7 +215,7 @@ PhysicsSys::CollisionsResult PhysicsSys::GetCollisions(EntityID entity)
 {
   return entity_collisions_.equal_range_small(entity);
 }
-bool PhysicsSys::HasCollisions(ComponentHandle phys_comp)
+bool PhysicsSys::HasCollisions(ComponentHandle phys_comp) const
 {
   return entity_collisions_.count(phys_comp) != 0;
 }
@@ -243,4 +232,121 @@ bool PhysicsSys::HasCollision(ComponentHandle lhs, ComponentHandle rhs)
   return false;
 }
 
+eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& b) const
+{
+  RigidBodyPair pair;
+  pair.a = a.rigid_body;
+  pair.b = b.rigid_body;
+  auto found = collision_data_table_.find(pair);
+  if (found != collision_data_table_.end())
+  {
+    return found->second.state;
+  }
+  return eCollisionState::None;
+}
+
+void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar /*time_step*/)
+{
+  if (world == nullptr)
+    return;
+
+  if (world->getWorldUserInfo() == nullptr)
+    return;
+
+  //PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
+  //CollisionPairs curr_collision_pair;
+  //btDispatcher* dispatcher = world->getDispatcher();
+  //for (int i = 0; i < dispatcher->getNumManifolds(); ++i)
+  //{
+  //  btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
+  //  const btRigidBody* body0 = static_cast<const btRigidBody*>(manifold->getBody0());
+  //  const btRigidBody* body1 = static_cast<const btRigidBody*>(manifold->getBody1());
+
+  //  bool swapped = body0 > body1;
+
+  //  btRigidBody* body_a = const_cast<btRigidBody*>(swapped ? body1 : body0);
+  //  btRigidBody* body_b = const_cast<btRigidBody*>(swapped ? body0 : body1);
+
+  //  RigidBodyPair pair;
+  //  pair.a = body_a;
+  //  pair.b = body_b;
+  //  curr_collision_pair.insert(pair);
+
+  //  auto found = physics_sys->last_collision_pair_.find(pair);
+  //  if (found == physics_sys->last_collision_pair_.end())
+  //  {
+  //    CollisionData data(body_a, body_b, eCollisionState::Start);
+  //    auto collision_data = eastl::make_pair(pair, data);
+  //    //physics_sys->collision_data_table_.insert(collision_data);
+  //    physics_sys->collision_key_table_.emplace(body_a, body_b);
+  //    physics_sys->collision_key_table_.emplace(body_b, body_a);
+  //  }
+  //  else
+  //  {
+  //    auto state = physics_sys->collision_data_table_.find(pair);
+  //    if (state->second.state == eCollisionState::Persist || state->second.state == eCollisionState::Start)
+  //    {
+  //      state->second.state = eCollisionState::Persist;
+  //    }
+  //  }
+  //}
+  //CollisionPairs removed_pairs;
+  //eastl::set_difference(
+  //  physics_sys->last_collision_pair_.begin(),
+  //  physics_sys->last_collision_pair_.end(),
+  //  curr_collision_pair.begin(),
+  //  curr_collision_pair.end(),
+  //  removed_pairs.begin());
+
+  //for (auto it = removed_pairs.begin(); it != removed_pairs.end(); ++it)
+  //{
+  //  auto state = physics_sys->collision_data_table_.find(*it);
+  //  if (state->second.state == eCollisionState::Persist)
+  //  {
+  //    state->second.state = eCollisionState::End;
+  //  }
+  //  else if (state->second.state == eCollisionState::End)
+  //  {
+  //    physics_sys->collision_data_table_.erase(state);
+
+  //    auto a = it->a;
+  //    auto b = it->b;
+
+  //    auto key_range_a = physics_sys->collision_key_table_.equal_range(a);
+  //    if (key_range_a.first != key_range_a.second)
+  //    {
+  //      for (auto range_it = key_range_a.first; range_it != key_range_a.second;)
+  //      {
+  //        if ((*range_it).second == b)
+  //        {
+  //          physics_sys->collision_key_table_.erase(range_it++);
+  //          break;
+  //        }
+  //        else
+  //        {
+  //          ++range_it;
+  //        }
+  //      }
+  //    }
+  //    auto key_range_b = physics_sys->collision_key_table_.equal_range(b);
+  //    if (key_range_b.first != key_range_b.second)
+  //    {
+  //      for (auto range_it = key_range_b.first; range_it != key_range_b.second;)
+  //      {
+  //        if ((*range_it).second == a)
+  //        {
+  //          physics_sys->collision_key_table_.erase(range_it++);
+  //          break;
+  //        }
+  //        else
+  //        {
+  //          ++range_it;
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
+
+  //physics_sys->last_collision_pair_ = curr_collision_pair;
+}
 } // namespace Octane
