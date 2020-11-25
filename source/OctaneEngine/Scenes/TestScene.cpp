@@ -22,8 +22,8 @@
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
-#include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
 
 #include <EASTL/optional.h>
 #include <EASTL/string.h>
@@ -82,8 +82,7 @@ void TestScene::Load()
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key{"Cube"})
-{
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
     // todo: custom entity_id / component_id types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& game_entity = entsys->GetEntity((ent_id));
@@ -168,7 +167,6 @@ void TestScene::Load()
     AudioPlayer::Register_Object(spawner, "spawner");
   }
 
-   
 // this WAS commented-out because of behavior sys bugs
 // now it works flawlessly and it is the enemy spawner
 #if 1
@@ -178,7 +176,7 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     enemy_spawner.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos ={0.f,0.f,0.f};
+    trans.pos = {0.f, 0.f, 0.f};
     ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::ENEMYSPAWNER);
     enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
     BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
@@ -200,7 +198,7 @@ void TestScene::Load()
     crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::cerulean;
-    render_comp.mesh_type = Mesh_Key{"Sniper1"};
+    render_comp.mesh_type = Mesh_Key {"Sniper1"};
     render_comp.shader_type = ShaderType::PhongUI;
   }
 
@@ -216,16 +214,9 @@ void TestScene::Load()
     trans.scale = {1.0f, 1.0f, 1.0f};
     trans.rotation = {};
 
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {1.5f, 1.5f, 1.5f}, 0, false);
     player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    /*
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic(); // should stop other objects from applying physics to player
-    trans.rotation = physics_comp.rigid_body.GetOrientation();*/
 
     Get<EntitySys>()->SetPlayerID(player_id);
   }
@@ -249,21 +240,12 @@ void TestScene::Load()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = Mesh_Key{"Cube"};
+    render_comp.mesh_type = Mesh_Key {"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {4.0f, 4.0f, 4.0f}, 0.0f, true);
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    /*
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic();
-    //physics_comp.rigid_body.SetGhost(true);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
-    */
 
     ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
     obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
@@ -273,16 +255,13 @@ void TestScene::Load()
 
 #endif
 
-
   //Gun Crosshair
   {
-    auto crosshair
-         = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
+    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f, 0.f, 0.f, 0.f});
     entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
     auto& render_comp = compsys->GetRender(entsys->GetEntity(crosshair).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
   }
-
 }
 
 void TestScene::Start()
@@ -300,12 +279,14 @@ void TestScene::Update(float dt)
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-
-  auto create_plane = [=](dx::XMFLOAT3 pos)
-  {
+  auto create_plane = [=](dx::XMFLOAT3 pos) {
     auto id = entsys->CreateEntity(pos, {.05f, .05f, .05f}, {});
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
-    //entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
+
+    auto const& transform = Get<ComponentSys>()->GetTransform(plane.GetComponentHandle(ComponentKind::Transform));
+    ComponentHandle physcom = Get<ComponentSys>()->MakePhysicsBox(transform, {0.1f, 0.1f, 0.1f}, 0.1f);
+    plane.components[to_integral(ComponentKind::Physics)] = physcom;
+
     entsys->AddRenderComp(id, Colors::db32[rand() % 32], "PaperPlane");
     entsys->AddBehavior(id, BHVRType::PLANE);
   };
@@ -535,8 +516,8 @@ void TestScene::Update(float dt)
 
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
-    //enable this to be able to move and rotate the weapon 
-    #if 0
+//enable this to be able to move and rotate the weapon
+#if 0
     dx::XMVECTOR newRot {};
     dx::XMVECTOR currRot = dx::XMLoadFloat4(&crossbow_trans.rotation);
 
@@ -604,7 +585,7 @@ void TestScene::Update(float dt)
       crossbow_trans.scale.y -= 0.01f;
       crossbow_trans.scale.z -= 0.01f;
     }
-    #endif
+#endif
 
 //Input area
 #if 1
@@ -620,9 +601,9 @@ void TestScene::Update(float dt)
       dx::XMFLOAT3 dir;
       dx::XMStoreFloat3(&dir, dx::XMVectorScale(offsetdir, offsetFactor));
 
-      create_plane({pos.x+dir.x,pos.y+dir.y,pos.z+dir.z});
+      create_plane({pos.x + dir.x, pos.y + dir.y, pos.z + dir.z});
     }
-    
+
     if (input->KeyPressed(SDLK_f))
     {
       auto& weapon = entsys->GetEntity(crossbow_id);
@@ -653,7 +634,7 @@ void TestScene::Update(float dt)
 
     if (enemy_destroyed_func.spawnedWave)
     {
-      AudioPlayer::Set_Position(spawner, {0.f,1.f,0.f});
+      AudioPlayer::Set_Position(spawner, {0.f, 1.f, 0.f});
       AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN, spawner);
     }
 
