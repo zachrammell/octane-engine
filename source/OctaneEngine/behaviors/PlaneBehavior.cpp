@@ -6,10 +6,9 @@
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
-#include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/behaviors/BunnyBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
-
 
 namespace Octane
 {
@@ -77,7 +76,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     {
       auto player = enty->GetPlayer();
       dir_.m128_f32[1] += .005f;
-      dir_ = dx::XMVectorScale(dir_, 12.f/dt);
+      dir_ = dx::XMVectorScale(dir_, 12.f / dt);
       auto& playerPhys = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
       //auto playerVel = playerPhys.rigid_body.GetLinearVelocity();
       //dir_ = dx::XMVectorAdd(dir_, playerVel);
@@ -101,9 +100,6 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     //phys_me.rigid_body.SetOrientation(trans_me.rotation);
 
     lifetime -= dt;
-
-
-
   }
 
   if (!gettingfreed)
@@ -117,10 +113,12 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
         if (othbeh.type == BHVRType::BEAR || othbeh.type == BHVRType::DUCK || othbeh.type == BHVRType::BUNNY)
         {
+          //TODO update for new physics code
+#if 0
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
-          /*if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
             switch (othbeh.type)
             {
@@ -148,15 +146,15 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
               break;
             }
-            default: 
-              break;
+            default: break;
             }
             if (!gettingfreed)
             {
               //Get<EntitySys>()->FreeEntity(myid);
               gettingfreed = true;
             }
-          }*/
+          }
+#endif
         }
       }
     }
