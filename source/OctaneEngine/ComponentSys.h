@@ -47,7 +47,6 @@ public:
   // does not initialize memory, it will be garbage
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
-  ComponentHandle MakePhysics();
   // pass mass=0 to create an immovable non-dynamic object
   ComponentHandle MakePhysicsBox(
     TransformComponent const& trans,
@@ -89,6 +88,7 @@ public:
   iter<BehaviorComponent> BehaviorEnd() { return behavior_comps_.end(); }
 
 private:
+  ComponentHandle MakePhysicsUninitialized();
   ComponentHandle
     MakePhysicsWithShape(TransformComponent const& trans, btCollisionShape* shape, float mass, bool sensor = false);
 

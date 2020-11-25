@@ -1,18 +1,18 @@
 #include <OctaneEngine/PlayerMovementControllerSys.h>
 
+#include "AudioPlayer.h"
 #include "FramerateController.h"
 #include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
 #include <SDL_keycode.h>
 #include <iostream>
-#include "AudioPlayer.h"
 
 namespace Octane
 {
@@ -34,7 +34,7 @@ const float PLAYER_CROUCH_SPEED = 3.0f;
 const float PLAYER_AIRSTRAFE_MAXSPEED = 12.0f;
 const float PLAYER_AIRSTRAFE_ACCEL = 4.5f;
 const float PLAYER_GRAVITY_ACCEL = 9.81f;
-const float PLAYER_HOVER_ACCEL = PLAYER_GRAVITY_ACCEL/2.0f;
+const float PLAYER_HOVER_ACCEL = PLAYER_GRAVITY_ACCEL / 2.0f;
 const float PLAYER_I_TIME = 1.0f; // invuln after getting hit
 const int PLAYER_MAX_HP = 5;
 
@@ -56,7 +56,6 @@ bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
 {
   return true; //player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
 }
-
 
 } // namespace
 
@@ -271,7 +270,7 @@ void PlayerMovementControllerSys::Update()
     //{
     //  new_vel.m128_f32[1] = 0;
     //}
-    
+
     // set y to ground level.
     // HACKY -- remove once real static physics works
     //auto pos = player_physics.rigid_body.GetPosition();
@@ -284,7 +283,7 @@ void PlayerMovementControllerSys::Update()
     wind_force.x *= dt;
     wind_force.y *= dt;
     wind_force.z *= dt;
-    
+
     //new_vel.m128_f32[0] += wind_force.x;
     //new_vel.m128_f32[1] += wind_force.y;
     //new_vel.m128_f32[2] += wind_force.z;
@@ -293,12 +292,12 @@ void PlayerMovementControllerSys::Update()
   //player_physics.rigid_body.SetLinearVelocity(new_vel);
   UpdateLookDir();
 
-  //player abilities 
+  //player abilities
   if (Get<InputHandler>()->KeyReleased(KEY_ABILITY1))
   {
-   // EntityID tunnel = Get<EntitySys>()->MakeEntity();
+    // EntityID tunnel = Get<EntitySys>()->MakeEntity();
 
-     GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((Get<EntitySys>()->MakeEntity()));
+    GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((Get<EntitySys>()->MakeEntity()));
     ComponentHandle trans_id = Get<ComponentSys>()->MakeTransform();
     obj102_entity.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = Get<ComponentSys>()->GetTransform(trans_id);
@@ -315,19 +314,12 @@ void PlayerMovementControllerSys::Update()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = Get<ComponentSys>()->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = Mesh_Key{"Cube"};
+    render_comp.mesh_type = Mesh_Key {"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
-    ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
+    ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysicsBox(trans, {4.0f, 4.0f, 4.0f}, 0.0f, true);
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = Get<ComponentSys>()->GetPhysics(physics_comp_id);
-    //Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
-    //Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    //static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-    //physics_comp.rigid_body.SetPosition(trans.pos);
-    //physics_comp.rigid_body.SetStatic();
-    //physics_comp.rigid_body.SetGhost(true);
-    //trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     obj102_entity.components[to_integral(ComponentKind::Behavior)]
       = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYTUNNEL);
@@ -360,16 +352,9 @@ void PlayerMovementControllerSys::Update()
     render_comp.mesh_type = Mesh_Key {"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
-    ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysics();
+    ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysicsBox(trans, {4.0f, 4.0f, 4.0f}, 0.0f, true);
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = Get<ComponentSys>()->GetPhysics(physics_comp_id);
-    /*Get<PhysicsSys>()->InitializeRigidBody(physics_comp);
-    Get<PhysicsSys>()->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic();*/
-    //physics_comp.rigid_body.SetGhost(true);
-    //trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     obj102_entity.components[to_integral(ComponentKind::Behavior)]
       = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYHOMMING);
@@ -379,7 +364,7 @@ void PlayerMovementControllerSys::Update()
 
 void PlayerMovementControllerSys::LevelEnd() {}
 
-void PlayerMovementControllerSys::Unload() 
+void PlayerMovementControllerSys::Unload()
 {
   // Unload player stuff
   AudioPlayer::Unload_Player();
@@ -477,7 +462,6 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
         //  return true; // found a collision with enemy
         //}
       }
-      
     }
   }
   return false; // no collisions

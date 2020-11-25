@@ -125,7 +125,7 @@ ComponentHandle ComponentSys::MakeTransform()
   return static_cast<ComponentHandle>(transform_comps_.size() - 1);
 }
 
-ComponentHandle ComponentSys::MakePhysics()
+ComponentHandle ComponentSys::MakePhysicsUninitialized()
 {
   physics_comps_.emplace_back(PhysicsComponent {});
   return static_cast<ComponentHandle>(physics_comps_.size() - 1);

@@ -85,14 +85,6 @@ void SerializationTestScene::Load()
       Colors::db32[i % 32],
       magic_enum::enum_cast<MeshType>(rand() % to_integral(MeshType::COUNT)).value_or(MeshType::Cube));
   }*/
-
-  //auto ground_plane = create_object({}, {5, 1, 5}, Colors::db32[14], MeshType::Cube);
-  //GameEntity& ent = entsys->GetEntity(ground_plane);
-  ComponentHandle const physics_id = compsys->MakePhysics();
-  //ent.components[to_integral(ComponentKind::Physics)] = physics_id;
-  PhysicsComponent& physics_component = compsys->GetPhysics(physics_id);
-  //btBoxShape box {};
-  //physics_component.collision_object->setCollisionShape()
 }
 
 void SerializationTestScene::Start()

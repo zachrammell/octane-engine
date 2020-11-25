@@ -98,7 +98,7 @@ void TestScene::Load()
     render_component.color = color;
     render_component.mesh_type = mesh_type;
 
-    //ComponentHandle physics_comp_id = compsys->MakePhysics();
+    //ComponentHandle physics_comp_id = compsys->MakePhysicsUninitialized();
     //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
     //physics_sys->InitializeRigidBody(physics_comp);
