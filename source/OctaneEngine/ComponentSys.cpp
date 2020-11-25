@@ -110,19 +110,19 @@ MetadataComponent& ComponentSys::GetMetadata(ComponentHandle id)
 
 ComponentHandle ComponentSys::MakeRender()
 {
-  render_comps_.emplace_back(RenderComponent {});
+  render_comps_.emplace_back(RenderComponent{});
   return static_cast<ComponentHandle>(render_comps_.size() - 1);
 }
 
 ComponentHandle ComponentSys::MakeTransform()
 {
-  transform_comps_.push_back_uninitialized();
+  transform_comps_.emplace_back(TransformComponent {});
   return static_cast<ComponentHandle>(transform_comps_.size() - 1);
 }
 
 ComponentHandle ComponentSys::MakePhysics()
 {
-  physics_comps_.push_back_uninitialized();
+  physics_comps_.emplace_back(PhysicsComponent {});
   return static_cast<ComponentHandle>(physics_comps_.size() - 1);
 }
 

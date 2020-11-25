@@ -59,11 +59,14 @@ void PhysicsSys::Update()
       auto& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
-      btTransform world_transform = physics_component.rigid_body->getWorldTransform();
-      auto pos = world_transform.getOrigin();
-      auto rot = world_transform.getRotation();
-      transform.pos = {pos.x(), pos.y(), pos.z()};
-      transform.rotation = {pos.x(), pos.y(), pos.z(), rot.w()};
+      if (physics_component.rigid_body)
+      {
+        btTransform world_transform = physics_component.rigid_body->getWorldTransform();
+        auto pos = world_transform.getOrigin();
+        auto rot = world_transform.getRotation();
+        transform.pos = {pos.x(), pos.y(), pos.z()};
+        transform.rotation = {pos.x(), pos.y(), pos.z(), rot.w()};
+      }
     }
   }
 }

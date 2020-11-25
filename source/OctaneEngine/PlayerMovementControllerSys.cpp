@@ -469,8 +469,8 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
     {
       if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::BEAR)
       {
-        auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-        auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+        //auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+        //auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
 
         //if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
         //{
