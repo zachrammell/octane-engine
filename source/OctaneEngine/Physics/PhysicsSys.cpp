@@ -224,9 +224,9 @@ void PhysicsSys::BulletCollisionCallback(
   btCollisionObject* obj0 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy0->m_clientObject);
   btCollisionObject* obj1 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy1->m_clientObject);
 
-  // getUserPointer also returns void* but we want it as a 32-bit EntityID instead
-  EntityID id0 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj0->getUserPointer());
-  EntityID id1 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj1->getUserPointer());
+  // getUserPointer also returns void* but we want it as a 32-bit ComponentHandle instead
+  ComponentHandle id0 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj0->getUserPointer());
+  ComponentHandle id1 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj1->getUserPointer());
 
   // now we insert the collisions into the list
   PhysicsSys* phys = GetEngine()->GetSystem<PhysicsSys>();
@@ -243,9 +243,9 @@ PhysicsSys::CollisionsResult PhysicsSys::GetCollisions(EntityID entity)
 {
   return entity_collisions_.equal_range_small(entity);
 }
-bool PhysicsSys::HasCollisions(EntityID entity)
+bool PhysicsSys::HasCollisions(ComponentHandle phys_comp)
 {
-  return entity_collisions_.count(entity) != 0;
+  return entity_collisions_.count(phys_comp) != 0;
 }
 
 } // namespace Octane

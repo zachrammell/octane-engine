@@ -1,8 +1,8 @@
 #pragma once
 #include <EASTL/map.h>
+#include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
-#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Physics/PhysicsDef.h>
 #include <btBulletCollisionCommon.h>
@@ -25,14 +25,16 @@ public:
 
   static SystemOrder GetOrder();
 
-  using CollisionsResult
-    = eastl::pair<eastl::multimap<EntityID, EntityID>::iterator, eastl::multimap<EntityID, EntityID>::iterator>;
+  using CollisionsResult = eastl::pair<
+    eastl::multimap<ComponentHandle, ComponentHandle>::iterator,
+    eastl::multimap<ComponentHandle, ComponentHandle>::iterator>;
 
   // returns a begin and end iterator into the multimap of collisions
-  // all elements between the iterators should have .first = entity and .second = a colliding object
+  // for every (k,v) pair between the iterators, k = phys_component and v = one object that collided with it
   // if the two iterators are equal there are no collisions
-  CollisionsResult GetCollisions(EntityID entity);
-  bool HasCollisions(EntityID entity);
+  CollisionsResult GetCollisions(ComponentHandle phys_component);
+  // returns true if there were any collisions with that component this frame
+  bool HasCollisions(ComponentHandle phys_component);
 
 public:
   void InitializePhysicsBox(
@@ -61,7 +63,7 @@ private:
     const btDispatcherInfo& dispatchInfo);
 
 private:
-  eastl::multimap<EntityID, EntityID> entity_collisions_;
+  eastl::multimap<ComponentHandle, ComponentHandle> entity_collisions_;
   btBroadphaseInterface* broad_phase_;
   btDefaultCollisionConfiguration* collision_config_;
   btCollisionDispatcher* narrow_phase_;
