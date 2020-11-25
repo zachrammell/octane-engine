@@ -217,14 +217,20 @@ void PhysicsSys::BulletCollisionCallback(
   btCollisionDispatcher& dispatcher,
   const btDispatcherInfo& dispatchInfo)
 {
-  void* obj0 = collisionPair.m_pProxy0->m_clientObject;
-  void* obj1 = collisionPair.m_pProxy1->m_clientObject;
+  // these are void* and could technically be any object, if we do weird implementation stuff
+  btCollisionObject* obj0 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy0->m_clientObject);
+  btCollisionObject* obj1 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy1->m_clientObject);
 
-  // later these will be entity IDs, for now they are probably just nullptr
-  void* id0 = reinterpret_cast<btCollisionObject*>(obj0)->getUserPointer();
-  void* id1 = reinterpret_cast<btCollisionObject*>(obj1)->getUserPointer();
+  // getUserPointer also returns void* but we want it as a 32-bit EntityID instead
+  EntityID id0 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj0->getUserPointer());
+  EntityID id1 = 0xFFFFFFFF & reinterpret_cast<uint64_t>(obj1->getUserPointer());
 
+  // now we insert the collisions into the list
   PhysicsSys* phys = GetEngine()->GetSystem<PhysicsSys>();
+
+  // we add in both orderings so one can efficiently lookup the collision by either entityid
+  phys->entity_collisions_.insert(eastl::make_pair(id0, id1));
+  phys->entity_collisions_.insert(eastl::make_pair(id1, id0));
 
   // fall back to default physics behavior
   dispatcher.defaultNearCallback(collisionPair, dispatcher, dispatchInfo);

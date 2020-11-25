@@ -1,5 +1,5 @@
 #pragma once
-#include <EASTL/hash_map.h>
+#include <EASTL/map.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
 #include <OctaneEngine/EntitySys.h>
@@ -52,7 +52,7 @@ private:
     const btDispatcherInfo& dispatchInfo);
 
 private:
-  eastl::hash_multimap<EntityID, EntityID> entity_collisions_;
+  eastl::multimap<EntityID, EntityID> entity_collisions_;
   btBroadphaseInterface* broad_phase_;
   btDefaultCollisionConfiguration* collision_config_;
   btCollisionDispatcher* narrow_phase_;
