@@ -214,7 +214,9 @@ void TestScene::Load()
     trans.scale = {1.0f, 1.0f, 1.0f};
     trans.rotation = {};
 
-    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {1.5f, 1.5f, 1.5f}, 0, false);
+    // for some reason setting mass to 0 (static) makes player unable to move
+    // will need to add support for kinematic objects later
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {1.5f, 1.5f, 1.5f}, 1);
     player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
 

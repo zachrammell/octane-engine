@@ -5,6 +5,7 @@ namespace Octane
 {
 class PhysicsComponent
 {
+public:
   friend class PhysicsSys;
   friend class ComponentSys;
   btRigidBody* rigid_body = nullptr;

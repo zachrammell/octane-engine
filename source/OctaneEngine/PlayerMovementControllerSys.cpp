@@ -52,9 +52,21 @@ const float HACKY_GROUND_Y_LEVEL = 0.5f;
 // temporary(?) walk timer
 static float walk_timer = 0;
 
-bool isPlayerCollidingWithGround(PhysicsComponent const& player_physics)
+DirectX::XMVECTOR bt_to_dx_vec3(btVector3 const& in)
 {
-  return true; //player_physics.rigid_body.GetPosition().y <= HACKY_GROUND_Y_LEVEL;
+  DirectX::XMFLOAT3 f3(in.x(), in.y(), in.z());
+  return DirectX::XMLoadFloat3(&f3);
+}
+
+btVector3 dx_to_bt_vec3(DirectX::XMVECTOR const& in)
+{
+  // x,y,z components
+  return btVector3(in.m128_f32[0], in.m128_f32[1], in.m128_f32[2]);
+}
+
+bool isPlayerCollidingWithGround(TransformComponent const& player_trans)
+{
+  return player_trans.pos.y <= HACKY_GROUND_Y_LEVEL;
 }
 
 } // namespace
@@ -97,6 +109,8 @@ void PlayerMovementControllerSys::Update()
 
   const ComponentHandle phys_id = player->GetComponentHandle(ComponentKind::Physics);
   PhysicsComponent& player_physics = Get<ComponentSys>()->GetPhysics(phys_id);
+  TransformComponent& player_trans
+    = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
 
   const bool jump_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_JUMP);
   const bool crouch_input = Get<InputHandler>()->KeyPressedOrHeld(KEY_CROUCH);
@@ -104,11 +118,12 @@ void PlayerMovementControllerSys::Update()
 
   const bool is_moving = !DirectX::XMVector3Equal(move_dir, ZERO_VEC);
 
-  const bool on_ground = isPlayerCollidingWithGround(player_physics);
+  const bool on_ground = isPlayerCollidingWithGround(player_trans);
 
   MoveState nextstate = movementstate_;
 
-  /*const DirectX::XMVECTOR old_vel = player_physics.rigid_body.GetLinearVelocity();
+  btVector3 old_vel_bt = player_physics.rigid_body->getLinearVelocity();
+  DirectX::XMVECTOR old_vel = bt_to_dx_vec3(old_vel_bt);
   DirectX::XMVECTOR new_vel = old_vel;
 
   switch (movementstate_)
@@ -164,7 +179,7 @@ void PlayerMovementControllerSys::Update()
     else if (is_moving)
     {
       // Handle walking sound
-      if (walk_timer >= 100.0f/PLAYER_SPEED)
+      if (walk_timer >= 100.0f / PLAYER_SPEED)
       {
         AudioPlayer::Play_Event(AK::EVENTS::PLAYER_FOOTSTEP);
         walk_timer = 0;
@@ -251,7 +266,7 @@ void PlayerMovementControllerSys::Update()
       }
     }
     break;
-  }*/
+  }
 
   //damage stuff
   UpdateDamage();
@@ -266,30 +281,31 @@ void PlayerMovementControllerSys::Update()
   if (on_ground)
   {
     // stop downward velocity
-    //if (new_vel.m128_f32[1] < 0)
-    //{
-    //  new_vel.m128_f32[1] = 0;
-    //}
+    if (new_vel.m128_f32[1] < 0)
+    {
+      new_vel.m128_f32[1] = 0;
+    }
 
     // set y to ground level.
     // HACKY -- remove once real static physics works
-    //auto pos = player_physics.rigid_body.GetPosition();
-    //pos.y = HACKY_GROUND_Y_LEVEL;
-    //player_physics.rigid_body.SetPosition(pos);
+    player_trans.pos.y = HACKY_GROUND_Y_LEVEL;
   }
   else
   {
+    // not on ground, so we can be blown by wind
     DirectX::XMFLOAT3 wind_force = GetWindTunnelForce();
     wind_force.x *= dt;
     wind_force.y *= dt;
     wind_force.z *= dt;
 
-    //new_vel.m128_f32[0] += wind_force.x;
-    //new_vel.m128_f32[1] += wind_force.y;
-    //new_vel.m128_f32[2] += wind_force.z;
+    new_vel.m128_f32[0] += wind_force.x;
+    new_vel.m128_f32[1] += wind_force.y;
+    new_vel.m128_f32[2] += wind_force.z;
   }
 
-  //player_physics.rigid_body.SetLinearVelocity(new_vel);
+  // activate the rigid body so it will definitely respond to setLinearVelocity
+  player_physics.rigid_body->setActivationState(ACTIVE_TAG);
+  player_physics.rigid_body->setLinearVelocity(dx_to_bt_vec3(new_vel));
   UpdateLookDir();
 
   //player abilities
@@ -304,8 +320,12 @@ void PlayerMovementControllerSys::Update()
     //spawn offset
     DirectX::XMVECTOR cam_dir = Get<CameraSys>()->GetFPSCamera().GetViewDirection();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(DirectX::XMVector3Normalize(cam_dir), 5.0f);
-    //DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
-    //DirectX::XMStoreFloat3(&trans.pos, DirectX::XMVectorAdd(offset,playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
+    DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_trans.pos);
+    DirectX::XMStoreFloat3(
+      &trans.pos,
+      DirectX::XMVectorAdd(
+        offset,
+        playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = 1.0f; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
@@ -335,12 +355,12 @@ void PlayerMovementControllerSys::Update()
     //spawn offset
     DirectX::XMVECTOR cam_dir = Get<CameraSys>()->GetFPSCamera().GetViewDirection();
     DirectX::XMVECTOR offset = DirectX::XMVectorScale(DirectX::XMVector3Normalize(cam_dir), 5.0f);
-    //DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_physics.rigid_body.GetPosition());
-    //DirectX::XMStoreFloat3(
-    //  &trans.pos,
-    //  DirectX::XMVectorAdd(
-    //    offset,
-    //    playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
+    DirectX::XMVECTOR playpos = DirectX::XMLoadFloat3(&player_trans.pos);
+    DirectX::XMStoreFloat3(
+      &trans.pos,
+      DirectX::XMVectorAdd(
+        offset,
+        playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = 1.0f; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};

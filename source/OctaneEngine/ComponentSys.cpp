@@ -160,6 +160,9 @@ ComponentHandle
   physics_comps_.push_back(phys_compo);
   ComponentHandle comp_handle = static_cast<ComponentHandle>(physics_comps_.size() - 1);
 
+  // activate it so it will actually update its physics
+  phys_compo.rigid_body->setActivationState(ACTIVE_TAG);
+
   // this UserIndex value will be used by the physics system to associate a btRigidBody with a component
   phys_compo.rigid_body->setUserIndex(comp_handle);
 
