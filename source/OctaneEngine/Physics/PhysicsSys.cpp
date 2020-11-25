@@ -47,6 +47,7 @@ void PhysicsSys::Update()
 {
   float dt = Get<FramerateController>()->GetDeltaTime();
 
+  entity_collisions_.clear(); // this list is populated in stepSimulation
   dynamics_world_->stepSimulation(dt);
 
   auto* component_sys = Get<ComponentSys>();
