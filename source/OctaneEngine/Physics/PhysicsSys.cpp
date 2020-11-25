@@ -234,6 +234,15 @@ void PhysicsSys::BulletCollisionCallback(
 
   // fall back to default physics behavior
   dispatcher.defaultNearCallback(collisionPair, dispatcher, dispatchInfo);
+};
+
+PhysicsSys::CollisionsResult PhysicsSys::GetCollisions(EntityID entity)
+{
+  return entity_collisions_.equal_range_small(entity);
+}
+bool PhysicsSys::HasCollisions(EntityID entity)
+{
+  return entity_collisions_.count(entity) != 0;
 }
 
 } // namespace Octane

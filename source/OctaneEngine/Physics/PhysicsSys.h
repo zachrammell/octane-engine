@@ -25,6 +25,15 @@ public:
 
   static SystemOrder GetOrder();
 
+  using CollisionsResult
+    = eastl::pair<eastl::multimap<EntityID, EntityID>::iterator, eastl::multimap<EntityID, EntityID>::iterator>;
+
+  // returns a begin and end iterator into the multimap of collisions
+  // all elements between the iterators should have .first = entity and .second = a colliding object
+  // if the two iterators are equal there are no collisions
+  CollisionsResult GetCollisions(EntityID entity);
+  bool HasCollisions(EntityID entity);
+
 public:
   void InitializePhysicsBox(
     PhysicsComponent* physics_compo,
