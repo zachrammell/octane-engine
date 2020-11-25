@@ -35,6 +35,7 @@ public:
   CollisionsResult GetCollisions(ComponentHandle phys_component);
   // returns true if there were any collisions with that component this frame
   bool HasCollisions(ComponentHandle phys_component);
+  bool HasCollision(ComponentHandle lhs, ComponentHandle rhs);
 
 public:
   void SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position);

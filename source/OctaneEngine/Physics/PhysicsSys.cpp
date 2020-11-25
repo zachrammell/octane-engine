@@ -212,5 +212,17 @@ bool PhysicsSys::HasCollisions(ComponentHandle phys_comp)
 {
   return entity_collisions_.count(phys_comp) != 0;
 }
+bool PhysicsSys::HasCollision(ComponentHandle lhs, ComponentHandle rhs)
+{
+  auto iters = GetCollisions(lhs);
+  for (auto it = iters.first; it != iters.second; ++it)
+  {
+    if (it->second == rhs)
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
 } // namespace Octane
