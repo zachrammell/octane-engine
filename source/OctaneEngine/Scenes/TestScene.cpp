@@ -608,17 +608,35 @@ void TestScene::Update(float dt)
 #if 1
 
     //shoot paper airplanes
-    if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
+    if (continue_shoot == false)
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
-      can_shoot = false;
-      auto& pos = compsys->GetTransform(entsys->GetPlayer()->GetComponentHandle(ComponentKind::Transform)).pos;
-      float offsetFactor = 0.2f;
-      auto offsetdir = camera.GetViewDirection();
-      dx::XMFLOAT3 dir;
-      dx::XMStoreFloat3(&dir, dx::XMVectorScale(offsetdir, offsetFactor));
+      if (input->MouseButtonPressed(InputHandler::MouseButton::LEFT) && can_shoot)
+      {
+        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
+        can_shoot = false;
+        auto& pos = compsys->GetTransform(entsys->GetPlayer()->GetComponentHandle(ComponentKind::Transform)).pos;
+        float offsetFactor = 0.2f;
+        auto offsetdir = camera.GetViewDirection();
+        dx::XMFLOAT3 dir;
+        dx::XMStoreFloat3(&dir, dx::XMVectorScale(offsetdir, offsetFactor));
 
-      create_plane({pos.x+dir.x,pos.y+dir.y,pos.z+dir.z});
+        create_plane({pos.x + dir.x, pos.y + dir.y, pos.z + dir.z});
+      }
+    }
+    else
+    {
+      if (input->MouseButtonPressedOrHeld(InputHandler::MouseButton::LEFT) && can_shoot)
+      {
+        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_CROSSBOW);
+        can_shoot = false;
+        auto& pos = compsys->GetTransform(entsys->GetPlayer()->GetComponentHandle(ComponentKind::Transform)).pos;
+        float offsetFactor = 0.2f;
+        auto offsetdir = camera.GetViewDirection();
+        dx::XMFLOAT3 dir;
+        dx::XMStoreFloat3(&dir, dx::XMVectorScale(offsetdir, offsetFactor));
+
+        create_plane({pos.x + dir.x, pos.y + dir.y, pos.z + dir.z});
+      }
     }
     
     if (input->KeyPressed(SDLK_f))
@@ -629,9 +647,14 @@ void TestScene::Update(float dt)
       if (weapon_render.mesh_type == Mesh_Key {"Sniper1"})
       {
         weapon_render.mesh_type = Mesh_Key {"Semiauto1"};
+
+        /********************Unable below line to turn off auto mode*********************/
+        continue_shoot = true;
+        /********************Unable upper line to turn off auto mode*********************/
       }
       else if (weapon_render.mesh_type == Mesh_Key {"Semiauto1"})
       {
+        continue_shoot = false;
         weapon_render.mesh_type = Mesh_Key {"Crossbow"};
         crossbow_trans.pos = {0.5f, -0.9f, .0f};
         crossbow_trans.scale = {1.f, 1.f, 1.f};
