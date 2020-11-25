@@ -17,9 +17,9 @@
 #include <OctaneEngine/Engine.h>
 
 #include <OctaneEngine/EntitySys.h>
-#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Trace.h>
 
 #include <OctaneEngine/NBTReader.h>
@@ -54,7 +54,7 @@ void SerializationTestScene::Load()
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key{"Cube"}) {
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
     // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& ent = entsys->GetEntity((ent_id));
@@ -93,7 +93,6 @@ void SerializationTestScene::Load()
   PhysicsComponent& physics_component = compsys->GetPhysics(physics_id);
   //btBoxShape box {};
   //physics_component.collision_object->setCollisionShape()
-  
 }
 
 void SerializationTestScene::Start()
@@ -113,16 +112,16 @@ void SerializationTestScene::Update(float dt)
       SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     dx::XMFLOAT3 cam_velocity;
-    cam_velocity.x = (input.KeyHeld(SDLK_a) - input.KeyHeld(SDLK_d));
-    cam_velocity.y = (input.KeyHeld(SDLK_SPACE) - input.KeyHeld(SDLK_LSHIFT));
-    cam_velocity.z = (input.KeyHeld(SDLK_w) - input.KeyHeld(SDLK_s));
+    cam_velocity.x = 1.0f * (input.KeyHeld(SDLK_a) - input.KeyHeld(SDLK_d));
+    cam_velocity.y = 1.0f * (input.KeyHeld(SDLK_SPACE) - input.KeyHeld(SDLK_LSHIFT));
+    cam_velocity.z = 1.0f * (input.KeyHeld(SDLK_w) - input.KeyHeld(SDLK_s));
 
     dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
 
     dx::XMINT2 mouse_vel = input.GetMouseMovement();
     auto& camera = Get<CameraSys>()->GetFPSCamera();
-    camera.RotatePitchRelative(-mouse_vel.y);
-    camera.RotateYawRelative(mouse_vel.x);
+    camera.RotatePitchRelative(-mouse_vel.y * 1.0f);
+    camera.RotateYawRelative(mouse_vel.x * 1.0f);
 
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
   }
@@ -168,7 +167,7 @@ void SerializationTestScene::Update(float dt)
                          dx::XMFLOAT3 scale,
                          dx::XMFLOAT3 rotation,
                          Color color,
-                         Mesh_Key mesh_type = Mesh_Key{"Cube"},
+                         Mesh_Key mesh_type = Mesh_Key {"Cube"},
                          string_view name = "") {
     // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
@@ -294,7 +293,7 @@ void SerializationTestScene::Update(float dt)
     auto& meshNames = Get<MeshSys>()->MeshNames();
     if (ImGui::BeginCombo("Mesh", entity_creator_data_.mesh.data(), ImGuiComboFlags_None))
     {
-      for (auto const& mesh : meshNames)//magic_enum::enum_entries<MeshType>())
+      for (auto const& mesh : meshNames) //magic_enum::enum_entries<MeshType>())
       {
         if (ImGui::Selectable(mesh.data()))
         {
