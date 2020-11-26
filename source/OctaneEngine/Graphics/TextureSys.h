@@ -20,16 +20,13 @@
 
 #include <OctaneEngine/Graphics/Texture.h>
 #include <OctaneEngine/ISystem.h>
-#include <OctaneEngine/Helper.h>
 
 #include <EASTL/hash_map.h>
 #include <EASTL/shared_ptr.h>
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
 
-struct aiScene;
-struct aiNode;
-struct aiMesh;
+enum aiTextureType;
 
 namespace Octane
 {
@@ -51,7 +48,7 @@ public:
  
   const eastl::vector<eastl::string>& TextureNames() const;
   TextureDX11* Get(Texture_Key key);
-  Texture_Key AddTexture(eastl::string_view path, aiTextureType type = aiTextureType::aiTextureType_DIFFUSE);
+  Texture_Key AddTexture(eastl::string_view path, aiTextureType type);
 
 private:
   eastl::hash_map<Texture_Key, TexturePtr> textures_;

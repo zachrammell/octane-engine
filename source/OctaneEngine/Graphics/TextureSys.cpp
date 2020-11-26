@@ -10,17 +10,19 @@
 */
 /******************************************************************************/
 
-#include <OctaneEngine/Graphics/TextureSys.h>
-
 #include <d3d11.h>
-
-#include <OctaneEngine/Engine.h>
-#include <OctaneEngine/Graphics/RenderSys.h>
-#include <OctaneEngine/SystemOrder.h>
-#include <OctaneEngine/NBTReader.h>
-#include <OctaneEngine/Trace.h>
-#include <OctaneEngine/Graphics/stb_image.h>
 #include <cstdio>
+
+#include <OctaneEngine/Graphics/TextureSys.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/Engine.h>
+#include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/Trace.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <OctaneEngine/Graphics/stb_image.h>
+
+#include <assimp/material.h>
+
 namespace dx = DirectX;
 
 namespace Octane

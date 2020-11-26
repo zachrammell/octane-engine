@@ -21,15 +21,18 @@
 #include <EASTL/string_view.h>
 #include <EASTL/shared_ptr.h>
 
-#include <assimp/material.h>
+enum aiTextureType;
+
 namespace Octane
 {
+
 
 struct Texture
 {
   winrt::com_ptr<ID3D11Texture2D> data = nullptr;
   winrt::com_ptr<ID3D11ShaderResourceView> view = nullptr;
-  aiTextureType type = aiTextureType::aiTextureType_NONE;
+  aiTextureType type;
+  /*= aiTextureType::aiTextureType_NONE;*/
 };
 
 typedef Texture TextureDX11;
