@@ -17,9 +17,10 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 
+#include <OctaneEngine/Graphics/Texture.h>
+
 #include <EASTL/vector.h>
 #include <cstdint>
-
 namespace Octane
 {
 
@@ -49,6 +50,8 @@ struct Mesh
   eastl::vector<Vertex> vertex_buffer;
   //! Holds Mesh::Index data CPU-side. If size() is zero, the mesh is not indexed.
   eastl::vector<Index> index_buffer;
+  //! holds keys to textures from mesh files
+  eastl::vector<Texture_Key> textures;
 };
 	
 /*!
@@ -95,6 +98,8 @@ private:
   winrt::com_ptr<ID3D11Buffer> vertex_buffer_;
   //! Pointer to the index buffer DX11 GPU resource.
   winrt::com_ptr<ID3D11Buffer> index_buffer_;
+  //! holds keys to textures from mesh files
+  eastl::vector<Texture_Key> textures;
 };
 /*!
  * \brief A model to hold several meshes loaded by assimp in aiScenes

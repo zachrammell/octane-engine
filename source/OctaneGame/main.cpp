@@ -33,6 +33,7 @@
 #include <OctaneEngine/PlayerMovementControllerSys.h>
 #include <OctaneEngine/SceneSys.h>
 #include <OctaneEngine/WindowManager.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 
 namespace fs = std::filesystem;
 using namespace Octane::FormattedOutput;
@@ -52,9 +53,10 @@ void AddSystems(Octane::Engine& engine) {
   engine.AddSystem(new Octane::RenderSys {&engine});
   engine.AddSystem(new Octane::BehaviorSys {&engine});
   engine.AddSystem(new Octane::PlayerMovementControllerSys {&engine});
+  engine.AddSystem(new Octane::TextureSys {&engine});
   // depends on WindowSys and RenderSys
   engine.AddSystem(new Octane::ImGuiSys {&engine});
-  engine.AddSystem(new Octane::MeshSys {&engine});
+  engine.AddSystem(new Octane::MeshSys {&engine}); //depends on TextureSys
   engine.AddSystem(new Octane::Audio {&engine});
 }
 

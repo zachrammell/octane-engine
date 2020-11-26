@@ -23,7 +23,6 @@ enum class ShaderType : int32_t
 };
 
 typedef eastl::string_view Mesh_Key; //MeshSys mesh key type
-typedef eastl::string_view Texture_Key; //TextureSys texture names
 
 struct RenderComponent
 {

@@ -130,6 +130,7 @@ void RenderSys::Update()
               device_dx11_.UseMesh(*mesh);
             }
           }
+
           device_dx11_.ShaderConstants()
             .PerObject()
             .SetWorldMatrix(object_world_matrix)

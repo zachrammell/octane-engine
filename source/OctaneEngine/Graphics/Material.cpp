@@ -16,9 +16,9 @@ namespace Octane
 
 Material::Material(
   dx::XMFLOAT3* color,
-  int diffuse_texture,
+  Texture_Key diffuse_texture,
   dx::XMFLOAT3 spec,
-  int spec_texture,
+  Texture_Key spec_texture,
   float spec_exp,
   bool tint_texture_with_color)
   : diffuse(color),

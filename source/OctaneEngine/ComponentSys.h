@@ -23,7 +23,7 @@ enum class ComponentKind : int32_t
   Metadata,
   COUNT,
 };
-
+#undef max
 typedef uint32_t ComponentHandle;
 const ComponentHandle INVALID_COMPONENT = eastl::numeric_limits<ComponentHandle>::max();
 

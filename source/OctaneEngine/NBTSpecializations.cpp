@@ -79,6 +79,7 @@ DirectX::XMFLOAT3 NBTReader::Read(string_view name)
     CloseList();
     return vec;
   }
+  return dx::XMFLOAT3();
 }
 
 template<>
@@ -94,6 +95,7 @@ DirectX::XMFLOAT4 NBTReader::Read(string_view name)
     CloseList();
     return vec;
   }
+  return dx::XMFLOAT4();
 }
 //Fix this
 //template<>
