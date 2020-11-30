@@ -1,24 +1,18 @@
-#include <OctaneEngine/behaviors/EnemySpawner.h>
+#include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
-#include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/behaviors/EnemySpawner.h>
 //#include <OctaneEngine/Physics/Box.h>
-#include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/AudioPlayer.h>
+#include <OctaneEngine/TransformHelpers.h>
 
 namespace Octane
 {
-EnemySpawner::EnemySpawner(BehaviorSys* parent, ComponentHandle handle)
-  : IBehavior(parent, handle)
-{
-}
+EnemySpawner::EnemySpawner(BehaviorSys* parent, ComponentHandle handle) : IBehavior(parent, handle) {}
 
-void EnemySpawner::Initialize() 
-{
-
-}
+void EnemySpawner::Initialize() {}
 
 void EnemySpawner::Update(float dt, EntityID myID)
 {
@@ -33,7 +27,6 @@ void EnemySpawner::Update(float dt, EntityID myID)
              && totalSpawnedCurrrentWave < waveSpawnCap;
 
   enemy_destroyed_func->spawnedWave = false;
-
 
   if (totalSpawnedCurrrentWave == waveSpawnCap && !enemy_destroyed_func->enemiesSpawned)
   {
@@ -56,18 +49,14 @@ void EnemySpawner::Update(float dt, EntityID myID)
     SpawnEnemy();
     //if (!prevSpawning)
     //{
-    //  
+    //
     //  enemy_destroyed_func->spawnedWave = true;
     //  //Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN);
     //}
-
   }
   prevSpawning = spawning;
 }
-void EnemySpawner::Shutdown()
-{
-
-}
+void EnemySpawner::Shutdown() {}
 
 void EnemySpawner::SetEnemyDestroyedFunc(EnemyDestroyed& enemydestroyedfunc)
 {
@@ -80,16 +69,20 @@ void EnemySpawner::SpawnEnemy()
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
   auto player = entsys->GetPlayer();
-  auto& player_trans = compsys->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
+  auto& player_transform = compsys->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
   Mesh_Key mesh;
   const int enemyType = rand() % 3;
 
   auto id = entsys->CreateEntity(
-    {player_trans.pos.x + rand() % 64 - 32.f, 0.0f, player_trans.pos.z + rand() % 64 - 32.f},
+    {player_transform.pos.x + rand() % 64 - 32.f, 0.0f, player_transform.pos.z + rand() % 64 - 32.f},
     {0.25f, 0.25f, 0.25f},
     {});
   auto& entity = entsys->GetEntity(id);
-  //entsys->AddPhysics(id, ePrimitiveType::Box, {.25f, .25f, .25f});
+
+  auto enemy_transform_handle = entity.components[to_integral(ComponentKind::Transform)];
+  auto& enemy_transform = compsys->GetTransform(enemy_transform_handle);
+  ComponentHandle physics_component_handle = compsys->MakePhysicsBox(enemy_transform, {.25f, .25f, .25f}, 1.0f);
+
   BHVRType behavior = BHVRType::INVALID;
   switch (enemyType)
   {
@@ -102,7 +95,7 @@ void EnemySpawner::SpawnEnemy()
     behavior = BHVRType::DUCK;
     break;
   case 2:
-    mesh = "Bunny"; 
+    mesh = "Bunny";
     behavior = BHVRType::BUNNY;
     break;
   default: break;
@@ -114,24 +107,24 @@ void EnemySpawner::SpawnEnemy()
 
   switch (behavior)
   {
-    case BHVRType::BEAR: 
-    {
-      auto enemybeh = static_cast<BearBehavior*>(beh.behavior);
-      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-      break;
-    }
-    case BHVRType::DUCK: 
-    {
-      auto enemybeh = static_cast<DuckBehavior*>(beh.behavior);
-      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-      break;
-    }
-    case BHVRType::BUNNY: 
-    {
-      auto enemybeh = static_cast<BunnyBehavior*>(beh.behavior);
-      enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
-      break;
-    }
+  case BHVRType::BEAR:
+  {
+    auto enemybeh = static_cast<BearBehavior*>(beh.behavior);
+    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    break;
+  }
+  case BHVRType::DUCK:
+  {
+    auto enemybeh = static_cast<DuckBehavior*>(beh.behavior);
+    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    break;
+  }
+  case BHVRType::BUNNY:
+  {
+    auto enemybeh = static_cast<BunnyBehavior*>(beh.behavior);
+    enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    break;
+  }
   }
 
   ++totalSpawnedCurrrentWave;
@@ -140,4 +133,4 @@ void EnemySpawner::SpawnEnemy()
     spawnTimer = 0.0f;
 }
 
-}
+} // namespace Octane

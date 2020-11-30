@@ -50,6 +50,7 @@ private:
     DirectX::XMFLOAT3 rotation {};
     Color color{};
     Mesh_Key mesh = Mesh_Key{"Cube"};
+    bool has_collider = false;
     eastl::string name {32 ,'\0'};
   } entity_creator_data_, entity_editor_data_;
 };

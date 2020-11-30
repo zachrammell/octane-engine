@@ -1,8 +1,8 @@
 #pragma once
 
 #include <OctaneEngine/Graphics/Colors.h>
-
 #include <EASTL/string_view.h>
+
 namespace Octane
 {
 
@@ -22,14 +22,12 @@ enum class ShaderType : int32_t
   COUNT
 };
 
-typedef eastl::string_view Mesh_Key; //MeshSys mesh key type
-
+using Mesh_Key = eastl::string_view; //MeshSys mesh key type
 
 struct RenderComponent
 {
   Color color {};
   Mesh_Key mesh_type;
-  //MeshType mesh_type = MeshType::INVALID;
   RenderType render_type = RenderType::Filled;
   ShaderType shader_type = ShaderType::Phong;
 };

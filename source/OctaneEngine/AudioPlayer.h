@@ -19,7 +19,7 @@
 
 namespace Octane
 {
-  static class AudioPlayer
+  class AudioPlayer
   {
   public:
     // Banks

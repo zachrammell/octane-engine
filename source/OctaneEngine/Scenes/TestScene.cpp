@@ -97,16 +97,6 @@ void TestScene::Load()
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.color = color;
     render_component.mesh_type = mesh_type;
-
-    //ComponentHandle physics_comp_id = compsys->MakePhysicsUninitialized();
-    //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-    //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    //physics_sys->InitializeRigidBody(physics_comp);
-    //physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    //static_cast<Box*>(physics_comp.primitive)->SetBox(2.0f * scale.x, 2.0f * scale.y, 2.0f * scale.z);
-    //physics_comp.rigid_body.SetPosition(trans.pos);
-    //trans.rotation = physics_comp.rigid_body.GetOrientation();
-    //physics_comp.rigid_body.SetStatic();
   };
 
   {
@@ -117,51 +107,64 @@ void TestScene::Load()
     Trace::Log(DEBUG, "Loading entities.\n");
     NBTReader nbt_reader {"assets/maps/level1.nbt"};
     // for every object, read it in
-    //if (nbt_reader.OpenList("Entities"))
-    //{
-    //  const int entity_list_size = nbt_reader.ListSize();
-    //  for (int i = 0; i < entity_list_size; ++i)
-    //  {
-    //    if (nbt_reader.OpenCompound(""))
-    //    {
-    //      EntityID const ent_id = entity_sys.MakeEntity();
-    //      GameEntity& ent = entity_sys.GetEntity(ent_id);
+    if (nbt_reader.OpenList("Entities"))
+    {
+      const int entity_list_size = nbt_reader.ListSize();
+      for (int i = 0; i < entity_list_size; ++i)
+      {
+        if (nbt_reader.OpenCompound(""))
+        {
+          EntityID const ent_id = entity_sys.MakeEntity();
+          GameEntity& ent = entity_sys.GetEntity(ent_id);
 
-    //      for (auto component_type : magic_enum::enum_values<ComponentKind>())
-    //      {
-    //        if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
-    //        {
-    //          switch (component_type)
-    //          {
-    //          case ComponentKind::Render:
-    //          {
-    //            ComponentHandle const render_id = component_sys.MakeRender();
-    //            ent.components[to_integral(ComponentKind::Render)] = render_id;
-    //            RenderComponent& render_component = component_sys.GetRender(render_id);
-    //            render_component.color = nbt_reader.Read<Color>("Color");
-    //            render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
-    //          }
-    //          break;
-    //          case ComponentKind::Transform:
-    //          {
-    //            ComponentHandle const trans_id = component_sys.MakeTransform();
-    //            ent.components[to_integral(ComponentKind::Transform)] = trans_id;
-    //            TransformComponent& trans = component_sys.GetTransform(trans_id);
-    //            trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
-    //            trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
-    //            trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
-    //          }
-    //          break;
-    //          default: break;
-    //          }
-    //          nbt_reader.CloseCompound();
-    //        }
-    //      }
-    //      nbt_reader.CloseCompound();
-    //    }
-    //  }
-    //  nbt_reader.CloseList();
-    //}
+          for (auto component_type : magic_enum::enum_values<ComponentKind>())
+          {
+            if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
+            {
+              switch (component_type)
+              {
+              case ComponentKind::Render:
+              {
+                ComponentHandle const render_id = component_sys.MakeRender();
+                ent.components[to_integral(ComponentKind::Render)] = render_id;
+                RenderComponent& render_component = component_sys.GetRender(render_id);
+                render_component.color = nbt_reader.Read<Color>("Color");
+                auto const& meshnames = Get<MeshSys>()->MeshNames();
+                render_component.mesh_type
+                  = *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh"));
+              }
+              break;
+              case ComponentKind::Transform:
+              {
+                ComponentHandle const trans_id = component_sys.MakeTransform();
+                ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+                TransformComponent& trans = component_sys.GetTransform(trans_id);
+                trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
+                trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
+                trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+              }
+              break;
+              case ComponentKind::Physics:
+              {
+                TransformComponent& trans
+                  = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
+                auto const scale = trans.scale;
+                dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
+                float mass = nbt_reader.ReadFloat("Mass");
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, half_scale, mass);
+                ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
+              }
+              break;
+              default: break;
+              }
+              nbt_reader.CloseCompound();
+            }
+          }
+          nbt_reader.CloseCompound();
+        }
+      }
+      nbt_reader.CloseList();
+    }
 
     spawner = 2;
     AudioPlayer::Register_Object(spawner, "spawner");
@@ -203,7 +206,7 @@ void TestScene::Load()
   }
 
 #ifdef USE_PLAYER_ENTITY
-  Octane::EntityID player_id = Get<EntitySys>()->MakeEntity();
+  EntityID player_id = Get<EntitySys>()->MakeEntity();
 
   {
     GameEntity& player = Get<EntitySys>()->GetEntity(player_id);
@@ -260,7 +263,7 @@ void TestScene::Load()
   //Gun Crosshair
   {
     auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f, 0.f, 0.f, 0.f});
-    entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
+    entsys->AddRenderComp(crosshair, Colors::white, Mesh_Key {"Crosshair1"});
     auto& render_comp = compsys->GetRender(entsys->GetEntity(crosshair).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
   }

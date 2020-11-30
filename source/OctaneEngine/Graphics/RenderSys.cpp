@@ -74,18 +74,15 @@ void RenderSys::Update()
 
   for (auto shader_type : magic_enum::enum_values<ShaderType>())
   {
-
     Shader* shader = nullptr;
     switch (shader_type)
     {
-    case Octane::ShaderType::Phong:
+    case ShaderType::Phong:
       shader = &phong; break;
-    case Octane::ShaderType::UI:
+    case ShaderType::UI:
       shader = &ui; break;
-    case Octane::ShaderType::PhongUI:
+    case ShaderType::PhongUI:
       shader = &phongui; break;
-    case Octane::ShaderType::COUNT:
-      continue;
     default:
       continue;
     }
@@ -158,7 +155,5 @@ void RenderSys::SetClearColor(Color clear_color)
 {
   device_dx11_.SetClearColor(clear_color);
 }
-
-
 
 } // namespace Octane

@@ -355,6 +355,9 @@ void SerializationTestScene::Update(float dt)
     }
     ImGui::DragFloat3("Position", &(entity_editor_data_.position.x), slider_sensitivity);
     ImGui::DragFloat3("Scale", &(entity_editor_data_.scale.x), slider_sensitivity);
+    if (ImGui::Checkbox("Box Collider", &entity_editor_data_.has_collider))
+    {
+    }
     ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_editor_data_.color.r));
     if (ImGui::BeginCombo("DB32 Color", ""))
@@ -398,6 +401,19 @@ void SerializationTestScene::Update(float dt)
         entity_editor_data_.color,
         entity_editor_data_.mesh,
         entity_editor_data_.name);
+      if (entity_editor_data_.has_collider)
+      {
+        GameEntity& entity = entsys->GetEntity(entity_editor_data_.id);
+        if (!entity.HasComponent(ComponentKind::Physics))
+        {
+          TransformComponent& transform_component
+            = compsys->GetTransform(entity.GetComponentHandle(ComponentKind::Transform));
+          auto const scale = transform_component.scale;
+          dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
+          entity.GetComponentHandle(ComponentKind::Physics)
+            = compsys->MakePhysicsBox(transform_component, half_scale, 0.0f);
+        }
+      }
     }
     ImGui::End();
   }
@@ -431,6 +447,13 @@ void SerializationTestScene::Update(float dt)
               MetadataComponent& metadata_component
                 = component_sys.GetMetadata(entity->GetComponentHandle(ComponentKind::Metadata));
               nbt_writer.Write("Name", string_view {metadata_component.name});
+            }
+
+            if (entity->HasComponent(ComponentKind::Physics))
+            {
+              PhysicsComponent& physics_component
+                = component_sys.GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+              nbt_writer.Write(magic_enum::enum_name(ComponentKind::Physics), physics_component);
             }
 
             // automatically get all components (needs generic component interface)
@@ -502,6 +525,17 @@ void SerializationTestScene::Update(float dt)
                 trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
                 trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
                 trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+              }
+              break;
+              case ComponentKind::Physics:
+              {
+                TransformComponent& trans
+                  = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
+                auto const scale = trans.scale;
+                dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
+                float mass = nbt_reader.ReadFloat("Mass");
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, half_scale, mass);
+                ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
               }
               break;
               default: break;
