@@ -148,10 +148,8 @@ void TestScene::Load()
               {
                 TransformComponent& trans
                   = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
-                auto const scale = trans.scale;
-                dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
                 float mass = nbt_reader.ReadFloat("Mass");
-                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, half_scale, mass);
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, trans.scale, mass);
                 ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
               }
               break;
