@@ -119,7 +119,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
         if (othbeh.type == BHVRType::BEAR || othbeh.type == BHVRType::DUCK || othbeh.type == BHVRType::BUNNY)
         {
           //TODO update for new physics code
-#if 0
+#if 1
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 

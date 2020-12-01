@@ -82,7 +82,7 @@ void EnemySpawner::SpawnEnemy()
   auto enemy_transform_handle = entity.components[to_integral(ComponentKind::Transform)];
   auto& enemy_transform = compsys->GetTransform(enemy_transform_handle);
   ComponentHandle physics_component_handle = compsys->MakePhysicsBox(enemy_transform, {.25f, .25f, .25f}, 1.0f);
-
+  entity.components[to_integral(ComponentKind::Physics)] = physics_component_handle;
   BHVRType behavior = BHVRType::INVALID;
   switch (enemyType)
   {
