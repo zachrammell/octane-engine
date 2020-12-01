@@ -18,7 +18,7 @@ namespace Octane
 {
 
 GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
-  : supported_mode_ {nullptr},
+  : supported_mode_ {},
     currently_in_fullscreen_ {false},
     clear_color_ {Colors::black},
     current_mesh_ {nullptr}
@@ -31,7 +31,14 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
 
-  //supported_mode_ = &buffer_description;
+  supported_mode_ = DXGI_MODE_DESC {
+    static_cast<UINT>(w),
+    static_cast<UINT>(h),
+    // TODO: get monitor refresh rate
+    {60, 1},
+    DXGI_FORMAT_R8G8B8A8_UNORM,
+    DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+    DXGI_MODE_SCALING_UNSPECIFIED};
 
   SDL_SysWMinfo system_info;
   SDL_VERSION(&system_info.version);
@@ -76,22 +83,22 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     currently_in_fullscreen_ = false;
 
   hr = D3D11CreateDeviceAndSwapChain(
-    nullptr, //let DX11 choose adapter
+    nullptr,                  //let DX11 choose adapter
     D3D_DRIVER_TYPE_HARDWARE, //driver which implements d3d in hardware
-    nullptr, //software driver
+    nullptr,                  //software driver
 #ifdef _DEBUG
     D3D11_CREATE_DEVICE_DEBUG, //runtime debug layers
 #endif
 #ifndef _DEBUG
     0,
 #endif
-    nullptr,//feature levels
-    0,//length of feature levels array
-    D3D11_SDK_VERSION,//DirectX11 SDK
-    &swap_chain_descriptor,//swap chain info
+    nullptr,                //feature levels
+    0,                      //length of feature levels array
+    D3D11_SDK_VERSION,      //DirectX11 SDK
+    &swap_chain_descriptor, //swap chain info
     swap_chain_.put(),
     device_.put(),
-    nullptr,//supported feature levels
+    nullptr, //supported feature levels
     device_context_.put());
   assert(SUCCEEDED(hr));
 
@@ -240,26 +247,39 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
   SDL_GetWindowWMInfo(window, &system_info);
 
   //Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
-  DXGI_MODE_DESC zeroRefreshRate = *supported_mode_;
+  DXGI_MODE_DESC zeroRefreshRate = supported_mode_;
   zeroRefreshRate.RefreshRate.Numerator = 0;
   zeroRefreshRate.RefreshRate.Denominator = 0;
 
   //check for fullscreen switch
-  BOOL in_full_screen_ = false;
-  swap_chain_->GetFullscreenState(&in_full_screen_, NULL);
+  BOOL want_full_screen = false;
+  swap_chain_->GetFullscreenState(&want_full_screen, NULL);
 
-  if (currently_in_fullscreen_ != in_full_screen_)
+  if (currently_in_fullscreen_ != !!want_full_screen)
   {
     //fullscreen switch
-    if (in_full_screen_)
+    if (want_full_screen)
     {
+      // get fullscreen size
+      SDL_DisplayMode mode;
+      int err = SDL_GetDisplayMode(0, 0, &mode);
+      if (err)
+      {
+        zeroRefreshRate.Width = mode.w;
+        zeroRefreshRate.Height = mode.h;
+      }
+      else
+      {
+        std::clog << "SDL_GetDisplayMode failed while going fullscreen: " << SDL_GetError() << "\n";
+      }
+
       swap_chain_->ResizeTarget(&zeroRefreshRate);
       swap_chain_->SetFullscreenState(true, nullptr);
     }
     else
     {
       swap_chain_->SetFullscreenState(false, nullptr);
-      RECT rect = {0, 0, static_cast<LONG>(supported_mode_->Width), static_cast<LONG>(supported_mode_->Height)};
+      RECT rect = {0, 0, static_cast<LONG>(supported_mode_.Width), static_cast<LONG>(supported_mode_.Height)};
       AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);
       SetWindowPos(
         system_info.info.win.window,
@@ -269,12 +289,13 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
         rect.right - rect.left,
         rect.bottom - rect.top,
         SWP_NOMOVE);
+
+      //Resize target to the desired resolution
+      swap_chain_->ResizeTarget(&zeroRefreshRate);
     }
 
     currently_in_fullscreen_ = !currently_in_fullscreen_;
   }
-  //Resize target to the desired resolution
-  swap_chain_->ResizeTarget(&zeroRefreshRate);
 
   device_context_->OMSetRenderTargets(0, 0, 0);
   if (render_target_view_)
@@ -489,7 +510,8 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
 //  return mesh_dx11;
 //}
 
-void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
+void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)
+  const
 {
   meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   auto& newMesh = meshes.find(placement)->second;

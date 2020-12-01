@@ -163,7 +163,7 @@ private:
    */
   winrt::com_ptr<ID3D11Buffer> constant_buffers_[2];
 
-  DXGI_MODE_DESC* supported_mode_;
+  DXGI_MODE_DESC supported_mode_;
   bool currently_in_fullscreen_;
   Color clear_color_;
   MeshDX11 const* current_mesh_;
