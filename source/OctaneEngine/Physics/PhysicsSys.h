@@ -56,6 +56,7 @@ public:
   // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
+  void RemoveRigidBody(btRigidBody* shape);
 
 private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);

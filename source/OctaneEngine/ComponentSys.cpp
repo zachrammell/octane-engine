@@ -52,8 +52,18 @@ void ComponentSys::FreeTransform(ComponentHandle id) {}
 
 void ComponentSys::FreePhysics(ComponentHandle id)
 {
-  PhysicsComponent& compo = GetPhysics(id);
-  //compo.sys->ErasePrimitive(compo);
+  if (id != INVALID_COMPONENT)
+  {
+
+    PhysicsComponent& compo = GetPhysics(id);   
+
+    if (compo.rigid_body != nullptr)
+    {
+      Get<PhysicsSys>()->RemoveRigidBody(compo.rigid_body);
+      delete compo.rigid_body;
+      compo.rigid_body = nullptr;
+    }
+  }
 }
 
 void ComponentSys::FreeRender(ComponentHandle id) {}

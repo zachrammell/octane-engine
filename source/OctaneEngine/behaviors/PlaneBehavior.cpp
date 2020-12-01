@@ -68,7 +68,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
   if (lifetime <= 0.f && !gettingfreed)
   {
-    //Get<EntitySys>()->FreeEntity(myid);
+    Get<EntitySys>()->FreeEntity(myid);
     gettingfreed = true;
   }
   {

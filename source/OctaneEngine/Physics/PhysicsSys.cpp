@@ -245,6 +245,14 @@ eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& 
   return eCollisionState::None;
 }
 
+void PhysicsSys::RemoveRigidBody(btRigidBody* shape)
+{
+  if (shape != nullptr)
+  {
+    dynamics_world_->removeRigidBody(shape);
+  }
+}
+
 void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar /*time_step*/)
 {
   if (world == nullptr)
