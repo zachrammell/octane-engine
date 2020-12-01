@@ -50,6 +50,7 @@ public:
   void SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position);
   void ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
+  DirectX::XMVECTOR GetVelocity(const PhysicsComponent* compo) const;
 
   eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 

@@ -20,6 +20,11 @@ btVector3 ToBtVector3(const DirectX::XMFLOAT3& data)
   return btVector3(data.x, data.y, data.z);
 }
 
+DirectX::XMVECTOR ToXmVector(const btVector3& data) 
+{
+  return DirectX::XMLoadFloat3(&ToXmFloat3(data));
+}
+
 PhysicsSys::PhysicsSys(Engine* engine)
   : ISystem(engine),
     broad_phase_ {new btDbvtBroadphase()},
@@ -141,6 +146,11 @@ void PhysicsSys::ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& t
   {
     body->applyTorque(btVector3(torque.x, torque.y, torque.z));
   }
+}
+
+DirectX::XMVECTOR PhysicsSys::GetVelocity(const PhysicsComponent* compo) const
+{
+  return ToXmVector(compo->rigid_body->getLinearVelocity());
 }
 
 btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const

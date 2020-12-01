@@ -48,8 +48,6 @@ void EntitySys::FreeEntity(EntityID which)
     std::cerr << "Trying to free entity #" << which << " which is already freed!" << std::endl;
   }
 
-  //Get<ComponentSys>()->FreePhysics(entities_[which].components[to_integral(ComponentKind::Physics)]);
-  //Get<ComponentSys>()->FreeBehavior(entities_[which].components[to_integral(ComponentKind::Behavior)]);
   ResetEntity(entities_[which]);
   --entity_count_;
 }

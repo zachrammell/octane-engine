@@ -208,6 +208,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::PLANE:
   {
     auto& camera = Get<CameraSys>()->GetFPSCamera();
+    
     beh.behavior = new PlaneBehavior(
       Get<BehaviorSys>(),
       static_cast<ComponentHandle>(behavior_comps_.size()),

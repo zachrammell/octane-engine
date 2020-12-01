@@ -54,13 +54,14 @@ void PlaneBehavior::Initialize()
 void PlaneBehavior::Update(float dt, EntityID myid)
 {
   auto enty = Get<EntitySys>();
+  auto phys_sys = Get<PhysicsSys>();
   auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
   auto& trans_me
     = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
   if (gettingfreed)
   {
-    Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
-      = RenderType::Invisible;
+   // Get<ComponentSys>()->GetRender(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Render)).render_type
+     // = RenderType::Invisible;
     //phys_me.rigid_body.SetStatic();
     return;
   }
@@ -70,19 +71,22 @@ void PlaneBehavior::Update(float dt, EntityID myid)
   {
     Get<EntitySys>()->FreeEntity(myid);
     gettingfreed = true;
+    return;
   }
   {
     if (!impulsed)
     {
       auto player = enty->GetPlayer();
       dir_.m128_f32[1] += .005f;
-      dir_ = dx::XMVectorScale(dir_, 12.f / dt);
+     // dir_ = dx::XMVectorScale(dir_, 12.f / dt);
+      dir_ = dx::XMVectorScale(dir_, 100.f);
       auto& playerPhys = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
-      //auto playerVel = playerPhys.rigid_body.GetLinearVelocity();
-      //dir_ = dx::XMVectorAdd(dir_, playerVel);
+      auto playerVel = phys_sys->GetVelocity(&playerPhys);
+      dir_ = dx::XMVectorAdd(dir_, playerVel);
       dx::XMFLOAT3 force;
       dx::XMStoreFloat3(&force, dir_);
-      //phys_me.rigid_body.ApplyForceCentroid(force);
+      
+      phys_sys->ApplyForce(&phys_me, force);
       dir_ = dx::XMVector3Normalize(dir_);
       dx::XMStoreFloat3(&force, dir_);
       FaceDir(trans_me, force);
@@ -91,10 +95,11 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       impulsed = true;
       return;
     }
-    //phys_me.rigid_body.ApplyForceCentroid({0.f, .15f * G, 0.f});
+    
+    phys_sys->ApplyForce(&phys_me, {0.f, .15f * G, 0.f});
 
     dx::XMFLOAT3 vel;
-    //dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_me.rigid_body.GetLinearVelocity()));
+    dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_sys->GetVelocity(&phys_me)));
 
     FaceDir(trans_me, vel);
     //phys_me.rigid_body.SetOrientation(trans_me.rotation);
@@ -118,7 +123,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
           auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
-          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+          if (phys_sys->HasCollision(phys_me, phys_other) == eCollisionState::Start)
           {
             switch (othbeh.type)
             {
@@ -148,9 +153,11 @@ void PlaneBehavior::Update(float dt, EntityID myid)
             }
             default: break;
             }
+
+            //prevent freeing multiple times due to multiple collision
             if (!gettingfreed)
             {
-              //Get<EntitySys>()->FreeEntity(myid);
+              Get<EntitySys>()->FreeEntity(myid);
               gettingfreed = true;
             }
           }
