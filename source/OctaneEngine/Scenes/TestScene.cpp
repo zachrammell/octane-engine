@@ -642,6 +642,13 @@ void TestScene::Update(float dt)
     }
 #endif
 
+    // temporary bind: f7 to toggle fullscreen
+    if (input->KeyPressed(SDLK_F7))
+    {
+      bool fullscreen = Get<WindowManager>()->IsFullscreen();
+      Get<WindowManager>()->SetFullscreen(!fullscreen);
+    }
+
     if (enemy_destroyed_func.spawnedWave)
     {
       AudioPlayer::Set_Position(spawner, {0.f, 1.f, 0.f});

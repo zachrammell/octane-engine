@@ -12,12 +12,12 @@
 
 #include <OctaneEngine/Graphics/RenderSys.h>
 
-#include <OctaneEngine/Graphics/MeshSys.h>
-#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/RenderComponent.h>
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/SystemOrder.h>
@@ -38,7 +38,7 @@ namespace
 Octane::Shader phong;
 Octane::Shader ui;
 Octane::Shader phongui;
-}
+} // namespace
 
 namespace Octane
 {
@@ -48,7 +48,8 @@ RenderSys::RenderSys(Engine* parent_engine)
 {
   phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
   ui = device_dx11_.CreateShader(L"assets/shaders/UI.hlsl", Shader::InputLayout_POS);
-  phongui = device_dx11_.CreateShader(L"assets/shaders/phongUI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
+  phongui
+    = device_dx11_.CreateShader(L"assets/shaders/phongUI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
   device_dx11_.UseShader(phong);
   device_dx11_.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -77,14 +78,10 @@ void RenderSys::Update()
     Shader* shader = nullptr;
     switch (shader_type)
     {
-    case ShaderType::Phong:
-      shader = &phong; break;
-    case ShaderType::UI:
-      shader = &ui; break;
-    case ShaderType::PhongUI:
-      shader = &phongui; break;
-    default:
-      continue;
+    case ShaderType::Phong: shader = &phong; break;
+    case ShaderType::UI: shader = &ui; break;
+    case ShaderType::PhongUI: shader = &phongui; break;
+    default: continue;
     }
     device_dx11_.UseShader(*shader);
 
@@ -122,7 +119,7 @@ void RenderSys::Update()
           {
             current_mesh = render_comp.mesh_type;
             auto mesh = meshSys->Get(current_mesh.data());
-            if(mesh)
+            if (mesh)
             {
               device_dx11_.UseMesh(*mesh);
             }
@@ -154,6 +151,10 @@ SystemOrder RenderSys::GetOrder()
 void RenderSys::SetClearColor(Color clear_color)
 {
   device_dx11_.SetClearColor(clear_color);
+}
+void RenderSys::OnResize()
+{
+  device_dx11_.ResizeFramebuffer(Get<WindowManager>()->GetHandle());
 }
 
 } // namespace Octane

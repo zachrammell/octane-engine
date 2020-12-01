@@ -16,6 +16,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <OctaneEngine/Engine.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/SystemOrder.h>
 
 namespace Octane
@@ -91,6 +93,27 @@ int WindowManager::GetHeight()
 float WindowManager::GetAspectRatio()
 {
   return static_cast<float>(GetWidth()) / static_cast<float>(GetHeight());
+}
+void WindowManager::SetFullscreen(bool fullscreen)
+{
+  // SDL_WINDOW_FULLSCREEN_DESKTOP = borderless, SDL_WINDOW_FULLSCREN = true fullscreen, 0 = windowed
+  if (fullscreen)
+  {
+    SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
+  }
+  else
+  {
+    SDL_SetWindowFullscreen(window_, 0);
+  }
+  Get<RenderSys>()->OnResize();
+}
+bool WindowManager::IsFullscreen() const
+{
+  Uint32 flags = SDL_GetWindowFlags(window_);
+
+  // check for either of these two flags, true fullscreen or borderless
+  bool isfullscreen = flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+  return isfullscreen;
 }
 
 } // namespace Octane
