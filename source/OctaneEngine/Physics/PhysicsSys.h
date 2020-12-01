@@ -15,9 +15,8 @@ namespace Octane
 {
 
 //using CollisionPair = eastl::pair<const btRigidBody*, const btRigidBody*>;
-using CollisionPairs = eastl::set<RigidBodyPair>;
 using CollisionKeyTable = eastl::hash_multimap<btRigidBody*, btRigidBody*>;
-using CollisionDataTable = eastl::map<RigidBodyPair, CollisionData>;
+using CollisionDataTable = eastl::hash_multimap<size_t, CollisionData>;
 
 class PhysicsSys final : public ISystem
 {
@@ -57,7 +56,7 @@ public:
   // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
-  void RemoveRigidBody(btRigidBody* shape);
+  void RemoveRigidBody(btRigidBody* rigid_body);
 
 private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
@@ -73,7 +72,6 @@ private:
   btSequentialImpulseConstraintSolver* resolution_phase_;
   btDiscreteDynamicsWorld* dynamics_world_;
   btAlignedObjectArray<btCollisionShape*> collision_shapes_;
-  CollisionPairs last_collision_pair_;
   CollisionKeyTable collision_key_table_;
   CollisionDataTable collision_data_table_;
 };
