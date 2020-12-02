@@ -22,36 +22,20 @@
 
 namespace Octane
 {
-WindowManager::WindowManager(Engine* parent, char const* title, int width, int height) : ISystem(parent)
+WindowManager::WindowManager(Engine* parent, char const* title, int width, int height)
+  : ISystem(parent),
+    window_(nullptr)
 {
-  int targetwidth = width;
-  int targetheight = height;
 
-#ifndef _DEBUG
-  SDL_DisplayMode mode;
-  int err = SDL_GetDisplayMode(0, 0, &mode);
-  if (!err)
-  {
-    targetwidth = mode.w;
-    targetheight = mode.h;
-  }
-  else
-  {
-    std::clog << "SDL_GetDisplayMode failed: " << SDL_GetError() << "\n";
-    std::clog << "Falling back to default width/height\n";
+  Uint32 window_flags = SDL_WINDOW_SHOWN;
 
-    // leave targetwidth and targetheight as the defaults set above
-  }
+  // in release mode, start fullscreen
+#ifndef __DEBUG
+  window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
 
-  //Create window
-  window_ = SDL_CreateWindow(
-    title,
-    SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED,
-    targetwidth,
-    targetheight,
-    SDL_WINDOW_SHOWN);
+  // if the fullscreen flag is set, width and height will be ignored, so no need to change them from our window-mode sizes
+  window_ = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 
   if (window_ == nullptr)
   {
@@ -96,15 +80,17 @@ float WindowManager::GetAspectRatio()
 }
 void WindowManager::SetFullscreen(bool fullscreen)
 {
-  // SDL_WINDOW_FULLSCREEN_DESKTOP = borderless, SDL_WINDOW_FULLSCREN = true fullscreen, 0 = windowed
   if (fullscreen)
   {
+    // SDL_WINDOW_FULLSCREEN_DESKTOP = borderless, SDL_WINDOW_FULLSCREEN = true fullscreen, 0 = windowed
     SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
   }
   else
   {
     SDL_SetWindowFullscreen(window_, 0);
   }
+
+  // ensure we update the framebuffer size
   Get<RenderSys>()->OnResize();
 }
 bool WindowManager::IsFullscreen() const
