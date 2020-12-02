@@ -541,7 +541,7 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
 
 void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
 {
-  meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
+  meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size(),mesh.textures,mesh.material});
   auto& newMesh = meshes.find(placement)->second;
   //new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
@@ -573,8 +573,6 @@ void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes,
     hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, newMesh->index_buffer_.put());
     assert(SUCCEEDED(hr));
   }
-  newMesh->textures_ = mesh.textures;
-  newMesh->material_ = mesh.material;
 }
 
 void GraphicsDeviceDX11::UseMesh(MeshDX11 const& mesh)

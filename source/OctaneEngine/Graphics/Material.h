@@ -33,6 +33,7 @@ struct Material
     Texture_Key spec_tex = UNTEXTURED,
     float spec_exp = 64.f,
     bool tint_texture_with_color = true);
+  Material(const Material& rhs);
   Color diffuse{};
   Texture_Key diffuse_texture;
   Color specular;

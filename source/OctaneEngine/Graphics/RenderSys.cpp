@@ -134,7 +134,8 @@ void RenderSys::Update()
 
           if(auto texture = Get<TextureSys>()->Get( render_comp.material.diffuse_texture))
           {
-            device_dx11_.GetD3D11Context()->PSSetShaderResources(0, 1, texture->view.put());
+            auto viewPtr = texture->view.get();
+            device_dx11_.GetD3D11Context()->PSSetShaderResources(0, 1, &viewPtr);
           }
 
           Color color = 

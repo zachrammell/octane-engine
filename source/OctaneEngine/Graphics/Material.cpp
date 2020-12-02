@@ -30,4 +30,16 @@ Material::Material(
   {
   }
 
+Material::Material(const Material& rhs) 
+: diffuse(rhs.diffuse),
+  diffuse_texture(rhs.diffuse_texture),
+  specular(rhs.specular),
+  specular_texture(rhs.specular_texture),
+  specular_exp(rhs.specular_exp),
+  tint(rhs.tint)
+{
+    
+}
+
+
 } // namespace Octane

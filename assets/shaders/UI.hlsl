@@ -3,7 +3,6 @@ cbuffer cb_per_object : register(b0)
   float4x4 NDC;
   float4x4 padding;
   float4 ObjectColor;
-  Texture2D diffuse;
 };
 
 /* vertex attributes go here to input to the vertex shader */
@@ -29,6 +28,7 @@ vs_out vs_main(vs_in input)
   return output;
 }
 
+Texture2D diffuse : DIFFUSE : register(t0);
 SamplerState samplerState : SAMPLER : register(s0);
 
 float4 ps_main(vs_out input) : SV_TARGET

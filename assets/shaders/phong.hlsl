@@ -44,7 +44,7 @@ SamplerState samplerState : SAMPLER : register(s0);
 
 float4 ps_main(vs_out input) : SV_TARGET
 {
-  const float3 diffCoeff = ObjectColor.rgb + diffuse.Sample(samplerState, input.uv.rg).rgb;
+  const float3 diffCoeff = ObjectColor.rgb + diffuse.Sample(samplerState, input.uv).rgb;
   const float3 light_color = float3(1.0f, 1.0f, 1.0f);
   const float specCoeff = 0.4f;
   const int specExp = 16;
