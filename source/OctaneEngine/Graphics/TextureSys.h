@@ -54,7 +54,7 @@ private:
   eastl::hash_map<Texture_Key, TexturePtr> textures_;
   eastl::hash_map<eastl::string, eastl::string> textureToPath_; //maps texture names to paths
   eastl::string_view datapath_{"assets\\textures.txt"}; //path to textures txt
-  eastl::string path_ {"assets\\Textures"}; //path to textures
+  eastl::string path_ {"assets\\textures"}; //path to textures
   eastl::vector<eastl::string> texturenames_;
   TextureDX11* LoadTexture(eastl::string_view path);
 };
