@@ -45,7 +45,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   SDL_GetWindowWMInfo(window, &system_info);
   HWND window_handle = system_info.info.win.window;
 
-  #define SCAST(x, type) static_cast<type>(x)
+#define SCAST(x, type) static_cast<type>(x)
 
   DXGI_SWAP_CHAIN_DESC swap_chain_descriptor;
   ZeroMemory(&swap_chain_descriptor, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -85,7 +85,9 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     currently_in_fullscreen_ = true;
   }
   else
+  {
     currently_in_fullscreen_ = false;
+  }
 
   hr = D3D11CreateDeviceAndSwapChain(
     nullptr,                  //let DX11 choose adapter

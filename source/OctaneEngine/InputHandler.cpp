@@ -4,8 +4,8 @@
 #include <imgui_impl_sdl.h>
 
 #include <OctaneEngine/Engine.h>
-#include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Helper.h>
+#include <OctaneEngine/SDLEventHandler.h>
 
 namespace Octane
 {
@@ -56,12 +56,6 @@ void InputHandler::Update()
 
     switch (e.type)
     {
-    //User requests quit
-    case SDL_QUIT:
-    {
-      Get<Engine>()->Quit();
-    }
-    break;
     case SDL_KEYDOWN:
     {
       if (e.key.repeat || ImGui::GetIO().WantCaptureKeyboard)
@@ -122,9 +116,13 @@ void InputHandler::Update()
       }
     }
     break;
-    case SDL_WINDOWEVENT_RESIZED:
 
-    default: break;
+    default:
+    {
+      // all non-input events go here
+      HandleSDLEvent(e);
+      break;
+    }
     }
   }
 }
@@ -182,5 +180,4 @@ DirectX::XMINT2 InputHandler::GetMouseMovement()
 {
   return mouse_movement_;
 }
-
 } // namespace Octane
