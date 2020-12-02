@@ -47,7 +47,7 @@ const float PLAYER_JUMP_VEL = 9.0f;
 const DirectX::XMVECTOR ZERO_VEC = {0, 0, 0, 0};
 
 // should be removed once we have usable collision stuff
-const float HACKY_GROUND_Y_LEVEL = 0.5f;
+const float HACKY_GROUND_Y_LEVEL = 1.0f;
 
 // temporary(?) walk timer
 static float walk_timer = 0;

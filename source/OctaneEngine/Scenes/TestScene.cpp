@@ -104,8 +104,8 @@ void TestScene::Load()
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
 
-    Trace::Log(DEBUG, "Loading entities.\n");
     NBTReader nbt_reader {"assets/maps/level1.nbt"};
+    // for every object, read it in
     // for every object, read it in
     if (nbt_reader.OpenList("Entities"))
     {
@@ -115,7 +115,12 @@ void TestScene::Load()
         if (nbt_reader.OpenCompound(""))
         {
           EntityID const ent_id = entity_sys.MakeEntity();
-          GameEntity& ent = entity_sys.GetEntity(ent_id);
+          GameEntity& ent = entity_sys.GetEntity((ent_id));
+
+          ComponentHandle const metadata_id = component_sys.MakeMetadata();
+          ent.components[to_integral(ComponentKind::Metadata)] = metadata_id;
+          MetadataComponent& metadata_component = component_sys.GetMetadata(metadata_id);
+          metadata_component.name = nbt_reader.MaybeReadString("Name").value_or("");
 
           for (auto component_type : magic_enum::enum_values<ComponentKind>())
           {
@@ -148,9 +153,11 @@ void TestScene::Load()
               {
                 TransformComponent& trans
                   = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
-                float mass = nbt_reader.ReadFloat("Mass");
+                float const mass = nbt_reader.ReadFloat("Mass");
                 ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, trans.scale, mass);
                 ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
+                PhysicsComponent& physics_component = component_sys.GetPhysics(phys_id);
+                physics_component.SetRotation(trans.rotation);
               }
               break;
               default: break;
@@ -401,29 +408,30 @@ void TestScene::Update(float dt)
       "Pause Menu",
       NULL,
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::SetWindowPos(
-      "Pause Menu",
-      ImVec2(0.5f * Get<WindowManager>()->GetWidth(), 0.5f * Get<WindowManager>()->GetHeight()));
+    {
+      WindowManager* window = Get<WindowManager>();
+      ImGui::SetWindowPos("Pause Menu", ImVec2(0.5f * window->GetWidth(), 0.5f * window->GetHeight()));
+    }
 
     if (ImGui::Button("Resume"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       esc_menu = false;
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
     if (ImGui::CollapsingHeader("Option"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       //ImGui::Text("Mouse Sensitivity: %d", pmhandler->ShowMouseSense());
       if (ImGui::Button("+ Mouse Sensitivity"))
       {
-        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+        AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->IncreaseMouseSense();
         mouse_sens += 5;
       }
       if (ImGui::Button("- Mouse Sensitivity"))
       {
-        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+        AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->DecreaseMouseSense();
         mouse_sens -= 5;
       }
@@ -435,12 +443,12 @@ void TestScene::Update(float dt)
     }
     if (ImGui::Button("Main Menu"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
     }
     if (ImGui::Button("Quit"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->Quit();
     }
 
@@ -449,7 +457,6 @@ void TestScene::Update(float dt)
   else
   {
     Get<FramerateController>()->Unpause();
-
     {
       GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
       ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);

@@ -31,34 +31,12 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
 
-  //DXGI_MODE_DESC buffer_description {
-  //  static_cast<UINT>(w),
-  //  static_cast<UINT>(h),
-  //  // TODO: get monitor refresh rate
-  //  {60, 1},
-  //  DXGI_FORMAT_R8G8B8A8_UNORM,
-  //  DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-  //  DXGI_MODE_SCALING_UNSPECIFIED};
-
   //supported_mode_ = &buffer_description;
 
   SDL_SysWMinfo system_info;
   SDL_VERSION(&system_info.version);
   SDL_GetWindowWMInfo(window, &system_info);
   HWND window_handle = system_info.info.win.window;
-
-
-  //DXGI_SWAP_CHAIN_DESC swap_chain_descriptor 
-  //{
-  //  buffer_description,
-  //  DXGI_SAMPLE_DESC {1, 0},
-  //  DXGI_USAGE_RENDER_TARGET_OUTPUT,
-  //  1,
-  //  window_handle,
-  //  true,
-  //  DXGI_SWAP_EFFECT_DISCARD,
-  //  DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-  //};
 
   #define SCAST(x, type) static_cast<type>(x)
 
@@ -70,6 +48,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   //8 bits per channel, 4 channels
   swap_chain_descriptor.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   //60hz max refresh rate for fullscreen mode
+  // TODO: get monitor refresh rate
   swap_chain_descriptor.BufferDesc.RefreshRate.Numerator = 60;
   swap_chain_descriptor.BufferDesc.RefreshRate.Denominator = 1;
   //number of multisamples per pixel
@@ -87,7 +66,6 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   swap_chain_descriptor.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
   //allows switching between fullscreen and windowed mode
   swap_chain_descriptor.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
 
   if (swap_chain_descriptor.Windowed == false)
   {

@@ -148,6 +148,10 @@ void SerializationTestScene::Update(float dt)
 
     if (!name.empty())
     {
+      if (!ent.HasComponent(ComponentKind::Metadata))
+      {
+        ent.components[to_integral(ComponentKind::Metadata)] = compsys->MakeMetadata();
+      }
       ComponentHandle const metadata_id = ent.GetComponentHandle(ComponentKind::Metadata);
       MetadataComponent& metadata_component = compsys->GetMetadata(metadata_id);
       metadata_component.name = name;
@@ -480,11 +484,10 @@ void SerializationTestScene::Update(float dt)
     entity_editor_data_ = {};
 
     Trace::Log(DEBUG, "Loading entities.\n");
+    NBTReader nbt_reader {"sandbox/serialization_test.nbt"};
+
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
-
-    Trace::Log(DEBUG, "Loading entities.\n");
-    NBTReader nbt_reader {"sandbox/serialization_test.nbt"};
 
     // for every object, read it in
     if (nbt_reader.OpenList("Entities"))
@@ -514,7 +517,9 @@ void SerializationTestScene::Update(float dt)
                 ent.components[to_integral(ComponentKind::Render)] = render_id;
                 RenderComponent& render_component = component_sys.GetRender(render_id);
                 render_component.color = nbt_reader.Read<Color>("Color");
-                render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
+                auto const& meshnames = Get<MeshSys>()->MeshNames();
+                render_component.mesh_type
+                  = *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh"));
               }
               break;
               case ComponentKind::Transform:
@@ -531,11 +536,11 @@ void SerializationTestScene::Update(float dt)
               {
                 TransformComponent& trans
                   = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
-                auto const scale = trans.scale;
-                dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
                 float mass = nbt_reader.ReadFloat("Mass");
-                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, half_scale, mass);
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, trans.scale, mass);
                 ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
+                PhysicsComponent& physics_component = component_sys.GetPhysics(phys_id);
+                physics_component.SetRotation(trans.rotation);
               }
               break;
               default: break;
