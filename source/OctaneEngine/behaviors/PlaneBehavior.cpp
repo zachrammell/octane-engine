@@ -120,8 +120,8 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
         if (othbeh.type == BHVRType::BEAR || othbeh.type == BHVRType::DUCK || othbeh.type == BHVRType::BUNNY)
         {
-          //TODO update for new physics code
-#if 1
+
+
           auto& phys_other = it->GetComponentHandle(ComponentKind::Physics);
           
 
@@ -163,9 +163,24 @@ void PlaneBehavior::Update(float dt, EntityID myid)
               gettingfreed = true;
             }
           }
-#endif
+
         }
       }
+      else if (enty->GetPlayerID() != it.ID() && it->HasComponent(ComponentKind::Physics)) //check collision with terrain as it should not have a behavior
+      {
+        auto& phys_other = it->GetComponentHandle(ComponentKind::Physics);
+
+        if (phys_sys->HasCollision(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics), phys_other))
+        {
+          //prevent freeing multiple times due to multiple collision
+          if (!gettingfreed)
+          {
+            Get<EntitySys>()->FreeEntity(myid);
+            gettingfreed = true;
+          }
+        }
+      }
+
     }
   }
 }
