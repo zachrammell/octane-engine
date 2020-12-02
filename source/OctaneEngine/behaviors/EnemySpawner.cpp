@@ -25,7 +25,7 @@ void EnemySpawner::Update(float dt, EntityID myID)
   }
   spawning = spawnTimer >= spawnDelay && enemy_destroyed_func->enemiesSpawned < spawnCap
              && totalSpawnedCurrrentWave < waveSpawnCap;
-
+  enemy_destroyed_func->enemiesLeft = waveSpawnCap - enemy_destroyed_func->enemiesKilled;
   enemy_destroyed_func->spawnedWave = false;
 
   if (totalSpawnedCurrrentWave == waveSpawnCap && !enemy_destroyed_func->enemiesSpawned)
@@ -37,6 +37,11 @@ void EnemySpawner::Update(float dt, EntityID myID)
       totalSpawnedCurrrentWave = 0;
       ++enemy_destroyed_func->wave;
       enemy_destroyed_func->spawnedWave = true;
+      enemy_destroyed_func->enemiesKilled = 0;
+      if(enemy_destroyed_func->highestWave < enemy_destroyed_func->wave)
+      {
+        enemy_destroyed_func->highestWave = enemy_destroyed_func->wave;
+      }
     }
   }
 

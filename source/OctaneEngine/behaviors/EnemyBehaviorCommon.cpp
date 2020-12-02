@@ -18,6 +18,7 @@ namespace Octane
 void EnemyDestroyed::operator()()
 {
   --enemiesSpawned;
+  ++enemiesKilled;
   score += 10;
   if (score > highScore)
     highScore = score;

@@ -75,6 +75,7 @@ void TestScene::Load()
 {
   enemy_destroyed_func.enemiesSpawned = 0;
   enemy_destroyed_func.score = 0;
+  enemy_destroyed_func.wave = 1;
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
@@ -328,6 +329,9 @@ void TestScene::Update(float dt)
   ImGui::Text("");
   ImGui::Text("Score: %d", enemy_destroyed_func.score);
   ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
+  ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
+  ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
+  ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
 
   ImGui::End();
 
