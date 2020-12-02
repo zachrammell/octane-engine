@@ -30,7 +30,7 @@ WindowManager::WindowManager(Engine* parent, char const* title, int width, int h
   Uint32 window_flags = SDL_WINDOW_SHOWN;
 
   // in release mode, start fullscreen
-#ifndef __DEBUG
+#ifndef _DEBUG
   window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 #endif
 
