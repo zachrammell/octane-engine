@@ -21,10 +21,11 @@
 #include <EASTL/string_view.h>
 #include <EASTL/shared_ptr.h>
 
-enum aiTextureType;
+enum aiTextureType; //todo: delete this after we fix the build system
 
 namespace Octane
 {
+typedef eastl::string_view Texture_Key; //TextureSys texture names
 
 
 struct Texture
@@ -32,11 +33,11 @@ struct Texture
   winrt::com_ptr<ID3D11Texture2D> data = nullptr;
   winrt::com_ptr<ID3D11ShaderResourceView> view = nullptr;
   aiTextureType type;
-  /*= aiTextureType::aiTextureType_NONE;*/
+  Texture_Key key;
+  /*= aiTextureType::aiTextureType_NONE;*/ //todo: fix our build system so this can work
 };
 
 typedef Texture TextureDX11;
-typedef eastl::string_view Texture_Key; //TextureSys texture names
 typedef eastl::shared_ptr<TextureDX11> TexturePtr;
 
 const Texture_Key INVALID_TEXTURE {"Uninitialized"};

@@ -18,7 +18,7 @@ struct vs_in
 {
   float3 position_ndc : POS;
   float3 normal : NOR;
-  float2 uv : TEXCOORD;
+  float2 uv : TEX;
 };
 
 /* outputs from vertex shader go here. can be interpolated to pixel shader */

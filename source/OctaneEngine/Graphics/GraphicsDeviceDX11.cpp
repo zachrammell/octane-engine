@@ -539,15 +539,6 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
   GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
 }
 
-//MeshDX11 GraphicsDeviceDX11::CreateMesh(Mesh const& mesh) const
-//{
-//  MeshDX11 mesh_dx11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()};
-//
-//  EmplaceMesh(&mesh_dx11, mesh);
-//
-//  return mesh_dx11;
-//}
-
 void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
 {
   meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
@@ -582,6 +573,8 @@ void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes,
     hr = GetD3D11Device()->CreateBuffer(&index_buffer_descriptor, &subresource_data, newMesh->index_buffer_.put());
     assert(SUCCEEDED(hr));
   }
+  newMesh->textures_ = mesh.textures;
+  newMesh->material_ = mesh.material;
 }
 
 void GraphicsDeviceDX11::UseMesh(MeshDX11 const& mesh)
@@ -654,6 +647,8 @@ void GraphicsDeviceDX11::CreateSamplerState()
   {
     Trace::Log(Severity::ERROR,"failed to create a sampler state");
   }
+  auto ssPtr = sampler_state_.get();
+  device_context_->PSSetSamplers(0, 1, &ssPtr);
 }
 
 } // namespace Octane

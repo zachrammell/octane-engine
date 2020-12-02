@@ -47,7 +47,7 @@ private:
   eastl::vector<eastl::string> meshnames_;
   Mesh LoadMesh(const char* path);
   void ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh);
-  void ProcessMesh(aiMesh* mesh, Mesh& new_mesh);
+  void ProcessMesh(aiMesh* mesh, Mesh& new_mesh, const aiScene* scene);
 };
 
 } // namespace Octane

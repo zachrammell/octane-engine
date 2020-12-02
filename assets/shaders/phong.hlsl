@@ -3,7 +3,6 @@ cbuffer cb_per_object : register(b0)
   float4x4 World;
   float4x4 WorldNormal;
   float4 ObjectColor;
-  Texture2D diffuse;
 };
 
 cbuffer cb_per_frame : register(b1)
@@ -18,7 +17,7 @@ struct vs_in
 {
   float3 position_local : POS;
   float3 normal : NOR;
-  float2 uv : TEXCOORD;
+  float2 uv : TEX;
 };
 
 /* outputs from vertex shader go here. can be interpolated to pixel shader */
@@ -26,7 +25,7 @@ struct vs_out
 {
   float4 position_clip : SV_POSITION; // required output of VS
   float4 position_world : WPOSITION;
-  float4 uv : TEXCOORD;
+  float2 uv : TEXCOORD;
   float3 normal : NORMAL;
 };
 
@@ -40,6 +39,7 @@ vs_out vs_main(vs_in input)
   return output;
 }
 
+Texture2D diffuse : DIFFUSE : register(t0);
 SamplerState samplerState : SAMPLER : register(s0);
 
 float4 ps_main(vs_out input) : SV_TARGET

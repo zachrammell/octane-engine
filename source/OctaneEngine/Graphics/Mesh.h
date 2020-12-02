@@ -18,8 +18,10 @@
 #include <d3d11.h>
 
 #include <OctaneEngine/Graphics/Texture.h>
+#include <OctaneEngine/Graphics/Material.h>
 
 #include <EASTL/vector.h>
+#include <EASTL/string.h>
 #include <cstdint>
 namespace Octane
 {
@@ -51,7 +53,9 @@ struct Mesh
   //! Holds Mesh::Index data CPU-side. If size() is zero, the mesh is not indexed.
   eastl::vector<Index> index_buffer;
   //! holds keys to textures from mesh files
-  eastl::vector<Texture_Key> textures;
+  eastl::vector<eastl::string> textures;
+  //! material read in from mesh file
+  Material material;
 };
 	
 /*!
@@ -66,7 +70,8 @@ public:
       vertex_count_ {other.vertex_count_},
       index_count_ {other.index_count_},
       vertex_buffer_ {other.vertex_buffer_},
-      index_buffer_ {other.vertex_buffer_}
+      index_buffer_ {other.vertex_buffer_},
+    textures_(other.textures_)
   {
   }
 
@@ -75,8 +80,13 @@ public:
       vertex_count_ {0},
       index_count_ {0},
       vertex_buffer_ {nullptr},
-      index_buffer_ {nullptr}
+      index_buffer_ {nullptr},
+      textures_{}
   {
+  }
+  const Material& GetMaterial() const 
+  { 
+    return material_;
   }
 
 private:
@@ -99,7 +109,9 @@ private:
   //! Pointer to the index buffer DX11 GPU resource.
   winrt::com_ptr<ID3D11Buffer> index_buffer_;
   //! holds keys to textures from mesh files
-  eastl::vector<Texture_Key> textures;
+  eastl::vector<eastl::string> textures_;
+  //! materials read in from mesh file
+  Material material_;
 };
 /*!
  * \brief A model to hold several meshes loaded by assimp in aiScenes

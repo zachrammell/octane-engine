@@ -17,6 +17,7 @@
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/EntitySys.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
 #include <OctaneEngine/ImGuiSys.h>
@@ -46,9 +47,9 @@ RenderSys::RenderSys(Engine* parent_engine)
   : ISystem(parent_engine),
     device_dx11_ {parent_engine->GetSystem<WindowManager>()->GetHandle()}
 {
-  phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
-  ui = device_dx11_.CreateShader(L"assets/shaders/UI.hlsl", Shader::InputLayout_POS);
-  phongui = device_dx11_.CreateShader(L"assets/shaders/phongUI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR);
+  phong = device_dx11_.CreateShader(L"assets/shaders/phong.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR | Shader::InputLayout_TEX);
+  ui = device_dx11_.CreateShader(L"assets/shaders/UI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_TEX);
+  phongui = device_dx11_.CreateShader(L"assets/shaders/phongUI.hlsl", Shader::InputLayout_POS | Shader::InputLayout_NOR | Shader::InputLayout_TEX);
   device_dx11_.UseShader(phong);
   device_dx11_.GetD3D11Context()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -131,11 +132,23 @@ void RenderSys::Update()
             }
           }
 
+          if(auto texture = Get<TextureSys>()->Get( render_comp.material.diffuse_texture))
+          {
+            device_dx11_.GetD3D11Context()->PSSetShaderResources(0, 1, texture->view.put());
+          }
+
+          Color color = 
+          {
+            render_comp.color.r * render_comp.material.tint,
+            render_comp.color.g * render_comp.material.tint,
+            render_comp.color.b * render_comp.material.tint
+          };
+
           device_dx11_.ShaderConstants()
             .PerObject()
             .SetWorldMatrix(object_world_matrix)
             .SetWorldNormalMatrix(dx::XMMatrixTranspose(dx::XMMatrixInverse(nullptr, object_world_matrix)))
-            .SetColor(render_comp.color);
+            .SetColor(color);
           device_dx11_.Upload(device_dx11_.ShaderConstants().PerObject());
           device_dx11_.DrawMesh();
         }

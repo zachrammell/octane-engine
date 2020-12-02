@@ -1,5 +1,7 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/Engine.h>
 #include <iostream> // error logging
@@ -118,6 +120,7 @@ EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLO
 void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
 {
   auto* compsys = Get<ComponentSys>();
+  auto* meshsys = Get<MeshSys>();
   auto& entity = GetEntity(id);
 
   ComponentHandle render_comp_id = compsys->MakeRender();
@@ -125,6 +128,7 @@ void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
   RenderComponent& render_comp = compsys->GetRender(render_comp_id);
   render_comp.color = color;
   render_comp.mesh_type = mesh;
+  render_comp.material = meshsys->Get(mesh)->GetMaterial();
 }
 void EntitySys::AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale)
 {

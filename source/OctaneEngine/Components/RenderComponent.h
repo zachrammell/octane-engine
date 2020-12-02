@@ -26,12 +26,12 @@ typedef eastl::string_view Mesh_Key; //MeshSys mesh key type
 
 struct RenderComponent
 {
-  Color color {};
+  Material material;
+  Color& color {material.diffuse};
   Mesh_Key mesh_type;
-  //MeshType mesh_type = MeshType::INVALID;
   RenderType render_type = RenderType::Filled;
   ShaderType shader_type = ShaderType::Phong;
-  Material material {&color.vec};
+
 };
 
 } // namespace Octane

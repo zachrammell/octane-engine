@@ -45,7 +45,6 @@ public:
 
   ID3D11Device* GetD3D11Device() const;
   ID3D11DeviceContext* GetD3D11Context() const;
-
   void SetWireframeMode(bool enable);
 
   class ShaderConstantBuffers
@@ -153,7 +152,7 @@ private:
   winrt::com_ptr<ID3D11RenderTargetView> render_target_view_;
   winrt::com_ptr<ID3D11DepthStencilView> depth_stencil_view_;
   winrt::com_ptr<ID3D11SamplerState> sampler_state_;
-  winrt::com_ptr<ID3D11ShaderResourceView> shader_resource_view_;
+
   winrt::com_ptr<ID3D11DepthStencilState> depth_stencil_state_;
   winrt::com_ptr<ID3D11RasterizerState> rasterizer_state_;
 

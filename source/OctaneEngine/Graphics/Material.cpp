@@ -15,16 +15,16 @@ namespace Octane
 {
 
 Material::Material(
-  dx::XMFLOAT3* color,
-  Texture_Key diffuse_texture,
-  dx::XMFLOAT3 spec,
-  Texture_Key spec_texture,
+  Color color,
+  Texture_Key diffuse_tex,
+  Color spec,
+  Texture_Key spec_tex,
   float spec_exp,
   bool tint_texture_with_color)
   : diffuse(color),
-    diffuse_sampler(diffuse_texture),
+    diffuse_texture(diffuse_tex),
     specular(spec),
-    specular_sampler(spec_texture),
+    specular_texture(spec_tex),
     specular_exp(spec_exp),
     tint(tint_texture_with_color)
   {

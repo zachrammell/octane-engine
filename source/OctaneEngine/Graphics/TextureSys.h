@@ -56,7 +56,7 @@ private:
   eastl::string_view datapath_{"assets\\textures.txt"}; //path to textures txt
   eastl::string path_ {"assets\\textures"}; //path to textures
   eastl::vector<eastl::string> texturenames_;
-  TextureDX11* LoadTexture(eastl::string_view path);
+  TextureDX11* LoadTexture(eastl::string_view name, eastl::string_view path);
 };
 
 } // namespace Octane

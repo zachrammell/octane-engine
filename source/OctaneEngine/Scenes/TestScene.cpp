@@ -249,8 +249,8 @@ void TestScene::Load()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
     render_comp.color = Colors::red;
-    render_comp.mesh_type = Mesh_Key{"Cube"};
-    render_comp.render_type = RenderType::Wireframe;
+    render_comp.mesh_type = Mesh_Key{"BeachBall"};
+    render_comp.render_type = RenderType::Filled;
 
     ComponentHandle physics_comp_id = compsys->MakePhysics();
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
@@ -276,9 +276,11 @@ void TestScene::Load()
   {
     auto crosshair
          = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
-    entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
+    entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"BeachBall"});
     auto& render_comp = compsys->GetRender(entsys->GetEntity(crosshair).GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::UI;
+    render_comp.material.tint = false;
+
   }
 
 }

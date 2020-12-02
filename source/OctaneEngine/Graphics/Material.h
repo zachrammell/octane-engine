@@ -17,7 +17,7 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include <OctaneEngine/Graphics/Texture.h>
-
+#include <OctaneEngine/Graphics/Colors.h>
 #include <EASTL/vector.h>
 #include <cstdint>
 
@@ -27,16 +27,16 @@ namespace Octane
 struct Material
 {
   Material(
-    dx::XMFLOAT3* color,
-    Texture_Key diffuse_texture = UNTEXTURED,
-    dx::XMFLOAT3 spec = {0.5f, 0.5f, 0.5f},
-    Texture_Key spec_texture = UNTEXTURED,
+    Color color = Color{0.5f,0.88f,0.85f},
+    Texture_Key diffuse_tex = UNTEXTURED,
+    Color spec = {0.5f, 0.5f, 0.5f},
+    Texture_Key spec_tex = UNTEXTURED,
     float spec_exp = 64.f,
     bool tint_texture_with_color = true);
-  dx::XMFLOAT3* diffuse=nullptr;
-  Texture_Key diffuse_sampler;
-  dx::XMFLOAT3 specular;
-  Texture_Key specular_sampler;
+  Color diffuse{};
+  Texture_Key diffuse_texture;
+  Color specular;
+  Texture_Key specular_texture;
   float specular_exp;
   bool tint; //should texture be tinted by diffuse/specular?
 };

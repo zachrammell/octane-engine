@@ -5,6 +5,7 @@
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/NBTReader.h>
 #include <OctaneEngine/Trace.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 #include <assimp/Importer.hpp>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -56,7 +57,7 @@ const eastl::vector<eastl::string>& MeshSys::MeshNames() const
   return meshnames_;
 }
 
-const MeshDX11* MeshSys::Get(Mesh_Key key)
+const MeshDX11* MeshSys::Get(Mesh_Key key) //todo: change this so it doesn't override Isystem::Get()
 {
   MeshPtr mesh = meshes_[key];
 
@@ -109,7 +110,7 @@ void MeshSys::ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh)
   for (int i = 0; i < node->mNumMeshes; ++i)
   {
     aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
-    ProcessMesh(aimesh, mesh);
+    ProcessMesh(aimesh, mesh,scene);
   }
 
   for (int i = 0; i < node->mNumChildren; ++i)
@@ -118,7 +119,7 @@ void MeshSys::ProcessNode(const aiScene* scene, aiNode* node, Mesh& mesh)
   }
 }
 
-void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
+void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh,const aiScene* scene)
 {
   size_t start = new_mesh.vertex_buffer.size(); //start of next mesh in aiScene
   const bool hasNormals = mesh->HasNormals();
@@ -147,6 +148,38 @@ void MeshSys::ProcessMesh(aiMesh* mesh, Mesh& new_mesh)
     for (int j = 0; j < face.mNumIndices; ++j)
     {
       new_mesh.index_buffer.push_back(face.mIndices[j] + start);
+    }
+  }
+
+  //get textures from material
+  aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+  if (mat)
+  {
+    
+    auto diffTexCount = mat->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE);
+    if(!diffTexCount)
+    {
+      new_mesh.material.diffuse_texture = UNTEXTURED;
+    }
+    else
+    {
+      for(UINT i = 0; i < diffTexCount; ++i)
+      {
+        aiString diffTexName;
+        mat->GetTexture(aiTextureType::aiTextureType_DIFFUSE, i, &diffTexName);
+        eastl::string_view texName {diffTexName.C_Str()};
+        auto end = texName.find_last_of(".");
+        auto begin1 = texName.find_last_of("/");
+        auto begin2 = texName.find_last_of("\\");
+        auto begin = eastl::min(begin1, begin2) + 1;
+        eastl::string finalTexName{texName.data() + begin, texName.data() + end};
+        if(auto texture = ISystem::Get<TextureSys>()->Get(finalTexName))
+        {
+          new_mesh.textures.push_back(finalTexName);
+          new_mesh.material.diffuse_texture = texture->key;
+        }
+      }
+      /*new_mesh.material.diffuse_texture = ISystem::Get<TextureSys>()->Get(*///RCAST(engine_.GetSystem(SystemOrder::TextureSys), TextureSys*);
     }
   }
 }

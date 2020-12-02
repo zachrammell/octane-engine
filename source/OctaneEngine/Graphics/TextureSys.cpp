@@ -42,8 +42,10 @@ TextureSys::TextureSys(class Engine* parent_engine) : ISystem(parent_engine)
       while(fgets(line,max_name_length,file))
       {
         eastl::string_view texture_path(line);
-        auto end = texture_path.find(".");
-        textureToPath_[{texture_path.begin(), texture_path.begin() + end}] = path_+"\\" + texture_path.data();
+        auto nameEnd = texture_path.find_last_of(".");
+        auto pathEnd = texture_path.find_last_of("\n");
+        texturenames_.push_back({texture_path.begin(), texture_path.begin() + nameEnd});        
+        textureToPath_[texturenames_.back()] = path_ + "\\" + eastl::string {texture_path.begin(), texture_path.begin() + pathEnd};
       }
     }
   }
@@ -80,27 +82,12 @@ TextureDX11* TextureSys::Get(Texture_Key key)
     return nullptr;
   }
 
-  auto loadedTex = LoadTexture(textureToPath_[eastl::string(key)]);
-
+  auto loadedTex = LoadTexture(key,textureToPath_[eastl::string(key)]);
   return loadedTex;
 
-
-  //auto& device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
-
-  //device.EmplaceTexture(textures_, key, LoadTexture(textureToPath_[eastl::string{key}].data()));
-  //texture = textures_.find(key)->second;
-
-  //if(texture)
-  //{
-  //  return &*texture;  
-  //}
-
-  //Trace::Log(Severity::WARNING, "TextureSys::Get, Tried to load Texture: %s which doesn't exist in %s", key, datapath_);
-
-  //return nullptr;
 }
 
-TextureDX11* TextureSys::LoadTexture(eastl::string_view path)
+TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view path)
 {
   int width, height, channels;
   auto tex = stbi_load(path.data(), &width, &height, &channels, 4);
@@ -163,7 +150,26 @@ TextureDX11* TextureSys::LoadTexture(eastl::string_view path)
   // Generate mipmaps for this texture.
   deviceContext->GenerateMips(texture->view.get());
 
-  textures_[path] = eastl::shared_ptr<TextureDX11>(texture);
+  texture->type = aiTextureType::aiTextureType_DIFFUSE;
+  textures_[name] = eastl::shared_ptr<TextureDX11>(texture);
+
+  stbi_image_free(tex);
+
+  if(texture)
+  {
+    auto texName = eastl::find(texturenames_.begin(), texturenames_.end(), name);
+    if (!texName)
+    {
+      texturenames_.push_back({name.begin(),name.end()});
+      textureToPath_[texturenames_.back()] = path;
+      texture->key = texturenames_.back();
+    }
+    else
+    {
+      texture->key = *texName;
+    }
+  }
+
   return texture;
 }
 
