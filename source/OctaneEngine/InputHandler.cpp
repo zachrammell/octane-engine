@@ -6,6 +6,7 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/Helper.h>
 #include <OctaneEngine/SDLEventHandler.h>
+#include <OctaneEngine/WindowManager.h>
 
 namespace Octane
 {
@@ -20,6 +21,65 @@ InputHandler::InputHandler(Engine* engine)
 }
 
 void InputHandler::Update()
+{
+  ProcessAllSDLEvents();
+  HandleGlobalHotkeys();
+}
+
+SystemOrder InputHandler::GetOrder()
+{
+  return SystemOrder::InputHandler;
+}
+
+bool InputHandler::KeyPressed(SDL_KeyCode key)
+{
+  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
+  return (keys_[scancode] == PRESSED);
+}
+
+bool InputHandler::KeyHeld(SDL_KeyCode key)
+{
+  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
+  return (keys_[scancode] == HELD);
+}
+
+bool InputHandler::KeyPressedOrHeld(SDL_KeyCode key)
+{
+  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
+  return keys_[scancode] == PRESSED || keys_[scancode] == HELD;
+}
+
+bool InputHandler::KeyReleased(SDL_KeyCode key)
+{
+  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
+  return (keys_[scancode] == RELEASED);
+}
+
+bool InputHandler::MouseButtonPressed(MouseButton button)
+{
+  return mouse_buttons_[to_integral(button)] == PRESSED;
+}
+
+bool InputHandler::MouseButtonHeld(MouseButton button)
+{
+  return mouse_buttons_[to_integral(button)] == HELD;
+}
+
+bool InputHandler::MouseButtonPressedOrHeld(MouseButton button)
+{
+  return mouse_buttons_[to_integral(button)] == HELD || mouse_buttons_[to_integral(button)] == PRESSED;
+}
+
+bool InputHandler::MouseButtonReleased(MouseButton button)
+{
+  return mouse_buttons_[to_integral(button)] == RELEASED;
+}
+
+DirectX::XMINT2 InputHandler::GetMouseMovement()
+{
+  return mouse_movement_;
+}
+void InputHandler::ProcessAllSDLEvents()
 {
   keys_.swap(prev_keys_);
   memset(keys_.get(), 0, SDL_NUM_SCANCODES * sizeof(KeyState));
@@ -126,58 +186,13 @@ void InputHandler::Update()
     }
   }
 }
-
-SystemOrder InputHandler::GetOrder()
+void InputHandler::HandleGlobalHotkeys()
 {
-  return SystemOrder::InputHandler;
-}
-
-bool InputHandler::KeyPressed(SDL_KeyCode key)
-{
-  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
-  return (keys_[scancode] == PRESSED);
-}
-
-bool InputHandler::KeyHeld(SDL_KeyCode key)
-{
-  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
-  return (keys_[scancode] == HELD);
-}
-
-bool InputHandler::KeyPressedOrHeld(SDL_KeyCode key)
-{
-  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
-  return keys_[scancode] == PRESSED || keys_[scancode] == HELD;
-}
-
-bool InputHandler::KeyReleased(SDL_KeyCode key)
-{
-  SDL_Scancode const scancode = SDL_GetScancodeFromKey(key);
-  return (keys_[scancode] == RELEASED);
-}
-
-bool InputHandler::MouseButtonPressed(MouseButton button)
-{
-  return mouse_buttons_[to_integral(button)] == PRESSED;
-}
-
-bool InputHandler::MouseButtonHeld(MouseButton button)
-{
-  return mouse_buttons_[to_integral(button)] == HELD;
-}
-
-bool InputHandler::MouseButtonPressedOrHeld(MouseButton button)
-{
-  return mouse_buttons_[to_integral(button)] == HELD || mouse_buttons_[to_integral(button)] == PRESSED;
-}
-
-bool InputHandler::MouseButtonReleased(MouseButton button)
-{
-  return mouse_buttons_[to_integral(button)] == RELEASED;
-}
-
-DirectX::XMINT2 InputHandler::GetMouseMovement()
-{
-  return mouse_movement_;
+  // temporary bind: f7 to toggle fullscreen
+  if (KeyPressed(SDLK_F7))
+  {
+    bool fullscreen = Get<WindowManager>()->IsFullscreen();
+    Get<WindowManager>()->SetFullscreen(!fullscreen);
+  }
 }
 } // namespace Octane

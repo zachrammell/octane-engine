@@ -56,6 +56,9 @@ public:
   DirectX::XMINT2 GetMousePosition();
 
 private:
+  void ProcessAllSDLEvents();
+  void HandleGlobalHotkeys();
+
   eastl::unique_ptr<KeyState[]> keys_, prev_keys_;
   eastl::unique_ptr<KeyState[]> mouse_buttons_, prev_mouse_buttons_;
   DirectX::XMINT2 mouse_movement_;

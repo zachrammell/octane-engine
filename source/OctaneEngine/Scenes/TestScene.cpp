@@ -13,6 +13,7 @@
 // Main include
 #include <OctaneEngine/Scenes/TestScene.h>
 
+#include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
@@ -643,13 +644,6 @@ void TestScene::Update(float dt)
       }
     }
 #endif
-
-    // temporary bind: f7 to toggle fullscreen
-    if (input->KeyPressed(SDLK_F7))
-    {
-      bool fullscreen = Get<WindowManager>()->IsFullscreen();
-      Get<WindowManager>()->SetFullscreen(!fullscreen);
-    }
 
     if (enemy_destroyed_func.spawnedWave)
     {
