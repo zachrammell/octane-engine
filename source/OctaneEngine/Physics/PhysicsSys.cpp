@@ -123,31 +123,6 @@ SystemOrder PhysicsSys::GetOrder()
   return SystemOrder::PhysicsSys;
 }
 
-void PhysicsSys::SetPosition(PhysicsComponent* compo, const DirectX::XMFLOAT3& position)
-{
-  btTransform transform = compo->rigid_body->getWorldTransform();
-  transform.setOrigin(btVector3(position.x, position.y, position.z));
-  compo->rigid_body->setWorldTransform(transform);
-}
-
-void PhysicsSys::ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const
-{
-  btRigidBody* body = compo->rigid_body;
-  if (body && body->getMotionState())
-  {
-    body->applyCentralForce(btVector3(force.x, force.y, force.z));
-  }
-}
-
-void PhysicsSys::ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const
-{
-  btRigidBody* body = compo->rigid_body;
-  if (body && body->getMotionState())
-  {
-    body->applyTorque(btVector3(torque.x, torque.y, torque.z));
-  }
-}
-
 DirectX::XMVECTOR PhysicsSys::GetVelocity(const PhysicsComponent* compo) const
 {
   return ToXmVector(compo->rigid_body->getLinearVelocity());
@@ -235,6 +210,11 @@ void PhysicsSys::RemoveRigidBody(btRigidBody* rigid_body)
     delete rigid_body;
 #endif
   }
+}
+
+void PhysicsSys::SetGravity(const DirectX::XMFLOAT3& gravity) const
+{
+  dynamics_world_->setGravity({gravity.x, gravity.y, gravity.z});
 }
 
 void PhysicsSys::BulletCollisionCallback(

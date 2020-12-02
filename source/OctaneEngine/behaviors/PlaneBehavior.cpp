@@ -86,8 +86,8 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       dir_ = dx::XMVectorAdd(dir_, playerVel);
       dx::XMFLOAT3 force;
       dx::XMStoreFloat3(&force, dir_);
-      
-      phys_sys->ApplyForce(&phys_me, force);
+
+      phys_me.ApplyForce(force);
       dir_ = dx::XMVector3Normalize(dir_);
       dx::XMStoreFloat3(&force, dir_);
       FaceDir(trans_me, force);
@@ -96,8 +96,8 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       impulsed = true;
       return;
     }
-    
-    phys_sys->ApplyForce(&phys_me, {0.f, .15f * G, 0.f});
+
+     phys_me.ApplyForce({0.f, .15f * G, 0.f});
 
     dx::XMFLOAT3 vel;
     dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_sys->GetVelocity(&phys_me)));
