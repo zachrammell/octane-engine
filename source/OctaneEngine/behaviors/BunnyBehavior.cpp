@@ -69,12 +69,12 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   {
     Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
     (*destroyed_func_)();
-    Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
-      = RenderType::Invisible;
+   // Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
+   //   = RenderType::Invisible;
     //physics.rigid_body.SetStatic();
     gettingFreed = true;
+    Get<EntitySys>()->FreeEntity(myID);
     return;
-    //Get<EntitySys>()->FreeEntity(myID);
   }
 
   if (switch_dir_timer >= 5.0f)

@@ -9,6 +9,7 @@
 #include <OctaneEngine/behaviors/BunnyBehavior.h>
 #include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <iostream>
 
 namespace Octane
 {
@@ -106,8 +107,9 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
     lifetime -= dt;
   }
-
-  if (!gettingfreed)
+  
+  
+  if (!gettingfreed && phys_sys->HasCollisions(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics)))
   {
     for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
     {
@@ -120,10 +122,10 @@ void PlaneBehavior::Update(float dt, EntityID myid)
         {
           //TODO update for new physics code
 #if 1
-          auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
-          auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+          auto& phys_other = it->GetComponentHandle(ComponentKind::Physics);
+          
 
-          if (phys_sys->HasCollision(phys_me, phys_other) == eCollisionState::Start)
+          if (phys_sys->HasCollision(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics), phys_other))
           {
             switch (othbeh.type)
             {
