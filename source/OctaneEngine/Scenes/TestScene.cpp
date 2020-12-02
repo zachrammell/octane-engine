@@ -21,10 +21,16 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/NBTReader.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/PlayerMovementControllerSys.h>
+#include <OctaneEngine/Trace.h>
+#include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 #include <EASTL/optional.h>
 #include <EASTL/string.h>
@@ -37,16 +43,6 @@
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = eastl::string;
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = eastl::string_view;
 #include <magic_enum.hpp>
-
-#include <OctaneEngine/NBTReader.h>
-#include <OctaneEngine/Trace.h>
-
-#include <OctaneEngine/Physics/PhysicsSys.h>
-
-#include <OctaneEngine/AudioPlayer.h>
-#include <OctaneEngine/PlayerMovementControllerSys.h>
-#include <OctaneEngine/TransformHelpers.h>
-#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 // define to use actual player entity instead of separate camera movement
 #define USE_PLAYER_ENTITY
