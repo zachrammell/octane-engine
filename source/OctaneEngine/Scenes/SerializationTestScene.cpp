@@ -425,7 +425,7 @@ void SerializationTestScene::Update(float dt)
   if (save)
   {
     Trace::Log(DEBUG, "Saving entities.\n");
-    NBTWriter nbt_writer {"sandbox/serialization_test.nbt"};
+    NBTWriter nbt_writer {"assets/maps/level1.nbt"};
 
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
@@ -484,7 +484,7 @@ void SerializationTestScene::Update(float dt)
     entity_editor_data_ = {};
 
     Trace::Log(DEBUG, "Loading entities.\n");
-    NBTReader nbt_reader {"sandbox/serialization_test.nbt"};
+    NBTReader nbt_reader {"assets/maps/level1.nbt"};
 
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();

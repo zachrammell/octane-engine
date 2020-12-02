@@ -90,7 +90,7 @@ void PhysicsSys::Update()
         auto const& pos = world_transform.getOrigin();
         auto rot = world_transform.getRotation();
         transform.pos = {pos.x(), pos.y(), pos.z()};
-        transform.rotation = {pos.x(), pos.y(), pos.z(), rot.w()};
+        transform.rotation = {rot.x(), rot.y(), rot.z(), rot.w()};
       }
     }
   }
