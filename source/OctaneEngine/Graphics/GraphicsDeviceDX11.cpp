@@ -335,41 +335,6 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
   }
 }
 
-void GraphicsDeviceDX11::changeResolution(bool increase) 
-{
-  //if (increase)
-  //{
-  //  // if increase is true, choose a higher resolution, if possible
-  //  if (currentModeIndex < numberOfSupportedModes - 1)
-  //  {
-  //    currentModeIndex++;
-  //    changeMode = true;
-  //  }
-  //  else
-  //    changeMode = false;
-  //}
-  //else
-  //{
-  //  // else choose a smaller resolution, but only if possible
-  //  if (currentModeIndex > 0)
-  //  {
-  //    currentModeIndex--;
-  //    changeMode = true;
-  //  }
-  //  else
-  //    changeMode = false;
-  //}
-
-  //if (changeMode)
-  //{
-  //  // change mode
-  //  currentModeDescription = supportedModes[currentModeIndex];
-
-  //  // resize everything
-  //  onResize();
-  //}
-}
-
 Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
 {
   Trace::Assert(
