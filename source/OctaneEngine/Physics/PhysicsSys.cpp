@@ -203,11 +203,12 @@ void PhysicsSys::RemoveRigidBody(btRigidBody* rigid_body)
   {
     dynamics_world_->removeRigidBody(rigid_body);
 
+#if 0
     // then remove the pointer from the ongoing contacts list
-    /*for (CollisionPairs::iterator it = last_collision_pair_.begin(); it != last_collision_pair_.end();)
-  {
-    CollisionPairs::iterator next = it;
-    ++next;
+    for (CollisionPairs::iterator it = last_collision_pair_.begin(); it != last_collision_pair_.end();)
+    {
+      CollisionPairs::iterator next = it;
+      ++next;
 
     if (it->a == rigid_body || it->b == rigid_body)
     {
@@ -215,24 +216,24 @@ void PhysicsSys::RemoveRigidBody(btRigidBody* rigid_body)
     }
 
     it = next;
-  }*/
+  }
 
-    //// if the object is a RigidBody (all of ours are RigidBodies, but it's good to be safe)
-    //if (btRigidBody* const body = btRigidBody::upcast(rigid_body))
-    //{
-    //  // delete the components of the object
-    //  delete body->getMotionState();
-    //  delete body->getCollisionShape();
+    // if the object is a RigidBody (all of ours are RigidBodies, but it's good to be safe)
+    if (btRigidBody* const body = btRigidBody::upcast(rigid_body))
+    {
+      // delete the components of the object
+      delete body->getMotionState();
+      delete body->getCollisionShape();
 
-    //  for (int ii = body->getNumConstraintRefs() - 1; ii >= 0; --ii)
-    //  {
-    //    btTypedConstraint* const constraint = body->getConstraintRef(ii);
-    //    dynamics_world_->removeConstraint(constraint);
-    //    delete constraint;
-    //  }
-    //}
-
-    //delete rigid_body;
+      for (int ii = body->getNumConstraintRefs() - 1; ii >= 0; --ii)
+      {
+        btTypedConstraint* const constraint = body->getConstraintRef(ii);
+        dynamics_world_->removeConstraint(constraint);
+        delete constraint;
+      }
+    }
+    delete rigid_body;
+#endif
   }
 }
 
@@ -283,26 +284,28 @@ bool PhysicsSys::HasCollision(ComponentHandle lhs, ComponentHandle rhs)
   return false;
 }
 
-//eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& b) const
-//{
-//  size_t key = reinterpret_cast<size_t>(a.rigid_body) + reinterpret_cast<size_t>(b.rigid_body);
-//  auto key_range = collision_data_table_.equal_range(key);
-//
-//  if (key_range.first != key_range.second)
-//  {
-//    for (auto it = key_range.first; it != key_range.second; ++it)
-//    {
-//      if (
-//        ((*it).second.a == a.rigid_body && (*it).second.b == b.rigid_body)
-//        || ((*it).second.a == b.rigid_body && (*it).second.b == a.rigid_body))
-//      {
-//        return (*it).second.state;
-//      }
-//    }
-//  }
-//
-//  return eCollisionState::None;
-//}
+#if 0
+eCollisionState PhysicsSys::HasCollision(PhysicsComponent& a, PhysicsComponent& b) const
+{
+  size_t key = reinterpret_cast<size_t>(a.rigid_body) + reinterpret_cast<size_t>(b.rigid_body);
+  auto key_range = collision_data_table_.equal_range(key);
+
+  if (key_range.first != key_range.second)
+  {
+    for (auto it = key_range.first; it != key_range.second; ++it)
+    {
+      if (
+        ((*it).second.a == a.rigid_body && (*it).second.b == b.rigid_body)
+        || ((*it).second.a == b.rigid_body && (*it).second.b == a.rigid_body))
+      {
+        return (*it).second.state;
+      }
+    }
+  }
+
+  return eCollisionState::None;
+}
+#endif
 
 void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar /*time_step*/)
 {
@@ -312,111 +315,113 @@ void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar /*time_step*/)
   if (world->getWorldUserInfo() == nullptr)
     return;
 
-   //PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
-   //btDispatcher* dispatcher = world->getDispatcher();
+#if 0
+  PhysicsSys* physics_sys = static_cast<PhysicsSys*>(world->getWorldUserInfo());
+  btDispatcher* dispatcher = world->getDispatcher();
 
-   //for (int i = 0; i < dispatcher->getNumManifolds(); ++i)
-   //{
-   //  btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
-   //  const btRigidBody* body0 = static_cast<const btRigidBody*>(manifold->getBody0());
-   //  const btRigidBody* body1 = static_cast<const btRigidBody*>(manifold->getBody1());
-   //  bool swapped = body0 > body1;
- 
-   //  btRigidBody* body_a = const_cast<btRigidBody*>(swapped ? body1 : body0);
-   //  btRigidBody* body_b = const_cast<btRigidBody*>(swapped ? body0 : body1);
- 
-   //  size_t key = reinterpret_cast<size_t>(body_a) + reinterpret_cast<size_t>(body_b);
- 
-   //  auto key_range = physics_sys->collision_data_table_.equal_range(key);
-   //  if (key_range.first != key_range.second)
-   //  {
-   //    bool found = false;
-   //    for (auto it = key_range.first; it != key_range.second; ++it)
-   //    {
-   //      if (((*it).second.a == body_a && (*it).second.b == body_b))
-   //      {
-   //        found = true;
-   //        if ((*it).second.state == eCollisionState::Start || (*it).second.state == eCollisionState::Persist)
-   //          (*it).second.state = eCollisionState::Persist;
-   //        else
-   //          (*it).second.state = eCollisionState::Start;
-   //        break;
-   //      }
-   //    }
-   //    if (found == false)
-   //    {
-   //      CollisionData data(body_a, body_b, eCollisionState::Start);
-   //      physics_sys->collision_data_table_.emplace(key, data);
-   //      physics_sys->collision_key_table_.emplace(body_a, body_b);
-   //      physics_sys->collision_key_table_.emplace(body_b, body_a);
-   //    }
-   //  }
-   //  else
-   //  {
-   //    CollisionData data(body_a, body_b, eCollisionState::Start);
-   //    physics_sys->collision_data_table_.emplace(key, data);
-   //    physics_sys->collision_key_table_.emplace(body_a, body_b);
-   //    physics_sys->collision_key_table_.emplace(body_b, body_a);
-   //  }
-   //}
-   //eastl::map_difference();
+  for (int i = 0; i < dispatcher->getNumManifolds(); ++i)
+  {
+    btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
+    const btRigidBody* body0 = static_cast<const btRigidBody*>(manifold->getBody0());
+    const btRigidBody* body1 = static_cast<const btRigidBody*>(manifold->getBody1());
+    bool swapped = body0 > body1;
 
-   //CollisionPairs removed_pairs;
-   //eastl::set_difference(
-   //  physics_sys->last_collision_pair_.begin(),
-   //  physics_sys->last_collision_pair_.end(),
-   //  curr_collision_pair.begin(),
-   //  curr_collision_pair.end(),
-   //  removed_pairs.begin());
- 
-   //for (auto it = removed_pairs.begin(); it != removed_pairs.end(); ++it)
-   //{
-   //  auto state = physics_sys->collision_data_table_.find(*it);
-   //  if (state->second.state == eCollisionState::Persist)
-   //  {
-   //    state->second.state = eCollisionState::End;
-   //  }
-   //  else if (state->second.state == eCollisionState::End)
-   //  {
-   //    physics_sys->collision_data_table_.erase(state);
- 
-   //    auto a = it->a;
-   //    auto b = it->b;
- 
-   //    auto key_range_a = physics_sys->collision_key_table_.equal_range(a);
-   //    if (key_range_a.first != key_range_a.second)
-   //    {
-   //      for (auto range_it = key_range_a.first; range_it != key_range_a.second;)
-   //      {
-   //        if ((*range_it).second == b)
-   //        {
-   //          physics_sys->collision_key_table_.erase(range_it++);
-   //          break;
-   //        }
-   //        else
-   //        {
-   //          ++range_it;
-   //        }
-   //      }
-   //    }
-   //    auto key_range_b = physics_sys->collision_key_table_.equal_range(b);
-   //    if (key_range_b.first != key_range_b.second)
-   //    {
-   //      for (auto range_it = key_range_b.first; range_it != key_range_b.second;)
-   //      {
-   //        if ((*range_it).second == a)
-   //        {
-   //          physics_sys->collision_key_table_.erase(range_it++);
-   //          break;
-   //        }
-   //        else
-   //        {
-   //          ++range_it;
-   //        }
-   //      }
-   //    }
-   //  }
-   //}
-   //physics_sys->last_collision_pair_ = curr_collision_pair;
+    btRigidBody* body_a = const_cast<btRigidBody*>(swapped ? body1 : body0);
+    btRigidBody* body_b = const_cast<btRigidBody*>(swapped ? body0 : body1);
+
+    size_t key = reinterpret_cast<size_t>(body_a) + reinterpret_cast<size_t>(body_b);
+
+    auto key_range = physics_sys->collision_data_table_.equal_range(key);
+    if (key_range.first != key_range.second)
+    {
+      bool found = false;
+      for (auto it = key_range.first; it != key_range.second; ++it)
+      {
+        if (((*it).second.a == body_a && (*it).second.b == body_b))
+        {
+          found = true;
+          if ((*it).second.state == eCollisionState::Start || (*it).second.state == eCollisionState::Persist)
+            (*it).second.state = eCollisionState::Persist;
+          else
+            (*it).second.state = eCollisionState::Start;
+          break;
+        }
+      }
+      if (found == false)
+      {
+        CollisionData data(body_a, body_b, eCollisionState::Start);
+        physics_sys->collision_data_table_.emplace(key, data);
+        physics_sys->collision_key_table_.emplace(body_a, body_b);
+        physics_sys->collision_key_table_.emplace(body_b, body_a);
+      }
+    }
+    else
+    {
+      CollisionData data(body_a, body_b, eCollisionState::Start);
+      physics_sys->collision_data_table_.emplace(key, data);
+      physics_sys->collision_key_table_.emplace(body_a, body_b);
+      physics_sys->collision_key_table_.emplace(body_b, body_a);
+    }
+  }
+  eastl::map_difference();
+
+  CollisionPairs removed_pairs;
+  eastl::set_difference(
+    physics_sys->last_collision_pair_.begin(),
+    physics_sys->last_collision_pair_.end(),
+    curr_collision_pair.begin(),
+    curr_collision_pair.end(),
+    removed_pairs.begin());
+
+  for (auto it = removed_pairs.begin(); it != removed_pairs.end(); ++it)
+  {
+    auto state = physics_sys->collision_data_table_.find(*it);
+    if (state->second.state == eCollisionState::Persist)
+    {
+      state->second.state = eCollisionState::End;
+    }
+    else if (state->second.state == eCollisionState::End)
+    {
+      physics_sys->collision_data_table_.erase(state);
+
+      auto a = it->a;
+      auto b = it->b;
+
+      auto key_range_a = physics_sys->collision_key_table_.equal_range(a);
+      if (key_range_a.first != key_range_a.second)
+      {
+        for (auto range_it = key_range_a.first; range_it != key_range_a.second;)
+        {
+          if ((*range_it).second == b)
+          {
+            physics_sys->collision_key_table_.erase(range_it++);
+            break;
+          }
+          else
+          {
+            ++range_it;
+          }
+        }
+      }
+      auto key_range_b = physics_sys->collision_key_table_.equal_range(b);
+      if (key_range_b.first != key_range_b.second)
+      {
+        for (auto range_it = key_range_b.first; range_it != key_range_b.second;)
+        {
+          if ((*range_it).second == a)
+          {
+            physics_sys->collision_key_table_.erase(range_it++);
+            break;
+          }
+          else
+          {
+            ++range_it;
+          }
+        }
+      }
+    }
+  }
+  physics_sys->last_collision_pair_ = curr_collision_pair;
+#endif
 }
 } // namespace Octane

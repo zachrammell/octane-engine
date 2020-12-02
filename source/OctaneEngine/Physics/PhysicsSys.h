@@ -50,13 +50,12 @@ public:
   void ApplyForce(PhysicsComponent* compo, const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
   DirectX::XMVECTOR GetVelocity(const PhysicsComponent* compo) const;
-
-  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
-
   // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
   btRigidBody* CreateSensor(float mass, const btTransform& transform, btCollisionShape* shape) const;
   void RemoveRigidBody(btRigidBody* rigid_body);
+
+   eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
