@@ -71,8 +71,13 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   swap_chain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   swap_chain_descriptor.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
   swap_chain_descriptor.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+#if 0
   //allows switching between fullscreen and windowed mode
   swap_chain_descriptor.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+#else
+  swap_chain_descriptor.Flags = 0;
+#endif
 
   if (swap_chain_descriptor.Windowed == false)
   {
@@ -242,68 +247,24 @@ void GraphicsDeviceDX11::Present()
 
 void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
-  SDL_SysWMinfo system_info;
-  SDL_VERSION(&system_info.version);
-  SDL_GetWindowWMInfo(window, &system_info);
-
-  //Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
-  DXGI_MODE_DESC zeroRefreshRate = supported_mode_;
-  zeroRefreshRate.RefreshRate.Numerator = 0;
-  zeroRefreshRate.RefreshRate.Denominator = 0;
-
   //check for fullscreen switch
   BOOL want_full_screen = false;
   swap_chain_->GetFullscreenState(&want_full_screen, NULL);
 
+  // we don't set size here since we'll do that with SDL elsewhere
   if (currently_in_fullscreen_ != !!want_full_screen)
   {
-    //fullscreen switch
-    if (want_full_screen)
-    {
-      // get fullscreen size
-      SDL_DisplayMode mode;
-      int err = SDL_GetDisplayMode(0, 0, &mode);
-      if (err)
-      {
-        zeroRefreshRate.Width = mode.w;
-        zeroRefreshRate.Height = mode.h;
-      }
-      else
-      {
-        std::clog << "SDL_GetDisplayMode failed while going fullscreen: " << SDL_GetError() << "\n";
-      }
-
-      swap_chain_->ResizeTarget(&zeroRefreshRate);
-      swap_chain_->SetFullscreenState(true, nullptr);
-    }
-    else
-    {
-      swap_chain_->SetFullscreenState(false, nullptr);
-      RECT rect = {0, 0, static_cast<LONG>(supported_mode_.Width), static_cast<LONG>(supported_mode_.Height)};
-      AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);
-      SetWindowPos(
-        system_info.info.win.window,
-        HWND_TOP,
-        0,
-        0,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        SWP_NOMOVE);
-
-      //Resize target to the desired resolution
-      swap_chain_->ResizeTarget(&zeroRefreshRate);
-    }
-
-    currently_in_fullscreen_ = !currently_in_fullscreen_;
+    swap_chain_->SetFullscreenState(want_full_screen, nullptr);
+    currently_in_fullscreen_ = want_full_screen;
   }
 
   device_context_->OMSetRenderTargets(0, 0, 0);
-  if (render_target_view_)
-  {
-    render_target_view_->Release();
-  }
 
-  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+  // for some reason .Release() is not defined so we'll just attach nullptr instead...
+  render_target_view_.attach(nullptr);
+
+  // passing 0 for width/height gets automatic size
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, /* DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH */ 0);
   assert(SUCCEEDED(hr));
 
   ID3D11Texture2D* d3d11_frame_buffer;
@@ -316,20 +277,11 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 
   // set up the default viewport to match the window
   {
-    SDL_SysWMinfo system_info;
-    SDL_VERSION(&system_info.version);
-    SDL_GetWindowWMInfo(window, &system_info);
-    HWND window_handle = system_info.info.win.window;
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
 
-    RECT window_rect;
-    GetClientRect(window_handle, &window_rect);
-    D3D11_VIEWPORT viewport {
-      0.0f,
-      0.0f,
-      (FLOAT)(window_rect.right - window_rect.left),
-      (FLOAT)(window_rect.bottom - window_rect.top),
-      0.0f,
-      1.0f};
+    D3D11_VIEWPORT viewport {0.0f, 0.0f, (FLOAT)(width), (FLOAT)(height), 0.0f, 1.0f};
     device_context_->RSSetViewports(1, &viewport);
   }
 }
