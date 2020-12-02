@@ -15,8 +15,8 @@ namespace Octane
 {
 
 //using CollisionPair = eastl::pair<const btRigidBody*, const btRigidBody*>;
-using CollisionKeyTable = eastl::hash_multimap<btRigidBody*, btRigidBody*>;
-using CollisionDataTable = eastl::hash_multimap<size_t, CollisionData>;
+//using CollisionKeyTable = eastl::hash_multimap<btRigidBody*, btRigidBody*>;
+//using CollisionDataTable = eastl::hash_multimap<size_t, CollisionData>;
 
 class PhysicsSys final : public ISystem
 {
@@ -72,7 +72,7 @@ private:
   btSequentialImpulseConstraintSolver* resolution_phase_;
   btDiscreteDynamicsWorld* dynamics_world_;
   btAlignedObjectArray<btCollisionShape*> collision_shapes_;
-  CollisionKeyTable collision_key_table_;
-  CollisionDataTable collision_data_table_;
+  //CollisionKeyTable collision_key_table_;
+  //CollisionDataTable collision_data_table_;
 };
 } // namespace Octane

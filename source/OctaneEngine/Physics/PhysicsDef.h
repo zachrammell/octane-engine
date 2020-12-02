@@ -36,19 +36,4 @@ struct CollisionData
   const btRigidBody* b = nullptr;
   eCollisionState state = eCollisionState::None;
 };
-
-struct RigidBodyPair
-{
-  btRigidBody* a = nullptr;
-  btRigidBody* b = nullptr;
-
-  friend bool operator<(const RigidBodyPair& x, const RigidBodyPair& y)
-  {
-    return x.a < y.a || (!(y.a < x.a) && x.b < y.b);
-  }
-
-  RigidBodyPair() {}
-  RigidBodyPair(const RigidBodyPair& rhs) : a(rhs.a), b(rhs.b) {}
-};
-
 } // namespace Octane
