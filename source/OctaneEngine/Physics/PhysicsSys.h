@@ -51,7 +51,7 @@ public:
   void ApplyTorque(PhysicsComponent* compo, const DirectX::XMFLOAT3& torque) const;
   DirectX::XMVECTOR GetVelocity(const PhysicsComponent* compo) const;
 
-  eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
+  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
   // used by the MakePhysics functions in ComponentSys
   btRigidBody* CreateRigidBody(float mass, const btTransform& transform, btCollisionShape* shape) const;
