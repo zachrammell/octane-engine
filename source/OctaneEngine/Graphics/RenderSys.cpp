@@ -138,11 +138,12 @@ void RenderSys::Update()
             device_dx11_.GetD3D11Context()->PSSetShaderResources(0, 1, &viewPtr);
           }
 
+
           Color color = 
           {
-            render_comp.color.r * render_comp.material.tint,
-            render_comp.color.g * render_comp.material.tint,
-            render_comp.color.b * render_comp.material.tint
+            render_comp.material.diffuse.r * render_comp.material.tint,
+            render_comp.material.diffuse.g * render_comp.material.tint,
+            render_comp.material.diffuse.b * render_comp.material.tint
           };
 
           device_dx11_.ShaderConstants()

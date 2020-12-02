@@ -77,11 +77,6 @@ TextureDX11* TextureSys::Get(Texture_Key key)
     return &*texture;
   }
   
-  if(key == UNTEXTURED)
-  {
-    return nullptr;
-  }
-
   auto loadedTex = LoadTexture(key,textureToPath_[eastl::string(key)]);
   return loadedTex;
 

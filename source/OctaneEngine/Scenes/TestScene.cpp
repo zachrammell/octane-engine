@@ -97,7 +97,7 @@ void TestScene::Load()
     ComponentHandle const render_id = compsys->MakeRender();
     game_entity.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.color = color;
+    render_component.material.diffuse = color;
     render_component.mesh_type = mesh_type;
 
     //ComponentHandle physics_comp_id = compsys->MakePhysics();
@@ -197,11 +197,8 @@ void TestScene::Load()
     trans.pos = {0.5f, -0.9f, .0f};
     trans.scale = {1.63f, 1.63f, 1.63f};
     trans.rotation = {-0.0605163462f, -0.753363013f, -0.113361359f, -0.644904613f};
-    ComponentHandle render_comp_id = compsys->MakeRender();
-    crossbow.components[to_integral(ComponentKind::Render)] = render_comp_id;
-    RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-    render_comp.color = Colors::cerulean;
-    render_comp.mesh_type = Mesh_Key{"Sniper1"};
+    entsys->AddRenderComp(crossbow_id, Colors::cerulean, Mesh_Key {"Sniper1"});
+    auto& render_comp = compsys->GetRender(crossbow.GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::PhongUI;
   }
 
@@ -248,9 +245,9 @@ void TestScene::Load()
     ComponentHandle render_comp_id = compsys->MakeRender();
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-    render_comp.color = Colors::red;
-    render_comp.mesh_type = Mesh_Key{"BeachBall"};
-    render_comp.render_type = RenderType::Filled;
+    render_comp.material.diffuse = Colors::red;
+    render_comp.mesh_type = Mesh_Key{"Cube"};
+    render_comp.render_type = RenderType::Wireframe;
 
     ComponentHandle physics_comp_id = compsys->MakePhysics();
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
@@ -274,15 +271,26 @@ void TestScene::Load()
 
   //Gun Crosshair
   {
-    auto crosshair
-         = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
-    entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"BeachBall"});
-    auto& render_comp = compsys->GetRender(entsys->GetEntity(crosshair).GetComponentHandle(ComponentKind::Render));
+    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
+    auto & render_comp = entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
     render_comp.shader_type = ShaderType::UI;
-    render_comp.material.tint = false;
-
   }
 
+  #if 1 //texturing examples
+  { //example 1: Texture but don't color
+    auto textured1 = entsys->CreateEntity({0.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
+    auto& render_comp = entsys->AddRenderComp(textured1, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
+    render_comp.shader_type = ShaderType::Phong;
+    render_comp.material.tint = false; //disable coloring of the object, only take texture into account
+  }
+
+  { //example 2: Texture and color
+    auto textured2 = entsys->CreateEntity({5.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
+    auto& render_comp = entsys->AddRenderComp(textured2, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
+    render_comp.shader_type = ShaderType::Phong;
+    render_comp.material.tint = true; //enable coloring of object on top of its texture (additive)
+  }
+  #endif
 }
 
 void TestScene::Start()

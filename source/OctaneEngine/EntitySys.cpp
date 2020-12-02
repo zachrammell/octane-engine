@@ -117,7 +117,7 @@ EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLO
 
   return id;
 }
-void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
+RenderComponent& EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
 {
   auto* compsys = Get<ComponentSys>();
   auto* meshsys = Get<MeshSys>();
@@ -126,9 +126,10 @@ void EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
   ComponentHandle render_comp_id = compsys->MakeRender();
   entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
   RenderComponent& render_comp = compsys->GetRender(render_comp_id);
-  render_comp.color = color;
   render_comp.mesh_type = mesh;
   render_comp.material = meshsys->Get(mesh)->GetMaterial();
+  render_comp.material.diffuse = color;
+  return render_comp;
 }
 void EntitySys::AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale)
 {

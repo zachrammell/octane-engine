@@ -27,7 +27,6 @@ typedef eastl::string_view Mesh_Key; //MeshSys mesh key type
 struct RenderComponent
 {
   Material material;
-  Color& color {material.diffuse};
   Mesh_Key mesh_type;
   RenderType render_type = RenderType::Filled;
   ShaderType shader_type = ShaderType::Phong;

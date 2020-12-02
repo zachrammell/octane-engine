@@ -42,7 +42,7 @@ void NBTWriter::Write(string_view name, RenderComponent render_component)
   if (BeginCompound(name))
   {
     Write("Mesh", render_component.mesh_type);
-    Write("Color", render_component.color);
+    Write("Color", render_component.material.diffuse);
     EndCompound();
   }
 }

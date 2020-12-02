@@ -66,7 +66,7 @@ void SerializationTestScene::Load()
     ComponentHandle const render_id = compsys->MakeRender();
     ent.components[to_integral(ComponentKind::Render)] = render_id;
     RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.color = color;
+    render_component.material.diffuse = color;
     render_component.mesh_type = mesh_type;
     render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
   };
@@ -141,7 +141,7 @@ void SerializationTestScene::Update(float dt)
 
     ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
     RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.color = color;
+    render_component.material.diffuse = color;
     render_component.mesh_type = mesh_type;
 
     if (!name.empty())
@@ -197,7 +197,7 @@ void SerializationTestScene::Update(float dt)
 
     ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
     RenderComponent const& render_component = compsys->GetRender(render_id);
-    color = render_component.color;
+    color = render_component.material.diffuse;
     mesh_type = render_component.mesh_type;
 
     if (ent.HasComponent(ComponentKind::Metadata))
@@ -488,7 +488,7 @@ void SerializationTestScene::Update(float dt)
                 ComponentHandle const render_id = component_sys.MakeRender();
                 ent.components[to_integral(ComponentKind::Render)] = render_id;
                 RenderComponent& render_component = component_sys.GetRender(render_id);
-                render_component.color = nbt_reader.Read<Color>("Color");
+                render_component.material.diffuse = nbt_reader.Read<Color>("Color");
                 render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
               }
               break;

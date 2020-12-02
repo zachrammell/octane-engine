@@ -41,6 +41,6 @@ typedef Texture TextureDX11;
 typedef eastl::shared_ptr<TextureDX11> TexturePtr;
 
 const Texture_Key INVALID_TEXTURE {"Uninitialized"};
-const Texture_Key UNTEXTURED {""};
+const Texture_Key UNTEXTURED {"Untextured"};
 
 } // namespace Octane
