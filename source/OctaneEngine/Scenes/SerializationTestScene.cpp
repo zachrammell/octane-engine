@@ -141,10 +141,7 @@ void SerializationTestScene::Update(float dt)
     trans.scale = scale;
     dx::XMStoreFloat4(&(trans.rotation), dx::XMQuaternionRotationRollPitchYawFromVector(dx::XMLoadFloat3(&rotation)));
 
-    ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
-    RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.material.diffuse = color;
-    render_component.mesh_type = mesh_type;
+    RenderComponent & render_component = entsys->AddRenderComp(id, color, mesh_type);
 
     if (!name.empty())
     {
