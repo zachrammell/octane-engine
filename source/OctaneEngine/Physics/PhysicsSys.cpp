@@ -241,9 +241,9 @@ void PhysicsSys::BulletCollisionCallback(
   dispatcher.defaultNearCallback(collisionPair, dispatcher, dispatchInfo);
 };
 
-PhysicsSys::CollisionsResult PhysicsSys::GetCollisions(EntityID entity)
+PhysicsSys::CollisionsResult PhysicsSys::GetCollisions(ComponentHandle phys_comp)
 {
-  return entity_collisions_.equal_range_small(entity);
+  return entity_collisions_.equal_range_small(phys_comp);
 }
 
 bool PhysicsSys::HasCollisions(ComponentHandle phys_comp) const
