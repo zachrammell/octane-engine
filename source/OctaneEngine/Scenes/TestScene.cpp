@@ -76,6 +76,8 @@ void TestScene::Load()
   enemy_destroyed_func.enemiesSpawned = 0;
   enemy_destroyed_func.score = 0;
   enemy_destroyed_func.wave = 1;
+  enemy_destroyed_func.enemiesKilled = 0;
+  enemy_destroyed_func.spawnedWave = true;
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
