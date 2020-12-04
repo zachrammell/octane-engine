@@ -472,6 +472,7 @@ void TestScene::Update(float dt)
   else
   {
     Get<FramerateController>()->Unpause();
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     {
      /* GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
       ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);
