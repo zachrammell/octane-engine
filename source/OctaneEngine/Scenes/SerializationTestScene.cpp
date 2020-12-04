@@ -266,7 +266,7 @@ void SerializationTestScene::Update(float dt)
     ImGui::EndMainMenuBar();
   }
 
-  if (editor_settings_ && ImGui::Begin("Editor Settings"), &editor_settings_, ImGuiWindowFlags_AlwaysAutoResize)
+  if (editor_settings_ && ImGui::Begin("Editor Settings", &editor_settings_, ImGuiWindowFlags_AlwaysAutoResize))
   {
     ImGui::DragFloat("Slider Sensitivity", &slider_sensitivity, 0.001f, 0.001f, 1.0f);
     ImGui::End();
