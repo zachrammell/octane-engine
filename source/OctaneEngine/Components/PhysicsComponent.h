@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-#include <OctaneEngine/EntitySys.h> //EntityID
+#include <OctaneEngine/EntityID.h>
 #include <btBulletDynamicsCommon.h>
 
 namespace Octane
