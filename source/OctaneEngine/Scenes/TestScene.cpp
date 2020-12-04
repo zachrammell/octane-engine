@@ -56,7 +56,7 @@ namespace
 {
 
 Octane::EntityID spawner_id;
-Octane::EntityID wind_tunnel_id;
+//Octane::EntityID wind_tunnel_id;
 Octane::EntityID crossbow_id;
 const dx::XMFLOAT3 PHYSICS_CONSTRAINTS = {1.0f, 1.0f, 1.0f};
 const dx::XMFLOAT3 WINDTUNNELFORCE = {-100.f, 30.f, 0.f};
@@ -229,7 +229,7 @@ void TestScene::Load()
 
 #if 1
 
-  wind_tunnel_id = Get<EntitySys>()->MakeEntity();
+ /* wind_tunnel_id = Get<EntitySys>()->MakeEntity();
   {
     GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
     ComponentHandle trans_id = compsys->MakeTransform();
@@ -256,7 +256,7 @@ void TestScene::Load()
     obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
     BehaviorComponent& beh_comp = compsys->GetBehavior(bhvr_comp_id);
     beh_comp.force = WINDTUNNELFORCE;
-  }
+  }*/
 
 #endif
 
@@ -473,7 +473,7 @@ void TestScene::Update(float dt)
   {
     Get<FramerateController>()->Unpause();
     {
-      GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
+     /* GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
       ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh_comp = compsys->GetBehavior(wind_behavior);
       ComponentHandle wind_transform = wind_tunnel_entity.GetComponentHandle(ComponentKind::Transform);
@@ -534,6 +534,7 @@ void TestScene::Update(float dt)
         }
       }
       beh_comp.force = wind_dir;
+    */
     }
 
     auto* input = Get<InputHandler>();
