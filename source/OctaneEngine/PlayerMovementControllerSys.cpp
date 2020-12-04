@@ -326,7 +326,7 @@ void PlayerMovementControllerSys::Update()
       DirectX::XMVectorAdd(
         offset,
         playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
-    trans.pos.y = 1.0f; //make sure it is on the ground
+    trans.pos.y = HACKY_GROUND_Y_LEVEL ; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
 

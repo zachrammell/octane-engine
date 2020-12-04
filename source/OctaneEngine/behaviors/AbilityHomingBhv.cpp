@@ -35,9 +35,7 @@ void AbilityHomingBhv::Update(float dt, EntityID myid)
 {
   // std::cout << "tunnel update" << std::endl;
   auto enty = Get<EntitySys>();
-  auto& phys_me = Get<ComponentSys>()->GetPhysics(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics));
-  auto& trans_me
-    = Get<ComponentSys>()->GetTransform(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Transform));
+  auto phys_me = enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics);
 
   Get<ComponentSys>()->GetBehavior(handle_).force = GetForce(myid);
 
@@ -59,13 +57,12 @@ void AbilityHomingBhv::Update(float dt, EntityID myid)
 
         if (othbeh.type == BHVRType::PLANE)
         {
-          auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
-          auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
+          auto phys_other = it->GetComponentHandle(ComponentKind::Physics);
 
           //Apply force to paper airplane
-          //if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+          if (Get<PhysicsSys>()->HasCollision( phys_me,phys_other))
           {
-            //phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
+            Get<ComponentSys>()->GetPhysics(phys_other).ApplyForce(Get<ComponentSys>()->GetBehavior(handle_).force);
           }
         }
       }
