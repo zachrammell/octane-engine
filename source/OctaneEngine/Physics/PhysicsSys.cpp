@@ -229,6 +229,10 @@ void PhysicsSys::BulletCollisionCallback(
   // these are void* and could technically be any object, if we do weird implementation stuff
   btCollisionObject* obj0 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy0->m_clientObject);
   btCollisionObject* obj1 = reinterpret_cast<btCollisionObject*>(collisionPair.m_pProxy1->m_clientObject);
+  if (!dispatcher.needsCollision(obj0, obj1))
+  {
+    return; // do nothing if they don't actually collide!
+  }
 
   // getUserIndex returns an arbitrary user-defined value that we set earlier when the component was created
   ComponentHandle id0 = obj0->getUserIndex();
