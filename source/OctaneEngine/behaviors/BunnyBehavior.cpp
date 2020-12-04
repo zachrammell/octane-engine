@@ -101,12 +101,12 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
   //SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
-  SimpleMove(trans.pos, target, 1.55f);
-  FacePos(trans, target);
+  //SimpleMove(trans.pos, target, 1.55f);
+  //FacePos(trans, target);
   //BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
   //physics.rigid_body.SetPosition(trans.pos);
-  Get<PhysicsSys>()->SetPosition(&physics, trans.pos);
+ // Get<PhysicsSys>()->SetPosition(&physics, trans.pos);
   //physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
 }

@@ -39,4 +39,12 @@ void PhysicsComponent::ApplyTorque(const DirectX::XMFLOAT3& torque) const
   }
 }
 
+void PhysicsComponent::SetGravity(float force) const 
+{
+  if (rigid_body && rigid_body->getMotionState())
+  {
+    rigid_body->setGravity(btVector3(0,force,0));
+  }
+}
+
 } // namespace Octane

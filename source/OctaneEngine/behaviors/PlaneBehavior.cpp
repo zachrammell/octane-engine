@@ -93,12 +93,13 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       phys_me.SetRotation(trans_me.rotation);
 
       impulsed = true;
+      phys_me.SetGravity(0.5f * G);
       return;
     }
     
     //phys_sys->ApplyForce(&phys_me, {0.f, .15f * G, 0.f});
 
-     phys_me.ApplyForce({0.f, .15f * G, 0.f});
+     //phys_me.ApplyForce({0.f, .15f * G, 0.f});
 
     dx::XMFLOAT3 vel;
     dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_sys->GetVelocity(&phys_me)));
@@ -167,20 +168,20 @@ void PlaneBehavior::Update(float dt, EntityID myid)
 
         }
       }
-      else if (enty->GetPlayerID() != it.ID() && it->HasComponent(ComponentKind::Physics)) //check collision with terrain as it should not have a behavior
-      {
-        auto& phys_other = it->GetComponentHandle(ComponentKind::Physics);
+      //else if (enty->GetPlayerID() != it.ID() && it->HasComponent(ComponentKind::Physics)) //check collision with terrain as it should not have a behavior
+      //{
+      //  auto& phys_other = it->GetComponentHandle(ComponentKind::Physics);
 
-        if (phys_sys->HasCollision(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics), phys_other))
-        {
-          //prevent freeing multiple times due to multiple collision
-          if (!gettingfreed)
-          {
-            Get<EntitySys>()->FreeEntity(myid);
-            gettingfreed = true;
-          }
-        }
-      }
+      //  if (phys_sys->HasCollision(enty->GetEntity(myid).GetComponentHandle(ComponentKind::Physics), phys_other))
+      //  {
+      //    //prevent freeing multiple times due to multiple collision
+      //    if (!gettingfreed)
+      //    {
+      //      Get<EntitySys>()->FreeEntity(myid);
+      //      gettingfreed = true;
+      //    }
+      //  }
+      //}
 
     }
   }
