@@ -119,6 +119,7 @@ void PhysicsSys::LevelEnd()
     dynamics_world_->removeCollisionObject(obj);
     delete obj;
   }
+  entity_collisions_.clear();
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -232,6 +233,11 @@ void PhysicsSys::BulletCollisionCallback(
   // getUserIndex returns an arbitrary user-defined value that we set earlier when the component was created
   ComponentHandle id0 = obj0->getUserIndex();
   ComponentHandle id1 = obj1->getUserIndex();
+
+  {
+    assert(GetEngine()->GetSystem<ComponentSys>()->GetPhysics(id0).rigid_body == obj0);
+    assert(GetEngine()->GetSystem<ComponentSys>()->GetPhysics(id1).rigid_body == obj1);
+  }
 
   // now we insert the collisions into the list
   PhysicsSys* phys = GetEngine()->GetSystem<PhysicsSys>();
