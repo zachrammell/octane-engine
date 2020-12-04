@@ -38,7 +38,7 @@ void PlaneBehavior::Initialize()
         dx::XMFLOAT3 facing;
         dx::XMStoreFloat3(&facing, dir_);
         FaceDir(trans, facing);
-        //physics.rigid_body.SetOrientation(trans.rotation);
+        physics.SetRotation(trans.rotation);
         //physics.rigid_body.SetGhost(true);
         break;
       }
@@ -79,7 +79,6 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     {
       auto player = enty->GetPlayer();
       dir_.m128_f32[1] += .005f;
-     // dir_ = dx::XMVectorScale(dir_, 12.f / dt);
       dir_ = dx::XMVectorScale(dir_, 100.f);
       auto& playerPhys = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
       auto playerVel = phys_sys->GetVelocity(&playerPhys);
@@ -91,11 +90,13 @@ void PlaneBehavior::Update(float dt, EntityID myid)
       dir_ = dx::XMVector3Normalize(dir_);
       dx::XMStoreFloat3(&force, dir_);
       FaceDir(trans_me, force);
-      //phys_me.rigid_body.SetOrientation(trans_me.rotation);
+      phys_me.SetRotation(trans_me.rotation);
 
       impulsed = true;
       return;
     }
+    
+    //phys_sys->ApplyForce(&phys_me, {0.f, .15f * G, 0.f});
 
      phys_me.ApplyForce({0.f, .15f * G, 0.f});
 
@@ -103,7 +104,7 @@ void PlaneBehavior::Update(float dt, EntityID myid)
     dx::XMStoreFloat3(&vel,dx::XMVector3Normalize( phys_sys->GetVelocity(&phys_me)));
 
     FaceDir(trans_me, vel);
-    //phys_me.rigid_body.SetOrientation(trans_me.rotation);
+    phys_me.SetRotation(trans_me.rotation);
 
     lifetime -= dt;
   }

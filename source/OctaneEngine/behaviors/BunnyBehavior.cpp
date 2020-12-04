@@ -3,6 +3,7 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/AudioPlayer.h>
@@ -47,6 +48,8 @@ void BunnyBehavior::Initialize()
         break;
     }
   }
+
+  switch_dir_timer = 10.0f;
 }
 
 void BunnyBehavior::Update(float dt, EntityID myID)
@@ -98,10 +101,12 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
   //SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
+  SimpleMove(trans.pos, target, 1.55f);
   FacePos(trans, target);
   //BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
   //physics.rigid_body.SetPosition(trans.pos);
+  Get<PhysicsSys>()->SetPosition(&physics, trans.pos);
   //physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
 }
