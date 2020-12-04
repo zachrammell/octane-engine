@@ -229,7 +229,7 @@ void TestScene::Load()
 
 #if 1
 
- /* wind_tunnel_id = Get<EntitySys>()->MakeEntity();
+  /* wind_tunnel_id = Get<EntitySys>()->MakeEntity();
   {
     GameEntity& obj102_entity = Get<EntitySys>()->GetEntity((wind_tunnel_id));
     ComponentHandle trans_id = compsys->MakeTransform();
@@ -262,26 +262,28 @@ void TestScene::Load()
 
   //Gun Crosshair
   {
-    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f,0.f,0.f,0.f});
-    auto & render_comp = entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
+    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f, 0.f, 0.f, 0.f});
+    auto& render_comp = entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
     render_comp.shader_type = ShaderType::UI;
   }
 
-  #if 1 //texturing examples
+#if 1 //texturing examples
   { //example 1: Texture but don't color
     auto textured1 = entsys->CreateEntity({0.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
-    auto& render_comp = entsys->AddRenderComp(textured1, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
+    auto& render_comp
+      = entsys->AddRenderComp(textured1, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
     render_comp.shader_type = ShaderType::Phong;
     render_comp.material.tint = false; //disable coloring of the object, only take texture into account
   }
 
   { //example 2: Texture and color
     auto textured2 = entsys->CreateEntity({5.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
-    auto& render_comp = entsys->AddRenderComp(textured2, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
+    auto& render_comp
+      = entsys->AddRenderComp(textured2, Colors::red, Mesh_Key {"BeachBall"}); //to texture, use AddRenderComp()
     render_comp.shader_type = ShaderType::Phong;
     render_comp.material.tint = true; //enable coloring of object on top of its texture (additive)
   }
-  #endif
+#endif
 }
 
 void TestScene::Start()
@@ -474,7 +476,7 @@ void TestScene::Update(float dt)
     Get<FramerateController>()->Unpause();
     SDL_SetRelativeMouseMode(SDL_TRUE);
     {
-     /* GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
+      /* GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
       ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);
       BehaviorComponent& beh_comp = compsys->GetBehavior(wind_behavior);
       ComponentHandle wind_transform = wind_tunnel_entity.GetComponentHandle(ComponentKind::Transform);
@@ -543,8 +545,8 @@ void TestScene::Update(float dt)
 
     auto& crossbow_trans = Get<ComponentSys>()->GetTransform(
       Get<EntitySys>()->GetEntity(crossbow_id).GetComponentHandle(ComponentKind::Transform));
-    //enable this to be able to move and rotate the weapon, and scale the weapon
-    #if 0
+//enable this to be able to move and rotate the weapon, and scale the weapon
+#if 0
     dx::XMVECTOR newRot {};
     dx::XMVECTOR currRot = dx::XMLoadFloat4(&crossbow_trans.rotation);
 
@@ -648,7 +650,7 @@ void TestScene::Update(float dt)
         create_plane({pos.x + dir.x, pos.y + dir.y, pos.z + dir.z});
       }
     }
-    
+
     if (input->KeyPressed(SDLK_f))
     {
       auto& weapon = entsys->GetEntity(crossbow_id);
