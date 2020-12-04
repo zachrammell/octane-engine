@@ -1,9 +1,8 @@
+
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
-#include <OctaneEngine/Graphics/TextureSys.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
-#include <OctaneEngine/Physics/Box.h>
-#include <OctaneEngine/Engine.h>
 #include <iostream> // error logging
 
 namespace Octane
@@ -51,8 +50,6 @@ void EntitySys::FreeEntity(EntityID which)
     std::cerr << "Trying to free entity #" << which << " which is already freed!" << std::endl;
   }
 
-  //Get<ComponentSys>()->FreePhysics(entities_[which].components[to_integral(ComponentKind::Physics)]);
-  //Get<ComponentSys>()->FreeBehavior(entities_[which].components[to_integral(ComponentKind::Behavior)]);
   ResetEntity(entities_[which]);
   --entity_count_;
 }
@@ -65,11 +62,11 @@ void EntitySys::FreeAllEntities()
 
 void EntitySys::Load() {}
 void EntitySys::LevelStart() {}
-void EntitySys::Update() 
+void EntitySys::Update()
 {
   for (auto& ent : entities_)
   {
-    if (!ent.active && !ent.cleared)//if entity has been marked for deletion but has not been cleared yet
+    if (!ent.active && !ent.cleared) //if entity has been marked for deletion but has not been cleared yet
     {
       ent.cleared = true;
       Get<ComponentSys>()->FreePhysics(ent.components[to_integral(ComponentKind::Physics)]);
@@ -99,7 +96,7 @@ EntitySys::Iterator EntitySys::EntitiesBegin()
 }
 EntitySys::Iterator EntitySys::EntitiesEnd()
 {
-  return EntityIter(entities_.size(), *this);
+  return EntityIter(static_cast<EntityID>(entities_.size()), *this);
 }
 
 EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLOAT4 rotation)
@@ -131,33 +128,16 @@ RenderComponent& EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh
   render_comp.material.diffuse = color;
   return render_comp;
 }
-void EntitySys::AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale)
-{
-  auto compsys = Get<ComponentSys>();
-  auto physics_sys = Get<PhysicsSys>(); 
-  auto& entity = GetEntity(id);
-  auto& trans = compsys->GetTransform( entity.GetComponentHandle(ComponentKind::Transform));
-  ComponentHandle physics_comp_id = compsys->MakePhysics();
-  entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-  PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-  physics_sys->InitializeRigidBody(physics_comp);
-  physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-  static_cast<Box*>(physics_comp.primitive)->SetBox(colScale.x, colScale.y, colScale.z);
-  physics_comp.rigid_body.SetPosition(trans.pos);
-  physics_comp.rigid_body.SetOrientation(trans.rotation);
-}
-void EntitySys::AddBehavior(EntityID id, BHVRType behavior) 
-{
-  auto compsys = Get<ComponentSys>();
-  auto& entity = GetEntity(id);
 
+void EntitySys::AddBehavior(EntityID id, BHVRType behavior)
+{
+  auto compsys = Get<ComponentSys>();
+  auto& entity = GetEntity(id);
 
   ComponentHandle behavior_comp_id = compsys->MakeBehavior(behavior);
   entity.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
   BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
 }
-
-
 
 void EntitySys::SetPlayerID(EntityID id)
 {
@@ -215,7 +195,6 @@ EntityID EntityIter::ID() const
 {
   return id_;
 }
-EntityIter::EntityIter(EntityID id, EntitySys& sys) :id_(id), sys_(sys) {}
-
+EntityIter::EntityIter(EntityID id, EntitySys& sys) : id_(id), sys_(sys) {}
 
 } // namespace Octane

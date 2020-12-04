@@ -30,8 +30,7 @@ public:
   ISystem* GetSystem(SystemOrder sys);
 
   template<class System>
-  [[nodiscard]]
-  System* GetSystem()
+  [[nodiscard]] System* GetSystem()
   {
     static_assert(eastl::is_base_of_v<ISystem, System>);
     return static_cast<System*>(systems_[to_integral(System::GetOrder())]);
@@ -41,6 +40,10 @@ private:
   eastl::array<ISystem*, to_integral(SystemOrder::COUNT)> systems_;
   int scene_changing_, scene_restarting_, should_quit_;
 };
+
+void CreateEngine();
+void DeleteEngine();
+Engine* GetEngine();
 
 template<class System>
 void Engine::AddSystem(System* sys)

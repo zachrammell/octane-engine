@@ -27,7 +27,7 @@ void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
   }
 }
 
-void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidBody& toPos, float speed)
+/*void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidBody& toPos, float speed)
 {
   //simplemove using physics
   dx::XMFLOAT3 to = toPos.GetPosition();
@@ -49,14 +49,14 @@ void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, dx::XMFLOAT3& 
     //fromRB.ApplyForceCentroid();
     fromRB.SetLinearVelocity({move.m128_f32[0], yVel, move.m128_f32[2]});
   }
-}
+}*/
 
 void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float depth)
 {
   pos.y = std::clamp(pos.y, targetPos.y - depth, std::numeric_limits<float>::max());
 }
-
-bool RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
+/*
+void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
 {
   float jumpChance = rand() % 11;
   if (!dx::XMScalarNearEqual(pos.y, 0.0f, 0.250000f))
@@ -75,7 +75,7 @@ bool RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, fl
 void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float jumpForce)
 {
   RandomJump(rb, pos, 100.f, jumpForce);
-}
+}*/
 
 void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
 {

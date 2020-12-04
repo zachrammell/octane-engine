@@ -4,17 +4,22 @@
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/SystemOrder.h>
+#include <OctaneEngine/behaviors/AbilityHomingBhv.h>
+#include <OctaneEngine/behaviors/AbilityTunnelBhv.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
-#include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/behaviors/BunnyBehavior.h>
+#include <OctaneEngine/behaviors/DuckBehavior.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
-#include <OctaneEngine/behaviors/AbilityHomingBhv.h>
-#include <OctaneEngine/behaviors/AbilityTunnelBhv.h>
 
 namespace Octane
 {
+
+namespace
+{
+} // namespace
+
 void ComponentSys::Load() {}
 
 void ComponentSys::LevelStart() {}
@@ -49,8 +54,15 @@ void ComponentSys::FreePhysics(ComponentHandle id)
 {
   if (id != INVALID_COMPONENT)
   {
-    PhysicsComponent& compo = GetPhysics(id);
-    compo.sys->ErasePrimitive(compo);
+
+    PhysicsComponent& compo = GetPhysics(id);   
+
+    if (compo.rigid_body != nullptr)
+    {
+      Get<PhysicsSys>()->RemoveRigidBody(compo.rigid_body);
+      delete compo.rigid_body;
+      compo.rigid_body = nullptr;
+    }
   }
 }
 
@@ -119,14 +131,68 @@ ComponentHandle ComponentSys::MakeRender()
 
 ComponentHandle ComponentSys::MakeTransform()
 {
-  transform_comps_.push_back_uninitialized();
+  transform_comps_.emplace_back(TransformComponent {});
   return static_cast<ComponentHandle>(transform_comps_.size() - 1);
 }
 
-ComponentHandle ComponentSys::MakePhysics()
+ComponentHandle ComponentSys::MakePhysicsUninitialized()
 {
-  physics_comps_.push_back_uninitialized();
+  physics_comps_.emplace_back(PhysicsComponent {});
   return static_cast<ComponentHandle>(physics_comps_.size() - 1);
+}
+
+ComponentHandle
+  ComponentSys::MakePhysicsWithShape(const TransformComponent& trans, btCollisionShape* shape, float mass, bool sensor)
+{
+
+  /// Create Dynamic Objects
+  btTransform transform = btTransform(
+    btQuaternion(trans.rotation.x, trans.rotation.y, trans.rotation.z, trans.rotation.w),
+    btVector3(trans.pos.x, trans.pos.y, trans.pos.z));
+  transform.setIdentity();
+
+  btVector3 localInertia(0, 0, 0);
+  if (mass != 0)
+  {
+    shape->calculateLocalInertia(mass, localInertia);
+  }
+
+  PhysicsComponent phys_compo;
+  if (sensor)
+  {
+    phys_compo.rigid_body = Get<PhysicsSys>()->CreateSensor(mass, transform, shape);
+  }
+  else
+  {
+    phys_compo.rigid_body = Get<PhysicsSys>()->CreateRigidBody(mass, transform, shape);
+  }
+
+  physics_comps_.push_back(phys_compo);
+  ComponentHandle comp_handle = static_cast<ComponentHandle>(physics_comps_.size() - 1);
+
+  // activate it so it will actually update its physics
+  phys_compo.rigid_body->setActivationState(ACTIVE_TAG);
+
+  // this UserIndex value will be used by the physics system to associate a btRigidBody with a component
+  phys_compo.rigid_body->setUserIndex(comp_handle);
+
+  return comp_handle;
+}
+
+ComponentHandle ComponentSys::MakePhysicsBox(
+  const TransformComponent& trans,
+  const DirectX::XMFLOAT3& box_half_size,
+  float mass,
+  bool sensor)
+{
+  btBoxShape* box_shape = new btBoxShape(btVector3(box_half_size.x, box_half_size.y, box_half_size.z));
+  return MakePhysicsWithShape(trans, box_shape, mass, sensor);
+}
+
+ComponentHandle ComponentSys::MakePhysicsSphere(const TransformComponent& trans, float radius, float mass, bool sensor)
+{
+  btSphereShape* sphere_shape = new btSphereShape(radius);
+  return MakePhysicsWithShape(trans, sphere_shape, mass, sensor);
 }
 
 ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
@@ -142,6 +208,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::PLANE:
   {
     auto& camera = Get<CameraSys>()->GetFPSCamera();
+    
     beh.behavior = new PlaneBehavior(
       Get<BehaviorSys>(),
       static_cast<ComponentHandle>(behavior_comps_.size()),
@@ -151,8 +218,10 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::BEAR:
   {
     auto entsys = Get<EntitySys>();
-    beh.behavior
-      = new BearBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayerID());
+    beh.behavior = new BearBehavior(
+      Get<BehaviorSys>(),
+      static_cast<ComponentHandle>(behavior_comps_.size()),
+      entsys->GetPlayerID());
     break;
   }
   case BHVRType::DUCK:
@@ -167,14 +236,16 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::BUNNY:
   {
     auto entsys = Get<EntitySys>();
-    beh.behavior
-      = new BunnyBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), entsys->GetPlayerID());
+    beh.behavior = new BunnyBehavior(
+      Get<BehaviorSys>(),
+      static_cast<ComponentHandle>(behavior_comps_.size()),
+      entsys->GetPlayerID());
     break;
   }
   case BHVRType::ENEMYSPAWNER:
     beh.behavior = new EnemySpawner(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;
-  case BHVRType::ABILITYTUNNEL: 
+  case BHVRType::ABILITYTUNNEL:
   {
 
     beh.behavior = new AbilityTunnelBhv(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
@@ -187,11 +258,10 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
     beh.force.y = 0;
     break;
   }
-  case BHVRType::ABILITYHOMMING: 
+  case BHVRType::ABILITYHOMMING:
     beh.behavior = new AbilityHomingBhv(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;
-  default:
-    break;
+  default: break;
   }
 
   behavior_comps_.emplace_back(beh);
@@ -203,4 +273,5 @@ ComponentHandle ComponentSys::MakeMetadata()
   metadata_comps_.emplace_back(MetadataComponent {});
   return static_cast<ComponentHandle>(metadata_comps_.size() - 1);
 }
+
 } // namespace Octane

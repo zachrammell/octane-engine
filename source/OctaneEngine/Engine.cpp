@@ -1,31 +1,32 @@
 #include <OctaneEngine/Engine.h>
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #include <SDL.h>
 
 namespace Octane
 {
 
-namespace {
+namespace
+{
+// global singleton engine object
+Engine* singleton_engine = nullptr;
+
 // systems in this array will be shutdown first, in the order they appear
 // afterwards, all remaining systems will be shutdown
-const SystemOrder PRIORITY_SHUTDOWN_ORDER[] = {
-  SystemOrder::WindowManager,
-  SystemOrder::Audio
-};
-}
+const SystemOrder PRIORITY_SHUTDOWN_ORDER[] = {SystemOrder::WindowManager, SystemOrder::Audio};
+} // namespace
 
 Engine::Engine()
-    // Start with all systems missing
+  // Start with all systems missing
   : systems_ {nullptr},
-    // 
+    //
     scene_changing_ {true},
-    // 
+    //
     scene_restarting_ {false},
     //
-    should_quit_{false}
+    should_quit_ {false}
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
   {
@@ -37,9 +38,11 @@ Engine::Engine()
 Engine::~Engine()
 {
   // shutdown some systems in priority order
-  for (SystemOrder idx : PRIORITY_SHUTDOWN_ORDER) {
+  for (SystemOrder idx : PRIORITY_SHUTDOWN_ORDER)
+  {
     ISystem*& system = systems_[to_integral(idx)];
-    if (system) {
+    if (system)
+    {
       delete system;
       system = nullptr;
     }
@@ -131,6 +134,22 @@ bool Engine::ShouldQuit() const
 ISystem* Engine::GetSystem(SystemOrder sys)
 {
   return systems_[to_integral(sys)];
+}
+
+void CreateEngine()
+{
+  assert(singleton_engine == nullptr);
+  singleton_engine = new Engine();
+}
+void DeleteEngine()
+{
+  assert(singleton_engine != nullptr);
+  delete singleton_engine;
+  singleton_engine = nullptr;
+}
+Engine* GetEngine()
+{
+  return singleton_engine;
 }
 
 } // namespace Octane

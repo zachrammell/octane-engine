@@ -11,9 +11,9 @@
 /******************************************************************************/
 #pragma once
 
-#include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Graphics/GraphicsDeviceDX11.h>
 #include <OctaneEngine/Helper.h>
+#include <OctaneEngine/ISystem.h>
 
 #include <EASTL/fixed_vector.h>
 // Includes
@@ -36,6 +36,8 @@ public:
 
   static SystemOrder GetOrder();
 
+  void OnResize();
+
   void SetClearColor(Color clear_color);
   GraphicsDeviceDX11 const& GetGraphicsDeviceDX11() const { return device_dx11_; }
 
@@ -43,4 +45,4 @@ private:
   GraphicsDeviceDX11 device_dx11_;
 };
 
-}
+} // namespace Octane

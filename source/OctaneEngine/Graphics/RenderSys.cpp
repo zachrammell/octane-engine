@@ -12,13 +12,13 @@
 
 #include <OctaneEngine/Graphics/RenderSys.h>
 
-#include <OctaneEngine/Graphics/MeshSys.h>
-#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/RenderComponent.h>
+#include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/TextureSys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
+#include <OctaneEngine/Graphics/MeshSys.h>
 #include <OctaneEngine/Graphics/OBJParser.h>
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/SystemOrder.h>
@@ -39,7 +39,7 @@ namespace
 Octane::Shader phong;
 Octane::Shader ui;
 Octane::Shader phongui;
-}
+} // namespace
 
 namespace Octane
 {
@@ -75,20 +75,13 @@ void RenderSys::Update()
 
   for (auto shader_type : magic_enum::enum_values<ShaderType>())
   {
-
     Shader* shader = nullptr;
     switch (shader_type)
     {
-    case Octane::ShaderType::Phong:
-      shader = &phong; break;
-    case Octane::ShaderType::UI:
-      shader = &ui; break;
-    case Octane::ShaderType::PhongUI:
-      shader = &phongui; break;
-    case Octane::ShaderType::COUNT:
-      continue;
-    default:
-      continue;
+    case ShaderType::Phong: shader = &phong; break;
+    case ShaderType::UI: shader = &ui; break;
+    case ShaderType::PhongUI: shader = &phongui; break;
+    default: continue;
     }
     device_dx11_.UseShader(*shader);
 
@@ -126,7 +119,7 @@ void RenderSys::Update()
           {
             current_mesh = render_comp.mesh_type;
             auto mesh = meshSys->Get(current_mesh.data());
-            if(mesh)
+            if (mesh)
             {
               device_dx11_.UseMesh(*mesh);
             }
@@ -174,7 +167,9 @@ void RenderSys::SetClearColor(Color clear_color)
 {
   device_dx11_.SetClearColor(clear_color);
 }
-
-
+void RenderSys::OnResize()
+{
+  device_dx11_.ResizeFramebuffer(Get<WindowManager>()->GetHandle());
+}
 
 } // namespace Octane

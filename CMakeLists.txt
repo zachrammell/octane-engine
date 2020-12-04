@@ -27,6 +27,12 @@ set(BUILD_SHARED_LIBS OFF)
 add_subdirectory("libraries/EASTL")
 target_include_directories(EASTL INTERFACE "libraries/EASTL/include")
 
+set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
+add_subdirectory("libraries/bullet")
+add_library(BULLET "source/dummy.cpp")
+target_link_libraries(BULLET PUBLIC BulletCollision BulletDynamics BulletInverseDynamics LinearMath)
+target_include_directories(BULLET PUBLIC "libraries/bullet/src")
+
 # Build IMGUI
 set(IMGUI_DIR "libraries/imgui")
 set(IMGUI_INCLUDE_DIR ${IMGUI_DIR} "${IMGUI_DIR}/examples")
@@ -95,7 +101,7 @@ target_include_directories(${OCTANE_LIB} PRIVATE
   "source"
 )
 
-target_link_libraries(${OCTANE_LIB} PRIVATE
+target_link_libraries(${OCTANE_LIB} PUBLIC
 # system libraries
   user32
   d3d11
@@ -108,6 +114,7 @@ target_link_libraries(${OCTANE_LIB} PRIVATE
   WWISE
   assimp
   magic_enum
+  BULLET
 )
 
 file(GLOB_RECURSE OCTANE_GAME_SOURCE CONFIGURE_DEPENDS

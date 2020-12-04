@@ -19,9 +19,12 @@ namespace Octane
       void operator()();
       //int spawnCap = 20;
       int enemiesSpawned = 0;
+      int enemiesKilled = 0;
       int score = 0;
       int highScore = 0;
       int wave = 1;
+      int highestWave = 1;
+      int enemiesLeft = 0;
       bool spawnedWave = false;
   };
 }

@@ -61,9 +61,9 @@ void AbilityTunnelBhv::Update(float dt, EntityID myid)
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
           //Apply force to paper airplane
-          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
+          //if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
           {
-            phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
+            //phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
           }
         }
       }

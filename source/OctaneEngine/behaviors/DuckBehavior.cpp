@@ -3,7 +3,6 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/AudioPlayer.h>
@@ -69,37 +68,38 @@ void DuckBehavior::Update(float dt, EntityID myID)
   {
     Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
     (*destroyed_func_)();
-    Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
-      = RenderType::Invisible;
-    physics.rigid_body.SetStatic();
-    physics.rigid_body.SetPosition({0.f, 100.f, 0.f});
+   // Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
+   //   = RenderType::Invisible;
+    //physics.rigid_body.SetStatic();
     gettingFreed = true;
+    Get<EntitySys>()->FreeEntity(myID);
     return;
-    //Get<EntitySys>()->FreeEntity(myID);
   }
 
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
   if (!dx::XMScalarNearEqual(trans.pos.y, 0.0f, 0.250000f))
-    SimpleMove(physics.rigid_body, trans.pos, target.pos, 2.75f);
+  {
+    //SimpleMove(physics.rigid_body, trans.pos, target.pos, 2.75f);
+  }
   else
   {
-    SimpleMove(physics.rigid_body, trans.pos, target.pos, 0.45f);
+    //SimpleMove(physics.rigid_body, trans.pos, target.pos, 0.45f);
     flyRetry += dt;
   }
   FacePos(trans, target.pos);
   if (flyRetry >= 5.0f)
   {
-    if (RandomJump(physics.rigid_body, trans.pos, 0.0f, 20.f * -G))
+    //if (RandomJump(physics.rigid_body, trans.pos, 0.0f, 20.f * -G))
     {
       flyRetry = rand()%6*1.f;
     }
   }
 
   //update position in physics component
-  physics.rigid_body.SetPosition(trans.pos);
-  physics.rigid_body.ApplyForceCentroid({0.f, .05f*G, 0.f});
+  //physics.rigid_body.SetPosition(trans.pos);
+  //physics.rigid_body.ApplyForceCentroid({0.f, .05f*G, 0.f});
 }
 void DuckBehavior::Shutdown()
 {

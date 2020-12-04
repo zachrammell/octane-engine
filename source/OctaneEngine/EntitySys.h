@@ -3,7 +3,6 @@
 #include <OctaneEngine/Entity.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <EASTL/vector.h>
-#include <OctaneEngine/Physics/Primitive.h>
 namespace Octane
 {
 
@@ -49,7 +48,7 @@ public:
   //allocates new components and initializes them
   EntityID CreateEntity(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rotation);
   RenderComponent& AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh);
-  void AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale);
+  //void AddPhysics(EntityID id, ePrimitiveType primitive, DirectX::XMFLOAT3 colScale);
   void AddBehavior(EntityID id, BHVRType behavior);
 
 private:

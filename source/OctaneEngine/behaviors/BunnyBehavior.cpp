@@ -3,7 +3,7 @@
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/BehaviorSys.h>
-#include <OctaneEngine/Physics/NarrowPhase.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/AudioPlayer.h>
@@ -48,6 +48,8 @@ void BunnyBehavior::Initialize()
         break;
     }
   }
+
+  switch_dir_timer = 10.0f;
 }
 
 void BunnyBehavior::Update(float dt, EntityID myID)
@@ -70,13 +72,12 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   {
     Octane::AudioPlayer::Play_Event(AK::EVENTS::ENEMY_DEATH);
     (*destroyed_func_)();
-    Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
-      = RenderType::Invisible;
-    physics.rigid_body.SetStatic();
-    physics.rigid_body.SetPosition({0.f, 100.f, 0.f});
+   // Get<ComponentSys>()->GetRender(enty->GetEntity(myID).GetComponentHandle(ComponentKind::Render)).render_type
+   //   = RenderType::Invisible;
+    //physics.rigid_body.SetStatic();
     gettingFreed = true;
+    Get<EntitySys>()->FreeEntity(myID);
     return;
-    //Get<EntitySys>()->FreeEntity(myID);
   }
 
   if (switch_dir_timer >= 5.0f)
@@ -99,12 +100,14 @@ void BunnyBehavior::Update(float dt, EntityID myID)
   //fake ground
   LockYRelToTarget(trans.pos, {0.f, 0.f, 0.f}, -.25f);
   //move and face target
-  SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
-  FacePos(trans, target);
-  BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
+  //SimpleMove(physics.rigid_body, trans.pos, target, 1.55f);
+  //SimpleMove(trans.pos, target, 1.55f);
+  //FacePos(trans, target);
+  //BunnyHop(physics.rigid_body, trans.pos, 60.f * -G);
   //update position in physics component
-  physics.rigid_body.SetPosition(trans.pos);
-  physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
+  //physics.rigid_body.SetPosition(trans.pos);
+ // Get<PhysicsSys>()->SetPosition(&physics, trans.pos);
+  //physics.rigid_body.ApplyForceCentroid({0.f, G, 0.f});
 
 }
 void BunnyBehavior::Shutdown() {

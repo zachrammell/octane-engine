@@ -39,10 +39,13 @@ public:
   int GetWidth();
   int GetHeight();
 
+  void SetFullscreen(bool fullscreen);
+  bool IsFullscreen() const;
+
   float GetAspectRatio();
 
 private:
   SDL_Window* window_;
 };
 
-}
+} // namespace Octane

@@ -19,6 +19,7 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Trace.h>
 
 #include <OctaneEngine/NBTReader.h>
@@ -53,7 +54,7 @@ void SerializationTestScene::Load()
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key{"Cube"}) {
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
     // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& ent = entsys->GetEntity((ent_id));
@@ -69,6 +70,7 @@ void SerializationTestScene::Load()
     render_component.material.diffuse = color;
     render_component.mesh_type = mesh_type;
     render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
+    return ent_id;
   };
 
   /*for (int i = 0; i < 100; ++i)
@@ -102,16 +104,16 @@ void SerializationTestScene::Update(float dt)
       SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     dx::XMFLOAT3 cam_velocity;
-    cam_velocity.x = (input.KeyHeld(SDLK_a) - input.KeyHeld(SDLK_d));
-    cam_velocity.y = (input.KeyHeld(SDLK_SPACE) - input.KeyHeld(SDLK_LSHIFT));
-    cam_velocity.z = (input.KeyHeld(SDLK_w) - input.KeyHeld(SDLK_s));
+    cam_velocity.x = 1.0f * (input.KeyHeld(SDLK_a) - input.KeyHeld(SDLK_d));
+    cam_velocity.y = 1.0f * (input.KeyHeld(SDLK_SPACE) - input.KeyHeld(SDLK_LSHIFT));
+    cam_velocity.z = 1.0f * (input.KeyHeld(SDLK_w) - input.KeyHeld(SDLK_s));
 
     dx::XMStoreFloat3(&cam_velocity, dx::XMVectorScale(dx::XMVector3Normalize(dx::XMLoadFloat3(&cam_velocity)), 0.25f));
 
     dx::XMINT2 mouse_vel = input.GetMouseMovement();
     auto& camera = Get<CameraSys>()->GetFPSCamera();
-    camera.RotatePitchRelative(-mouse_vel.y);
-    camera.RotateYawRelative(mouse_vel.x);
+    camera.RotatePitchRelative(-mouse_vel.y * 1.0f);
+    camera.RotateYawRelative(mouse_vel.x * 1.0f);
 
     camera.MoveRelativeToView(dx::XMLoadFloat3(&cam_velocity));
   }
@@ -146,6 +148,10 @@ void SerializationTestScene::Update(float dt)
 
     if (!name.empty())
     {
+      if (!ent.HasComponent(ComponentKind::Metadata))
+      {
+        ent.components[to_integral(ComponentKind::Metadata)] = compsys->MakeMetadata();
+      }
       ComponentHandle const metadata_id = ent.GetComponentHandle(ComponentKind::Metadata);
       MetadataComponent& metadata_component = compsys->GetMetadata(metadata_id);
       metadata_component.name = name;
@@ -157,7 +163,7 @@ void SerializationTestScene::Update(float dt)
                          dx::XMFLOAT3 scale,
                          dx::XMFLOAT3 rotation,
                          Color color,
-                         Mesh_Key mesh_type = Mesh_Key{"Cube"},
+                         Mesh_Key mesh_type = Mesh_Key {"Cube"},
                          string_view name = "") {
     // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
@@ -283,7 +289,7 @@ void SerializationTestScene::Update(float dt)
     auto& meshNames = Get<MeshSys>()->MeshNames();
     if (ImGui::BeginCombo("Mesh", entity_creator_data_.mesh.data(), ImGuiComboFlags_None))
     {
-      for (auto const& mesh : meshNames)//magic_enum::enum_entries<MeshType>())
+      for (auto const& mesh : meshNames) //magic_enum::enum_entries<MeshType>())
       {
         if (ImGui::Selectable(mesh.data()))
         {
@@ -353,6 +359,9 @@ void SerializationTestScene::Update(float dt)
     }
     ImGui::DragFloat3("Position", &(entity_editor_data_.position.x), slider_sensitivity);
     ImGui::DragFloat3("Scale", &(entity_editor_data_.scale.x), slider_sensitivity);
+    if (ImGui::Checkbox("Box Collider", &entity_editor_data_.has_collider))
+    {
+    }
     ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
     ImGui::ColorEdit3("Color", &(entity_editor_data_.color.r));
     if (ImGui::BeginCombo("DB32 Color", ""))
@@ -396,6 +405,19 @@ void SerializationTestScene::Update(float dt)
         entity_editor_data_.color,
         entity_editor_data_.mesh,
         entity_editor_data_.name);
+      if (entity_editor_data_.has_collider)
+      {
+        GameEntity& entity = entsys->GetEntity(entity_editor_data_.id);
+        if (!entity.HasComponent(ComponentKind::Physics))
+        {
+          TransformComponent& transform_component
+            = compsys->GetTransform(entity.GetComponentHandle(ComponentKind::Transform));
+          auto const scale = transform_component.scale;
+          dx::XMFLOAT3 const half_scale = {scale.x / 2.0f, scale.y / 2.0f, scale.z / 2.0f};
+          entity.GetComponentHandle(ComponentKind::Physics)
+            = compsys->MakePhysicsBox(transform_component, half_scale, 0.0f);
+        }
+      }
     }
     ImGui::End();
   }
@@ -403,7 +425,7 @@ void SerializationTestScene::Update(float dt)
   if (save)
   {
     Trace::Log(DEBUG, "Saving entities.\n");
-    NBTWriter nbt_writer {"sandbox/serialization_test.nbt"};
+    NBTWriter nbt_writer {"assets/maps/level1.nbt"};
 
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
@@ -431,6 +453,13 @@ void SerializationTestScene::Update(float dt)
               nbt_writer.Write("Name", string_view {metadata_component.name});
             }
 
+            if (entity->HasComponent(ComponentKind::Physics))
+            {
+              PhysicsComponent& physics_component
+                = component_sys.GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
+              nbt_writer.Write(magic_enum::enum_name(ComponentKind::Physics), physics_component);
+            }
+
             // automatically get all components (needs generic component interface)
             /*for (auto component_type : magic_enum::enum_values<ComponentKind>())
             {
@@ -455,11 +484,10 @@ void SerializationTestScene::Update(float dt)
     entity_editor_data_ = {};
 
     Trace::Log(DEBUG, "Loading entities.\n");
+    NBTReader nbt_reader {"assets/maps/level1.nbt"};
+
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
-
-    Trace::Log(DEBUG, "Loading entities.\n");
-    NBTReader nbt_reader {"sandbox/serialization_test.nbt"};
 
     // for every object, read it in
     if (nbt_reader.OpenList("Entities"))
@@ -489,7 +517,9 @@ void SerializationTestScene::Update(float dt)
                 ent.components[to_integral(ComponentKind::Render)] = render_id;
                 RenderComponent& render_component = component_sys.GetRender(render_id);
                 render_component.material.diffuse = nbt_reader.Read<Color>("Color");
-                render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
+                auto const& meshnames = Get<MeshSys>()->MeshNames();
+                render_component.mesh_type
+                  = *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh"));
               }
               break;
               case ComponentKind::Transform:
@@ -500,6 +530,17 @@ void SerializationTestScene::Update(float dt)
                 trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
                 trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
                 trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+              }
+              break;
+              case ComponentKind::Physics:
+              {
+                TransformComponent& trans
+                  = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
+                float mass = nbt_reader.ReadFloat("Mass");
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, trans.scale, mass);
+                ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
+                PhysicsComponent& physics_component = component_sys.GetPhysics(phys_id);
+                physics_component.SetRotation(trans.rotation);
               }
               break;
               default: break;

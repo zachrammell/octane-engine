@@ -13,6 +13,7 @@
 // Main include
 #include <OctaneEngine/Scenes/TestScene.h>
 
+#include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
@@ -20,10 +21,16 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/InputHandler.h>
+#include <OctaneEngine/NBTReader.h>
+#include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/PlayerMovementControllerSys.h>
+#include <OctaneEngine/Trace.h>
+#include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>
-#include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
+#include <OctaneEngine/behaviors/PlaneBehavior.h>
+#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 #include <EASTL/optional.h>
 #include <EASTL/string.h>
@@ -36,17 +43,6 @@
 #define MAGIC_ENUM_USING_ALIAS_STRING      using string = eastl::string;
 #define MAGIC_ENUM_USING_ALIAS_STRING_VIEW using string_view = eastl::string_view;
 #include <magic_enum.hpp>
-
-#include <OctaneEngine/NBTReader.h>
-#include <OctaneEngine/Trace.h>
-
-#include <OctaneEngine/Physics/Box.h>
-#include <OctaneEngine/Physics/PhysicsSys.h>
-
-#include <OctaneEngine/AudioPlayer.h>
-#include <OctaneEngine/PlayerMovementControllerSys.h>
-#include <OctaneEngine/TransformHelpers.h>
-#include <OctaneEngine/behaviors/WindTunnelBhv.h>
 
 // define to use actual player entity instead of separate camera movement
 #define USE_PLAYER_ENTITY
@@ -79,12 +75,12 @@ void TestScene::Load()
 {
   enemy_destroyed_func.enemiesSpawned = 0;
   enemy_destroyed_func.score = 0;
+  enemy_destroyed_func.wave = 1;
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key{"Cube"})
-{
+  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
     // todo: custom entity_id / component_id types with overridden operator*, because this is way too much boilerplate
     EntityID const ent_id = entsys->MakeEntity();
     GameEntity& game_entity = entsys->GetEntity((ent_id));
@@ -99,16 +95,6 @@ void TestScene::Load()
     RenderComponent& render_component = compsys->GetRender(render_id);
     render_component.material.diffuse = color;
     render_component.mesh_type = mesh_type;
-
-    //ComponentHandle physics_comp_id = compsys->MakePhysics();
-    //game_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
-    //PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    //physics_sys->InitializeRigidBody(physics_comp);
-    //physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    //static_cast<Box*>(physics_comp.primitive)->SetBox(2.0f * scale.x, 2.0f * scale.y, 2.0f * scale.z);
-    //physics_comp.rigid_body.SetPosition(trans.pos);
-    //trans.rotation = physics_comp.rigid_body.GetOrientation();
-    //physics_comp.rigid_body.SetStatic();
   };
 
   {
@@ -116,60 +102,77 @@ void TestScene::Load()
     EntitySys& entity_sys = *Get<EntitySys>();
     ComponentSys& component_sys = *Get<ComponentSys>();
 
-    Trace::Log(DEBUG, "Loading entities.\n");
     NBTReader nbt_reader {"assets/maps/level1.nbt"};
     // for every object, read it in
-    //if (nbt_reader.OpenList("Entities"))
-    //{
-    //  const int entity_list_size = nbt_reader.ListSize();
-    //  for (int i = 0; i < entity_list_size; ++i)
-    //  {
-    //    if (nbt_reader.OpenCompound(""))
-    //    {
-    //      EntityID const ent_id = entity_sys.MakeEntity();
-    //      GameEntity& ent = entity_sys.GetEntity(ent_id);
+    // for every object, read it in
+    if (nbt_reader.OpenList("Entities"))
+    {
+      const int entity_list_size = nbt_reader.ListSize();
+      for (int i = 0; i < entity_list_size; ++i)
+      {
+        if (nbt_reader.OpenCompound(""))
+        {
+          EntityID const ent_id = entity_sys.MakeEntity();
+          GameEntity& ent = entity_sys.GetEntity((ent_id));
 
-    //      for (auto component_type : magic_enum::enum_values<ComponentKind>())
-    //      {
-    //        if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
-    //        {
-    //          switch (component_type)
-    //          {
-    //          case ComponentKind::Render:
-    //          {
-    //            ComponentHandle const render_id = component_sys.MakeRender();
-    //            ent.components[to_integral(ComponentKind::Render)] = render_id;
-    //            RenderComponent& render_component = component_sys.GetRender(render_id);
-    //            render_component.color = nbt_reader.Read<Color>("Color");
-    //            render_component.mesh_type = nbt_reader.Read<Mesh_Key>("Mesh");
-    //          }
-    //          break;
-    //          case ComponentKind::Transform:
-    //          {
-    //            ComponentHandle const trans_id = component_sys.MakeTransform();
-    //            ent.components[to_integral(ComponentKind::Transform)] = trans_id;
-    //            TransformComponent& trans = component_sys.GetTransform(trans_id);
-    //            trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
-    //            trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
-    //            trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
-    //          }
-    //          break;
-    //          default: break;
-    //          }
-    //          nbt_reader.CloseCompound();
-    //        }
-    //      }
-    //      nbt_reader.CloseCompound();
-    //    }
-    //  }
-    //  nbt_reader.CloseList();
-    //}
+          ComponentHandle const metadata_id = component_sys.MakeMetadata();
+          ent.components[to_integral(ComponentKind::Metadata)] = metadata_id;
+          MetadataComponent& metadata_component = component_sys.GetMetadata(metadata_id);
+          metadata_component.name = nbt_reader.MaybeReadString("Name").value_or("");
+
+          for (auto component_type : magic_enum::enum_values<ComponentKind>())
+          {
+            if (nbt_reader.OpenCompound(magic_enum::enum_name(component_type)))
+            {
+              switch (component_type)
+              {
+              case ComponentKind::Render:
+              {
+                ComponentHandle const render_id = component_sys.MakeRender();
+                ent.components[to_integral(ComponentKind::Render)] = render_id;
+                RenderComponent& render_component = component_sys.GetRender(render_id);
+                render_component.material.diffuse = nbt_reader.Read<Color>("Color");
+                auto const& meshnames = Get<MeshSys>()->MeshNames();
+                render_component.mesh_type
+                  = *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh"));
+              }
+              break;
+              case ComponentKind::Transform:
+              {
+                ComponentHandle const trans_id = component_sys.MakeTransform();
+                ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+                TransformComponent& trans = component_sys.GetTransform(trans_id);
+                trans.pos = nbt_reader.Read<DirectX::XMFLOAT3>("Pos");
+                trans.scale = nbt_reader.Read<DirectX::XMFLOAT3>("Scale");
+                trans.rotation = nbt_reader.Read<DirectX::XMFLOAT4>("Rotation");
+              }
+              break;
+              case ComponentKind::Physics:
+              {
+                TransformComponent& trans
+                  = component_sys.GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
+                float const mass = nbt_reader.ReadFloat("Mass");
+                ComponentHandle const phys_id = component_sys.MakePhysicsBox(trans, trans.scale, mass);
+                ent.GetComponentHandle(ComponentKind::Physics) = phys_id;
+                PhysicsComponent& physics_component = component_sys.GetPhysics(phys_id);
+                physics_component.SetRotation(trans.rotation);
+              }
+              break;
+              default: break;
+              }
+              nbt_reader.CloseCompound();
+            }
+          }
+          nbt_reader.CloseCompound();
+        }
+      }
+      nbt_reader.CloseList();
+    }
 
     spawner = 2;
     AudioPlayer::Register_Object(spawner, "spawner");
   }
 
-   
 // this WAS commented-out because of behavior sys bugs
 // now it works flawlessly and it is the enemy spawner
 #if 1
@@ -179,7 +182,7 @@ void TestScene::Load()
     ComponentHandle trans_id = compsys->MakeTransform();
     enemy_spawner.components[to_integral(ComponentKind::Transform)] = trans_id;
     TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos ={0.f,0.f,0.f};
+    trans.pos = {0.f, 0.f, 0.f};
     ComponentHandle behavior_comp_id = compsys->MakeBehavior(BHVRType::ENEMYSPAWNER);
     enemy_spawner.components[to_integral(ComponentKind::Behavior)] = behavior_comp_id;
     BehaviorComponent& behavior_comp = compsys->GetBehavior(behavior_comp_id);
@@ -203,7 +206,7 @@ void TestScene::Load()
   }
 
 #ifdef USE_PLAYER_ENTITY
-  Octane::EntityID player_id = Get<EntitySys>()->MakeEntity();
+  EntityID player_id = Get<EntitySys>()->MakeEntity();
 
   {
     GameEntity& player = Get<EntitySys>()->GetEntity(player_id);
@@ -214,15 +217,11 @@ void TestScene::Load()
     trans.scale = {1.0f, 1.0f, 1.0f};
     trans.rotation = {};
 
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    // for some reason setting mass to 0 (static) makes player unable to move
+    // will need to add support for kinematic objects later
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {1.5f, 1.5f, 1.5f}, 1);
     player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(01.5f, 01.5f, 01.5f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic(); // should stop other objects from applying physics to player
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     Get<EntitySys>()->SetPlayerID(player_id);
   }
@@ -249,16 +248,9 @@ void TestScene::Load()
     render_comp.mesh_type = Mesh_Key{"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
-    ComponentHandle physics_comp_id = compsys->MakePhysics();
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {4.0f, 4.0f, 4.0f}, 0.0f, true);
     obj102_entity.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
-    physics_sys->InitializeRigidBody(physics_comp);
-    physics_sys->AddPrimitive(physics_comp, ePrimitiveType::Box);
-    static_cast<Box*>(physics_comp.primitive)->SetBox(4.0f, 4.0f, 4.0f);
-    physics_comp.rigid_body.SetPosition(trans.pos);
-    physics_comp.rigid_body.SetStatic();
-    //physics_comp.rigid_body.SetGhost(true);
-    trans.rotation = physics_comp.rigid_body.GetOrientation();
 
     ComponentHandle bhvr_comp_id = compsys->MakeBehavior(BHVRType::WINDTUNNEL);
     obj102_entity.components[to_integral(ComponentKind::Behavior)] = bhvr_comp_id;
@@ -267,7 +259,6 @@ void TestScene::Load()
   }
 
 #endif
-
 
   //Gun Crosshair
   {
@@ -308,12 +299,14 @@ void TestScene::Update(float dt)
   auto* compsys = Get<ComponentSys>();
   auto* physics_sys = Get<PhysicsSys>();
 
-
-  auto create_plane = [=](dx::XMFLOAT3 pos)
-  {
+  auto create_plane = [=](dx::XMFLOAT3 pos) {
     auto id = entsys->CreateEntity(pos, {.05f, .05f, .05f}, {});
     GameEntity& plane = Get<EntitySys>()->GetEntity((id));
-    entsys->AddPhysics(id, ePrimitiveType::Box, {0.1f, 0.1f, 0.1f});
+
+    auto const& transform = Get<ComponentSys>()->GetTransform(plane.GetComponentHandle(ComponentKind::Transform));
+    ComponentHandle physcom = Get<ComponentSys>()->MakePhysicsBox(transform, {0.1f, 0.1f, 0.1f}, 0.1f);
+    plane.components[to_integral(ComponentKind::Physics)] = physcom;
+
     entsys->AddRenderComp(id, Colors::db32[rand() % 32], "PaperPlane");
     entsys->AddBehavior(id, BHVRType::PLANE);
   };
@@ -342,10 +335,15 @@ void TestScene::Update(float dt)
   ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
   ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
   ImGui::Text("F to switch weapons.");
-  ImGui::Text("Alt+Enter for Fullscreen\n");
+  ImGui::Text("****************************************************************");
+  ImGui::Text("**************          F7 for Fullscreen        ***************");
+  ImGui::Text("****************************************************************");
   ImGui::Text("");
   ImGui::Text("Score: %d", enemy_destroyed_func.score);
   ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
+  ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
+  ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
+  ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
 
   ImGui::End();
 
@@ -425,29 +423,30 @@ void TestScene::Update(float dt)
       "Pause Menu",
       NULL,
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::SetWindowPos(
-      "Pause Menu",
-      ImVec2(0.5f * Get<WindowManager>()->GetWidth(), 0.5f * Get<WindowManager>()->GetHeight()));
+    {
+      WindowManager* window = Get<WindowManager>();
+      ImGui::SetWindowPos("Pause Menu", ImVec2(0.5f * window->GetWidth(), 0.5f * window->GetHeight()));
+    }
 
     if (ImGui::Button("Resume"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       esc_menu = false;
       SDL_SetRelativeMouseMode(SDL_TRUE);
     }
     if (ImGui::CollapsingHeader("Option"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       //ImGui::Text("Mouse Sensitivity: %d", pmhandler->ShowMouseSense());
       if (ImGui::Button("+ Mouse Sensitivity"))
       {
-        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+        AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->IncreaseMouseSense();
         mouse_sens += 5;
       }
       if (ImGui::Button("- Mouse Sensitivity"))
       {
-        Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+        AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
         pmhandler->DecreaseMouseSense();
         mouse_sens -= 5;
       }
@@ -459,12 +458,12 @@ void TestScene::Update(float dt)
     }
     if (ImGui::Button("Main Menu"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->SetNextScene(SceneE::MenuScene);
     }
     if (ImGui::Button("Quit"))
     {
-      Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
+      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       Get<SceneSys>()->Quit();
     }
 
@@ -473,7 +472,6 @@ void TestScene::Update(float dt)
   else
   {
     Get<FramerateController>()->Unpause();
-
     {
       GameEntity& wind_tunnel_entity = entsys->GetEntity(wind_tunnel_id);
       ComponentHandle wind_behavior = wind_tunnel_entity.GetComponentHandle(ComponentKind::Behavior);
@@ -612,7 +610,7 @@ void TestScene::Update(float dt)
       crossbow_trans.scale.y -= 0.01f;
       crossbow_trans.scale.z -= 0.01f;
     }
-    #endif
+#endif
 
 //Input area
 #if 1
@@ -691,7 +689,7 @@ void TestScene::Update(float dt)
 
     if (enemy_destroyed_func.spawnedWave)
     {
-      AudioPlayer::Set_Position(spawner, {0.f,1.f,0.f});
+      AudioPlayer::Set_Position(spawner, {0.f, 1.f, 0.f});
       AudioPlayer::Play_Event(AK::EVENTS::ENEMY_SPAWN, spawner);
     }
 

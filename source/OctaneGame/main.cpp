@@ -41,7 +41,8 @@ using namespace Octane::FormattedOutput;
 namespace
 {
 
-void AddSystems(Octane::Engine& engine) {
+void AddSystems(Octane::Engine& engine)
+{
   engine.AddSystem(new Octane::FramerateController {&engine});
   engine.AddSystem(new Octane::InputHandler {&engine});
   engine.AddSystem(new Octane::WindowManager {&engine, "Project Octane", 1280, 720}); //Can do 1280x1024
@@ -60,7 +61,8 @@ void AddSystems(Octane::Engine& engine) {
   engine.AddSystem(new Octane::Audio {&engine});
 }
 
-void RunGame() {
+void RunGame()
+{
   // create sandbox folder for test files
   if (!fs::exists("sandbox"))
   {
@@ -84,13 +86,15 @@ void RunGame() {
     Octane::Trace::Log(Octane::INFO) << "[== Project Octane ==]\n";
   }
 
-  Octane::Engine engine;
-  AddSystems(engine);
+  Octane::CreateEngine();
+  Octane::Engine* engine = Octane::GetEngine();
+  AddSystems(*engine);
 
-  while (!engine.ShouldQuit())
+  while (!engine->ShouldQuit())
   {
-    engine.Update();
+    engine->Update();
   }
+  Octane::DeleteEngine();
 }
 
 } // namespace

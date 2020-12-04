@@ -6,7 +6,7 @@
   \date       2020/10/23
   \brief      behavior for wind tunnel
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -62,10 +62,11 @@ void WindTunnelBHV::Update(float dt, EntityID myid)
           auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
 
           //Apply force to paper airplane
-          if (Get<PhysicsSys>()->HasCollision(trans_me, phys_me.primitive, trans_other, phys_other.primitive))
-          {
-            phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
-          }
+          // TODO: fix
+          //if (Get<PhysicsSys>()->HasCollision(trans_me,phys_me.primitive,trans_other,phys_other.primitive))
+          //{
+          //  phys_other.rigid_body.ApplyForceCentroid(Get<ComponentSys>()->GetBehavior(handle_).force);
+          //}
         }
       }
     }

@@ -7,6 +7,7 @@
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
+#include <OctaneEngine/Components/PhysicsComponent.h>
 
 #include <DirectXMath.h>
 
@@ -23,6 +24,8 @@ template<>
 void NBTWriter::Write(string_view name, RenderComponent render_component);
 template<>
 void NBTWriter::Write(string_view name, TransformComponent transform_component);
+template<>
+void NBTWriter::Write(string_view name, PhysicsComponent physics_component);
 
 template<>
 Color NBTReader::Read(string_view name);

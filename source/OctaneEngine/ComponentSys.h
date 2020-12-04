@@ -1,11 +1,11 @@
 #pragma once
 
-#include <OctaneEngine/ISystem.h>
 #include <OctaneEngine/Components/BehaviorComponent.h>
+#include <OctaneEngine/Components/MetadataComponent.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/RenderComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
-#include <OctaneEngine/Components/MetadataComponent.h>
+#include <OctaneEngine/ISystem.h>
 
 #include <EASTL/numeric_limits.h>
 #include <EASTL/vector.h>
@@ -47,7 +47,13 @@ public:
   // does not initialize memory, it will be garbage
   ComponentHandle MakeRender();
   ComponentHandle MakeTransform();
-  ComponentHandle MakePhysics();
+  // pass mass=0 to create an immovable non-dynamic object
+  ComponentHandle MakePhysicsBox(
+    TransformComponent const& trans,
+    const DirectX::XMFLOAT3& box_half_size,
+    float mass,
+    bool sensor = false);
+  ComponentHandle MakePhysicsSphere(TransformComponent const& trans, float radius, float mass, bool sensor = false);
   ComponentHandle MakeBehavior(BHVRType type);
   ComponentHandle MakeMetadata();
 
@@ -81,8 +87,11 @@ public:
   iter<BehaviorComponent> BehaviorBegin() { return behavior_comps_.begin(); }
   iter<BehaviorComponent> BehaviorEnd() { return behavior_comps_.end(); }
 
-
 private:
+  ComponentHandle MakePhysicsUninitialized();
+  ComponentHandle
+    MakePhysicsWithShape(TransformComponent const& trans, btCollisionShape* shape, float mass, bool sensor = false);
+
   eastl::vector<RenderComponent> render_comps_;
   eastl::vector<TransformComponent> transform_comps_;
   eastl::vector<PhysicsComponent> physics_comps_;

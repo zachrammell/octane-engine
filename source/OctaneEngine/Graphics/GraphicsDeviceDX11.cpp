@@ -18,7 +18,7 @@ namespace Octane
 {
 
 GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
-  : supported_mode_ {nullptr},
+  : supported_mode_ {},
     currently_in_fullscreen_ {false},
     clear_color_ {Colors::black},
     current_mesh_ {nullptr}
@@ -31,36 +31,21 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 
   Trace::Log(TRACE, "Window size: [%d, %d]\n", w, h);
 
-  //DXGI_MODE_DESC buffer_description {
-  //  static_cast<UINT>(w),
-  //  static_cast<UINT>(h),
-  //  // TODO: get monitor refresh rate
-  //  {60, 1},
-  //  DXGI_FORMAT_R8G8B8A8_UNORM,
-  //  DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-  //  DXGI_MODE_SCALING_UNSPECIFIED};
-
-  //supported_mode_ = &buffer_description;
+  supported_mode_ = DXGI_MODE_DESC {
+    static_cast<UINT>(w),
+    static_cast<UINT>(h),
+    // TODO: get monitor refresh rate
+    {60, 1},
+    DXGI_FORMAT_R8G8B8A8_UNORM,
+    DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+    DXGI_MODE_SCALING_UNSPECIFIED};
 
   SDL_SysWMinfo system_info;
   SDL_VERSION(&system_info.version);
   SDL_GetWindowWMInfo(window, &system_info);
   HWND window_handle = system_info.info.win.window;
 
-
-  //DXGI_SWAP_CHAIN_DESC swap_chain_descriptor 
-  //{
-  //  buffer_description,
-  //  DXGI_SAMPLE_DESC {1, 0},
-  //  DXGI_USAGE_RENDER_TARGET_OUTPUT,
-  //  1,
-  //  window_handle,
-  //  true,
-  //  DXGI_SWAP_EFFECT_DISCARD,
-  //  DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-  //};
-
-  #define SCAST(x, type) static_cast<type>(x)
+#define SCAST(x, type) static_cast<type>(x)
 
   DXGI_SWAP_CHAIN_DESC swap_chain_descriptor;
   ZeroMemory(&swap_chain_descriptor, sizeof(DXGI_SWAP_CHAIN_DESC));
@@ -70,6 +55,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   //8 bits per channel, 4 channels
   swap_chain_descriptor.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   //60hz max refresh rate for fullscreen mode
+  // TODO: get monitor refresh rate
   swap_chain_descriptor.BufferDesc.RefreshRate.Numerator = 60;
   swap_chain_descriptor.BufferDesc.RefreshRate.Denominator = 1;
   //number of multisamples per pixel
@@ -85,9 +71,13 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   swap_chain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   swap_chain_descriptor.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
   swap_chain_descriptor.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+#if 0
   //allows switching between fullscreen and windowed mode
   swap_chain_descriptor.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
+#else
+  swap_chain_descriptor.Flags = 0;
+#endif
 
   if (swap_chain_descriptor.Windowed == false)
   {
@@ -95,25 +85,27 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     currently_in_fullscreen_ = true;
   }
   else
+  {
     currently_in_fullscreen_ = false;
+  }
 
   hr = D3D11CreateDeviceAndSwapChain(
-    nullptr, //let DX11 choose adapter
+    nullptr,                  //let DX11 choose adapter
     D3D_DRIVER_TYPE_HARDWARE, //driver which implements d3d in hardware
-    nullptr, //software driver
+    nullptr,                  //software driver
 #ifdef _DEBUG
     D3D11_CREATE_DEVICE_DEBUG, //runtime debug layers
 #endif
 #ifndef _DEBUG
     0,
 #endif
-    nullptr,//feature levels
-    0,//length of feature levels array
-    D3D11_SDK_VERSION,//DirectX11 SDK
-    &swap_chain_descriptor,//swap chain info
+    nullptr,                //feature levels
+    0,                      //length of feature levels array
+    D3D11_SDK_VERSION,      //DirectX11 SDK
+    &swap_chain_descriptor, //swap chain info
     swap_chain_.put(),
     device_.put(),
-    nullptr,//supported feature levels
+    nullptr, //supported feature levels
     device_context_.put());
   assert(SUCCEEDED(hr));
 
@@ -259,54 +251,24 @@ void GraphicsDeviceDX11::Present()
 
 void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
-  SDL_SysWMinfo system_info;
-  SDL_VERSION(&system_info.version);
-  SDL_GetWindowWMInfo(window, &system_info);
-
-  //Microsoft recommends zeroing out the refresh rate of the description before resizing the targets
-  DXGI_MODE_DESC zeroRefreshRate = *supported_mode_;
-  zeroRefreshRate.RefreshRate.Numerator = 0;
-  zeroRefreshRate.RefreshRate.Denominator = 0;
-
   //check for fullscreen switch
-  BOOL in_full_screen_ = false;
-  swap_chain_->GetFullscreenState(&in_full_screen_, NULL);
+  BOOL want_full_screen = false;
+  swap_chain_->GetFullscreenState(&want_full_screen, NULL);
 
-  if (currently_in_fullscreen_ != in_full_screen_)
+  // we don't set size here since we'll do that with SDL elsewhere
+  if (currently_in_fullscreen_ != !!want_full_screen)
   {
-    //fullscreen switch
-    if (in_full_screen_)
-    {
-      swap_chain_->ResizeTarget(&zeroRefreshRate);
-      swap_chain_->SetFullscreenState(true, nullptr);
-    }
-    else
-    {
-      swap_chain_->SetFullscreenState(false, nullptr);
-      RECT rect = {0, 0, static_cast<LONG>(supported_mode_->Width), static_cast<LONG>(supported_mode_->Height)};
-      AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);
-      SetWindowPos(
-        system_info.info.win.window,
-        HWND_TOP,
-        0,
-        0,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        SWP_NOMOVE);
-    }
-
-    currently_in_fullscreen_ = !currently_in_fullscreen_;
+    swap_chain_->SetFullscreenState(want_full_screen, nullptr);
+    currently_in_fullscreen_ = want_full_screen;
   }
-  //Resize target to the desired resolution
-  swap_chain_->ResizeTarget(&zeroRefreshRate);
 
   device_context_->OMSetRenderTargets(0, 0, 0);
-  if (render_target_view_)
-  {
-    render_target_view_->Release();
-  }
 
-  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+  // for some reason .Release() is not defined so we'll just attach nullptr instead...
+  render_target_view_.attach(nullptr);
+
+  // passing 0 for width/height gets automatic size
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, /* DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH */ 0);
   assert(SUCCEEDED(hr));
 
   ID3D11Texture2D* d3d11_frame_buffer;
@@ -319,57 +281,13 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 
   // set up the default viewport to match the window
   {
-    SDL_SysWMinfo system_info;
-    SDL_VERSION(&system_info.version);
-    SDL_GetWindowWMInfo(window, &system_info);
-    HWND window_handle = system_info.info.win.window;
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
 
-    RECT window_rect;
-    GetClientRect(window_handle, &window_rect);
-    D3D11_VIEWPORT viewport {
-      0.0f,
-      0.0f,
-      (FLOAT)(window_rect.right - window_rect.left),
-      (FLOAT)(window_rect.bottom - window_rect.top),
-      0.0f,
-      1.0f};
+    D3D11_VIEWPORT viewport {0.0f, 0.0f, (FLOAT)(width), (FLOAT)(height), 0.0f, 1.0f};
     device_context_->RSSetViewports(1, &viewport);
   }
-}
-
-void GraphicsDeviceDX11::changeResolution(bool increase) 
-{
-  //if (increase)
-  //{
-  //  // if increase is true, choose a higher resolution, if possible
-  //  if (currentModeIndex < numberOfSupportedModes - 1)
-  //  {
-  //    currentModeIndex++;
-  //    changeMode = true;
-  //  }
-  //  else
-  //    changeMode = false;
-  //}
-  //else
-  //{
-  //  // else choose a smaller resolution, but only if possible
-  //  if (currentModeIndex > 0)
-  //  {
-  //    currentModeIndex--;
-  //    changeMode = true;
-  //  }
-  //  else
-  //    changeMode = false;
-  //}
-
-  //if (changeMode)
-  //{
-  //  // change mode
-  //  currentModeDescription = supportedModes[currentModeIndex];
-
-  //  // resize everything
-  //  onResize();
-  //}
 }
 
 Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)

@@ -29,10 +29,11 @@ public:
   void Shutdown() override;
 
   private:
-    dx::XMVECTOR dir_;
+  dx::XMVECTOR dir_;
     float lifetime = 10.0f;
     bool impulsed = false;
     bool gettingfreed = false;
+
 };
 
 }

@@ -60,6 +60,18 @@ void NBTWriter::Write(string_view name, TransformComponent transform_component)
 }
 
 template<>
+void NBTWriter::Write(string_view name, PhysicsComponent physics_component)
+{
+  if (BeginCompound(name))
+  {
+    btRigidBody* rigid_body = physics_component.rigid_body;
+    float mass = rigid_body->getMass();
+    Write("Mass", mass);
+    EndCompound();
+  }
+}
+
+template<>
 Color NBTReader::Read(string_view name)
 {
   Color color;
