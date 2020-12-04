@@ -88,7 +88,7 @@ Mesh MeshSys::LoadMesh(const char* path)
   aiSetImportPropertyInteger(props, "PP_PTV_NORMALIZE", 1);
   const aiScene* scene = (aiScene*)aiImportFileExWithProperties(
     path,
-    aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices
+    aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices
       | aiProcess_PreTransformVertices | aiProcess_OptimizeMeshes,
     NULL,
     props);

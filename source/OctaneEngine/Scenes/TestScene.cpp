@@ -203,6 +203,7 @@ void TestScene::Load()
     entsys->AddRenderComp(crossbow_id, Colors::cerulean, Mesh_Key {"Sniper1"});
     auto& render_comp = compsys->GetRender(crossbow.GetComponentHandle(ComponentKind::Render));
     render_comp.shader_type = ShaderType::PhongUI;
+    //render_comp.render_type = RenderType::Invisible;
   }
 
 #ifdef USE_PLAYER_ENTITY
@@ -267,7 +268,7 @@ void TestScene::Load()
     render_comp.shader_type = ShaderType::UI;
   }
 
-#if 1 //texturing examples
+  #if 0 //texturing examples
   { //example 1: Texture but don't color
     auto textured1 = entsys->CreateEntity({0.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
     auto& render_comp
