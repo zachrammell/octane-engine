@@ -7,7 +7,7 @@
   \date       2020/10/21
   \brief      test scene for serializing stuff
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 #pragma once
@@ -16,10 +16,10 @@
 
 #include <OctaneEngine/SceneSys.h>
 
-#include <OctaneEngine/Components/RenderComponent.h>
-#include <OctaneEngine/EntitySys.h>
 #include <DirectXMath.h>
-
+#include <EASTL/string.h>
+#include <OctaneEngine/Components/RenderComponent.h>
+#include <OctaneEngine/EntityID.h>
 namespace Octane
 {
 
@@ -45,13 +45,13 @@ private:
   struct EntityData
   {
     EntityID id = INVALID_ENTITY;
-    DirectX::XMFLOAT3 position{};
-    DirectX::XMFLOAT3 scale{1,1,1};
+    DirectX::XMFLOAT3 position {};
+    DirectX::XMFLOAT3 scale {1, 1, 1};
     DirectX::XMFLOAT3 rotation {};
-    Color color{};
-    Mesh_Key mesh = Mesh_Key{"Cube"};
+    Color color {};
+    Mesh_Key mesh = Mesh_Key {"Cube"};
     bool has_collider = false;
-    eastl::string name {32 ,'\0'};
+    eastl::string name {32, '\0'};
   } entity_creator_data_, entity_editor_data_;
 };
 

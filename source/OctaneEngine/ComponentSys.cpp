@@ -1,6 +1,7 @@
 #include <OctaneEngine/BehaviorSys.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
+#include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Graphics/CameraSys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/SystemOrder.h>
@@ -55,7 +56,7 @@ void ComponentSys::FreePhysics(ComponentHandle id)
   if (id != INVALID_COMPONENT)
   {
 
-    PhysicsComponent& compo = GetPhysics(id);   
+    PhysicsComponent& compo = GetPhysics(id);
 
     if (compo.rigid_body != nullptr)
     {
@@ -208,7 +209,7 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
   case BHVRType::PLANE:
   {
     auto& camera = Get<CameraSys>()->GetFPSCamera();
-    
+
     beh.behavior = new PlaneBehavior(
       Get<BehaviorSys>(),
       static_cast<ComponentHandle>(behavior_comps_.size()),

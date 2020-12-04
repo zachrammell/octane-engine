@@ -1,14 +1,11 @@
 #pragma once
 
-#include <OctaneEngine/Entity.h>
-#include <OctaneEngine/SystemOrder.h>
 #include <EASTL/vector.h>
+#include <OctaneEngine/Entity.h>
+#include <OctaneEngine/EntityID.h>
+#include <OctaneEngine/SystemOrder.h>
 namespace Octane
 {
-
-using EntityID = uint32_t;
-static const EntityID INVALID_ENTITY = eastl::numeric_limits<EntityID>::max();
-
 class EntityIter;
 
 class EntitySys : public ISystem
@@ -60,7 +57,8 @@ private:
   size_t entity_count_ = 0;
 };
 
-class EntityIter {
+class EntityIter
+{
 public:
   friend class EntitySys;
 
@@ -81,7 +79,6 @@ private:
 
   EntityID id_;
   EntitySys& sys_;
-
 };
 
 } // namespace Octane

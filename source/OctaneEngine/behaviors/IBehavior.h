@@ -13,10 +13,10 @@
 
 // Includes
 #include <OctaneEngine/ComponentSys.h>
+#include <OctaneEngine/EntityID.h>
 
 namespace Octane
 {
-using EntityID = uint32_t;
 class BehaviorSys;
 //class ComponentHandle;
 
@@ -43,4 +43,4 @@ protected:
   ComponentHandle handle_;
 };
 
-}
+} // namespace Octane
