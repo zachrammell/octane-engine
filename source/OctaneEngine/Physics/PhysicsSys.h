@@ -1,8 +1,8 @@
 #pragma once
 #include <EASTL/hash_map.h>
-#include <EASTL/vector.h>
-#include <EASTL/set.h>
 #include <EASTL/map.h>
+#include <EASTL/set.h>
+#include <EASTL/vector.h>
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Components/PhysicsComponent.h>
 #include <OctaneEngine/Components/TransformComponent.h>
@@ -53,7 +53,7 @@ public:
   void RemoveRigidBody(btRigidBody* rigid_body);
   void SetGravity(const DirectX::XMFLOAT3& gravity) const;
 
-   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
+  //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
@@ -68,7 +68,7 @@ private:
   btCollisionDispatcher* narrow_phase_;
   btSequentialImpulseConstraintSolver* resolution_phase_;
   btDiscreteDynamicsWorld* dynamics_world_;
-  btAlignedObjectArray<btCollisionShape*> collision_shapes_;
+  //btAlignedObjectArray<btCollisionShape*> collision_shapes_;
   //CollisionKeyTable collision_key_table_;
   //CollisionDataTable collision_data_table_;
 };
