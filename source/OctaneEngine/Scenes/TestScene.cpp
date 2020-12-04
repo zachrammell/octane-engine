@@ -216,11 +216,10 @@ void TestScene::Load()
     TransformComponent& trans = compsys->GetTransform(trans_id);
     trans.pos = {10.0f, 0.5f, 7.0f};
     trans.scale = {1.0f, 1.0f, 1.0f};
-    trans.rotation = {};
 
     // for some reason setting mass to 0 (static) makes player unable to move
     // will need to add support for kinematic objects later
-    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {1.5f, 1.5f, 1.5f}, 1);
+    ComponentHandle physics_comp_id = compsys->MakePhysicsBox(trans, {0.5f, 0.5f, 0.5f}, 1);
     player.components[to_integral(ComponentKind::Physics)] = physics_comp_id;
     PhysicsComponent& physics_comp = compsys->GetPhysics(physics_comp_id);
 
@@ -268,7 +267,7 @@ void TestScene::Load()
     render_comp.shader_type = ShaderType::UI;
   }
 
-  #if 0 //texturing examples
+#if 0 //texturing examples
   { //example 1: Texture but don't color
     auto textured1 = entsys->CreateEntity({0.f, 0.f, 0.f}, {1.f, 1.f, 1.f}, {0.f, 0.f, 0.f, 0.f});
     auto& render_comp

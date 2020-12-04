@@ -303,10 +303,6 @@ void PlayerMovementControllerSys::Update()
     {
       new_vel.m128_f32[1] = 0;
     }
-
-    // set y to ground level.
-    // HACKY -- remove once real static physics works
-    player_trans.pos.y = HACKY_GROUND_Y_LEVEL;
   }
   else
   {
