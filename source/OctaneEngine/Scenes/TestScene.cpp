@@ -130,13 +130,11 @@ void TestScene::Load()
               {
               case ComponentKind::Render:
               {
-                ComponentHandle const render_id = component_sys.MakeRender();
-                ent.components[to_integral(ComponentKind::Render)] = render_id;
-                RenderComponent& render_component = component_sys.GetRender(render_id);
-                render_component.material.diffuse = nbt_reader.Read<Color>("Color");
                 auto const& meshnames = Get<MeshSys>()->MeshNames();
-                render_component.mesh_type
-                  = *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh"));
+                RenderComponent& render_component = entity_sys.AddRenderComp(
+                  ent_id,
+                  nbt_reader.Read<Color>("Color"),
+                  *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh")));
               }
               break;
               case ComponentKind::Transform:

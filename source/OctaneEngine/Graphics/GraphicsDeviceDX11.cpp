@@ -459,6 +459,8 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
 
 void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
 {
+  if (mesh.index_buffer.empty() || mesh.vertex_buffer.empty())
+    return;
   meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size(),mesh.textures,mesh.material});
   auto& newMesh = meshes.find(placement)->second;
   //new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});

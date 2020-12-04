@@ -23,7 +23,7 @@
 #include <OctaneEngine/ImGuiSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/WindowManager.h>
-
+#include <OctaneEngine/Trace.h>
 #include <magic_enum.hpp>
 
 #include <assimp/Importer.hpp>
@@ -122,6 +122,11 @@ void RenderSys::Update()
             if (mesh)
             {
               device_dx11_.UseMesh(*mesh);
+            }
+            else
+            {
+              Trace::Log(Severity::WARNING, "Drawing default cube instead of requested mesh\n");
+              device_dx11_.UseMesh(*meshSys->Get(Mesh_Key {"Cube"}));
             }
           }
 
