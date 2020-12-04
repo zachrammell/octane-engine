@@ -249,11 +249,13 @@ void PlayerMovementControllerSys::Update()
 
       if (new_vel.m128_f32[1] < 0 && jump_input) //hover logic
       {
-        new_acc.m128_f32[1] = -PLAYER_HOVER_ACCEL;
+        //new_acc.m128_f32[1] = -PLAYER_HOVER_ACCEL;
+        player_physics.SetGravity(-PLAYER_HOVER_ACCEL);
       }
       else
       {
         new_acc.m128_f32[1] = -PLAYER_GRAVITY_ACCEL;
+        player_physics.SetGravity(-PLAYER_GRAVITY_ACCEL);
       }
       // make sure to add to new_vel here rather than assigning so we maintain air velocity (esp. y velocity)
       new_vel = DirectX::XMVectorAdd(new_vel, DirectX::XMVectorScale(new_acc, dt));
