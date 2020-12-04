@@ -69,6 +69,22 @@ bool isPlayerCollidingWithGround(TransformComponent const& player_trans)
   return player_trans.pos.y <= HACKY_GROUND_Y_LEVEL;
 }
 
+// returns true if the entity will damage the player by colliding
+bool isDamagingObject(GameEntity& colliding_entity)
+{
+  // for now only checks for bear behavior
+  if (colliding_entity.HasComponent(ComponentKind::Behavior))
+  {
+    bool isBear = GetEngine()
+                    ->GetSystem<ComponentSys>()
+                    ->GetBehavior(colliding_entity.GetComponentHandle(ComponentKind::Behavior))
+                    .type
+                  == BHVRType::BEAR;
+    return isBear;
+  }
+  return false;
+}
+
 } // namespace
 
 void PlayerMovementControllerSys::Load()
@@ -303,9 +319,13 @@ void PlayerMovementControllerSys::Update()
     new_vel.m128_f32[0] += wind_force.x;
     new_vel.m128_f32[1] += wind_force.y;
     new_vel.m128_f32[2] += wind_force.z;
+
+    // why not use the following instead of changing velocity?
+    // player_physics.rigid_body->applyCentralForce(wind_force);
   }
 
   // activate the rigid body so it will definitely respond to setLinearVelocity
+  // (otherwise it only updates physics if it's been acted on by another physics object recently)
   player_physics.rigid_body->setActivationState(ACTIVE_TAG);
   player_physics.rigid_body->setLinearVelocity(dx_to_bt_vec3(new_vel));
   UpdateLookDir();
@@ -327,8 +347,8 @@ void PlayerMovementControllerSys::Update()
       &trans.pos,
       DirectX::XMVectorAdd(
         offset,
-        playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
-    trans.pos.y = HACKY_GROUND_Y_LEVEL ; //make sure it is on the ground
+        playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
+    trans.pos.y = HACKY_GROUND_Y_LEVEL; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
     trans.rotation = {};
 
@@ -336,7 +356,7 @@ void PlayerMovementControllerSys::Update()
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
     RenderComponent& render_comp = Get<ComponentSys>()->GetRender(render_comp_id);
     render_comp.material.diffuse = Colors::red;
-    render_comp.mesh_type = Mesh_Key{"Cube"};
+    render_comp.mesh_type = Mesh_Key {"Cube"};
     render_comp.render_type = RenderType::Wireframe;
 
     ComponentHandle physics_comp_id = Get<ComponentSys>()->MakePhysicsBox(trans, {4.0f, 4.0f, 4.0f}, 0.0f, true);
@@ -460,30 +480,44 @@ void PlayerMovementControllerSys::UpdateDamage()
     }
   }
 }
+
+// returns true if the player has collided with at least one enemy this frame
 bool PlayerMovementControllerSys::CheckForEnemyCollision()
 {
-  auto enty = Get<EntitySys>();
-  GameEntity* player = enty->GetPlayer();
-  PhysicsComponent const& player_physics
-    = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
+  GameEntity* player = Get<EntitySys>()->GetPlayer();
 
-  TransformComponent const& trans_plyr
-    = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
-
-  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  auto range = Get<PhysicsSys>()->GetCollisions(player->GetComponentHandle(ComponentKind::Physics));
+  for (auto it = range.first; it != range.second; ++it)
   {
-    if (it->active && it->HasComponent(ComponentKind::Behavior))
-    {
-      if (Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::BEAR)
-      {
-        //auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-        //auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+    PhysicsComponent& rhs = Get<ComponentSys>()->GetPhysics(it->second);
+    assert(rhs.parent_entity != INVALID_ENTITY);
+    GameEntity& rhs_ent = Get<EntitySys>()->GetEntity(rhs.parent_entity);
 
-        //if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-        //{
-        //  return true; // found a collision with enemy
-        //}
+    if (isDamagingObject(rhs_ent))
+    {
+      //#ifdef _DEBUG
+      {
+        DirectX::XMFLOAT3 lhspos
+          = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform)).pos;
+        DirectX::XMFLOAT3 rhspos
+          = Get<ComponentSys>()->GetTransform(rhs_ent.GetComponentHandle(ComponentKind::Transform)).pos;
+
+        btVector3 lhspos_physics = Get<ComponentSys>()
+                                     ->GetPhysics(player->GetComponentHandle(ComponentKind::Physics))
+                                     .rigid_body->getCenterOfMassPosition();
+        btVector3 rhspos_physics = Get<ComponentSys>()
+                                     ->GetPhysics(rhs_ent.GetComponentHandle(ComponentKind::Physics))
+                                     .rigid_body->getCenterOfMassPosition();
+
+        Trace::Log(DEBUG) << "Player colliding with enemy, player transform: (" << lhspos.x << ", " << lhspos.y << ", "
+                          << lhspos.z << "), physics: (" << lhspos_physics.x() << ", " << lhspos_physics.y() << ", "
+                          << lhspos_physics.z() << ") enemy transform: (" << rhspos.x << ", " << rhspos.y << ", "
+                          << rhspos.z << "), physics: " << rhspos_physics.x() << ", " << rhspos_physics.y() << ", "
+                          << rhspos_physics.z() << ") \n";
       }
+      //#endif
+
+      return true;
     }
   }
   return false; // no collisions
@@ -507,32 +541,24 @@ void PlayerMovementControllerSys::UpdateLookDir()
   }
 }
 
+// gets the force from the first colliding wind tunnel
 DirectX::XMFLOAT3 PlayerMovementControllerSys::GetWindTunnelForce()
 {
-  auto enty = Get<EntitySys>();
-  GameEntity* player = enty->GetPlayer();
-  PhysicsComponent const& player_physics
-    = Get<ComponentSys>()->GetPhysics(player->GetComponentHandle(ComponentKind::Physics));
+  GameEntity* player = Get<EntitySys>()->GetPlayer();
 
-  TransformComponent const& trans_plyr
-    = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
-
-  for (auto it = enty->EntitiesBegin(); it != enty->EntitiesEnd(); ++it)
+  auto range = Get<PhysicsSys>()->GetCollisions(player->GetComponentHandle(ComponentKind::Physics));
+  for (auto it = range.first; it != range.second; ++it)
   {
-    if (it->active && it->HasComponent(ComponentKind::Behavior))
-    {
-      if (
-        Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type == BHVRType::WINDTUNNEL
-        || Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).type
-             == BHVRType::ABILITYTUNNEL)
-      {
-        auto& trans_other = Get<ComponentSys>()->GetTransform(it->GetComponentHandle(ComponentKind::Transform));
-        auto& phys_other = Get<ComponentSys>()->GetPhysics(it->GetComponentHandle(ComponentKind::Physics));
+    PhysicsComponent& rhs = Get<ComponentSys>()->GetPhysics(it->second);
+    assert(rhs.parent_entity != INVALID_ENTITY);
+    GameEntity& rhs_ent = Get<EntitySys>()->GetEntity(rhs.parent_entity);
 
-        //if (Get<PhysicsSys>()->HasCollision(trans_plyr, player_physics.primitive, trans_other, phys_other.primitive))
-        //{
-        //  return Get<ComponentSys>()->GetBehavior(it->GetComponentHandle(ComponentKind::Behavior)).force;
-        //}
+    if (rhs_ent.HasComponent(ComponentKind::Behavior))
+    {
+      auto bhvtype = Get<ComponentSys>()->GetBehavior(rhs_ent.GetComponentHandle(ComponentKind::Behavior)).type;
+      if (bhvtype == BHVRType::WINDTUNNEL || bhvtype == BHVRType::ABILITYTUNNEL)
+      {
+        return Get<ComponentSys>()->GetBehavior(rhs_ent.GetComponentHandle(ComponentKind::Behavior)).force;
       }
     }
   }
