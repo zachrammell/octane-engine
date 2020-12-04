@@ -1,6 +1,7 @@
 #pragma once
-#include <btBulletDynamicsCommon.h>
 #include <DirectXMath.h>
+#include <OctaneEngine/EntitySys.h> //EntityID
+#include <btBulletDynamicsCommon.h>
 
 namespace Octane
 {
@@ -18,5 +19,6 @@ public:
   friend class PhysicsSys;
   friend class ComponentSys;
   btRigidBody* rigid_body = nullptr;
+  EntityID parent_entity = INVALID_ENTITY;
 };
 } // namespace Octane

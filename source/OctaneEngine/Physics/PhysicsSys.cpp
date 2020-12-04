@@ -63,6 +63,9 @@ void PhysicsSys::Update()
       auto const& transform = component_sys->GetTransform(entity->GetComponentHandle(ComponentKind::Transform));
       auto& physics_component = component_sys->GetPhysics(entity->GetComponentHandle(ComponentKind::Physics));
 
+      // for now we just update the parent entity every frame out of hacky simplicity
+      physics_component.parent_entity = entity.ID();
+
       btTransform& world_transform = physics_component.rigid_body->getWorldTransform();
       auto const& pos = transform.pos;
       auto const& rot = transform.rotation;
