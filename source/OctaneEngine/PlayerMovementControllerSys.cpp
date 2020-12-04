@@ -495,27 +495,18 @@ bool PlayerMovementControllerSys::CheckForEnemyCollision()
 
     if (isDamagingObject(rhs_ent))
     {
-      //#ifdef _DEBUG
+#ifdef _DEBUG
       {
         DirectX::XMFLOAT3 lhspos
           = Get<ComponentSys>()->GetTransform(player->GetComponentHandle(ComponentKind::Transform)).pos;
         DirectX::XMFLOAT3 rhspos
           = Get<ComponentSys>()->GetTransform(rhs_ent.GetComponentHandle(ComponentKind::Transform)).pos;
 
-        btVector3 lhspos_physics = Get<ComponentSys>()
-                                     ->GetPhysics(player->GetComponentHandle(ComponentKind::Physics))
-                                     .rigid_body->getCenterOfMassPosition();
-        btVector3 rhspos_physics = Get<ComponentSys>()
-                                     ->GetPhysics(rhs_ent.GetComponentHandle(ComponentKind::Physics))
-                                     .rigid_body->getCenterOfMassPosition();
-
         Trace::Log(DEBUG) << "Player colliding with enemy, player transform: (" << lhspos.x << ", " << lhspos.y << ", "
-                          << lhspos.z << "), physics: (" << lhspos_physics.x() << ", " << lhspos_physics.y() << ", "
-                          << lhspos_physics.z() << ") enemy transform: (" << rhspos.x << ", " << rhspos.y << ", "
-                          << rhspos.z << "), physics: " << rhspos_physics.x() << ", " << rhspos_physics.y() << ", "
-                          << rhspos_physics.z() << ") \n";
+                          << lhspos.z << ") enemy transform: (" << rhspos.x << ", " << rhspos.y << ", " << rhspos.z
+                          << ") \n";
       }
-      //#endif
+#endif
 
       return true;
     }
