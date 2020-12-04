@@ -401,7 +401,8 @@ void PlayerMovementControllerSys::Update()
     obj102_entity.components[to_integral(ComponentKind::Behavior)]
       = Get<ComponentSys>()->MakeBehavior(BHVRType::ABILITYHOMMING);
   }
-  //AudioPlayer::Update_Player(player_physics.rigid_body.GetPosition());
+
+  AudioPlayer::Update_Player(player_trans.pos);
 }
 
 void PlayerMovementControllerSys::LevelEnd() {}
