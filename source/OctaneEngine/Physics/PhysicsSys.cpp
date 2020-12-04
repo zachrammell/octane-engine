@@ -27,16 +27,13 @@ DirectX::XMVECTOR ToXmVector(const btVector3& data)
 
 PhysicsSys::PhysicsSys(Engine* engine)
   : ISystem(engine),
-    broad_phase_ {new btDbvtBroadphase()},
-    collision_config_ {new btDefaultCollisionConfiguration()},
-    narrow_phase_ {new btCollisionDispatcher(collision_config_)},
-    resolution_phase_ {new btSequentialImpulseConstraintSolver()},
-    dynamics_world_ {new btDiscreteDynamicsWorld(narrow_phase_, broad_phase_, resolution_phase_, collision_config_)}
+    broad_phase_ {nullptr},
+    collision_config_ {nullptr},
+    narrow_phase_ {nullptr},
+    resolution_phase_ {nullptr},
+    dynamics_world_ {nullptr}
 {
-  dynamics_world_->setGravity(btVector3(0, -10, 0));
-  narrow_phase_->setNearCallback(BulletCollisionCallback);
-  dynamics_world_->setInternalTickCallback(BulletCallback);
-  dynamics_world_->setWorldUserInfo(this);
+  // the dynamics_world_ etc isn't created until levelstart
 }
 
 PhysicsSys::~PhysicsSys()
@@ -48,7 +45,14 @@ PhysicsSys::~PhysicsSys()
   delete broad_phase_;
 }
 
-void PhysicsSys::LevelStart() {}
+void PhysicsSys::Load()
+{
+  InitializeWorld();
+}
+void PhysicsSys::LevelStart()
+{
+  entity_collisions_.clear();
+}
 
 void PhysicsSys::Update()
 {
@@ -101,25 +105,32 @@ void PhysicsSys::Update()
 
 void PhysicsSys::LevelEnd()
 {
-  //delete remain physics stuff
-  for (int i = dynamics_world_->getNumConstraints() - 1; i >= 0; --i)
+  if (dynamics_world_)
   {
-    dynamics_world_->removeConstraint(dynamics_world_->getConstraint(i));
-  }
-  for (int i = dynamics_world_->getNumCollisionObjects() - 1; i >= 0; --i)
-  {
-    btCollisionObject* obj = dynamics_world_->getCollisionObjectArray()[i];
-
-    btRigidBody* body = btRigidBody::upcast(obj);
-    if (body && body->getMotionState())
+    //delete remain physics stuff
+    for (int i = dynamics_world_->getNumConstraints() - 1; i >= 0; --i)
     {
-      delete body->getMotionState();
+      dynamics_world_->removeConstraint(dynamics_world_->getConstraint(i));
     }
+    for (int i = dynamics_world_->getNumCollisionObjects() - 1; i >= 0; --i)
+    {
+      btCollisionObject* obj = dynamics_world_->getCollisionObjectArray()[i];
 
-    dynamics_world_->removeCollisionObject(obj);
-    delete obj;
+      btRigidBody* body = btRigidBody::upcast(obj);
+      if (body && body->getMotionState())
+      {
+        delete body->getMotionState();
+      }
+
+      dynamics_world_->removeCollisionObject(obj);
+      delete obj;
+    }
   }
   entity_collisions_.clear();
+}
+void PhysicsSys::Unload()
+{
+  FreeWorld();
 }
 
 SystemOrder PhysicsSys::GetOrder()
@@ -416,5 +427,45 @@ void PhysicsSys::BulletCallback(btDynamicsWorld* world, btScalar /*time_step*/)
   }
   physics_sys->last_collision_pair_ = curr_collision_pair;
 #endif
+}
+void PhysicsSys::InitializeWorld()
+{
+  broad_phase_ = new btDbvtBroadphase();
+  collision_config_ = new btDefaultCollisionConfiguration();
+  narrow_phase_ = new btCollisionDispatcher(collision_config_);
+  resolution_phase_ = new btSequentialImpulseConstraintSolver();
+  dynamics_world_ = new btDiscreteDynamicsWorld(narrow_phase_, broad_phase_, resolution_phase_, collision_config_);
+  dynamics_world_->setGravity(btVector3(0, -10, 0));
+  narrow_phase_->setNearCallback(BulletCollisionCallback);
+  dynamics_world_->setInternalTickCallback(BulletCallback);
+  dynamics_world_->setWorldUserInfo(this);
+}
+void PhysicsSys::FreeWorld()
+{
+  if (dynamics_world_)
+  {
+    delete dynamics_world_;
+    dynamics_world_ = nullptr;
+  }
+  if (resolution_phase_)
+  {
+    delete resolution_phase_;
+    resolution_phase_ = nullptr;
+  }
+  if (narrow_phase_)
+  {
+    delete narrow_phase_;
+    narrow_phase_ = nullptr;
+  }
+  if (collision_config_)
+  {
+    delete collision_config_;
+    collision_config_ = nullptr;
+  }
+  if (broad_phase_)
+  {
+    delete broad_phase_;
+    broad_phase_ = nullptr;
+  }
 }
 } // namespace Octane

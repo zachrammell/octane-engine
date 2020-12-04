@@ -25,11 +25,11 @@ public:
   explicit PhysicsSys(Engine* engine);
   ~PhysicsSys();
 
-  void Load() override {};
+  void Load() override;
   void LevelStart() override;
   void Update() override;
   void LevelEnd() override;
-  void Unload() override {};
+  void Unload() override;
 
   static SystemOrder GetOrder();
 
@@ -56,6 +56,9 @@ public:
   //eCollisionState HasCollision(PhysicsComponent& a, PhysicsComponent& b) const;
 
 private:
+  void InitializeWorld();
+  void FreeWorld();
+
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
   static void BulletCollisionCallback(
     btBroadphasePair& collisionPair,
