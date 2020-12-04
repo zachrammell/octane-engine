@@ -158,6 +158,10 @@ btRigidBody* PhysicsSys::CreateRigidBody(float mass, const btTransform& transfor
     btRigidBody::btRigidBodyConstructionInfo construction_info(mass, motion_state, shape, local_inertia);
     btRigidBody* body = new btRigidBody(construction_info);
     dynamics_world_->addRigidBody(body);
+    if (!is_dynamic)
+    {
+      body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_STATIC_OBJECT);
+    }
     return body;
   }
 
