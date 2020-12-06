@@ -346,7 +346,7 @@ void PlayerMovementControllerSys::Update()
         playpos)); //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = HACKY_GROUND_Y_LEVEL; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
-    trans.rotation = {};
+    //trans.rotation = {};
 
     ComponentHandle render_comp_id = Get<ComponentSys>()->MakeRender();
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
@@ -381,7 +381,7 @@ void PlayerMovementControllerSys::Update()
         playpos));      //add the offest and the player pos and set it to the transfor of the new windtunnel
     trans.pos.y = 1.0f; //make sure it is on the ground
     trans.scale = {2.0f, 2.0f, 2.0f};
-    trans.rotation = {};
+    //trans.rotation = {};
 
     ComponentHandle render_comp_id = Get<ComponentSys>()->MakeRender();
     obj102_entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
