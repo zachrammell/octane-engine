@@ -3,6 +3,7 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/Graphics/MeshSys.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 #include <iostream> // error logging
 
 namespace Octane
@@ -114,17 +115,25 @@ EntityID EntitySys::CreateEntity(dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, dx::XMFLO
 
   return id;
 }
-RenderComponent& EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh)
+RenderComponent& EntitySys::AddRenderComp(EntityID id, Octane::Color color, Mesh_Key mesh, Texture_Key texture)
 {
   auto* compsys = Get<ComponentSys>();
   auto* meshsys = Get<MeshSys>();
   auto& entity = GetEntity(id);
+  auto texsys = Get<TextureSys>();
 
   ComponentHandle render_comp_id = compsys->MakeRender();
   entity.components[to_integral(ComponentKind::Render)] = render_comp_id;
   RenderComponent& render_comp = compsys->GetRender(render_comp_id);
   render_comp.mesh_type = mesh;
-  render_comp.material = meshsys->Get(mesh)->GetMaterial();
+  if(texture != Texture_Key{""})
+  {
+    render_comp.material.diffuse_texture = texsys->Get(texture)->key;
+  }
+  else
+  {
+    render_comp.material = meshsys->Get(mesh)->GetMaterial();
+  }
   render_comp.material.diffuse = color;
   return render_comp;
 }

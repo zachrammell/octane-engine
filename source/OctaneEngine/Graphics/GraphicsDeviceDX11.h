@@ -68,12 +68,26 @@ public:
         raw_data_.Color = color.vec;
         return *this;
       }
+      PerObjectConstants& SetSpecular(Color color)
+      { 
+        raw_data_.specCoeff = color.vec;
+        return *this;
+      }
+      PerObjectConstants& SetSpecularExponent(float exp) 
+      {
+        raw_data_.specExp = exp;
+        return *this;
+      }
       struct RawData
       {
         DirectX::XMFLOAT4X4 World;
         DirectX::XMFLOAT4X4 NormalWorld;
         DirectX::XMFLOAT3 Color;
         FLOAT padding0_;
+        dx::XMFLOAT3 specCoeff;
+        FLOAT padding1_;
+        FLOAT specExp;
+        dx::XMFLOAT3 padding2_;
       };
 
     private:

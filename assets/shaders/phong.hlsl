@@ -3,6 +3,8 @@ cbuffer cb_per_object : register(b0)
   float4x4 World;
   float4x4 WorldNormal;
   float4 ObjectColor;
+  float4 specCoeff;
+  float4 specExp;
 };
 
 cbuffer cb_per_frame : register(b1)
@@ -46,8 +48,8 @@ float4 ps_main(vs_out input) : SV_TARGET
 {
   const float3 diffCoeff = ObjectColor.rgb + diffuse.Sample(samplerState, input.uv).rgb;
   const float3 light_color = float3(1.0f, 1.0f, 1.0f);
-  const float specCoeff = 0.4f;
-  const int specExp = 16;
+  //const float specCoeff = 0.4f;
+  //const int specExp = 16;
   
   const float3 vHat = normalize(CameraPosition.xyz - input.position_world.xyz);
   const float3 mHat = normalize(input.normal);
@@ -58,7 +60,7 @@ float4 ps_main(vs_out input) : SV_TARGET
   const float rlDotV = max(dot(rlHat, vHat), 0.f);
   
   const float3 cDiff = diffCoeff * mDotL * light_color;
-  const float3 cSpec = mDotL > 0.f ? specCoeff * pow(rlDotV, specExp) * light_color : float3(0.f, 0.f, 0.f);
+  const float3 cSpec = mDotL > 0.f ? specCoeff.rgb * pow(rlDotV, specExp[0]) * light_color : float3(0.f, 0.f, 0.f);
   
   return float4(cDiff + cSpec + cAmb, 1.f);
   

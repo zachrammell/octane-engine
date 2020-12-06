@@ -43,6 +43,10 @@ void NBTWriter::Write(string_view name, RenderComponent render_component)
   {
     Write("Mesh", render_component.mesh_type);
     Write("Color", render_component.material.diffuse);
+    Write("Texture", render_component.material.diffuse_texture);
+    Write("Specular", render_component.material.specular);
+    Write("Specular Exponent", render_component.material.specular_exp);
+    Write("Tint", int8_t(render_component.material.tint));
     EndCompound();
   }
 }

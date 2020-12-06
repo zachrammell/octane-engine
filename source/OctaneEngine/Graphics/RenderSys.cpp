@@ -148,7 +148,9 @@ void RenderSys::Update()
             .PerObject()
             .SetWorldMatrix(object_world_matrix)
             .SetWorldNormalMatrix(dx::XMMatrixTranspose(dx::XMMatrixInverse(nullptr, object_world_matrix)))
-            .SetColor(color);
+            .SetColor(color)
+            .SetSpecular(render_comp.material.specular)
+            .SetSpecularExponent(render_comp.material.specular_exp);
           device_dx11_.Upload(device_dx11_.ShaderConstants().PerObject());
           device_dx11_.DrawMesh();
         }

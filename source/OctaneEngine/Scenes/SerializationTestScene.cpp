@@ -20,6 +20,7 @@
 #include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/InputHandler.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 #include <OctaneEngine/Trace.h>
 
 #include <OctaneEngine/NBTReader.h>
@@ -54,24 +55,24 @@ void SerializationTestScene::Load()
   auto* entsys = Get<EntitySys>();
   auto* compsys = Get<ComponentSys>();
 
-  auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
-    // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
-    EntityID const ent_id = entsys->MakeEntity();
-    GameEntity& ent = entsys->GetEntity((ent_id));
-    ComponentHandle const trans_id = compsys->MakeTransform();
-    ent.components[to_integral(ComponentKind::Transform)] = trans_id;
-    TransformComponent& trans = compsys->GetTransform(trans_id);
-    trans.pos = pos;
-    trans.scale = scale;
-    trans.rotation = {};
-    ComponentHandle const render_id = compsys->MakeRender();
-    ent.components[to_integral(ComponentKind::Render)] = render_id;
-    RenderComponent& render_component = compsys->GetRender(render_id);
-    render_component.material.diffuse = color;
-    render_component.mesh_type = mesh_type;
-    render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
-    return ent_id;
-  };
+  //auto create_object = [=](dx::XMFLOAT3 pos, dx::XMFLOAT3 scale, Color color, Mesh_Key mesh_type = Mesh_Key {"Cube"}) {
+  //  // todo: custom entityid / componentid types with overridden operator*, because this is way too much boilerplate
+  //  EntityID const ent_id = entsys->MakeEntity();
+  //  GameEntity& ent = entsys->GetEntity((ent_id));
+  //  ComponentHandle const trans_id = compsys->MakeTransform();
+  //  ent.components[to_integral(ComponentKind::Transform)] = trans_id;
+  //  TransformComponent& trans = compsys->GetTransform(trans_id);
+  //  trans.pos = pos;
+  //  trans.scale = scale;
+  //  trans.rotation = {};
+  //  ComponentHandle const render_id = compsys->MakeRender();
+  //  ent.components[to_integral(ComponentKind::Render)] = render_id;
+  //  RenderComponent& render_component = compsys->GetRender(render_id);
+  //  render_component.material.diffuse = color;
+  //  render_component.mesh_type = mesh_type;
+  //  render_component.render_type = (rand() % 2 == 0) ? RenderType::Filled : RenderType::Wireframe;
+  //  return ent_id;
+  //};
 
   /*for (int i = 0; i < 100; ++i)
   {
@@ -132,6 +133,7 @@ void SerializationTestScene::Update(float dt)
                       dx::XMFLOAT3 scale,
                       dx::XMFLOAT3 rotation,
                       Color color,
+                      RenderComponent& render_comp,
                       Mesh_Key mesh_type,
                       string_view name) {
     GameEntity& ent = entsys->GetEntity(id);
@@ -141,8 +143,7 @@ void SerializationTestScene::Update(float dt)
     trans.scale = scale;
     dx::XMStoreFloat4(&(trans.rotation), dx::XMQuaternionRotationRollPitchYawFromVector(dx::XMLoadFloat3(&rotation)));
 
-    RenderComponent & render_component = entsys->AddRenderComp(id, color, mesh_type);
-
+    render_comp.material.diffuse = color;
     if (!name.empty())
     {
       if (!ent.HasComponent(ComponentKind::Metadata))
@@ -169,12 +170,13 @@ void SerializationTestScene::Update(float dt)
     ent.components[to_integral(ComponentKind::Transform)] = trans_id;
     ComponentHandle const render_id = compsys->MakeRender();
     ent.components[to_integral(ComponentKind::Render)] = render_id;
+    RenderComponent& render_comp = compsys->GetRender(render_id);
     if (!name.empty())
     {
       ComponentHandle const metadata_id = compsys->MakeMetadata();
       ent.components[to_integral(ComponentKind::Metadata)] = metadata_id;
     }
-    set_object(ent_id, pos, scale, rotation, color, mesh_type, name);
+    set_object(ent_id, pos, scale, rotation, color, render_comp,mesh_type, name);
   };
   auto load_object = [=](
                        EntityID id,
@@ -183,6 +185,7 @@ void SerializationTestScene::Update(float dt)
                        dx::XMFLOAT3& rotation,
                        Color& color,
                        Mesh_Key& mesh_type,
+                       RenderComponent** render_comp,
                        eastl::string& name) {
     GameEntity& ent = entsys->GetEntity(id);
     ComponentHandle const trans_id = ent.GetComponentHandle(ComponentKind::Transform);
@@ -199,10 +202,10 @@ void SerializationTestScene::Update(float dt)
     rotation = {yaw, pitch, roll};
 
     ComponentHandle const render_id = ent.GetComponentHandle(ComponentKind::Render);
-    RenderComponent const& render_component = compsys->GetRender(render_id);
+    RenderComponent& render_component = compsys->GetRender(render_id);
     color = render_component.material.diffuse;
     mesh_type = render_component.mesh_type;
-
+    *render_comp = &render_component;
     if (ent.HasComponent(ComponentKind::Metadata))
     {
       ComponentHandle const metadata_id = ent.GetComponentHandle(ComponentKind::Metadata);
@@ -340,6 +343,7 @@ void SerializationTestScene::Update(float dt)
               entity_editor_data_.rotation,
               entity_editor_data_.color,
               entity_editor_data_.mesh,
+              &entity_editor_data_.render_comp,
               entity_editor_data_.name);
           }
         }
@@ -360,7 +364,10 @@ void SerializationTestScene::Update(float dt)
     {
     }
     ImGui::DragFloat3("Rotation", &(entity_editor_data_.rotation.x), slider_sensitivity * dx::XM_2PI / 360.0f);
-    ImGui::ColorEdit3("Color", &(entity_editor_data_.color.r));
+    if(entity_editor_data_.render_comp)
+    {
+      ImGui::ColorEdit3("Color", &(entity_editor_data_.color.vec.x));
+    }
     if (ImGui::BeginCombo("DB32 Color", ""))
     {
       for (int i = 0; i < 32; ++i)
@@ -391,6 +398,25 @@ void SerializationTestScene::Update(float dt)
       }
       ImGui::EndCombo();
     }
+    if(entity_editor_data_.render_comp)
+    {
+      if (ImGui::BeginCombo("Texture", entity_editor_data_.render_comp->material.diffuse_texture.data(), ImGuiComboFlags_None))
+      {
+        auto& textures = Get<TextureSys>()->TextureNames();
+        for (auto const& texture : textures)
+        {
+          if (ImGui::Selectable(texture.data()))
+          {
+            entity_editor_data_.render_comp->material.diffuse_texture = texture.data();
+          }
+        }
+        ImGui::EndCombo();
+      }
+      ImGui::DragFloat3("Specular", &(entity_editor_data_.render_comp->material.specular.r), slider_sensitivity);
+      ImGui::DragFloat("Shininess", &entity_editor_data_.render_comp->material.specular_exp, slider_sensitivity);
+      ImGui::Checkbox("Tint", &entity_editor_data_.render_comp->material.tint);
+    }
+
 
     if (entity_editor_data_.id != INVALID_ENTITY)
     {
@@ -400,6 +426,7 @@ void SerializationTestScene::Update(float dt)
         entity_editor_data_.scale,
         entity_editor_data_.rotation,
         entity_editor_data_.color,
+        *entity_editor_data_.render_comp,
         entity_editor_data_.mesh,
         entity_editor_data_.name);
       if (entity_editor_data_.has_collider)
@@ -511,10 +538,21 @@ void SerializationTestScene::Update(float dt)
               case ComponentKind::Render:
               {
                 auto const& meshnames = Get<MeshSys>()->MeshNames();
+                auto tex = nbt_reader.ReadString("Texture");
+                auto spec = nbt_reader.Read<Color>("Specular");
+
+                auto tint = nbt_reader.ReadByte("Tint");
+                auto specular_exp = nbt_reader.ReadFloat("Specular Exponent");
+                //auto specular = nbt_reader.MaybeRead<Color>
+
                 RenderComponent& render_component = entity_sys.AddRenderComp(
                   ent_id,
                   nbt_reader.Read<Color>("Color"),
-                  *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh")));
+                  *std::find(meshnames.begin(), meshnames.end(), nbt_reader.Read<Mesh_Key>("Mesh")),tex);
+
+                render_component.material.specular = spec;
+                render_component.material.tint = tint;
+                render_component.material.specular_exp = specular_exp;
               }
               break;
               case ComponentKind::Transform:

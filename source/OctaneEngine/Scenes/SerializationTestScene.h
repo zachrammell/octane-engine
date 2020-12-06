@@ -52,6 +52,7 @@ private:
     Mesh_Key mesh = Mesh_Key {"Cube"};
     bool has_collider = false;
     eastl::string name {32, '\0'};
+    RenderComponent* render_comp = nullptr;
   } entity_creator_data_, entity_editor_data_;
 };
 
