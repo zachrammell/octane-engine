@@ -337,6 +337,7 @@ void TestScene::Update(float dt)
   ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
   ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
   ImGui::Text("F to switch weapons.");
+  ImGui::Text("Rifle can shoot airplane with auto mode");
   ImGui::Text("****************************************************************");
   ImGui::Text("**************          F7 for Fullscreen        ***************");
   ImGui::Text("****************************************************************");
@@ -368,6 +369,8 @@ void TestScene::Update(float dt)
   {
     esc_menu = true;
   }
+
+  #if DEBUG
 
   if (ImGui::BeginMainMenuBar())
   {
@@ -413,6 +416,8 @@ void TestScene::Update(float dt)
   {
     ImGui::ShowDemoWindow(&demo_window_open);
   }
+
+  #endif
 
   auto* pmhandler = Get<PlayerMovementControllerSys>();
 
