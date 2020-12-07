@@ -31,6 +31,7 @@ public:
   void Shutdown() override;
   void SetDestroyedFunc(EnemyDestroyed& edfunc);
   void TakeDamage();
+  void SetHealth(int health, EntityID id);
 
 private:
   ComponentHandle phys_handle_ = INVALID_COMPONENT;
@@ -41,6 +42,7 @@ private:
   int health_ = 1;
   float flyRetry = 0.0f;
   bool gettingFreed = false;
+  EntityID id_;
 };
 
 } // namespace Octane

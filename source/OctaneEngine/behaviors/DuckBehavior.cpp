@@ -81,17 +81,17 @@ void DuckBehavior::Update(float dt, EntityID myID)
   //move and face target
   if (!dx::XMScalarNearEqual(trans.pos.y, 0.0f, 0.250000f))
   {
-    //SimpleMove(physics.rigid_body, trans.pos, target.pos, 2.75f);
+    SimpleMove(physics, trans.pos, target.pos, 2.75f);
   }
   else
   {
-    //SimpleMove(physics.rigid_body, trans.pos, target.pos, 0.45f);
+    SimpleMove(physics, trans.pos, target.pos, 0.45f);
     flyRetry += dt;
   }
   FacePos(trans, target.pos);
   if (flyRetry >= 5.0f)
   {
-    //if (RandomJump(physics.rigid_body, trans.pos, 0.0f, 20.f * -G))
+    if (RandomJump(physics, trans.pos, 0.0f, 20.f * -G))
     {
       flyRetry = rand()%6*1.f;
     }
@@ -114,6 +114,30 @@ void DuckBehavior::SetDestroyedFunc(EnemyDestroyed& edfunc)
 void DuckBehavior::TakeDamage()
 {
   --health_;
+  auto& renderComp
+    = Get<ComponentSys>()->GetRender(Get<EntitySys>()->GetEntity(id_).GetComponentHandle(ComponentKind::Render));
+  renderComp.material.diffuse = HealthColors[health_-1];
+  auto& transComp
+    = Get<ComponentSys>()->GetTransform(Get<EntitySys>()->GetEntity(id_).GetComponentHandle(ComponentKind::Transform));
+  auto& physComp
+    = Get<ComponentSys>()->GetPhysics(Get<EntitySys>()->GetEntity(id_).GetComponentHandle(ComponentKind::Physics));
+
+  ChangeEnemyScale(transComp, physComp, health_);
+}
+
+void DuckBehavior::SetHealth(int health, EntityID id)
+{
+  health_ = health;
+  id_ = id;
+  auto& renderComp = Get<ComponentSys>()->GetRender(Get<EntitySys>()->GetEntity(id).GetComponentHandle(ComponentKind::Render));
+  renderComp.material.diffuse = HealthColors[health_-1];
+  auto& transComp
+    = Get<ComponentSys>()->GetTransform(Get<EntitySys>()->GetEntity(id).GetComponentHandle(ComponentKind::Transform));
+  auto& physComp 
+    = Get<ComponentSys>()->GetPhysics(Get<EntitySys>()->GetEntity(id).GetComponentHandle(ComponentKind::Physics));
+
+    ChangeEnemyScale(transComp,physComp, health_);
+  
 }
 
 } // namespace Octane

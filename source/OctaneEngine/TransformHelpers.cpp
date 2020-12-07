@@ -27,55 +27,44 @@ void SimpleMove(dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
   }
 }
 
-/*void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, Octane::RigidBody& toPos, float speed)
-{
-  //simplemove using physics
-  dx::XMFLOAT3 to = toPos.GetPosition();
-
-  SimpleMove(fromRB, fromPos, to, speed);
-}
-
-void SimpleMove(Octane::RigidBody& fromRB, dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
+void SimpleMove(Octane::PhysicsComponent& fromRB, dx::XMFLOAT3& fromPos, dx::XMFLOAT3& toPos, float speed)
 {
   //simplemove using physics
   const dx::XMVECTOR difference = dx::XMVectorSubtract({toPos.x, toPos.y, toPos.z}, {fromPos.x, fromPos.y, fromPos.z});
   const float dist = dx::XMVector3Length(difference).m128_f32[0];
-  auto& yVel = fromRB.GetLinearVelocity().m128_f32[1];
+  auto& yVel = fromRB.rigid_body->getLinearVelocity().y();
   if (!dx::XMScalarNearEqual(dist, 0.f, .000001f))
   {
     dx::XMVECTOR move {dx::XMVector3Normalize(difference)};
 
     move = dx::XMVectorScale(move, speed);
     //fromRB.ApplyForceCentroid();
-    fromRB.SetLinearVelocity({move.m128_f32[0], yVel, move.m128_f32[2]});
+    fromRB.rigid_body->setLinearVelocity({move.m128_f32[0], yVel, move.m128_f32[2]});
   }
-}*/
+}
 
 void LockYRelToTarget(dx::XMFLOAT3& pos, const dx::XMFLOAT3& targetPos, float depth)
 {
   pos.y = std::clamp(pos.y, targetPos.y - depth, std::numeric_limits<float>::max());
 }
-/*
-void RandomJump(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
+
+bool RandomJump(Octane::PhysicsComponent& rb, const dx::XMFLOAT3& pos, float chance, float jumpForce)
 {
-  float jumpChance = rand() % 11;
+  float jumpChance = rand() % 101;
   if (!dx::XMScalarNearEqual(pos.y, 0.0f, 0.250000f))
     return false;
   if (chance >= jumpChance)
   {
-    rb.ApplyForceCentroid(
-      {0.f,
-       jumpForce,
-       0.f});
+    rb.ApplyForce({0.f, jumpForce, 0.f});
     return true;
   }
   return false;
 }
 
-void BunnyHop(Octane::RigidBody& rb, const dx::XMFLOAT3& pos, float jumpForce)
+void BunnyHop(Octane::PhysicsComponent& rb, const dx::XMFLOAT3& pos, float jumpForce)
 {
   RandomJump(rb, pos, 100.f, jumpForce);
-}*/
+}
 
 void FacePos(Octane::TransformComponent& obj, const dx::XMFLOAT3& pos)
 {

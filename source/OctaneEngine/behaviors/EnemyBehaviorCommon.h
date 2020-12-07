@@ -11,7 +11,9 @@
 /******************************************************************************/
 
 #pragma once
-
+#include <OctaneEngine/Graphics/Colors.h>
+#include <OctaneEngine/Components/TransformComponent.h>
+#include <OctaneEngine/Components/PhysicsComponent.h>
 namespace Octane
 {
   struct EnemyDestroyed //functor
@@ -27,4 +29,8 @@ namespace Octane
       int enemiesLeft = 0;
       bool spawnedWave = false;
   };
+
+  extern Color HealthColors[5];
+
+  void ChangeEnemyScale(TransformComponent& trans_comp,PhysicsComponent& phys_comp, int health);
 }

@@ -4,7 +4,6 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/behaviors/EnemySpawner.h>
-//#include <OctaneEngine/Physics/Box.h>
 #include <OctaneEngine/AudioPlayer.h>
 #include <OctaneEngine/TransformHelpers.h>
 
@@ -78,16 +77,16 @@ void EnemySpawner::SpawnEnemy()
   auto& player_transform = compsys->GetTransform(player->GetComponentHandle(ComponentKind::Transform));
   Mesh_Key mesh;
   const int enemyType = rand() % 3;
-
+  dx::XMFLOAT3 scale {0.35f, 0.35f, 0.35f};
   auto id = entsys->CreateEntity(
-    {player_transform.pos.x + rand() % 64 - 32.f, 0.0f, player_transform.pos.z + rand() % 64 - 32.f},
-    {0.25f, 0.25f, 0.25f},
-    {});
+    {rand() % 28 - 14.f, 5.0f, rand() % 28 - 14.f},
+    scale,
+    {0.f,0.f,0.f,1.f});
   auto& entity = entsys->GetEntity(id);
 
   auto enemy_transform_handle = entity.components[to_integral(ComponentKind::Transform)];
   auto& enemy_transform = compsys->GetTransform(enemy_transform_handle);
-  ComponentHandle physics_component_handle = compsys->MakePhysicsBox(enemy_transform, {.25f, .25f, .25f}, 1.0f);
+  ComponentHandle physics_component_handle = compsys->MakePhysicsBox(enemy_transform, scale, 1.0f);
   entity.components[to_integral(ComponentKind::Physics)] = physics_component_handle;
   BHVRType behavior = BHVRType::INVALID;
   switch (enemyType)
@@ -106,8 +105,8 @@ void EnemySpawner::SpawnEnemy()
     break;
   default: break;
   }
-
-  entsys->AddRenderComp(id, Colors::db32[rand() % 32], mesh);
+  int health = eastl::min(rand() % enemy_destroyed_func->wave + 1,6);
+  entsys->AddRenderComp(id, Colors::db32[health], mesh);
   entsys->AddBehavior(id, behavior);
   auto& beh = Get<ComponentSys>()->GetBehavior(entity.GetComponentHandle(ComponentKind::Behavior));
 
@@ -117,18 +116,21 @@ void EnemySpawner::SpawnEnemy()
   {
     auto enemybeh = static_cast<BearBehavior*>(beh.behavior);
     enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    enemybeh->SetHealth(health, id);
     break;
   }
   case BHVRType::DUCK:
   {
     auto enemybeh = static_cast<DuckBehavior*>(beh.behavior);
     enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    enemybeh->SetHealth(health, id);
     break;
   }
   case BHVRType::BUNNY:
   {
     auto enemybeh = static_cast<BunnyBehavior*>(beh.behavior);
     enemybeh->SetDestroyedFunc(*enemy_destroyed_func);
+    enemybeh->SetHealth(health, id);
     break;
   }
   }

@@ -31,6 +31,7 @@ public:
   void Shutdown() override;
   void SetDestroyedFunc(EnemyDestroyed& edfunc);
   void TakeDamage();
+  void SetHealth(int health, EntityID id);
 
 private:
   ComponentHandle phys_handle_ = INVALID_COMPONENT;
@@ -42,6 +43,7 @@ private:
   float switch_dir_timer = 0.0f;
   int health_ = 1;
   bool gettingFreed = false;
+  EntityID id_;
 };
 
 } // namespace Octane

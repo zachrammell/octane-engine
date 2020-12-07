@@ -37,12 +37,12 @@ public:
 private:
   ComponentHandle phys_handle_ = INVALID_COMPONENT;
   void SpawnEnemy();
-  int spawnCap = 20;
-  int waveSpawnCap = 30;
+  int spawnCap = 5;
+  int waveSpawnCap = 15;
   int totalSpawnedCurrrentWave = 0;
   //int enemiesSpawned = 0;
   float spawnDelay = 1.5f;
-  float waveDelay = 15.f; //time between waves
+  float waveDelay = 4.f; //time between waves
   float waveTimer = 0.f;
   float spawnTimer = spawnDelay;
   EnemyDestroyed* enemy_destroyed_func = nullptr;

@@ -262,7 +262,7 @@ void TestScene::Load()
 
   //Gun Crosshair
   {
-    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {0.1f, 0.1f, 0.1f}, {0.f, 0.f, 0.f, 0.f});
+    auto crosshair = entsys->CreateEntity({0.f, 0.f, 0.f}, {1.1f, 1.1f, 1.1f}, {0.f, 0.f, 0.f, 1.f});
     auto& render_comp = entsys->AddRenderComp(crosshair, Colors::red, Mesh_Key {"Crosshair1"});
     render_comp.shader_type = ShaderType::UI;
   }
