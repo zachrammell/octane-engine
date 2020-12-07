@@ -166,10 +166,12 @@ private:
   winrt::com_ptr<ID3D11RenderTargetView> render_target_view_;
   winrt::com_ptr<ID3D11DepthStencilView> depth_stencil_view_;
   winrt::com_ptr<ID3D11SamplerState> sampler_state_;
-
+  // A texture to associate to the depth stencil view.
+  winrt::com_ptr<ID3D11Texture2D> depth_stencil_buffer = nullptr;
   winrt::com_ptr<ID3D11DepthStencilState> depth_stencil_state_;
   winrt::com_ptr<ID3D11RasterizerState> rasterizer_state_;
-
+  SDL_Window* window_;
+  D3D11_VIEWPORT viewport {0};
   /*!
    * Shader programs' constant buffers. (Uniforms in OpenGL) \n
    * 0: per object constants                                 \n
@@ -183,8 +185,16 @@ private:
   MeshDX11 const* current_mesh_;
   ShaderConstantBuffers shader_constants_;
 
+  void WindowResized();
   void ClearBuffers();
   void CreateSamplerState();
+  void CleanupRenderTarget();
+  void CreateRenderTarget();
+  void SetupViewport();
+  void CreateDepthBuffer();
+  void DeleteDepthBuffer();
+  void CreateRasterizerState();
+  void CreateConstantBuffers();
 };
 
 } // namespace Octane

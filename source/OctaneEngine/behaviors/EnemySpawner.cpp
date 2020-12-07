@@ -105,7 +105,7 @@ void EnemySpawner::SpawnEnemy()
     break;
   default: break;
   }
-  int health = eastl::min(rand() % enemy_destroyed_func->wave + 1,6);
+  int health = eastl::min(rand() % (enemy_destroyed_func->wave + 1),6);
   entsys->AddRenderComp(id, Colors::db32[health], mesh);
   entsys->AddBehavior(id, behavior);
   auto& beh = Get<ComponentSys>()->GetBehavior(entity.GetComponentHandle(ComponentKind::Behavior));

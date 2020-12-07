@@ -12,6 +12,8 @@
 #include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Trace.h>
 
+#define RCAST(x,type) reinterpret_cast<type>(x)
+
 using namespace Octane::FormattedOutput;
 
 namespace Octane
@@ -21,7 +23,8 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   : supported_mode_ {},
     currently_in_fullscreen_ {false},
     clear_color_ {Colors::black},
-    current_mesh_ {nullptr}
+    current_mesh_ {nullptr},
+    window_(window)
 {
   Trace::Log(DEBUG) << "Initializing DirectX 11\n";
 
@@ -56,7 +59,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   swap_chain_descriptor.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   //60hz max refresh rate for fullscreen mode
   // TODO: get monitor refresh rate
-  swap_chain_descriptor.BufferDesc.RefreshRate.Numerator = 60;
+  swap_chain_descriptor.BufferDesc.RefreshRate.Numerator = 144;
   swap_chain_descriptor.BufferDesc.RefreshRate.Denominator = 1;
   //number of multisamples per pixel
   swap_chain_descriptor.SampleDesc.Count = 1;
@@ -109,6 +112,12 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     device_context_.put());
   assert(SUCCEEDED(hr));
 
+  CreateRenderTarget();
+  CreateDepthBuffer();
+  CreateSamplerState();
+  CreateConstantBuffers();
+  CreateRasterizerState();
+  #if 0
   winrt::com_ptr<ID3D11Texture2D> back_buffer;
   hr = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), back_buffer.put_void());
   assert(SUCCEEDED(hr));
@@ -117,7 +126,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   D3D11_TEXTURE2D_DESC back_buffer_descriptor = {0};
   back_buffer->GetDesc(&back_buffer_descriptor);
 
-  D3D11_DEPTH_STENCIL_DESC depth_stencil_descriptor {true, D3D11_DEPTH_WRITE_MASK_ALL, D3D11_COMPARISON_LESS};
+  D3D11_DEPTH_STENCIL_DESC depth_stencil_descriptor {true, D3D11_DEPTH_WRITE_MASK_ALL, D3D11_COMPARISON_LESS_EQUAL};
 
   hr = device_->CreateDepthStencilState(&depth_stencil_descriptor, depth_stencil_state_.put());
   assert(SUCCEEDED(hr));
@@ -136,7 +145,6 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     0,
   };
 
-  winrt::com_ptr<ID3D11Texture2D> depth_stencil_buffer;
   hr = device_->CreateTexture2D(&depth_stencil_buffer_descriptor, nullptr, depth_stencil_buffer.put());
 
   D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_descriptor {
@@ -155,7 +163,9 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     auto* p_render_target_view = render_target_view_.get();
     device_context_->OMSetRenderTargets(1, &p_render_target_view, depth_stencil_view_.get());
   }
+#endif
 
+  #if 0
   D3D11_RASTERIZER_DESC rasterizer_descriptor {
     D3D11_FILL_SOLID,
     D3D11_CULL_BACK,
@@ -165,7 +175,9 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   hr = device_->CreateRasterizerState(&rasterizer_descriptor, rasterizer_state_.put());
   assert(SUCCEEDED(hr));
   device_context_->RSSetState(rasterizer_state_.get());
+  #endif
 
+  #if 0
   {
     D3D11_BUFFER_DESC
     cb_buffer_descriptor {
@@ -191,7 +203,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
     assert(SUCCEEDED(hr));
   }
-
+  #endif
   ////Screen Modes
   //DXGI_FORMAT desiredColorFormat;       //the desired color format
   //unsigned int numberOfSupportedModes;  //The number of supported screen
@@ -208,6 +220,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   //    increase); // changes the screen resolution, if increase is true, a higher resolution is chosen, else the resolution is lowered; returns true iff the screen resolution should be changed
 
   // set up the default viewport to match the window
+  #if 0
   RECT window_rect;
   GetClientRect(window_handle, &window_rect);
   D3D11_VIEWPORT viewport {
@@ -218,8 +231,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     0.0f,
     1.0f};
   device_context_->RSSetViewports(1, &viewport);
-
-  CreateSamplerState();
+  #endif
 }
 
 GraphicsDeviceDX11::~GraphicsDeviceDX11()
@@ -251,21 +263,30 @@ void GraphicsDeviceDX11::Present()
 
 void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
+  WindowResized();
+  #if 0
   //check for fullscreen switch
   BOOL want_full_screen = false;
   swap_chain_->GetFullscreenState(&want_full_screen, NULL);
 
   // we don't set size here since we'll do that with SDL elsewhere
-  if (currently_in_fullscreen_ != !!want_full_screen)
+  if (currently_in_fullscreen_ == !want_full_screen)
   {
     swap_chain_->SetFullscreenState(want_full_screen, nullptr);
     currently_in_fullscreen_ = want_full_screen;
   }
 
-  device_context_->OMSetRenderTargets(0, 0, 0);
-
   // for some reason .Release() is not defined so we'll just attach nullptr instead...
-  render_target_view_.attach(nullptr);
+  //render_target_view_.attach(nullptr);
+  if(render_target_view_.get())
+  {
+    device_context_->OMSetRenderTargets(0, 0, 0);
+    render_target_view_.detach();
+  }
+  //get rid of old depth buffer
+  depth_stencil_view_->Release();
+  depth_stencil_buffer->Release();
+
 
   // passing 0 for width/height gets automatic size
   HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, /* DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH */ 0);
@@ -280,14 +301,76 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
   d3d11_frame_buffer->Release();
 
   // set up the default viewport to match the window
+  int width;
+  int height;
   {
-    int width;
-    int height;
     SDL_GetWindowSize(window, &width, &height);
 
     D3D11_VIEWPORT viewport {0.0f, 0.0f, (FLOAT)(width), (FLOAT)(height), 0.0f, 1.0f};
     device_context_->RSSetViewports(1, &viewport);
   }
+
+    //create new depth buffer
+  {
+    //set up Depth/Stencil buffer
+    D3D11_TEXTURE2D_DESC depthStencilDesc;
+    depthStencilDesc.Width = width;
+    depthStencilDesc.Height = height;
+    depthStencilDesc.MipLevels = 1;
+    depthStencilDesc.ArraySize = 1;
+    depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthStencilDesc.SampleDesc.Count = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+    depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    depthStencilDesc.CPUAccessFlags = 0;
+    depthStencilDesc.MiscFlags = 0;
+
+    D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+    // Depth test parameters
+    dsDesc.DepthEnable = true;
+    dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+    // Stencil test parameters
+    dsDesc.StencilEnable = true;
+    dsDesc.StencilReadMask = 255;
+    dsDesc.StencilWriteMask = 255;
+
+    // Stencil operations if pixel is front-facing
+    dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Stencil operations if pixel is back-facing
+    dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+    dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Create depth stencil state
+    auto dssPtr = depth_stencil_state_.get();
+    device_->CreateDepthStencilState(&dsDesc, &dssPtr);
+
+
+    HRESULT hr = device_->CreateTexture2D(&depthStencilDesc, nullptr, depth_stencil_buffer.put());
+
+    if (FAILED(hr))
+    {
+      Trace::Log(Severity::ERROR, "Error creating depth stencil buffer");
+    }
+
+    hr = device_->CreateDepthStencilView(depth_stencil_buffer.get(), nullptr, depth_stencil_view_.put());
+
+    if (FAILED(hr))
+    {
+      Trace::Log(Severity::ERROR, "Error creating depth stencil view");
+    }
+    device_context_->OMSetDepthStencilState(dssPtr, 0);
+  }
+#endif
 }
 
 Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
@@ -567,6 +650,180 @@ void GraphicsDeviceDX11::CreateSamplerState()
   }
   auto ssPtr = sampler_state_.get();
   device_context_->PSSetSamplers(0, 1, &ssPtr);
+}
+
+void GraphicsDeviceDX11::CleanupRenderTarget()
+{
+  if (render_target_view_.get())
+  {
+    device_context_->OMSetRenderTargets(0, 0, 0);
+    render_target_view_->Release();
+  }
+}
+
+void GraphicsDeviceDX11::CreateRenderTarget()
+{
+  HRESULT hr = swap_chain_->ResizeBuffers(0, 0, 0, DXGI_FORMAT::DXGI_FORMAT_UNKNOWN, 0);
+
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::FAILURE, "failed to resize swapchain buffers");
+  }
+  //get backbuffer from swap chain
+  winrt::com_ptr<ID3D11Texture2D> backBuffer;
+  hr = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), RCAST(backBuffer.put(), void**));
+
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::FAILURE,"IDXGISwapChain::GetBuffer failed");
+    throw; //exit immediately
+  }
+
+  hr = device_->CreateRenderTargetView(backBuffer.get(), nullptr, render_target_view_.put());
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::FAILURE,"failed to create render target view");
+    throw; //exit immediately
+  }
+  SetupViewport();
+}
+
+void GraphicsDeviceDX11::SetupViewport()
+{
+  RECT clientRect;
+  //set up viewport
+  int w, h;
+  SDL_GetWindowSize(window_, &w, &h);
+
+
+  viewport.Width = w;
+  viewport.Height = h;
+  viewport.TopLeftX = 0;
+  viewport.TopLeftY = 0;
+  viewport.MinDepth = 0;
+  viewport.MaxDepth = 1;
+  device_context_->RSSetViewports(1, &viewport);
+}
+
+void GraphicsDeviceDX11::WindowResized()
+{
+  SetupViewport();
+  CleanupRenderTarget();
+  DeleteDepthBuffer();
+  CreateDepthBuffer();
+  CreateRenderTarget();
+  device_context_->OMSetRenderTargets(1, render_target_view_.put(), depth_stencil_view_.get());
+}
+
+void GraphicsDeviceDX11::CreateDepthBuffer()
+{
+  //set up Depth/Stencil buffer
+  D3D11_TEXTURE2D_DESC depthStencilDesc;
+  depthStencilDesc.Width = 2048;
+  depthStencilDesc.Height = 2048;
+  depthStencilDesc.MipLevels = 1;
+  depthStencilDesc.ArraySize = 1;
+  depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  depthStencilDesc.SampleDesc.Count = 1;
+  depthStencilDesc.SampleDesc.Quality = 0;
+  depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+  depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+  depthStencilDesc.CPUAccessFlags = 0;
+  depthStencilDesc.MiscFlags = 0;
+
+  D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+  // Depth test parameters
+  dsDesc.DepthEnable = true;
+  dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+  // Stencil test parameters
+  dsDesc.StencilEnable = true;
+  dsDesc.StencilReadMask = 255;
+  dsDesc.StencilWriteMask = 255;
+
+  // Stencil operations if pixel is front-facing
+  dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+  dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+  dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+  dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+  // Stencil operations if pixel is back-facing
+  dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+  dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+  dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+  dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+  // Create depth stencil state
+  device_->CreateDepthStencilState(&dsDesc, depth_stencil_state_.put());
+
+  HRESULT hr = device_->CreateTexture2D(&depthStencilDesc, nullptr, depth_stencil_buffer.put());
+
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::FAILURE, "Error creating depth stencil buffer");
+  }
+
+  hr = device_->CreateDepthStencilView(depth_stencil_buffer.get(), nullptr, depth_stencil_view_.put());
+
+  if (FAILED(hr))
+  {
+    Trace::Log(Severity::FAILURE, "Error creating depth stencil view");
+  }
+  device_context_->OMSetDepthStencilState(depth_stencil_state_.get(), 0);
+}
+
+void GraphicsDeviceDX11::DeleteDepthBuffer()
+{
+  depth_stencil_view_->Release();
+  depth_stencil_buffer->Release();
+  //depthStencilState->Release();
+}
+
+void GraphicsDeviceDX11::CreateConstantBuffers() 
+{
+  D3D11_BUFFER_DESC
+  cb_buffer_descriptor
+  {
+    sizeof(ShaderConstantBuffers::PerObjectConstants::RawData),
+    D3D11_USAGE_DEFAULT,
+    D3D11_BIND_CONSTANT_BUFFER,
+    0,
+    0,
+    0
+  };
+  HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[0].put());
+  assert(SUCCEEDED(hr));
+
+  {
+  D3D11_BUFFER_DESC
+  cb_buffer_descriptor 
+  {
+    sizeof(ShaderConstantBuffers::PerFrameConstants::RawData),
+    D3D11_USAGE_DEFAULT,
+    D3D11_BIND_CONSTANT_BUFFER,
+    0,
+    0,
+    0
+  };
+  hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
+  assert(SUCCEEDED(hr));
+  }
+
+}
+
+void GraphicsDeviceDX11::CreateRasterizerState() 
+{
+  D3D11_RASTERIZER_DESC rasterizer_descriptor {
+    D3D11_FILL_SOLID,
+    D3D11_CULL_BACK,
+    true,
+  };
+
+  HRESULT hr = device_->CreateRasterizerState(&rasterizer_descriptor, rasterizer_state_.put());
+  assert(SUCCEEDED(hr));
+  device_context_->RSSetState(rasterizer_state_.get());
 }
 
 } // namespace Octane
