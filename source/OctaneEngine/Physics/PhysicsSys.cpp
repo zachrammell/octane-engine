@@ -5,11 +5,17 @@
 #include <OctaneEngine/EntitySys.h>
 #include <OctaneEngine/FramerateController.h>
 #include <OctaneEngine/SystemOrder.h>
-
 #include <OctaneEngine/Trace.h>
+#include <algorithm> // min_element
 
 namespace Octane
 {
+
+namespace
+{
+
+const float kMaxRaycastDistance = 1000.0f;
+
 DirectX::XMFLOAT3 ToXmFloat3(const btVector3& data)
 {
   return DirectX::XMFLOAT3(data.x(), data.y(), data.z());
@@ -24,6 +30,7 @@ DirectX::XMVECTOR ToXmVector(const btVector3& data)
 {
   return DirectX::XMLoadFloat3(&ToXmFloat3(data));
 }
+} // namespace
 
 PhysicsSys::PhysicsSys(Engine* engine)
   : ISystem(engine),
@@ -471,5 +478,56 @@ void PhysicsSys::FreeWorld()
     delete broad_phase_;
     broad_phase_ = nullptr;
   }
+}
+float PhysicsSys::GetDistFromGround(EntityID ent_id)
+{
+  GameEntity& ent = Get<EntitySys>()->GetEntity(ent_id);
+  TransformComponent& trans = Get<ComponentSys>()->GetTransform(ent.GetComponentHandle(ComponentKind::Transform));
+  PhysicsComponent& phys = Get<ComponentSys>()->GetPhysics(ent.GetComponentHandle(ComponentKind::Physics));
+
+  btVector3 pos_center = {trans.pos.x, trans.pos.y, trans.pos.z};
+  btVector3 pos_ne = pos_center + btVector3(trans.scale.x * 0.5f, 0, trans.scale.y * 0.5f);
+  btVector3 pos_se = pos_center + btVector3(trans.scale.x * 0.5f, 0, -trans.scale.y * 0.5f);
+  btVector3 pos_nw = pos_center + btVector3(-trans.scale.x * 0.5f, 0, trans.scale.y * 0.5f);
+  btVector3 pos_sw = pos_center + btVector3(-trans.scale.x * 0.5f, 0, -trans.scale.y * 0.5f);
+
+  // check center and all four corners, return whichever distance is least
+  eastl::array<float, 5> distances;
+  distances[0] = RaycastDistFromGround(pos_center, phys.rigid_body);
+  distances[1] = RaycastDistFromGround(pos_ne, phys.rigid_body);
+  distances[2] = RaycastDistFromGround(pos_se, phys.rigid_body);
+  distances[3] = RaycastDistFromGround(pos_nw, phys.rigid_body);
+  distances[4] = RaycastDistFromGround(pos_sw, phys.rigid_body);
+
+  return *std::min_element(distances.begin(), distances.end());
+}
+float PhysicsSys::RaycastDistFromGround(btVector3 start, btCollisionObject const* obj_to_ignore)
+{
+
+  btVector3 dest = {start.x(), start.y() - kMaxRaycastDistance, start.z()};
+
+  btCollisionWorld::AllHitsRayResultCallback res(start, dest);
+  // this stores the collision results in the 'res' object
+  dynamics_world_->rayTest(start, dest, res);
+
+  float dist = eastl::numeric_limits<float>::max();
+  if (res.hasHit())
+  {
+    for (int i = 0; i < res.m_collisionObjects.size(); ++i)
+    {
+      btCollisionObject const* obj = res.m_collisionObjects[i];
+      // filter the ray-cast to not include the object we're searching FROM
+      if (obj != obj_to_ignore)
+      {
+        btVector3 point = res.m_hitPointWorld[i];
+        float cur_dist = start.y() - point.y();
+        if (cur_dist < dist)
+        {
+          dist = cur_dist;
+        }
+      }
+    }
+  }
+  return dist;
 }
 } // namespace Octane

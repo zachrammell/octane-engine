@@ -45,6 +45,10 @@ public:
   bool HasCollisions(ComponentHandle phys_component) const;
   bool HasCollision(ComponentHandle lhs, ComponentHandle rhs);
 
+  // gets the distance from object center to the nearest body below it
+  // returns float max if there is no ground beneath
+  float GetDistFromGround(EntityID ent);
+
 public:
   DirectX::XMVECTOR GetVelocity(const PhysicsComponent* compo) const;
   // used by the MakePhysics functions in ComponentSys
@@ -58,6 +62,8 @@ public:
 private:
   void InitializeWorld();
   void FreeWorld();
+
+  float RaycastDistFromGround(btVector3 start, btCollisionObject const* obj_to_ignore);
 
   static void BulletCallback(btDynamicsWorld* world, btScalar time_step);
   static void BulletCollisionCallback(

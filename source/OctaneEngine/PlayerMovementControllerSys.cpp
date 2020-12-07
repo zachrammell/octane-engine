@@ -64,11 +64,6 @@ btVector3 dx_to_bt_vec3(DirectX::XMVECTOR const& in)
   return btVector3(in.m128_f32[0], in.m128_f32[1], in.m128_f32[2]);
 }
 
-bool isPlayerCollidingWithGround(TransformComponent const& player_trans)
-{
-  return player_trans.pos.y <= HACKY_GROUND_Y_LEVEL;
-}
-
 // returns true if the entity will damage the player by colliding
 bool isDamagingObject(GameEntity& colliding_entity)
 {
@@ -117,6 +112,7 @@ void PlayerMovementControllerSys::Update()
   {
     return;
   }
+  EntityID const player_id = Get<EntitySys>()->GetPlayerID();
   GameEntity* const player = Get<EntitySys>()->GetPlayer();
   if (!player)
   {
@@ -134,7 +130,9 @@ void PlayerMovementControllerSys::Update()
 
   const bool is_moving = !DirectX::XMVector3Equal(move_dir, ZERO_VEC);
 
-  const bool on_ground = isPlayerCollidingWithGround(player_trans);
+  const float dist_from_ground = Get<PhysicsSys>()->GetDistFromGround(player_id);
+  // add an epsilon just to be sure
+  const bool on_ground = (dist_from_ground <= player_trans.scale.y * 0.5f + 0.0001);
 
   MoveState nextstate = movementstate_;
 
@@ -296,14 +294,6 @@ void PlayerMovementControllerSys::Update()
     EnterState(nextstate);
   }
 
-  if (on_ground)
-  {
-    // stop downward velocity
-    if (new_vel.m128_f32[1] < 0)
-    {
-      new_vel.m128_f32[1] = 0;
-    }
-  }
   else
   {
     // not on ground, so we can be blown by wind
