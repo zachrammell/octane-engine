@@ -9,6 +9,7 @@ class PhysicsComponent
 {
 public:
   void SetRotation(const DirectX::XMFLOAT4& rotation) const;
+  void SetScale(const DirectX::XMFLOAT3& scale) const;
   void SetRotation(const DirectX::XMFLOAT3& euler_angle) const;
   void ApplyForce(const DirectX::XMFLOAT3& force) const;
   void ApplyTorque(const DirectX::XMFLOAT3& torque) const;

@@ -16,6 +16,11 @@ void PhysicsComponent::SetRotation(const DirectX::XMFLOAT4& rotation) const
   rigid_body->setWorldTransform(transform);
 }
 
+void PhysicsComponent::SetScale(const DirectX::XMFLOAT3& scale) const
+{
+  rigid_body->getCollisionShape()->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+}
+
 void PhysicsComponent::SetRotation(const DirectX::XMFLOAT3& euler_angle) const
 {
   btTransform transform = rigid_body->getWorldTransform();
