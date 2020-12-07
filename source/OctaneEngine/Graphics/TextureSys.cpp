@@ -10,12 +10,12 @@
 */
 /******************************************************************************/
 
-#include <d3d11.h>
 #include <cstdio>
+#include <d3d11.h>
 
-#include <OctaneEngine/Graphics/TextureSys.h>
-#include <OctaneEngine/Graphics/RenderSys.h>
 #include <OctaneEngine/Engine.h>
+#include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/Graphics/TextureSys.h>
 #include <OctaneEngine/SystemOrder.h>
 #include <OctaneEngine/Trace.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -23,37 +23,23 @@
 
 #include <assimp/material.h>
 
+#include <filesystem>
+
 namespace dx = DirectX;
+namespace fs = std::filesystem;
 
 namespace Octane
 {
 TextureSys::TextureSys(class Engine* parent_engine) : ISystem(parent_engine)
-{  
+{
   //generate list of textures to load
-  if(system(eastl::string{eastl::string{"dir "+path_}+"/B > " + datapath_.data()}.data()) == 0)
+  for (auto& p : fs::directory_iterator("assets/Textures"))
   {
-    //std::ifstream file(datapath_.data());
-    constexpr int max_name_length = 128;
-    char line[max_name_length];
-    //open that list we just made
-    FILE* file = fopen(datapath_.data(),"r");
-    if(file)
-    {
-      while(fgets(line,max_name_length,file))
-      {
-        eastl::string_view texture_path(line);
-        auto nameEnd = texture_path.find_last_of(".");
-        auto pathEnd = texture_path.find_last_of("\n");
-        texturenames_.push_back({texture_path.begin(), texture_path.begin() + nameEnd});        
-        textureToPath_[texturenames_.back()] = path_ + "\\" + eastl::string {texture_path.begin(), texture_path.begin() + pathEnd};
-      }
-    }
+    auto name = p.path().filename().replace_extension("").generic_u8string();
+    auto path = p.path().generic_u8string();
+    texturenames_.emplace_back(name.c_str());
+    textureToPath_[texturenames_.back()].assign(path.c_str());
   }
-  else
-  {
-    Trace::Log(Severity::FAILURE, "Failed to generate textures list\n");
-  }
-
 }
 
 TextureSys::~TextureSys() {}
@@ -76,13 +62,12 @@ TextureDX11* TextureSys::Get(Texture_Key key)
   {
     return &*texture;
   }
-  
-  auto loadedTex = LoadTexture(key,textureToPath_[eastl::string(key)]);
-  return loadedTex;
 
+  auto loadedTex = LoadTexture(key, textureToPath_[eastl::string(key)]);
+  return loadedTex;
 }
 
-TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view path)
+TextureDX11* TextureSys::LoadTexture(eastl::string_view name, eastl::string_view path)
 {
   int width, height, channels;
   auto tex = stbi_load(path.data(), &width, &height, &channels, 4);
@@ -90,20 +75,20 @@ TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view 
   if (!tex)
   {
     //return an invalid texture
-    if(path != INVALID_TEXTURE)
+    if (path != INVALID_TEXTURE)
     {
       Trace::Log(Severity::WARNING, "Couldn't find texture: %s to load, defaulting to \"uninitialized\" texture\n");
       return Get(INVALID_TEXTURE);
     }
     return nullptr;
   }
- 
+
   auto& dx11device = reinterpret_cast<RenderSys*>(engine_.GetSystem(SystemOrder::RenderSys))->GetGraphicsDeviceDX11();
   auto device = dx11device.GetD3D11Device();
   auto deviceContext = dx11device.GetD3D11Context();
   TextureDX11* texture = new TextureDX11;
 
-  if(!texture)
+  if (!texture)
   {
     Trace::Log(Severity::ERROR, "Failed to create TextureDX11: %s", path);
   }
@@ -124,7 +109,7 @@ TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view 
   HRESULT hr = device->CreateTexture2D(&desc, nullptr, texture->data.put());
   if (FAILED(hr))
   {
-    Trace::Log(Severity::ERROR,"Failed to create texture: %s\n",path);
+    Trace::Log(Severity::ERROR, "Failed to create texture: %s\n", path);
   }
 
   deviceContext->UpdateSubresource(texture->data.get(), 0, nullptr, tex, width * channels * sizeof(UCHAR), 0);
@@ -139,7 +124,7 @@ TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view 
   hr = device->CreateShaderResourceView(texture->data.get(), &srvdesc, texture->view.put());
   if (FAILED(hr))
   {
-    Trace::Log(Severity::ERROR,"Failed to create shader resource view for texture: %s\n",path);
+    Trace::Log(Severity::ERROR, "Failed to create shader resource view for texture: %s\n", path);
   }
 
   // Generate mipmaps for this texture.
@@ -150,12 +135,12 @@ TextureDX11* TextureSys::LoadTexture(eastl::string_view name,eastl::string_view 
 
   stbi_image_free(tex);
 
-  if(texture)
+  if (texture)
   {
     auto texName = eastl::find(texturenames_.begin(), texturenames_.end(), name);
     if (!texName)
     {
-      texturenames_.push_back({name.begin(),name.end()});
+      texturenames_.push_back({name.begin(), name.end()});
       textureToPath_[texturenames_.back()] = path;
       texture->key = texturenames_.back();
     }
