@@ -2,7 +2,6 @@
 #include <OctaneEngine/ComponentSys.h>
 #include <OctaneEngine/Engine.h>
 #include <OctaneEngine/EntitySys.h>
-//#include <OctaneEngine/Physics/NarrowPhase.h>
 #include <OctaneEngine/Physics/PhysicsSys.h>
 #include <OctaneEngine/TransformHelpers.h>
 #include <OctaneEngine/behaviors/BearBehavior.h>

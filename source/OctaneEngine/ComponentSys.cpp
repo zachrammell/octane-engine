@@ -13,6 +13,7 @@
 #include <OctaneEngine/behaviors/EnemySpawner.h>
 #include <OctaneEngine/behaviors/PlaneBehavior.h>
 #include <OctaneEngine/behaviors/WindTunnelBhv.h>
+#include <OctaneEngine/behaviors/TemporaryBehavior.h>
 
 namespace Octane
 {
@@ -243,6 +244,10 @@ ComponentHandle ComponentSys::MakeBehavior(BHVRType type)
       entsys->GetPlayerID());
     break;
   }
+  case BHVRType::TEMPORARY:
+    {
+    beh.behavior = new TemporaryBehavior(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()), FLT_MAX);
+    } break;
   case BHVRType::ENEMYSPAWNER:
     beh.behavior = new EnemySpawner(Get<BehaviorSys>(), static_cast<ComponentHandle>(behavior_comps_.size()));
     break;
