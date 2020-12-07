@@ -443,7 +443,7 @@ void TestScene::Update(float dt)
     }
     if (ImGui::CollapsingHeader("Option"))
     {
-      AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
+      //AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       //ImGui::Text("Mouse Sensitivity: %d", pmhandler->ShowMouseSense());
       if (ImGui::Button("+ Mouse Sensitivity"))
       {

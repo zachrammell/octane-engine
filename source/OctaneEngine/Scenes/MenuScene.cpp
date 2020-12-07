@@ -46,8 +46,8 @@ void MenuScene::Update(float dt)
   int const h = Get<WindowManager>()->GetHeight();
   if (ImGui::Begin("Main Menu", NULL, flags))
   {
-
     ImGui::SetWindowPos(ImVec2(0.5f * w, 0.5f * h), ImGuiCond_Always);
+    //ImGui::SetWindowSize(ImVec2(ImGuiWidth, ImGuiHeight));
 
     // For playing hover
     if (ImGui::IsAnyItemHovered())
@@ -59,12 +59,12 @@ void MenuScene::Update(float dt)
       AudioPlayer::Reset_Hover();
     }
 
-    if (ImGui::Button("Play"))
+    if (ImGui::Button("Play", ImVec2(70, 40)))
     {
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONSELECT);
       parent_manager_.SetNextScene(selected_scene_);
     }
-    if (ImGui::Button("Quit") || Get<InputHandler>()->KeyReleased(SDLK_ESCAPE))
+    if (ImGui::Button("Quit", ImVec2(70, 40)) || Get<InputHandler>()->KeyReleased(SDLK_ESCAPE))
     {
       Octane::AudioPlayer::Play_Event(AK::EVENTS::PLAY_BUTTONBACK);
       parent_manager_.Quit();
