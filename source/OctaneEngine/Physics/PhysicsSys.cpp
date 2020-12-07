@@ -288,6 +288,11 @@ bool PhysicsSys::HasCollisions(ComponentHandle phys_comp) const
 
 bool PhysicsSys::HasCollision(ComponentHandle lhs, ComponentHandle rhs)
 {
+  if (lhs == rhs)
+  {
+    return false;
+  }
+
   auto iters = GetCollisions(lhs);
   for (auto it = iters.first; it != iters.second; ++it)
   {
