@@ -472,12 +472,12 @@ void TestScene::Update(float dt)
       ImGui::Text("****************************************************************");
       ImGui::Text("**************          F7 for Fullscreen        ***************");
       ImGui::Text("****************************************************************");
-      ImGui::Text("");
+      /*ImGui::Text("");
       ImGui::Text("Score: %d", enemy_destroyed_func.score);
       ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
       ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
       ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
-      ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
+      ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);*/
     
     }
     if (ImGui::Button("Main Menu"))
