@@ -26,7 +26,9 @@
 
 
 // Defines
-//#define AK_OPTIMIZED
+#ifndef _DEBUG
+#define AK_OPTIMIZED
+#endif
 
 #ifndef AK_OPTIMIZED
 #include <AK/Comm/AkCommunication.h> // Communications, not for release!
