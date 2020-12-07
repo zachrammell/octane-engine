@@ -61,7 +61,7 @@ private:
   Health playerHP_ = Health(5);
   float remaining_invuln_time_ = 0.0f;
   bool is_invuln_ = false;
-  float MOUSE_SENS = 1.0f;
+  float MOUSE_SENS = 0.8f;
 };
 
 } // namespace Octane

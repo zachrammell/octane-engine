@@ -323,34 +323,34 @@ void TestScene::Update(float dt)
     AudioPlayer::Reset_Hover();
   }
 
-  ImGui::Begin(
-    "Instructions Window",
-    NULL,
-    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
-      | ImGuiWindowFlags_NoNav);
+  //ImGui::Begin(
+  //  "Instructions Window",
+  //  NULL,
+  //  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize
+  //    | ImGuiWindowFlags_NoNav);
 
-  ImGui::Text("WASD to walk around");
-  ImGui::Text("Spacebar to jump, Shift to sneak");
-  //ImGui::Text("Hold space to hover in the air");
-  ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
-  ImGui::Text("E to spawn a wind tunnel that go to where the player is facing");
-  ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
-  ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
-  ImGui::Text("F to switch weapons.");
-  ImGui::Text("Rifle can shoot airplane with auto mode");
-  ImGui::Text("****************************************************************");
-  ImGui::Text("**************          F7 for Fullscreen        ***************");
-  ImGui::Text("****************************************************************");
-  ImGui::Text("");
-  ImGui::Text("Score: %d", enemy_destroyed_func.score);
-  ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
-  ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
-  ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
-  ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
+  //ImGui::Text("WASD to walk around");
+  //ImGui::Text("Spacebar to jump, Shift to sneak");
+  ////ImGui::Text("Hold space to hover in the air");
+  //ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
+  //ImGui::Text("E to spawn a wind tunnel that go to where the player is facing");
+  //ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
+  //ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
+  //ImGui::Text("F to switch weapons.");
+  //ImGui::Text("Rifle can shoot airplane with auto mode");
+  //ImGui::Text("****************************************************************");
+  //ImGui::Text("**************          F7 for Fullscreen        ***************");
+  //ImGui::Text("****************************************************************");
+  //ImGui::Text("");
+  //ImGui::Text("Score: %d", enemy_destroyed_func.score);
+  //ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
+  //ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
+  //ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
+  //ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
 
-  ImGui::End();
+  //ImGui::End();
 
-  ImGui::SetWindowPos("Instructions Window", {0.0f, ImGui::GetWindowSize().y * 0.5f});
+  //ImGui::SetWindowPos("Instructions Window", {0.0f, ImGui::GetWindowSize().y * 0.5f});
 
   Health& player_HP = Get<PlayerMovementControllerSys>()->GetHealth();
   for (int i = 0; i < player_HP.GetMaxHP(); ++i)
@@ -457,11 +457,28 @@ void TestScene::Update(float dt)
         pmhandler->DecreaseMouseSense();
         mouse_sens -= 5;
       }
-
-      /*if (ImGui::Button("light controller"))
-      {
-      
-      }*/
+    }
+    if (ImGui::CollapsingHeader("How to Play"))
+    {
+      ImGui::Text("WASD to walk around");
+      ImGui::Text("Spacebar to jump, Shift to sneak");
+      //ImGui::Text("Hold space to hover in the air");
+      ImGui::Text("Left mouse button to shoot, Right mouse button to zoom");
+      ImGui::Text("E to spawn a wind tunnel that go to where the player is facing");
+      ImGui::Text("G to spawn a wind tunnel that locks onto the closest enemy");
+      ImGui::Text("The wireframe box is wind, it will carry your projectiles towards enemies.");
+      ImGui::Text("F to switch weapons.");
+      ImGui::Text("Rifle can shoot airplane with auto mode");
+      ImGui::Text("****************************************************************");
+      ImGui::Text("**************          F7 for Fullscreen        ***************");
+      ImGui::Text("****************************************************************");
+      ImGui::Text("");
+      ImGui::Text("Score: %d", enemy_destroyed_func.score);
+      ImGui::Text("High Score: %d", enemy_destroyed_func.highScore);
+      ImGui::Text("Wave: %d", enemy_destroyed_func.wave);
+      ImGui::Text("Highest wave achieved: %d", enemy_destroyed_func.highestWave);
+      ImGui::Text("Enemies remaining: %d", enemy_destroyed_func.enemiesLeft);
+    
     }
     if (ImGui::Button("Main Menu"))
     {
