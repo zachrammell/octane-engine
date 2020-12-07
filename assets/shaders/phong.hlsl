@@ -53,7 +53,7 @@ float4 ps_main(vs_out input) : SV_TARGET
   
   const float3 vHat = normalize(CameraPosition.xyz - input.position_world.xyz);
   const float3 mHat = normalize(input.normal);
-  const float3 cAmb = diffCoeff * float3(0.1f, 0.1f, 0.1f);
+  const float3 cAmb = diffCoeff * float3(0.15f, 0.13f, 0.23f);
   const float3 lHat = normalize(LightPosition.xyz - input.position_world.xyz);
   const float mDotL = max(dot(mHat, lHat), 0.f);
   const float3 rlHat = normalize(2.f * mDotL * mHat - lHat);
