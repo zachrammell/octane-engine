@@ -712,7 +712,12 @@ void GraphicsDeviceDX11::WindowResized()
   DeleteDepthBuffer();
   CreateDepthBuffer();
   CreateRenderTarget();
-  device_context_->OMSetRenderTargets(1, render_target_view_.put(), depth_stencil_view_.get());
+
+  // the windows api is not const-correct. it won't modify this,
+  // but we still need a non-const pointer as our 1-element array
+  auto* p_render_target_view = render_target_view_.get();
+  device_context_->OMSetRenderTargets(1, &p_render_target_view, depth_stencil_view_.get());
+  assert(p_render_target_view == render_target_view_.get()); // the pointer should be unchanged
 }
 
 void GraphicsDeviceDX11::CreateDepthBuffer()
