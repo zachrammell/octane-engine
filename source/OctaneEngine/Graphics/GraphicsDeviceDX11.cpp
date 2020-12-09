@@ -12,7 +12,7 @@
 #include <OctaneEngine/FormattedOutput.h>
 #include <OctaneEngine/Trace.h>
 
-#define RCAST(x,type) reinterpret_cast<type>(x)
+#define RCAST(x, type) reinterpret_cast<type>(x)
 
 using namespace Octane::FormattedOutput;
 
@@ -117,7 +117,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   CreateSamplerState();
   CreateConstantBuffers();
   CreateRasterizerState();
-  #if 0
+#if 0
   winrt::com_ptr<ID3D11Texture2D> back_buffer;
   hr = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), back_buffer.put_void());
   assert(SUCCEEDED(hr));
@@ -165,7 +165,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   }
 #endif
 
-  #if 0
+#if 0
   D3D11_RASTERIZER_DESC rasterizer_descriptor {
     D3D11_FILL_SOLID,
     D3D11_CULL_BACK,
@@ -175,9 +175,9 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
   hr = device_->CreateRasterizerState(&rasterizer_descriptor, rasterizer_state_.put());
   assert(SUCCEEDED(hr));
   device_context_->RSSetState(rasterizer_state_.get());
-  #endif
+#endif
 
-  #if 0
+#if 0
   {
     D3D11_BUFFER_DESC
     cb_buffer_descriptor {
@@ -203,24 +203,24 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
     assert(SUCCEEDED(hr));
   }
-  #endif
-  ////Screen Modes
-  //DXGI_FORMAT desiredColorFormat;       //the desired color format
-  //unsigned int numberOfSupportedModes;  //The number of supported screen
-  //DXGI_MODE_DESC* supportedModes;       //list of all supported screen
-  //DXGI_MODE_DESC currentModeDescription; //description of the current mode
-  //unsigned int currentModeIndex;         // the index of the current mode in the list of all supported screen modes
-  //bool startInFullscreen;                // true iff the game should start in fullscreen mode
-  //BOOL currentlyInFullscreen;            // true iff the game is currently in fullscreen mode
-  //bool changeMode;                       // true iff the screen resolution should be changed this frame
+#endif
+////Screen Modes
+//DXGI_FORMAT desiredColorFormat;       //the desired color format
+//unsigned int numberOfSupportedModes;  //The number of supported screen
+//DXGI_MODE_DESC* supportedModes;       //list of all supported screen
+//DXGI_MODE_DESC currentModeDescription; //description of the current mode
+//unsigned int currentModeIndex;         // the index of the current mode in the list of all supported screen modes
+//bool startInFullscreen;                // true iff the game should start in fullscreen mode
+//BOOL currentlyInFullscreen;            // true iff the game is currently in fullscreen mode
+//bool changeMode;                       // true iff the screen resolution should be changed this frame
 
-  //// functions to change screen resolutions
-  //void changeResolution(
-  //  bool
-  //    increase); // changes the screen resolution, if increase is true, a higher resolution is chosen, else the resolution is lowered; returns true iff the screen resolution should be changed
+//// functions to change screen resolutions
+//void changeResolution(
+//  bool
+//    increase); // changes the screen resolution, if increase is true, a higher resolution is chosen, else the resolution is lowered; returns true iff the screen resolution should be changed
 
-  // set up the default viewport to match the window
-  #if 0
+// set up the default viewport to match the window
+#if 0
   RECT window_rect;
   GetClientRect(window_handle, &window_rect);
   D3D11_VIEWPORT viewport {
@@ -231,7 +231,7 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
     0.0f,
     1.0f};
   device_context_->RSSetViewports(1, &viewport);
-  #endif
+#endif
 }
 
 GraphicsDeviceDX11::~GraphicsDeviceDX11()
@@ -264,7 +264,7 @@ void GraphicsDeviceDX11::Present()
 void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 {
   WindowResized();
-  #if 0
+#if 0
   //check for fullscreen switch
   BOOL want_full_screen = false;
   swap_chain_->GetFullscreenState(&want_full_screen, NULL);
@@ -540,11 +540,17 @@ void GraphicsDeviceDX11::UseShader(Shader& shader)
   GetD3D11Context()->PSSetShader(shader.pixel_shader_.get(), nullptr, 0);
 }
 
-void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)const
+void GraphicsDeviceDX11::EmplaceMesh(eastl::hash_map<Mesh_Key, MeshPtr>& meshes, Mesh_Key placement, Mesh const& mesh)
+  const
 {
   if (mesh.index_buffer.empty() || mesh.vertex_buffer.empty())
     return;
-  meshes[placement] = MeshPtr(new MeshDX11 {sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size(),mesh.textures,mesh.material});
+  meshes[placement] = MeshPtr(new MeshDX11 {
+    sizeof(Mesh::Vertex),
+    mesh.vertex_buffer.size(),
+    mesh.index_buffer.size(),
+    mesh.textures,
+    mesh.material});
   auto& newMesh = meshes.find(placement)->second;
   //new (placement) MeshDX11({sizeof(Mesh::Vertex), mesh.vertex_buffer.size(), mesh.index_buffer.size()});
   HRESULT hr;
@@ -632,7 +638,7 @@ void GraphicsDeviceDX11::ClearBuffers()
   device_context_->ClearDepthStencilView(depth_stencil_view_.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void GraphicsDeviceDX11::CreateSamplerState() 
+void GraphicsDeviceDX11::CreateSamplerState()
 {
   D3D11_SAMPLER_DESC samplerdesc;
   ZeroMemory(&samplerdesc, sizeof(D3D11_SAMPLER_DESC));
@@ -646,7 +652,7 @@ void GraphicsDeviceDX11::CreateSamplerState()
   HRESULT hr = device_->CreateSamplerState(&samplerdesc, sampler_state_.put());
   if (FAILED(hr))
   {
-    Trace::Log(Severity::ERROR,"failed to create a sampler state");
+    Trace::Log(Severity::ERROR, "failed to create a sampler state");
   }
   auto ssPtr = sampler_state_.get();
   device_context_->PSSetSamplers(0, 1, &ssPtr);
@@ -675,14 +681,14 @@ void GraphicsDeviceDX11::CreateRenderTarget()
 
   if (FAILED(hr))
   {
-    Trace::Log(Severity::FAILURE,"IDXGISwapChain::GetBuffer failed");
+    Trace::Log(Severity::FAILURE, "IDXGISwapChain::GetBuffer failed");
     throw; //exit immediately
   }
 
   hr = device_->CreateRenderTargetView(backBuffer.get(), nullptr, render_target_view_.put());
   if (FAILED(hr))
   {
-    Trace::Log(Severity::FAILURE,"failed to create render target view");
+    Trace::Log(Severity::FAILURE, "failed to create render target view");
     throw; //exit immediately
   }
   SetupViewport();
@@ -694,7 +700,6 @@ void GraphicsDeviceDX11::SetupViewport()
   //set up viewport
   int w, h;
   SDL_GetWindowSize(window_, &w, &h);
-
 
   viewport.Width = w;
   viewport.Height = h;
@@ -786,39 +791,34 @@ void GraphicsDeviceDX11::DeleteDepthBuffer()
   depth_stencil_state_.attach(nullptr);
 }
 
-void GraphicsDeviceDX11::CreateConstantBuffers() 
+void GraphicsDeviceDX11::CreateConstantBuffers()
 {
   D3D11_BUFFER_DESC
-  cb_buffer_descriptor
-  {
+  cb_buffer_descriptor {
     sizeof(ShaderConstantBuffers::PerObjectConstants::RawData),
     D3D11_USAGE_DEFAULT,
     D3D11_BIND_CONSTANT_BUFFER,
     0,
     0,
-    0
-  };
+    0};
   HRESULT hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[0].put());
   assert(SUCCEEDED(hr));
 
   {
-  D3D11_BUFFER_DESC
-  cb_buffer_descriptor 
-  {
-    sizeof(ShaderConstantBuffers::PerFrameConstants::RawData),
-    D3D11_USAGE_DEFAULT,
-    D3D11_BIND_CONSTANT_BUFFER,
-    0,
-    0,
-    0
-  };
-  hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
-  assert(SUCCEEDED(hr));
+    D3D11_BUFFER_DESC
+    cb_buffer_descriptor {
+      sizeof(ShaderConstantBuffers::PerFrameConstants::RawData),
+      D3D11_USAGE_DEFAULT,
+      D3D11_BIND_CONSTANT_BUFFER,
+      0,
+      0,
+      0};
+    hr = GetD3D11Device()->CreateBuffer(&cb_buffer_descriptor, nullptr, constant_buffers_[1].put());
+    assert(SUCCEEDED(hr));
   }
-
 }
 
-void GraphicsDeviceDX11::CreateRasterizerState() 
+void GraphicsDeviceDX11::CreateRasterizerState()
 {
   D3D11_RASTERIZER_DESC rasterizer_descriptor {
     D3D11_FILL_SOLID,
