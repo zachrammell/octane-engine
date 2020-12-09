@@ -236,10 +236,10 @@ GraphicsDeviceDX11::GraphicsDeviceDX11(SDL_Window* window)
 
 GraphicsDeviceDX11::~GraphicsDeviceDX11()
 {
-  swap_chain_->Release();
+  swap_chain_.attach(nullptr);
   swap_chain_->SetFullscreenState(false, nullptr);
-  device_->Release();
-  device_context_->Release();
+  device_.attach(nullptr);
+  device_context_.attach(nullptr);
 }
 
 void GraphicsDeviceDX11::ClearScreen()
@@ -284,8 +284,8 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
     render_target_view_.detach();
   }
   //get rid of old depth buffer
-  depth_stencil_view_->Release();
-  depth_stencil_buffer->Release();
+  depth_stencil_view_.attach(nullptr);
+  depth_stencil_buffer.attach(nullptr);
 
 
   // passing 0 for width/height gets automatic size
@@ -298,7 +298,7 @@ void GraphicsDeviceDX11::ResizeFramebuffer(SDL_Window* window)
 
   hr = device_->CreateRenderTargetView(d3d11_frame_buffer, nullptr, render_target_view_.put());
   assert(SUCCEEDED(hr));
-  d3d11_frame_buffer->Release();
+  d3d11_frame_buffer.attach(nullptr);
 
   // set up the default viewport to match the window
   int width;
@@ -415,7 +415,7 @@ Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
     }
     if (shader.vertex_shader_buffer_)
     {
-      shader.vertex_shader_buffer_->Release();
+      shader.vertex_shader_buffer_.attach(nullptr);
     }
     assert(!"Couldn't compile vertex shader");
   }
@@ -442,7 +442,7 @@ Shader GraphicsDeviceDX11::CreateShader(LPCWSTR shader_path, int input_layout)
     }
     if (shader.pixel_shader_buffer_)
     {
-      shader.pixel_shader_buffer_->Release();
+      shader.pixel_shader_buffer_.attach(nullptr);
     }
     assert(!"Couldn't compile pixel shader");
   }
@@ -657,7 +657,7 @@ void GraphicsDeviceDX11::CleanupRenderTarget()
   if (render_target_view_.get())
   {
     device_context_->OMSetRenderTargets(0, 0, 0);
-    render_target_view_->Release();
+    render_target_view_.attach(nullptr);
   }
 }
 
@@ -776,9 +776,9 @@ void GraphicsDeviceDX11::CreateDepthBuffer()
 
 void GraphicsDeviceDX11::DeleteDepthBuffer()
 {
-  depth_stencil_view_->Release();
-  depth_stencil_buffer->Release();
-  //depthStencilState->Release();
+  depth_stencil_view_.attach(nullptr);
+  depth_stencil_buffer.attach(nullptr);
+  depth_stencil_state_.attach(nullptr);
 }
 
 void GraphicsDeviceDX11::CreateConstantBuffers() 
