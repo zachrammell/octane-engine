@@ -6,7 +6,7 @@
   \date       2020/10/15
   \brief      Initializes and updates the ImGui library
 
-  Copyright © 2020 DigiPen, All rights reserved.
+  Copyright ï¿½ 2020 DigiPen, All rights reserved.
 */
 /******************************************************************************/
 
@@ -18,8 +18,8 @@
 #include <imgui_impl_sdl.h>
 
 #include <OctaneEngine/Engine.h>
-#include <OctaneEngine/WindowManager.h>
 #include <OctaneEngine/Graphics/RenderSys.h>
+#include <OctaneEngine/WindowManager.h>
 
 namespace Octane
 {
@@ -30,7 +30,11 @@ ImGuiSys::ImGuiSys(Engine* parent_engine) : ISystem(parent_engine)
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+#if 0
+  // Multi-viewport is the setting that allows imgui to draw its own windows outside the main game window
+  // disabled for now, as on some setups the menu options draw off-screen and become unusable
   io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
+#endif
 
   //io.ConfigViewportsNoTaskBarIcon = true;
   io.IniFilename = "editor_config.ini";
@@ -149,4 +153,4 @@ void ImGuiSys::Render()
   ImGui::RenderPlatformWindowsDefault();
 }
 
-}
+} // namespace Octane
